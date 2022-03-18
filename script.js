@@ -103,6 +103,8 @@ function FormatApplication(application) {
                 <tr><td>Current price</td><td>${application.current_offer.price.formatted}</td></tr>
                 <tr><td>Baseline price</td><td>${application.baseline_offer.price.offset_amount != 0 && application.baseline_offer.price.offset_amount < application.current_offer.price.offset_amount ? application.baseline_offer.price.formatted : application.current_offer.price.formatted}</td></tr>
                 <tr><td>Rating</td><td>${application.quality_rating_aggregate.toFixed(2)}</td></tr>
+                <tr><td>publisher</td><td>${application.publisher_name}</td></tr>
+                <tr><td>canonical name</td><td>${application.canonicalName}</td></tr>
                 <tr><td>id</td><td>${application.id}</td></tr>
             </table>
         </div>

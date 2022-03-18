@@ -20,6 +20,8 @@ namespace OculusDB
         public static MongoClient mongoClient = null;
         public static IMongoDatabase oculusDBDatabase = null;
         public static IMongoCollection<BsonDocument> dataCollection = null;
+        public static IMongoCollection<BsonDocument> monitoringCollection = null;
+        public static IMongoCollection<BsonDocument> activityCollection = null;
         public static IMongoCollection<BsonDocument> userCollection = null;
 
         public static void Initialize()
@@ -28,6 +30,8 @@ namespace OculusDB
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
             dataCollection = oculusDBDatabase.GetCollection<BsonDocument>("data");
             userCollection = oculusDBDatabase.GetCollection<BsonDocument>("users");
+            monitoringCollection = oculusDBDatabase.GetCollection<BsonDocument>("monitoring");
+            activityCollection = oculusDBDatabase.GetCollection<BsonDocument>("activity");
 
             ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
@@ -38,6 +42,13 @@ namespace OculusDB
             RemoveIdRemap<ParentApplication>();
             RemoveIdRemap<AndroidBinary>();
             RemoveIdRemap<AppStoreOffer>();
+            RemoveIdRemap<DBActivityNewApplication>();
+            RemoveIdRemap<DBActivityNewVersion>();
+            RemoveIdRemap<DBActivityVersionUpdated>();
+            RemoveIdRemap<DBActivityNewDLC>();
+            RemoveIdRemap<DBActivityNewDLCPack>();
+            RemoveIdRemap<DBActivityNewDLCPackDLC>();
+            RemoveIdRemap<DBActivityDLCUpdated>();
         }
 
 
@@ -52,6 +63,21 @@ namespace OculusDB
                     .SetOrder(0) //specific to your needs
                     .SetIsRequired(true); // again specific to your needs
             });
+        }
+
+        public static BsonDocument GetLastEventWithIDInDatabase(string id)
+        {
+            return activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+        }
+
+        public static BsonDocument GetLastPriceChangeOfApp(string appId)
+        {
+            return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChange).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+        }
+
+        public static void AddBsonDocumentToActivityCollection(BsonDocument d)
+        {
+            activityCollection.InsertOne(d);
         }
 
         public static void AddApplication(Application a)
@@ -89,12 +115,14 @@ namespace OculusDB
         public static ConnectedList GetConnected(string id)
         {
             ConnectedList l = new ConnectedList();
+            BsonDocument org = GetByID(id).First();
             BsonDocument q = new BsonDocument
             {
                 new BsonDocument("$or", new BsonArray
                 {
                     new BsonDocument("id", id),
-                    new BsonDocument("parentApplication.id", id)
+                    new BsonDocument("id", org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"] : "yourMom"),
+                    new BsonDocument("parentApplication.id", org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"] : id)
                 }),
                 GetLastTimeFilter()
             };
