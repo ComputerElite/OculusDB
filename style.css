@@ -1,0 +1,311 @@
+﻿html {
+    background-color: var(--bgColor);
+    font-family: 'Open Sans';
+}
+
+:root {
+    --red: #eb0303;
+    --redDark: #ab0d0e;
+    --textColor: #EEEEEE;
+    --bgColor: #181A1B;
+    --hightlightColor: #202324;
+    --hightlightColorIntense: #424546;
+    --hoverColor: #2B2F31;
+    --selectedColor: #35393B;
+    --highlightedColor: #63FAC3;
+    --brightHoverColor: #4aaf8b;
+    --brightHighlightColor: #397e66;
+    
+}
+
+body {
+    margin: 0;
+    color: var(--textColor);
+    line-height: 1.8;
+}
+
+.tabContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.tab {
+    background-color: var(--hightlightColor);
+}
+
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    font-size: 1.1em;
+    transition: 0.3s;
+}
+
+button {
+    color: var(--textColor)
+}
+  
+  /* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: var(--hoverColor);
+}
+  
+  /* Create an active/current tablink class */
+.tab button.active {
+    background-color: var(--selectedColor);
+}
+  
+  /* Style the tab content */
+.tabcontent {
+    display: none;
+    padding: 6px 12px;
+}
+
+
+
+.content {
+    margin-top: 80px;
+    padding: 10px;
+}
+
+.searchResults {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.loader {
+    border-radius: 50%;
+    border: 10px solid var(--hightlightColor);
+    width: 70px;
+    height: 70px;
+    border-top: 10px solid var(--highlightedColor);
+    animation-duration: 2s;
+    animation-name: spin;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+.centerIt {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes spin {
+    0% {transform: rotate(0deg);}
+    100% {transform: rotate(360deg);}
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.anim {
+    transition: 0.2s ease-in-out;
+}
+
+.noselect {
+    user-select: none;
+}
+
+.rotate {
+    transform: rotate(90deg);
+}
+
+.hidden {
+    display: none;
+}
+
+.application {
+    background-color: var(--hightlightColor);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navBar {
+    top: 0;
+    left: 0;
+    display: flex;
+    background-color: var(--hightlightColor);
+    height: 60px;
+    justify-content: space-between;
+    flex-direction: row;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+}
+
+.navBarInner {
+    display: flex;
+    flex-direction: row;
+    justify-items: center;
+    align-items: center;
+}
+
+.navBarElement {
+    margin-right: 20px;
+}
+
+.underlineAnimation {
+    transition: ease-in-out 0.2s;
+    position: relative;
+}
+
+.underlineAnimation:hover:after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.underlineAnimation:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--hightlightedColor);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+
+table {
+    background-color: var(--hightlightColor);
+    border-radius: 5px;
+    padding: 20px;
+    border-collapse: collapse;
+}
+
+tr {
+    border-bottom: 2px solid var(--textColor);
+
+}
+
+td {
+    padding: 10px;
+    padding-right: 20px;
+    vertical-align: top;
+}
+
+a {
+    color: var(--highlightedColor);
+}
+
+a:visited {
+    color: var(--highlightedColor);
+}
+
+
+
+.red {
+    border: 1px solid var(--redDark)!important;
+    color: var(--redDark)!important;
+}
+
+.red:hover {
+    border: 1px solid var(--red)!important;
+    color: var(--red)!important;
+}
+
+input {
+    color: var(--textColor);
+    transition: ease-in-out 0.2s;
+    border-radius: 5px;
+    border: 1px solid var(--textColor);
+    background-color: var(--bgColor);
+    padding: 5px;
+    outline-width: 0;
+}
+
+
+input:hover {
+    border: 1px solid var(--highlightedColor);
+    
+}
+
+input[type=button]:hover {
+    color: var(--highlightedColor);
+}
+
+input:focus {
+    border: 1px solid var(--highlightedColor);
+    background-color: var(--bgColor);
+}
+
+
+input {
+    border: 1px solid var(--brightHoverColor);
+}
+
+input[type=button] {
+    color: var(--brightHoverColor);
+}
+
+input[type=checkbox] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmarkContainer {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: var(--hightlightColor);
+}
+
+.checkmark:after {
+    content: "X";
+    position: absolute;
+    display: none;
+}
+
+.checkmarkContainer .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.checkmarkContainer:hover input ~ .checkmark {
+    background-color: var(--hightlightColorIntense);
+}
+
+.checkmarkContainer input:checked ~ .checkmark {
+    background-color: var(--highlightedColor);
+}
+
+input[type=checkbox]:checked {
+    background-color: var(--hightlightedColor);
+}

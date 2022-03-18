@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/style.css" >
+    </head>
+    <body>
+        <div class="content">
+            <h2>OculusDB Info</h2>
+            <a href="/api/id/{0}">Raw Json</a>
+            <table>
+                <tr><td>OculusDB Type</td><td id="type">Fetching...</td></tr>
+                <tr><td>Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
+            </table>
+            <div>
+                <h2>This</h2>
+                <div id="this"><div class="loader"></div></div>
+            </div>
+
+            <div class="tabContainer">
+                <h2>Connected</h2>
+                <div class="tab">
+                    <button class="tablinks active" onclick="openTab(event, 'applications')">Applications</button>
+                    <button class="tablinks" onclick="openTab(event, 'dlcs')">DLCs</button>
+                    <button class="tablinks" onclick="openTab(event, 'dlcpacks')">DLC Packs</button>
+                    <button class="tablinks" onclick="openTab(event, 'versions')">Versions</button>
+                </div>
+                <div id="applications" style="display: block;" class="tabcontent active">
+                    <div class="loader"></div>
+                </div>
+                <div id="dlcs" class="tabcontent">
+                    <div class="loader"></div>
+                </div>
+                <div id="dlcpacks" class="tabcontent">
+                    <div class="loader"></div>
+                </div>
+                <div id="versions" class="tabcontent">
+                    <div class="loader"></div>
+                </div>
+                <input type="checkbox">
+            </div>
+
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            const id = "{0}"
+            const applications = document.getElementById("applications")
+            const dlcpacks = document.getElementById("dlcpacks")
+            const dlcs = document.getElementById("dlcs")
+            const versions = document.getElementById("versions")
+
+            var object = {}
+            var connected = {}
+
+            //AddConnected();
+
+            GetObjectById(id).then(res => {
+                object = res
+                AddConnected()
+                document.getElementById("type").innerHTML = object.__OculusDBType
+                document.getElementById("lastUpdated").innerHTML = new Date(object.__lastUpdated).toLocaleString()
+            }).catch(err => {
+                if(err == 404) {
+                    alert("The item has not been found")
+                } else if(err == 500) {
+                    alert("Internal Server error")
+                } else {
+                    alet("An unknown error occurred")
+                }
+            })
+
+
+
+            function AddConnected() {
+                fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
+                    connected = res
+                    document.getElementById("this").innerHTML = AutoFormat(object, connected)
+                    var apps = ""
+                    connected.applications.forEach(a => {
+                        apps += FormatApplication(a)
+                    })
+                    applications.innerHTML = apps
+
+                    UpdateVersions(false)
+
+                    var ds = ""
+                    connected.dlcs.forEach(d => {
+                        ds += FormatDLC(d)
+                    })
+                    dlcs.innerHTML = ds
+
+                    var dps = ""
+                    connected.dlcPacks.forEach(dp => {
+                        dps += FormatDLCPack(dp, connected.dlcs)
+                    })
+                    dlcpacks.innerHTML = dps
+                }))
+            }
+
+            function UpdateVersions(showAll) {
+                var vers = `<label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
+                connected.versions.forEach(v => {
+                    if(v.binary_release_channels.nodes.length > 0 || showAll)
+                        vers += FormatVersion(v)
+                })
+                versions.innerHTML = vers
+            }
+        </script>
+    </body>
+</html>

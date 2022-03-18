@@ -1,0 +1,31 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace OculusDB
+{
+    public class Config
+    {
+        public string publicAddress { get; set; } = "";
+        public int port { get; set; } = 504;
+        public string mongoDBUrl { get; set; } = "";
+        public string mongoDBName { get; set; } = "OculusDB";
+        public string oculusToken { get; set; } = "OC|1317831034909742|";
+        public DateTime lastDBUpdate { get; set; } = DateTime.MinValue;
+
+        public static Config LoadConfig()
+        {
+            string configLocation = OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json";
+            if (!File.Exists(configLocation)) File.WriteAllText(configLocation, JsonSerializer.Serialize(new Config()));
+            return JsonSerializer.Deserialize<Config>(File.ReadAllText(configLocation));
+        }
+
+        public void Save()
+        {
+            File.WriteAllText(OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json", JsonSerializer.Serialize(this));
+        }
+    }
+}
