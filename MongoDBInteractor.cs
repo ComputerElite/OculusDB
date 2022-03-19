@@ -20,7 +20,6 @@ namespace OculusDB
         public static MongoClient mongoClient = null;
         public static IMongoDatabase oculusDBDatabase = null;
         public static IMongoCollection<BsonDocument> dataCollection = null;
-        public static IMongoCollection<BsonDocument> monitoringCollection = null;
         public static IMongoCollection<BsonDocument> activityCollection = null;
         public static IMongoCollection<BsonDocument> userCollection = null;
 
@@ -30,7 +29,6 @@ namespace OculusDB
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
             dataCollection = oculusDBDatabase.GetCollection<BsonDocument>("data");
             userCollection = oculusDBDatabase.GetCollection<BsonDocument>("users");
-            monitoringCollection = oculusDBDatabase.GetCollection<BsonDocument>("monitoring");
             activityCollection = oculusDBDatabase.GetCollection<BsonDocument>("activity");
 
             ConventionPack pack = new ConventionPack();
@@ -45,10 +43,12 @@ namespace OculusDB
             RemoveIdRemap<DBActivityNewApplication>();
             RemoveIdRemap<DBActivityNewVersion>();
             RemoveIdRemap<DBActivityVersionUpdated>();
+            RemoveIdRemap<DBActivityPriceChanged>();
             RemoveIdRemap<DBActivityNewDLC>();
             RemoveIdRemap<DBActivityNewDLCPack>();
             RemoveIdRemap<DBActivityNewDLCPackDLC>();
             RemoveIdRemap<DBActivityDLCUpdated>();
+            RemoveIdRemap<DBActivityDLCPackUpdated>();
         }
 
 
@@ -57,12 +57,35 @@ namespace OculusDB
             BsonClassMap.RegisterClassMap<T>(cm =>
             {
                 cm.AutoMap();
-                cm.UnmapProperty("id");
-                cm.MapMember(typeof(T).GetMember("id")[0])
-                    .SetElementName("id")
+                if (typeof(T).GetMember("id").Length > 0)
+                {
+                    Logger.Log("Unmapping reassignment for " + typeof(T).Name + " id -> _id");
+                    cm.UnmapProperty("id");
+                    cm.MapMember(typeof(T).GetMember("id")[0])
+                        .SetElementName("id")
+                        .SetOrder(0) //specific to your needs
+                        .SetIsRequired(true); // again specific to your needs
+                }
+                
+                if(typeof(T).GetMember("__id").Length > 0)
+                {
+                    Logger.Log("Unmapping reassignment for " + typeof(T).Name + " __id -> _id");
+                    cm.UnmapProperty("__id");
+                    cm.MapMember(typeof(T).GetMember("__id")[0])
+                    .SetElementName("__id")
                     .SetOrder(0) //specific to your needs
                     .SetIsRequired(true); // again specific to your needs
+                }
             });
+        }
+
+        public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
+        {
+            return activityCollection.Find(x => typeConstraint == "" || x["__OculusDBType"] == typeConstraint).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
+        }
+        public static List<BsonDocument> GetActivityById(string id)
+        {
+            return activityCollection.Find(x => x["_id"] == new ObjectId(id)).ToList();
         }
 
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
@@ -72,11 +95,12 @@ namespace OculusDB
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId)
         {
-            return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChange).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
         }
 
         public static void AddBsonDocumentToActivityCollection(BsonDocument d)
         {
+            d["_id"] = ObjectId.GenerateNewId();
             activityCollection.InsertOne(d);
         }
 

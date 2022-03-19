@@ -73,7 +73,7 @@
             function AddConnected() {
                 fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
                     connected = res
-                    document.getElementById("this").innerHTML = AutoFormat(object, connected)
+                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this")
                     var apps = ""
                     connected.applications.forEach(a => {
                         apps += FormatApplication(a)

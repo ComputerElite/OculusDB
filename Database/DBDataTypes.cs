@@ -17,7 +17,7 @@ namespace OculusDB.Database
 
         //Activities
         public const string ActivityNewApplication = "ActivityNewApplication";
-        public const string ActivityPriceChange = "ActivityPriceChange";
+        public const string ActivityPriceChanged = "ActivityPriceChanged";
         public const string ActivityNewVersion = "ActivityNewVersion";
         public const string ActivityVersionUpdated = "ActivityVersionUpdated";
 
