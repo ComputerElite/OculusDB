@@ -27,6 +27,25 @@ const noResult = `
 </div>
 `
 
+function PopUp(html) {
+    var popup = document.getElementById("popup")
+    if(popup) popup.remove();
+    document.body.innerHTML = `
+        <div class="centerIt popUp" id="popup" onclick="ClosePopUp(event)"><div class="popUpContent">${html}</div></div>
+    ` + document.body.innerHTML
+}
+
+function ClosePopUp(e) {
+    if(e.target.id == "popup") {
+        document.getElementById("popup").remove()
+    }
+}
+
+function IsHeadsetAndroid(h) {
+    if(h == 0 || h == 5) return false;
+    return true
+}
+
 function openTab(evt, tab) {
     // Declare all variables
     var i, tabcontent, tablinks;
@@ -400,9 +419,34 @@ function FormatVersionActivity(v) {
     </div>
     <div class="buttons">
         <input type="button" value="Details" onclick="OpenActivity('${v.__id}')">
-        <input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${v.id}', '_blank')">
+        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
     </div>
 </div>`
+}
+
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version) {
+    if(IsHeadsetAndroid(hmd)) {
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${id}', '_blank')">`
+    }
+    return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}','${version}', '${parentApplication.displayName}')">`
+}
+
+function RiftDownloadPopUp(appid, versionid, version, appname) {
+    PopUp(`
+        <div>
+            <b>Rift apps can not be downloaded via the Website. To download Rift apps follow the following instructions:</b>
+            <br>
+            <b>1. </b> Setup Oculus Downgrader by following <a href="https://computerelite.github.io/tools/Oculus/OculusDowngraderGuide.html">these instructions</a>
+            <br>
+            <b>2. </b> Using Option 2 in Oculus Downgraders main menu search for <code>${appname}</code>. Then select version <code>${version}</code> and follow the provided instructions.
+            <br>
+            <br>
+            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
+            <br>
+            <br>
+            <i>To close this pop up click </i>
+        </div>
+    `)
 }
 
 function FormatVersion(v) {
@@ -430,7 +474,7 @@ function FormatVersion(v) {
         </div>
     </div>
     <div class="buttons">
-        <input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${v.uri}', '_blank')">
+        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
     </div>
 </div>`
 }
