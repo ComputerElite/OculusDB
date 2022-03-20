@@ -46,7 +46,6 @@ namespace OculusDB
                 QRCodeGeneratorWrapper.Display(OculusDBEnvironment.config.masterToken);
                 return;
             }
-
             OculusDBServer s = new OculusDBServer();
             HttpServer server = new HttpServer();
             s.StartServer(server);
