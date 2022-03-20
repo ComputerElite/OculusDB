@@ -12,9 +12,12 @@ namespace OculusDB
         public string publicAddress { get; set; } = "";
         public int port { get; set; } = 504;
         public string mongoDBUrl { get; set; } = "";
+        public string masterToken { get; set; } = "";
         public string mongoDBName { get; set; } = "OculusDB";
         public string oculusToken { get; set; } = "OC|1317831034909742|";
         public DateTime lastDBUpdate { get; set; } = DateTime.MinValue;
+        public ScrapingResumeData ScrapingResumeData { get; set; } = new ScrapingResumeData();
+        public List<Update> updates { get; set; } = new List<Update>();
 
         public static Config LoadConfig()
         {
@@ -27,5 +30,11 @@ namespace OculusDB
         {
             File.WriteAllText(OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json", JsonSerializer.Serialize(this));
         }
+    }
+
+    public class ScrapingResumeData
+    {
+        public string currentAppId { get; set; } = "";
+        public DateTime currentScrapeStart { get; set; } = DateTime.MinValue;
     }
 }

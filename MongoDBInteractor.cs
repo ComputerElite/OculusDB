@@ -81,7 +81,14 @@ namespace OculusDB
 
         public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
         {
-            return activityCollection.Find(x => typeConstraint == "" || x["__OculusDBType"] == typeConstraint).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
+            string[] stuff = typeConstraint.Split(',');
+            BsonArray a = new BsonArray();
+            foreach (string s in stuff) a.Add(new BsonDocument("__OculusDBType", s));
+            BsonDocument q = new BsonDocument();
+            if (typeConstraint != "") q.Add(new BsonDocument("$or", a));
+            
+            
+            return activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
         }
         public static List<BsonDocument> GetActivityById(string id)
         {
@@ -104,30 +111,34 @@ namespace OculusDB
             activityCollection.InsertOne(d);
         }
 
-        public static void AddApplication(Application a)
+        public static void AddApplication(Application a, Headset h)
         {
             DBApplication dba = ObjectConverter.Convert<DBApplication, Application>(a);
+            dba.hmd = h;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
-        public static void AddVersion(AndroidBinary a, Application app)
+        public static void AddVersion(AndroidBinary a, Application app, Headset h)
         {
             DBVersion dba = ObjectConverter.Convert<DBVersion, AndroidBinary>(a);
             dba.uri = "https://securecdn.oculus.com/binaries/download/?id=" + dba.id;
             dba.parentApplication.id = app.id;
+            dba.parentApplication.hmd = h;
             dba.parentApplication.canonicalName = app.canonicalName;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
-        public static void AddDLCPack(AppItemBundle a)
+        public static void AddDLCPack(AppItemBundle a, Headset h)
         {
             DBIAPItemPack dba = ObjectConverter.Convert<DBIAPItemPack, AppItemBundle, IAPItem>(a);
+            dba.parentApplication.hmd = h;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
-        public static void AddDLC(IAPItem a)
+        public static void AddDLC(IAPItem a, Headset h)
         {
             DBIAPItem dba = ObjectConverter.Convert<DBIAPItem, IAPItem>(a);
+            dba.parentApplication.hmd = h;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
@@ -150,7 +161,7 @@ namespace OculusDB
                 }),
                 GetLastTimeFilter()
             };
-            foreach(BsonDocument d in dataCollection.Find(q).ToList())
+            foreach(BsonDocument d in GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable()))
             {
                 if(d["__OculusDBType"] == DBDataTypes.Version) l.versions.Add(ObjectConverter.ConvertToDBType(d));
                 else if(d["__OculusDBType"] == DBDataTypes.Application) l.applications.Add(ObjectConverter.ConvertToDBType(d));
@@ -158,6 +169,11 @@ namespace OculusDB
                 else if (d["__OculusDBType"] == DBDataTypes.IAPItem) l.dlcs.Add(ObjectConverter.ConvertToDBType(d));
             }
             return l;
+        }
+
+        public static bool DoesIdExistInCurrentScrape(string id)
+        {
+            return dataCollection.Find(x => x["id"] == id && x["__lastUpdated"] >= OculusDBEnvironment.config.ScrapingResumeData.currentScrapeStart).CountDocuments() > 0;
         }
 
         public static DLCLists GetDLCs(string parentAppId)
@@ -175,7 +191,7 @@ namespace OculusDB
             };
 
             DLCLists dlcs = new DLCLists();
-            foreach (BsonDocument doc in dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable())
+            foreach (BsonDocument doc in GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable()))
             {
                 if (doc["__OculusDBType"] == DBDataTypes.IAPItem) dlcs.dlcs.Add(ObjectConverter.ConvertToDBType(doc));
                 else dlcs.dlcPacks.Add(ObjectConverter.ConvertToDBType(doc));
@@ -188,18 +204,34 @@ namespace OculusDB
             return new BsonDocument("__lastUpdated", new BsonDocument("$gte", OculusDBEnvironment.config.lastDBUpdate));
         }
 
+        public static List<BsonDocument> GetDistinct(IEnumerable<BsonDocument> data)
+        {
+            List<BsonDocument> distinct = new List<BsonDocument>();
+            foreach (BsonDocument d in data)
+            {
+                if (distinct.FirstOrDefault(x => x["id"] == d["id"]) == null) distinct.Add(d);
+            }
+            return distinct;
+        }
+
         public static List<BsonDocument> SearchApplication(string query)
         {
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query + ".*/i"));
-            BsonDocument q = new BsonDocument() { new BsonDocument("__OculusDBType", DBDataTypes.Application), new BsonDocument("$or", new BsonArray
+            BsonDocument q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
+                new BsonDocument("$or", new BsonArray
+            {
+                new BsonDocument("__OculusDBType", DBDataTypes.Application),
+                new BsonDocument("__OculusDBType", DBDataTypes.IAPItem),
+                new BsonDocument("__OculusDBType", DBDataTypes.IAPItemPack)
+            }), new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("displayName", regex),
                 new BsonDocument("canonicalName", regex),
                 new BsonDocument("publisher_name", regex),
                 new BsonDocument("id", query),
-                
-            }), GetLastTimeFilter() };
-            return dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToList();
+
+            })}), GetLastTimeFilter() };
+            return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
     }
 }

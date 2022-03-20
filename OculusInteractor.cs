@@ -61,6 +61,11 @@ namespace OculusDB
         {
             foreach (Application a in EnumerateAllApplications(headset))
             {
+                if (MongoDBInteractor.DoesIdExistInCurrentScrape(a.id))
+                {
+                    Logger.Log(a.displayName + "(" + a.id + ") exists in current scrape. Skipping");
+                    continue;
+                }
                 Logger.Log("Getting application details for " + a.displayName);
                 yield return GraphQLClient.GetAppDetail(a.id, headset).data.node;
             }

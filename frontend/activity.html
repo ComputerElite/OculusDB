@@ -14,6 +14,7 @@
             </table>
             <div>
                 <h2>Selected Activity</h2>
+                
                 <div id="this"><div class="loader"></div></div>
             </div>
 
@@ -23,6 +24,7 @@
             const id = "{0}"
 
             var activity = {}
+
 
             GetActivityById(id).then(res => {
                 activity = res
@@ -36,7 +38,7 @@
                 } else if(err == 500) {
                     alert("Internal Server error")
                 } else {
-                    alet("An unknown error occurred")
+                    alert("An unknown error occurred")
                 }
             })
         </script>

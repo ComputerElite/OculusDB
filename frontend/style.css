@@ -17,6 +17,16 @@
     --brightHighlightColor: #397e66;
 }
 
+.textbox {
+    visibility: visible;
+    border-radius: 5px;
+    background-color: var(--bgColor);
+    padding: 2px;
+    outline-width: 0;
+    width: fit-content;
+    margin-top: 5px;
+}
+
 body {
     margin: 0;
     color: var(--textColor);
@@ -130,6 +140,25 @@ button {
     justify-content: space-between;
 }
 
+.application table {
+    width: 100%;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    margin-left: 10px;
+}
+
+.buttons input {
+    margin-top: 5px;
+}
+
+.info {
+    flex: 1;
+}
+
 .navBar {
     top: 0;
     left: 0;
@@ -157,11 +186,7 @@ button {
 .underlineAnimation {
     transition: ease-in-out 0.2s;
     position: relative;
-}
-
-.underlineAnimation:hover:after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
+    cursor: pointer;
 }
 
 .underlineAnimation:after {
@@ -172,9 +197,14 @@ button {
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: var(--hightlightedColor);
+    background-color: var(--highlightedColor);
     transform-origin: bottom right;
     transition: transform 0.25s ease-out;
+}
+
+.underlineAnimation:hover:after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
 }
 
 table {
@@ -195,8 +225,26 @@ td {
     vertical-align: top;
 }
 
+.header {
+    width: fit-content;
+    cursor: pointer;
+}
+
+.label {
+    width: fit-content!important;
+    white-space: nowrap;
+}
+
+.value {
+    width: 100%;
+}
+
 a {
     color: var(--highlightedColor);
+}
+
+.navBar a {
+    text-decoration: none;
 }
 
 a:visited {
@@ -247,6 +295,8 @@ input {
 
 input[type=button] {
     color: var(--brightHoverColor);
+    height: fit-content;
+    width: fit-content;
 }
 
 input[type=checkbox] {

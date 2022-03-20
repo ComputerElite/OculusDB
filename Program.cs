@@ -1,5 +1,6 @@
 ﻿using ComputerUtils.CommandLine;
 using ComputerUtils.Logging;
+using ComputerUtils.RandomExtensions;
 using ComputerUtils.Updating;
 using ComputerUtils.Webserver;
 using System.Diagnostics;
@@ -25,16 +26,20 @@ namespace OculusDB
             }
 
             string workingDir = cla.GetValue("--workingdir");
+            if (workingDir.EndsWith("\"")) workingDir = workingDir.Substring(0, workingDir.Length - 1);
 
             OculusDBEnvironment.workingDir = workingDir;
             OculusDBEnvironment.AddVariablesDependentOnVariablesAndFixAllOtherVariables();
-            OculusDBEnvironment.config = Config.LoadConfig();
-            //Logger.SetLogFile(workingDir + "Log.log");
-
             if (cla.HasArgument("update"))
             {
-                Updater.UpdateNetApp(Assembly.GetExecutingAssembly().GetName().FullName, OculusDBEnvironment.workingDir);
+                Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
             }
+            OculusDBEnvironment.config = Config.LoadConfig();
+            if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
+            OculusDBEnvironment.config.Save();
+            //Logger.SetLogFile(workingDir + "Log.log");
+
+            
 
             OculusDBServer s = new OculusDBServer();
             HttpServer server = new HttpServer();

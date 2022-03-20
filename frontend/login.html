@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/style.css" >
+    </head>
+    <body>
+        <div class="content">
+            <h2>Please note that user logins are work in progress and will be added at a later point in time</h2>
+            <label >
+                Token
+                <input type="password" id="password" style="width: max-content;">
+            </label>
+            <input type="button" value="Login" onclick="Login()">
+            <div class="textbox" id="status"></div>
+        </div>
+        
+        <script src="/script.js"></script>
+        <script>
+            function Login() {
+                fetch("/login", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        password: document.getElementById("password").value
+                    })
+                }).then(res => {
+                    res.json().then(res => {
+                        if(res.authorized) {
+                            SetCookie("token", res.token, 7)
+                            window.location.href = res.redirect
+                        } else {
+                            TextBoxError("status", res.status)
+                        }
+                    })
+                })
+                
+            }
+        </script>
+    </body>
+</html>

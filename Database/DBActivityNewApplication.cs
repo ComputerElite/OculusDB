@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using OculusGraphQLApiLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,5 +46,6 @@ namespace OculusDB.Database
             }
         }
         public List<string> supportedHmdPlatforms { get; set; } = new List<string>();
+        public Headset hmd { get; set; } = Headset.RIFT;
     }
 }
