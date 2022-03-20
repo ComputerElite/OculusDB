@@ -29,7 +29,8 @@ namespace OculusDB
                 Logger.Log("Cannot scrape as mongodb isn't set");
                 return;
             }
-            ScrapeAll();
+            Thread t = new Thread(ScrapeAll);
+            t.Start();
         }
 
         public static void ScrapeAll()

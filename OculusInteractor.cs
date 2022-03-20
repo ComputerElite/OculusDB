@@ -47,6 +47,7 @@ namespace OculusDB
                     if (i < appsToSkip)
                     {
                         i++;
+                        Logger.Log("Skipping ap number " + i + " (" + e.node.displayName + ") as it's below" + appsToSkip);
                         continue;
                     }
                     if (done >= appsToDo) break;

@@ -96,7 +96,12 @@ namespace OculusDB
             }), true);
             server.AddRoute("GET", "/api/search/", new Func<ServerRequest, bool>(request =>
             {
-                List<Headset> headsets = new List<Headset> { Headset.GEARVR, Headset.MONTEREY, Headset.PACIFIC, Headset.RIFT };
+                List<Headset> headsets = new List<Headset>();
+                foreach(string h in (request.queryString.Get("headsets") ?? "MONTEREY,RIFT,PACIFIC,GEARVR").Split(','))
+                {
+                    Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
+                    if(conv != Headset.INVALID) headsets.Add(conv);
+                }
                 List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets);
                 if (d.Count <= 0)
                 {

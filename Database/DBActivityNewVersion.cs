@@ -13,6 +13,7 @@ namespace OculusDB.Database
 {
     public class DBActivityNewVersion
     {
+        [BsonIgnore]
         public string __id
         {
             get

@@ -9,6 +9,7 @@ using OculusGraphQLApiLib.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ namespace OculusDB
             RemoveIdRemap<ParentApplication>();
             RemoveIdRemap<AndroidBinary>();
             RemoveIdRemap<AppStoreOffer>();
+            RemoveIdRemap<DBVersion>();
             RemoveIdRemap<DBActivityNewApplication>();
             RemoveIdRemap<DBActivityNewVersion>();
             RemoveIdRemap<DBActivityVersionUpdated>();
@@ -130,8 +132,7 @@ namespace OculusDB
 
         public static void AddVersion(AndroidBinary a, Application app, Headset h)
         {
-            DBVersion dba = ObjectConverter.Convert<DBVersion, AndroidBinary>(a);
-            dba.uri = "https://securecdn.oculus.com/binaries/download/?id=" + dba.id;
+            DBVersion dba = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
             dba.parentApplication.id = app.id;
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
@@ -179,7 +180,7 @@ namespace OculusDB
                 else if (d["__OculusDBType"] == DBDataTypes.IAPItemPack) l.dlcPacks.Add(ObjectConverter.ConvertToDBType(d));
                 else if (d["__OculusDBType"] == DBDataTypes.IAPItem) l.dlcs.Add(ObjectConverter.ConvertToDBType(d));
             }
-            l.versions = l.versions.OrderByDescending(x => x.version_code).ToList();
+            l.versions = l.versions.OrderByDescending(x => x.versionCode).ToList();
             return l;
         }
 
@@ -228,6 +229,7 @@ namespace OculusDB
 
         public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets)
         {
+            if (headsets.Count <= 0) return new List<BsonDocument>();
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query + ".*/i"));
             BsonArray a = new BsonArray();
             foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
@@ -249,9 +251,8 @@ namespace OculusDB
                 new BsonDocument("id", query),
 
             }),
-            {
                 new BsonDocument("$or", a)
-            }}), GetLastTimeFilter() };
+            }), GetLastTimeFilter() };
             return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
     }

@@ -13,6 +13,7 @@ namespace OculusDB.Database
 {
     public class DBActivityDLCPackUpdated
     {
+        [BsonIgnore]
         public string __id { get
             {
                 return _id; 
