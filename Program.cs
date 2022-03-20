@@ -1,5 +1,6 @@
 ﻿using ComputerUtils.CommandLine;
 using ComputerUtils.Logging;
+using ComputerUtils.QR;
 using ComputerUtils.RandomExtensions;
 using ComputerUtils.Updating;
 using ComputerUtils.Webserver;
@@ -19,7 +20,7 @@ namespace OculusDB
             CommandLineCommandContainer cla = new CommandLineCommandContainer(args);
             cla.AddCommandLineArgument(new List<string> { "--workingdir" }, false, "Sets the working Directory for OculusDB", "directory", "");
             cla.AddCommandLineArgument(new List<string> { "update", "--update", "-U" }, true, "Starts in update mode (use with caution. It's best to let it do on it's own)");
-            //cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "-dmt" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "-dmt" }, true, "Outputs the master token without starting the server");
             if (cla.HasArgument("help"))
             {
                 cla.ShowHelp();
@@ -40,7 +41,11 @@ namespace OculusDB
             OculusDBEnvironment.config.Save();
             //Logger.SetLogFile(workingDir + "Log.log");
 
-            
+            if (cla.HasArgument("-dmt"))
+            {
+                QRCodeGeneratorWrapper.Display(OculusDBEnvironment.config.masterToken);
+                return;
+            }
 
             OculusDBServer s = new OculusDBServer();
             HttpServer server = new HttpServer();
