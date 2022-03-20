@@ -19,6 +19,8 @@ namespace OculusDB
             {
                 return OculusDBEnvironment.config;
             } }
+        public static int totalScrapeThreads = 0;
+        public static int doneScrapeThreads = 0;
 
         public static void StartScrapingThread()
         {
@@ -27,14 +29,7 @@ namespace OculusDB
                 Logger.Log("Cannot scrape as mongodb isn't set");
                 return;
             }
-            Thread t = new Thread(() =>
-            {
-                while (true)
-                {
-                    ScrapeAll();
-                }
-            });
-            t.Start();
+            ScrapeAll();
         }
 
         public static void ScrapeAll()
@@ -45,21 +40,47 @@ namespace OculusDB
                 config.Save();
             }
 
-            Scrape(Headset.RIFT);
-            Scrape(Headset.MONTEREY);
-            Scrape(Headset.GEARVR);
-            Scrape(Headset.PACIFIC);
+            SetupLimitedScrape(Headset.RIFT);
+            SetupLimitedScrape(Headset.MONTEREY);
+            SetupLimitedScrape(Headset.GEARVR);
+            SetupLimitedScrape(Headset.PACIFIC);
+        }
 
+        public static void FinishCurrentScrape()
+        {
+            Logger.Log("Finished scrape of OculusDB");
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();
         }
 
-
-        public static void Scrape(Headset headset)
+        public static void SetupLimitedScrape(Headset h)
         {
-            bool skip = config.ScrapingResumeData.currentAppId != "";
-            foreach (Application a in OculusInteractor.EnumerateAllApplicationsDetail(headset))
+            int appCount = (int)OculusInteractor.GetApplicationCount(h);
+            int current = 0;
+            const int maxAppsToDo = 500;
+            Logger.Log("Settings up scraping threads for " + appCount + " apps of " + HeadsetTools.GetHeadsetCodeName(h));
+            while (current < appCount)
+            {
+                Thread t = new Thread((current) =>
+                {
+                    int c = (int)current;
+                    Logger.Log("Started Scraping thread for apps " + current + " - " + (c + maxAppsToDo) + " of " + HeadsetTools.GetHeadsetCodeName(h));
+                    Scrape(h, c, maxAppsToDo);
+                    doneScrapeThreads++;
+                    Logger.Log("Scraping thread for apps " + current + " - " + (c + maxAppsToDo) + " of " + HeadsetTools.GetHeadsetCodeName(h) + " has finished");
+                    if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
+                });
+                t.Start(current);
+                current += maxAppsToDo;
+                totalScrapeThreads++;
+            }
+        }
+
+
+        public static void Scrape(Headset headset, int appsToSkip = 0, int appsToDo = 500)
+        {
+            foreach (Application a in OculusInteractor.EnumerateAllApplicationsDetail(headset, appsToSkip, appsToDo))
             {
                 if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
                 {

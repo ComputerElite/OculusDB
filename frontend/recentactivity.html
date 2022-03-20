@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="content">
+        <h2>Recent Activity</h2>
+        <label class="checkmarkContainer">
+            Show Updates
+            <input id="vers" type='checkbox' onclick='Update()'>
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkmarkContainer">
+            Show new Applications
+            <input id="apps" type='checkbox' onclick='Update()'>
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkmarkContainer">
+            Show price changes
+            <input id="price" type='checkbox' onclick='Update()'>
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkmarkContainer">
+            Show DLCs
+            <input id="dlcs" type='checkbox' onclick='Update()'>
+            <span class="checkmark"></span>
+        </label>
+        <div id="activity">
+            <div class="loader"></div>
+        </div>
+        <div class="centerIt">
+            <input type="button" value="Previous Page" onclick="TurnPage(-50)">
+            <input type="button" value="Next Page" onclick="TurnPage(50)">
+        </div>
+    </div>
+    <script src="/script.js"></script>
+    <script>
+            const activityContainer = document.getElementById("activity")
+            const vers = document.getElementById("vers")
+            const apps = document.getElementById("apps")
+            const price = document.getElementById("price")
+            const dlcs = document.getElementById("dlc")
+            var activity = []
+
+            var options = {
+                "vers": [
+                    "ActivityVersionUpdated",
+                    "ActivityNewVersion"
+                ],
+                "apps": [
+                    "ActivityNewApplication"
+                ],
+                "price": [
+                    "ActivityPriceChanged"
+                ],
+                "dlcs": [
+                    "ActivityNewDLC",
+                    "ActivityNewDLCPack",
+                    "ActivityDLCUpdated",
+                    "ActivityDLCPackUpdated"
+                ]
+            }
+
+
+            var constraints = params.get("typeconstraint")
+
+
+            if(constraints != undefined) {
+                var split = constraints.split(",")
+                for (const [key, value] of Object.entries(options)) {
+                    split.forEach(x => {
+                        if(value.includes(x)) document.getElementById(key).checked = true
+                    })
+                }
+            } else {
+                for (const [key, value] of Object.entries(options)) {
+                    document.getElementById(key).checked = true
+                }
+                Update()
+            }
+
+
+            function Update() {
+                var filter = []
+
+                for (const [key, value] of Object.entries(options)) {
+                    if(document.getElementById(key).checked) {
+                        value.forEach(x => {
+                            filter.push(x)
+                        })
+                    }
+                }
+
+                params.set("typeconstraint", filter.join(","))
+                window.location.href = "?" + params.toString()
+            }
+
+            var skip = parseInt(params.get("skip"))
+            if(!skip) skip = 0
+
+            function TurnPage(items) {
+                skip += items
+                if(skip < 0) skip = 0;
+                params.set("skip", skip)
+                window.location.href = "?" + params.toString()
+            }
+
+            if(constraints == "") constraints = "none"
+
+
+            fetch("/api/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => res.json().then(res => {
+                activity = res
+                var html = ""
+                activity.forEach(a => {
+                    html += AutoFormat(a)
+                })
+                if(html == "") html = noActivity
+                activityContainer.innerHTML = html
+            }))
+    </script>
+</body>
+</html>

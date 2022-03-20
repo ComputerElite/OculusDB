@@ -34,7 +34,6 @@ namespace OculusDB
 
     public class ScrapingResumeData
     {
-        public string currentAppId { get; set; } = "";
         public DateTime currentScrapeStart { get; set; } = DateTime.MinValue;
     }
 }

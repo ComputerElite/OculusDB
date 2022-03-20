@@ -19,47 +19,60 @@ namespace OculusDB
             GraphQLClient.oculusStoreToken = OculusDBEnvironment.config.oculusToken;
             GraphQLClient.throwException = false;
         }
-        public static List<Application> GetAllApplications(Headset headset)
+        public static List<Application> GetAllApplications(Headset headset, int appsToSkip, int appsToDo)
         {
             List<Application> allApps = new List<Application>();
-            foreach(Application a in EnumerateAllApplications(headset))
+            foreach(Application a in EnumerateAllApplications(headset, appsToSkip, appsToDo))
             {
                 allApps.Add(a);
             }
             return allApps;
         }
 
-        public static IEnumerable<Application> EnumerateAllApplications(Headset headset)
+        public static long GetApplicationCount(Headset headset)
+        {
+            return GraphQLClient.AllApps(headset, null, 1).data.node.all_items.count;
+        }
+
+        public static IEnumerable<Application> EnumerateAllApplications(Headset headset, int appsToSkip, int appsToDo)
         {
             Data<AppStoreAllAppsSection> s = GraphQLClient.AllApps(headset);
             int i = 0;
+            int done = 0;
             while (i < s.data.node.all_items.count)
             {
                 string cursor = "";
                 foreach (Node<Application> e in s.data.node.all_items.edges)
                 {
-                    yield return e.node;
+                    if (i < appsToSkip)
+                    {
+                        i++;
+                        continue;
+                    }
+                    if (done >= appsToDo) break;
+                    done++;
                     cursor = e.cursor;
                     i++;
+                    yield return e.node;
                 }
-
+                if (done >= appsToDo) break;
                 s = GraphQLClient.AllApps(headset, cursor);
             }
         }
 
-        public static List<Application> GetAllApplicationsDetail(Headset headset)
+        public static List<Application> GetAllApplicationsDetail(Headset headset, int appsToSkip, int appsToDo)
         {
             List<Application> applications = new List<Application>();
-            foreach (Application a in EnumerateAllApplicationsDetail(headset))
+            foreach (Application a in EnumerateAllApplicationsDetail(headset, appsToSkip, appsToDo))
             {
                 applications.Add(a);
             }
             return applications;
         }
 
-        public static IEnumerable<Application> EnumerateAllApplicationsDetail(Headset headset)
+        public static IEnumerable<Application> EnumerateAllApplicationsDetail(Headset headset, int appsToSkip, int appsToDo)
         {
-            foreach (Application a in EnumerateAllApplications(headset))
+            foreach (Application a in EnumerateAllApplications(headset, appsToSkip, appsToDo))
             {
                 if (MongoDBInteractor.DoesIdExistInCurrentScrape(a.id))
                 {

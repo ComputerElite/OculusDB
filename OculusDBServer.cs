@@ -215,6 +215,7 @@ namespace OculusDB
                 return true;
             }));
             server.AddRouteFile("/", "frontend\\home.html");
+            server.AddRouteFile("/recentactivity", "frontend\\recentactivity.html");
             server.AddRouteFile("/server", "frontend\\server.html");
             server.AddRouteFile("/login", "frontend\\login.html");
             server.AddRouteFile("/search", "frontend\\search.html");
