@@ -31,7 +31,7 @@ namespace OculusDB.Database
         public DateTime releaseDate { get; set; } = DateTime.Now;
         public string displayName { get; set; } = "";
         public string displayLongDescription { get; set; } = "";
-        public string publisher_name { get; set; } = "";
+        public string publisherName { get; set; } = "";
         public string priceFormatted { get; set; } = "$0.00";
         public string priceOffset { get; set; } = "0";
         public long priceOffsetNumerical

@@ -180,6 +180,12 @@ namespace OculusDB
                 }
                 return true;
             }));
+            server.AddRoute("GET", "/serverconsole", new Func<ServerRequest, bool>(request =>
+            {
+                if (!IsUserAdmin(request)) return true;
+                request.SendString(Logger.log);
+                return true;
+            }));
             server.AddRoute("GET", "/config", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
@@ -202,6 +208,12 @@ namespace OculusDB
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendString(File.ReadAllText("frontend\\admin.html"), "text/html");
+                return true;
+            }), true);
+            server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
+            {
+                if (!IsUserAdmin(request)) return true;
+                request.SendString(File.ReadAllText("frontend\\console.html"), "text/html");
                 return true;
             }), true);
             server.AddRoute("GET", "/id", new Func<ServerRequest, bool>(request =>

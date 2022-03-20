@@ -76,6 +76,7 @@ button {
 
 
 .content {
+    position: relative;
     margin-top: 80px;
     padding: 10px;
 }
@@ -193,6 +194,7 @@ code {
     padding: 10px;
     position: absolute;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .navBarInner {
@@ -350,6 +352,10 @@ input[type=checkbox] {
     height: 25px;
     width: 25px;
     background-color: var(--hightlightColor);
+}
+
+.centerIt input {
+    margin: 2.5px;
 }
 
 .checkmark:after {

@@ -25,6 +25,10 @@
             <div id="activity">
                 <div class="loader"></div>
             </div>
+            <div class="centerIt">
+                <input type="button" value="Previous Page" onclick="TurnPage(-50)">
+                <input type="button" value="Next Page" onclick="TurnPage(50)">
+            </div>
         </div>
         <script src="/script.js"></script>
         <script>
@@ -88,15 +92,26 @@
                 window.location.href = "?" + params.toString()
             }
 
-            if(constraints == "") constraints = "none"
+            var skip = parseInt(params.get("skip"))
+            if(!skip) skip = 0
 
-            fetch("/api/activity?typeconstraint=" + (constraints ?? "none")).then(res => res.json().then(res => {
+            function TurnPage(items) {
+                skip += items
+                if(skip < 0) skip = 0;
+                params.set("skip", skip)
+                window.location.href = "?" + params.toString()
+            }
+
+            if(constraints == "") constraints = "none"
+            
+
+            fetch("/api/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => res.json().then(res => {
                 activity = res
                 var html = ""
                 activity.forEach(a => {
                     html += AutoFormat(a)
                 })
-                if(html == "") html = noResult
+                if(html == "") html = noActivity
                 activityContainer.innerHTML = html
             }))
         </script>

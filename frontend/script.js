@@ -26,6 +26,11 @@ const noResult = `
     <b>No Results</b>
 </div>
 `
+const noActivity = `
+<div class="application centerIt" style="cursor: default;">
+    <b>No Activity</b>
+</div>
+`
 
 function PopUp(html) {
     var popup = document.getElementById("popup")

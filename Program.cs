@@ -15,6 +15,7 @@ namespace OculusDB
         static void Main(string[] args)
         {
             Logger.displayLogInConsole = true;
+            Logger.saveOutputInVariable = true;
             CommandLineCommandContainer cla = new CommandLineCommandContainer(args);
             cla.AddCommandLineArgument(new List<string> { "--workingdir" }, false, "Sets the working Directory for OculusDB", "directory", "");
             cla.AddCommandLineArgument(new List<string> { "update", "--update", "-U" }, true, "Starts in update mode (use with caution. It's best to let it do on it's own)");

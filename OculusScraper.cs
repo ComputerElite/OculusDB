@@ -66,7 +66,7 @@ namespace OculusDB
                     DBActivityNewApplication e = new DBActivityNewApplication();
                     e.id = a.id;
                     e.hmd = headset;
-                    e.publisher_name = a.publisher_name;
+                    e.publisherName = a.publisher_name;
                     e.displayName = a.displayName;
                     e.priceFormatted = a.current_offer.price.formatted;
                     e.priceOffset = a.current_offer.price.offset_amount;
@@ -75,25 +75,6 @@ namespace OculusDB
                     e.supportedHmdPlatforms = a.supported_hmd_platforms;
                     MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument());
                 }
-                DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
-                DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
-                priceChange.parentApplication.id = a.id;
-                priceChange.parentApplication.hmd = headset;
-                priceChange.parentApplication.canonicalName = a.canonicalName;
-                priceChange.parentApplication.displayName = a.displayName;
-                //priceChange.newPriceFormatted = a.current_offer.price.formatted;
-                priceChange.newPriceOffset = a.current_offer.price.offset_amount;
-                if (lastPriceChange != null)
-                {
-                    if (lastPriceChange.newPriceOffset != a.current_offer.price.offset_amount)
-                    {
-                        priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
-                        priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
-                        priceChange.__lastEntry = lastPriceChange.__id;
-                        MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
-                    }
-                }
-                else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
                 Data<Application> d = GraphQLClient.GetDLCs(a.id);
                 foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
                 {
@@ -192,6 +173,25 @@ namespace OculusDB
                 }
                 
                 MongoDBInteractor.AddApplication(a, headset);
+                DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
+                DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
+                priceChange.parentApplication.id = a.id;
+                priceChange.parentApplication.hmd = headset;
+                priceChange.parentApplication.canonicalName = a.canonicalName;
+                priceChange.parentApplication.displayName = a.displayName;
+                //priceChange.newPriceFormatted = a.current_offer.price.formatted;
+                priceChange.newPriceOffset = a.current_offer.price.offset_amount;
+                if (lastPriceChange != null)
+                {
+                    if (lastPriceChange.newPriceOffset != a.current_offer.price.offset_amount)
+                    {
+                        priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
+                        priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
+                        priceChange.__lastEntry = lastPriceChange.__id;
+                        MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+                    }
+                }
+                else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
             }
         }
     }

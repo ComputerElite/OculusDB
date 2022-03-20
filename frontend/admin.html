@@ -16,7 +16,7 @@
                 <div style="width: 90%; background-color: var(--hightlightColor); height: 10px;"><div style="background-color: var(--highlightedColor); height: 100%; width: 0%;" id="progress"></div></div>
                 <input type="button" value="View Console" onclick="location.href = '/console'">
                 <a href="/config" download="OculusDBConfig.json">Download config</a>
-                <input type="button" value="Uploade Config" onclick="Config()">
+                <input type="button" value="Upload Config" onclick="Config()">
                 <table>
                     <tr>
                         <td class="label">Ram usage</td>
@@ -32,6 +32,11 @@
         
         <script src="/script.js"></script>
         <script>
+            fetch("/servermetrics").then(res => res.json().then(res => {
+                document.getElementById("ram").innerHTML = res.ramUsageString
+                document.getElementById("working").innerHTML = res.workingDirectory
+            }))
+
             const progress = document.getElementById("progress")
             function Update() {
                 var input = document.createElement("input")
