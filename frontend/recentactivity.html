@@ -66,33 +66,11 @@
             var constraints = params.get("typeconstraint")
 
 
-            if(constraints != undefined) {
-                var split = constraints.split(",")
-                for (const [key, value] of Object.entries(options)) {
-                    split.forEach(x => {
-                        if(value.includes(x)) document.getElementById(key).checked = true
-                    })
-                }
-            } else {
-                for (const [key, value] of Object.entries(options)) {
-                    document.getElementById(key).checked = true
-                }
-                Update()
-            }
+            SetCheckboxesBasedOnValue(options, constraints)
 
 
             function Update() {
-                var filter = []
-
-                for (const [key, value] of Object.entries(options)) {
-                    if(document.getElementById(key).checked) {
-                        value.forEach(x => {
-                            filter.push(x)
-                        })
-                    }
-                }
-
-                params.set("typeconstraint", filter.join(","))
+                params.set("typeconstraint", GetValuesOFCheckboxes(options))
                 window.location.href = "?" + params.toString()
             }
 

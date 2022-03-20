@@ -74,6 +74,7 @@
                 fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
                     connected = res
                     document.getElementById("this").innerHTML = AutoFormat(object, connected, "this")
+                    RevealDescription("this_" + object.id)
                     var apps = ""
                     connected.applications.forEach(a => {
                         apps += FormatApplication(a)

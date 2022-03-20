@@ -6,10 +6,80 @@
     <body>
         <div class="content">
             <h1>Results</h1>
+            <label class="checkmarkContainer">
+                Rift/Rift S
+                <input id="rift" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                Quest 1/Quest 2
+                <input id="monterey" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                GearVR
+                <input id="gearvr" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                Go
+                <input id="pacific" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
             <div class="SearchResults" id="searchResults">
 
             </div>
         </div>
         <script src="/script.js"></script>
+        <script>
+            const rift = document.getElementById("rift")
+            const monterey = document.getElementById("monterey")
+            const gearvr = document.getElementById("gearvr")
+            const pacific = document.getElementById("pacific")
+
+            var query = params.get("query")
+
+            
+
+            var options = {
+                "rift": [
+                    "RIFT",
+                    "LAGUNA"
+                ],
+                "monterey": [
+                    "MONTEREY",
+                    "HOLLYWOOD"
+                ],
+                "gearvr": [
+                    "GEARVR"
+                ],
+                "pacific": [
+                    "PACIFIC"
+                ]
+            }
+
+            SetCheckboxesBasedOnValue(options, params.get("headsets"))
+            const SearchResults = document.getElementById("searchResults")
+
+            document.getElementById("query").value = query
+            SearchResults.innerHTML = loader
+            fetch("/api/search/" + query + "?headsets=" + params.get("headsets")).then(res => {
+                res.json().then(res => {
+                    var results = ""
+                    res.forEach(x => {
+                        results += FormatApplication(x)
+                    })
+                    if(results == "") {
+                        results = noResult
+                    }
+                    SearchResults.innerHTML = results
+                })
+            })
+
+            function Update() {
+                params.set("headsets", GetValuesOFCheckboxes(options))
+                window.location.href = "?" + params.toString()
+            }
+        </script>
     </body>
 </html>

@@ -17,6 +17,22 @@
     --brightHighlightColor: #397e66;
 }
 
+h1 {
+    color: var(--highlightedColor);
+}
+
+h2 {
+    color: var(--highlightedColor);
+}
+
+h3 {
+    color: var(--highlightedColor);
+}
+
+h4 {
+    color: var(--highlightedColor);
+}
+
 .textbox {
     visibility: visible;
     border-radius: 5px;

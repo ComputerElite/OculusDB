@@ -13,12 +13,11 @@ document.body.innerHTML = `<div class="navBar">
         <input type="button" onclick="Search('query')" value="Search">
     </div>
     <a class="underlineAnimation navBarElement" href="/login">Login</a>
-    <a class="underlineAnimation navBarElement" href="/">Recent activity</a>
+    <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
 </div>
 </div>` + document.body.innerHTML
 
-const SearchResults = document.getElementById("searchResults")
 const loader = `<div class="centerIt">
 <div class="loader"></div>
 </div>`
@@ -32,6 +31,36 @@ const noActivity = `
     <b>No Activity</b>
 </div>
 `
+
+function SetCheckboxesBasedOnValue(options, value) {
+    if(value != undefined) {
+        var split = value.split(",")
+        for (const [key, value] of Object.entries(options)) {
+            split.forEach(x => {
+                if(value.includes(x)) document.getElementById(key).checked = true
+            })
+        }
+    } else {
+        for (const [key, value] of Object.entries(options)) {
+            document.getElementById(key).checked = true
+        }
+        Update()
+    }
+}
+
+function GetValuesOFCheckboxes(options) {
+    var filter = []
+
+    for (const [key, value] of Object.entries(options)) {
+        if(document.getElementById(key).checked) {
+            value.forEach(x => {
+                filter.push(x)
+            })
+        }
+    }
+
+    return filter.join(",")
+}
 
 function PopUp(html) {
     var popup = document.getElementById("popup")
@@ -79,23 +108,6 @@ document.getElementById("query").onkeydown = e => {
     }
 }
 const params = new URLSearchParams(window.location.search)
-if(params.get("query")) InternalSearch(params.get("query"))
-
-function InternalSearch(query) {
-    document.getElementById("query").value = query
-    SearchResults.innerHTML = loader
-    fetch("/api/search/" + query).then(res => {
-        res.json().then(res => {
-            SearchResults.innerHTML = ""
-            res.forEach(x => {
-                SearchResults.innerHTML += FormatApplication(x)
-            })
-            if(SearchResults.innerHTML == "") {
-                SearchResults.innerHTML = noResult
-            }
-        })
-    })
-}
 
 function GetObjectById(id) {
     return new Promise((resolve, reject) => {
@@ -120,6 +132,9 @@ function GetActivityById(id) {
 function Search(element)
 {
     var query = document.getElementById(element).value
+    if(params.get("headsets")) {
+        query += "&headsets=" + params.get("headsets")
+    }
     window.location = "/search?query=" + query
 }
 
@@ -129,6 +144,15 @@ function OpenApplication(id) {
 
 function OpenActivity(id) {
     window.location = "/activity/" + id
+}
+
+function GetOculusLink(id, hmd) {
+    var link = "https://www.oculus.com/experiences/"
+    if(hmd == 0 || hmd == 5) link += "rift"
+    else if(hmd == 1 ||hmd == 2) link += "quest"
+    else if(hmd == 3) link += "gear-vr"
+    else if(hmd == 4) link += "go"
+    return link + "/" + id
 }
 
 function FormatApplication(application, htmlId = "") {
@@ -148,6 +172,7 @@ function FormatApplication(application, htmlId = "") {
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
                 <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
+                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
                 <tr><td class="label">Id</td><td class="value">${application.id}</td></tr>
             </table>
         </div>
@@ -345,6 +370,7 @@ function FormatApplicationActivity(a) {
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(a.supportedHmdPlatforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${a.publisherName}</td></tr>
                 <tr><td class="label">Release time</td><td class="value">${new Date(a.releaseDate).toLocaleString()}</td></tr>
+                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(a.id, a.hmd)}">${GetOculusLink(a.id, a.hmd)}</a></td></tr>
                 <tr><td class="label">Application id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
             </table>
