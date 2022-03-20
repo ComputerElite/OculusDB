@@ -124,6 +124,7 @@ namespace OculusDB
             dba.uri = "https://securecdn.oculus.com/binaries/download/?id=" + dba.id;
             dba.parentApplication.id = app.id;
             dba.parentApplication.hmd = h;
+            dba.parentApplication.displayName = app.displayName;
             dba.parentApplication.canonicalName = app.canonicalName;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
@@ -168,6 +169,7 @@ namespace OculusDB
                 else if (d["__OculusDBType"] == DBDataTypes.IAPItemPack) l.dlcPacks.Add(ObjectConverter.ConvertToDBType(d));
                 else if (d["__OculusDBType"] == DBDataTypes.IAPItem) l.dlcs.Add(ObjectConverter.ConvertToDBType(d));
             }
+            l.versions = l.versions.OrderByDescending(x => x.version_code).ToList();
             return l;
         }
 
@@ -214,9 +216,15 @@ namespace OculusDB
             return distinct;
         }
 
-        public static List<BsonDocument> SearchApplication(string query)
+        public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets)
         {
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query + ".*/i"));
+            BsonArray a = new BsonArray();
+            foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
+            {
+                new BsonDocument("hmd", h),
+                new BsonDocument("parentApplication.hmd", h)
+            }));
             BsonDocument q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
                 new BsonDocument("$or", new BsonArray
             {
@@ -230,7 +238,10 @@ namespace OculusDB
                 new BsonDocument("publisher_name", regex),
                 new BsonDocument("id", query),
 
-            })}), GetLastTimeFilter() };
+            }),
+            {
+                new BsonDocument("$or", a)
+            }}), GetLastTimeFilter() };
             return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
     }

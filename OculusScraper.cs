@@ -99,7 +99,7 @@ namespace OculusDB
                 {
                     MongoDBInteractor.AddVersion(b, a, headset);
                     BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
-
+                    
                     DBActivityNewVersion newVersion = new DBActivityNewVersion();
                     newVersion.id = b.id;
                     newVersion.parentApplication.id = a.id;

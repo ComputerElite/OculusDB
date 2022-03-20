@@ -96,7 +96,8 @@ namespace OculusDB
             }), true);
             server.AddRoute("GET", "/api/search/", new Func<ServerRequest, bool>(request =>
             {
-                List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff);
+                List<Headset> headsets = new List<Headset> { Headset.GEARVR, Headset.MONTEREY, Headset.PACIFIC, Headset.RIFT };
+                List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets);
                 if (d.Count <= 0)
                 {
                     request.SendString("[]", "application/json", 200);
@@ -195,7 +196,8 @@ namespace OculusDB
             server.AddRouteFile("/", "frontend\\home.html");
             server.AddRouteFile("/login", "frontend\\login.html");
             server.AddRouteFile("/search", "frontend\\search.html");
-            
+            server.AddRouteFile("/logo", "frontend\\logo.png");
+            server.AddRouteFile("/favicon.ico", "frontend\\favicon.png");
             server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
