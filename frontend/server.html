@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/style.css" >
+    </head>
+    <body>
+        <div class="content">
+            <h1>Database info</h1>
+            <div id="db">
+                <div class="loader"></div>
+            </div>
+            
+            <h1>Recent Server Updates</h1>
+            <div id="updates">
+
+            </div>
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            fetch("/api/updates").then(res => res.json().then(res => {
+                var updates = ""
+                res.forEach(x => {
+                    updates += `
+                    <div>
+                        <h3>Update on ${new Date(x.time).toLocaleString()}</h3>
+                        ${x.changelog}
+                    </div>
+                    `
+                })
+                document.getElementById("updates").innerHTML = updates
+            }))
+            fetch("/api/database").then(res => res.json().then(res => {
+                document.getElementById("db").innerHTML = `
+                <table>
+                    <tr><td class="label">Last Database update</td><td class="value">${new Date(res.lastUpdated).toLocaleString()}</td></tr>
+                    <tr><td class="label">Start of current Database update</td><td class="value">${new Date(res.currentUpdateStart).toLocaleString()}</td></tr>
+                    <tr><td class="label">Data entries</td><td class="value">${res.dataDocuments}</td></tr>
+                    <tr><td class="label">Activity entries</td><td class="value">${res.activityDocuments}</td></tr>
+                </table>`
+            }))
+        </script>
+    </body>
+</html>

@@ -14,6 +14,7 @@ document.body.innerHTML = `<div class="navBar">
     </div>
     <a class="underlineAnimation navBarElement" href="/login">Login</a>
     <a class="underlineAnimation navBarElement" href="/">Recent activity</a>
+    <a class="underlineAnimation navBarElement" href="/server">Server</a>
 </div>
 </div>` + document.body.innerHTML
 

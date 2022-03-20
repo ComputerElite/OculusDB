@@ -49,7 +49,7 @@ namespace OculusDB
             MongoDBInteractor.Initialize();
             OculusScraper.StartScrapingThread();
 
-            server.AddRoute("POST", "/updateserver", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("POST", "/api/updateserver", new Func<ServerRequest, bool>(request =>
             {
                 if(!IsUserAdmin(request)) return true;
                 Update u = new Update();
@@ -60,14 +60,14 @@ namespace OculusDB
                 Updater.StartUpdateNetApp(request.bodyBytes, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
                 return true;
             }));
-            server.AddRoute("POST", "/restartserver", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("POST", "/api/restartserver", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendString("Restarting");
                 Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
                 return true;
             }));
-            server.AddRoute("GET", "/servermetrics", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/servermetrics", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 ServerMetrics m = new ServerMetrics();
@@ -156,7 +156,7 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 return true; 
             }), true);
-            server.AddRoute("POST", "/login", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("POST", "/api/login", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
@@ -180,19 +180,34 @@ namespace OculusDB
                 }
                 return true;
             }));
-            server.AddRoute("GET", "/serverconsole", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/serverconsole", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendString(Logger.log);
                 return true;
             }));
-            server.AddRoute("GET", "/config", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/config", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendString(JsonSerializer.Serialize(config));
                 return true;
             }));
-            server.AddRoute("POST", "/config", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/updates", new Func<ServerRequest, bool>(request =>
+            {
+                request.SendString(JsonSerializer.Serialize(config.updates.Take(50)));
+                return true;
+            }));
+            server.AddRoute("GET", "/api/database", new Func<ServerRequest, bool>(request =>
+            {
+                DBInfo info = new DBInfo();
+                info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
+                info.lastUpdated = config.lastDBUpdate;
+                info.dataDocuments = MongoDBInteractor.CountDataDocuments();
+                info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
+                request.SendString(JsonSerializer.Serialize(info));
+                return true;
+            }));
+            server.AddRoute("POST", "/api/config", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 config = JsonSerializer.Deserialize<Config>(request.bodyString);
@@ -200,6 +215,7 @@ namespace OculusDB
                 return true;
             }));
             server.AddRouteFile("/", "frontend\\home.html");
+            server.AddRouteFile("/server", "frontend\\server.html");
             server.AddRouteFile("/login", "frontend\\login.html");
             server.AddRouteFile("/search", "frontend\\search.html");
             server.AddRouteFile("/logo", "frontend\\logo.png");

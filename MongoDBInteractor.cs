@@ -79,6 +79,16 @@ namespace OculusDB
             });
         }
 
+        public static long CountDataDocuments()
+        {
+            return dataCollection.CountDocuments(new BsonDocument());
+        }
+
+        public static long CountActivityDocuments()
+        {
+            return activityCollection.CountDocuments(new BsonDocument());
+        }
+
         public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
         {
             string[] stuff = typeConstraint.Split(',');
