@@ -42,7 +42,12 @@
                 </div>
                 <input type="checkbox">
             </div>
-
+            <div>
+                <h2>Price history</h2>
+                <div id="history">
+                    <div class="loader"></div>
+                </div>
+            </div>
         </div>
         <script src="/script.js"></script>
         <script>
@@ -72,31 +77,70 @@
                 }
             })
 
+            const priceHistory = document.getElementById("history")
 
+            function PlotPrice() {
+                fetch(`/api/pricehistory/${id}`).then(res => res.json().then(res => {
+                    var x = []
+                    var y = []
+                    res.forEach(p => {
+                        x.unshift(p.__lastUpdated)
+                        y.unshift(p.newPriceFormatted ?? p.priceFormatted)
+                    })
+                    priceHistory.innerHTML = ""
+                    Plotly.newPlot(priceHistory, [{
+                        x: x,
+                        y: y,
+                        line: {
+                            shape: "vh",
+                            color: "#63FAC3"
+                        }
+                    }], {
+                        width: "100%",
+                        height: "100%",
+                        font: {
+                            color: "#EEEEEE"
+                        },
+                        plot_bgcolor: "#181A1B",
+                        paper_bgcolor: "#181A1B"
+                    })
+                }))
+            }
 
             function AddConnected() {
                 fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
                     connected = res
-                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this")
+                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
                     RevealDescription("this_" + object.id)
+                    if(object.__OculusDBType != "Version"){
+                        var script = document.createElement("script")
+                        script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
+                        script.onload = () => PlotPrice()
+                        document.head.appendChild(script)
+                    } else {
+                        priceHistory.innerHTML = "Prices are not available for Versions"
+                    }
                     var apps = ""
                     connected.applications.forEach(a => {
-                        apps += FormatApplication(a)
+                        apps += FormatApplication(a, a.id)
                     })
+                    if(!apps) apps = noResult
                     applications.innerHTML = apps
 
                     UpdateVersions(false)
 
                     var ds = ""
                     connected.dlcs.forEach(d => {
-                        ds += FormatDLC(d)
+                        ds += FormatDLC(d, d.id)
                     })
+                    if(!ds) ds = noResult
                     dlcs.innerHTML = ds
 
                     var dps = ""
                     connected.dlcPacks.forEach(dp => {
-                        dps += FormatDLCPack(dp, connected.dlcs)
+                        dps += FormatDLCPack(dp, connected.dlcs, dp.id)
                     })
+                    if(!dps) dps = noResult
                     dlcpacks.innerHTML = dps
                 }))
             }
@@ -105,7 +149,7 @@
                 var vers = `<label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
                 connected.versions.forEach(v => {
                     if(v.binary_release_channels.nodes.length > 0 || showAll)
-                        vers += FormatVersion(v)
+                        vers += FormatVersion(v, v.id)
                 })
                 versions.innerHTML = vers
             }

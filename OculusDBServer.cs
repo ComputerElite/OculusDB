@@ -22,7 +22,7 @@ namespace OculusDB
         public Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
-            {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\">" }
+            {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" }
         };
 
         public string GetToken(ServerRequest request, bool send403 = true)
@@ -123,6 +123,13 @@ namespace OculusDB
             server.AddRoute("GET", "/api/dlcs/", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetDLCs(request.pathDiff)), "application/json");
+                return true;
+            }), true);
+            server.AddRoute("GET", "/api/pricehistory/", new Func<ServerRequest, bool>(request =>
+            {
+                List<dynamic> changes = new List<dynamic>();
+                foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff)) changes.Add(ObjectConverter.ConvertToDBType(d));
+                request.SendString(JsonSerializer.Serialize(changes), "application/json");
                 return true;
             }), true);
             server.AddRoute("GET", "/api/activity", new Func<ServerRequest, bool>(request =>

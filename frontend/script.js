@@ -163,11 +163,11 @@ function GetOculusLink(id, hmd) {
 function FormatApplication(application, htmlId = "") {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlId}_${application.id}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_${application.id}_trigger" class="anim noselect">&gt;</div>
+        <div class="flex header" onclick="RevealDescription('${htmlId}')">
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">${application.displayName} (${GetHeadsets(application.supported_hmd_platforms)})</div>
         </div>
-        <div class="hidden" id="${htmlId}_${application.id}">
+        <div class="hidden" id="${htmlId}">
             
             <table>
                 <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
@@ -211,18 +211,18 @@ function FormatDLC(dlc, htmlid = "") {
 </div>`
 }
 
-function FormatDLCPack(dlc, dlcs) {
+function FormatDLCPack(dlc, dlcs, htmlid = "") {
     var included = ""
     dlc.bundle_items.forEach(d => {
-        included += FormatDLC(GetDLC(dlcs, d.node.id), dlc.id + "_" + d.node.id)
+        included += FormatDLC(GetDLC(dlcs, d.id), htmlid + "_" + d.id)
     })
     return `<div class="application">
     <div class="info">
         <div class="flex header" onclick="RevealDescription('${dlc.id}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${dlc.id}_trigger" class="anim noselect">&gt;</div>
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
         </div>
-        <div class="hidden" id="${dlc.id}">
+        <div class="hidden" id="${htmlid}">
             
             <table>
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
@@ -413,9 +413,9 @@ function FormatPriceChanged(a) {
 
 function AutoFormat(e, connected, htmlid = "") {
     if(e.__OculusDBType == "Application") return FormatApplication(e, htmlid)
-    if(e.__OculusDBType == "IAPItem") return FormatDLC(e)
-    if(e.__OculusDBType == "IAPItemPack") return FormatDLCPack(e, connected.dlcs)
-    if(e.__OculusDBType == "Version") return FormatVersion(e)
+    if(e.__OculusDBType == "IAPItem") return FormatDLC(e, htmlid)
+    if(e.__OculusDBType == "IAPItemPack") return FormatDLCPack(e, connected.dlcs, htmlid)
+    if(e.__OculusDBType == "Version") return FormatVersion(e, htmlid)
     if(e.__OculusDBType == "ActivityNewDLC" || e.__OculusDBType == "ActivityDLCUpdated") return FormatDLCActivity(e)
     if(e.__OculusDBType == "ActivityNewDLCPack" || e.__OculusDBType == "ActivityDLCPackUpdated") return FormatDLCPackActivity(e)
     if(e.__OculusDBType == "ActivityNewVersion" || e.__OculusDBType == "ActivityVersionUpdated") return FormatVersionActivity(e)
@@ -487,7 +487,7 @@ function RiftDownloadPopUp(appid, versionid, version, appname) {
     `)
 }
 
-function FormatVersion(v) {
+function FormatVersion(v, htmlid = "") {
     var releaseChannels = ""
     v.binary_release_channels.nodes.forEach(x => {
         releaseChannels += `${x.channel_name}, `
@@ -496,11 +496,11 @@ function FormatVersion(v) {
     var downloadable = releaseChannels != ""
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${v.id}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_trigger" class="anim noselect">&gt;</div>
+        <div class="flex header" onclick="RevealDescription('${htmlid}')">
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</div>
         </div>
-        <div class="hidden" id="${v.id}">
+        <div class="hidden" id="${htmlid}">
             <table>
                 <tr><td class="label">Uploaded</td><td class="value">${new Date(v.created_date * 1000).toLocaleString()}</td></tr>
                 <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>

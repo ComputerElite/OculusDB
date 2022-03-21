@@ -137,6 +137,11 @@ namespace OculusDB
             return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
         }
 
+        public static List<BsonDocument> GetPriceChanges(string id)
+        {
+            return activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList();
+        }
+
         public static void AddBsonDocumentToActivityCollection(BsonDocument d)
         {
             d["_id"] = ObjectId.GenerateNewId();
