@@ -35,4 +35,18 @@ namespace OculusDB.Database
         public List<ReleaseChannel> releaseChannels { get; set; } = new List<ReleaseChannel>();
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
     }
+
+    public class DBReleaseChannel
+    {
+        public string id { get; set; } = "";
+        public string channel_name { get; set; } = "";
+
+        public static explicit operator DBReleaseChannel(ReleaseChannel r)
+        {
+            DBReleaseChannel d = new DBReleaseChannel();
+            d.id = r.id;
+            d.channel_name = r.channel_name;
+            return d;
+        }
+    }
 }

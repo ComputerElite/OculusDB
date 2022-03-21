@@ -36,7 +36,6 @@ namespace OculusDB
             pack.Add(new IgnoreExtraElementsConvention(true));
             ConventionRegistry.Register("Ignore extra elements cause it's annoying", pack, t => true);
 
-            RemoveIdRemap<IAPItem>();
             RemoveIdRemap<Application>();
             RemoveIdRemap<ParentApplication>();
             RemoveIdRemap<AndroidBinary>();
@@ -51,6 +50,27 @@ namespace OculusDB
             RemoveIdRemap<DBActivityNewDLCPackDLC>();
             RemoveIdRemap<DBActivityDLCUpdated>();
             RemoveIdRemap<DBActivityDLCPackUpdated>();
+            RemoveIdRemap<DBReleaseChannel>();
+            RemoveIdRemap<DBApplication>();
+            RemoveIdRemap<DBIAPItem>();
+
+            BsonClassMap.RegisterClassMap<ReleaseChannel>(cm =>
+            {
+                cm.AutoMap();
+                cm.UnmapProperty(x => x.latest_supported_binary); // Remove AndroidBinary
+            });
+            //RemoveIdRemap<IAPItem>();
+            BsonClassMap.RegisterClassMap<IAPItem>(cm =>
+            {
+                cm.AutoMap();
+                cm.UnmapProperty(x => x.parent_application);
+                cm.UnmapProperty(x => x.latest_supported_asset_file);
+                cm.UnmapProperty(x => x.id);
+                cm.MapMember(x => x.id)
+                    .SetElementName("id")
+                    .SetOrder(0) //specific to your needs
+                    .SetIsRequired(true); // again specific to your needs
+            });
         }
 
 
@@ -125,7 +145,7 @@ namespace OculusDB
 
         public static void AddApplication(Application a, Headset h)
         {
-            DBApplication dba = ObjectConverter.Convert<DBApplication, Application>(a);
+            DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
             dba.hmd = h;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
@@ -140,16 +160,23 @@ namespace OculusDB
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
-        public static void AddDLCPack(AppItemBundle a, Headset h)
+        public static void AddDLCPack(AppItemBundle a, Headset h, Application app)
         {
-            DBIAPItemPack dba = ObjectConverter.Convert<DBIAPItemPack, AppItemBundle, IAPItem>(a);
+            DBIAPItemPack dba = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
             dba.parentApplication.hmd = h;
+            dba.parentApplication.displayName = app.displayName;
+            foreach(Node<IAPItem> i in a.bundle_items.edges)
+            {
+                DBItemId id = new DBItemId();
+                id.id = i.node.id;
+                dba.bundle_items.Add(id);
+            }
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
         public static void AddDLC(IAPItem a, Headset h)
         {
-            DBIAPItem dba = ObjectConverter.Convert<DBIAPItem, IAPItem>(a);
+            DBIAPItem dba = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
             dba.parentApplication.hmd = h;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
@@ -229,6 +256,7 @@ namespace OculusDB
 
         public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets)
         {
+            if (query == "") return new List<BsonDocument>();
             if (headsets.Count <= 0) return new List<BsonDocument>();
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query + ".*/i"));
             BsonArray a = new BsonArray();

@@ -1,4 +1,4 @@
-﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">`
+﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
 document.body.innerHTML = `<div class="navBar">
 <div class="navBarInner" style="cursor: pointer;" onclick="window.location.href = '/'">
@@ -208,7 +208,7 @@ function FormatDLC(dlc, htmlid = "") {
 
 function FormatDLCPack(dlc, dlcs) {
     var included = ""
-    dlc.bundle_items.edges.forEach(d => {
+    dlc.bundle_items.forEach(d => {
         included += FormatDLC(GetDLC(dlcs, d.node.id), dlc.id + "_" + d.node.id)
     })
     return `<div class="application">
