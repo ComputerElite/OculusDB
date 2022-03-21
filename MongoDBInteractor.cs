@@ -258,7 +258,7 @@ namespace OculusDB
         {
             if (query == "") return new List<BsonDocument>();
             if (headsets.Count <= 0) return new List<BsonDocument>();
-            BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query + ".*/i"));
+            BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query.Replace(" ", ".*") + ".*/i"));
             BsonArray a = new BsonArray();
             foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
             {

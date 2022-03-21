@@ -32,6 +32,11 @@ const noActivity = `
 </div>
 `
 
+// Add analytics
+var script = document.createElement("script")
+script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
+document.head.appendChild(script)
+
 function SetCheckboxesBasedOnValue(options, value) {
     if(value != undefined) {
         var split = value.split(",")
@@ -578,14 +583,3 @@ function SetCookie(name, value, expiration) {
     var expires = "expires=" + d.toUTCString();
     document.cookie = name + "=" + value + ";" + expires + ";path=/";
 }
-
-
-// Local convenience stuff
-var script = document.createElement("script")
-script.src = "/debug.js"
-document.head.appendChild(script)
-
-// Add analytics
-var script = document.createElement("script")
-script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
-document.head.appendChild(script)
