@@ -165,13 +165,13 @@ namespace OculusDB
             BsonDocument org = GetByID(id).First();
             BsonDocument q = new BsonDocument
             {
+                GetLastTimeFilter(),
                 new BsonDocument("$or", new BsonArray
                 {
                     new BsonDocument("id", id),
                     new BsonDocument("id", org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"] : "yourMom"),
                     new BsonDocument("parentApplication.id", org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"] : id)
-                }),
-                GetLastTimeFilter()
+                })
             };
             foreach(BsonDocument d in GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable()))
             {
@@ -193,13 +193,13 @@ namespace OculusDB
         {
             BsonDocument q = new BsonDocument
             {
+                GetLastTimeFilter(),
                 new BsonDocument("$or", new BsonArray
                 {
                     new BsonDocument("__OculusDBType", DBDataTypes.IAPItem),
                     new BsonDocument("__OculusDBType", DBDataTypes.IAPItemPack)
                 }),
-                new BsonElement("parentApplication.id", parentAppId),
-                GetLastTimeFilter()
+                new BsonElement("parentApplication.id", parentAppId)
                 
             };
 
@@ -238,6 +238,7 @@ namespace OculusDB
                 new BsonDocument("parentApplication.hmd", h)
             }));
             BsonDocument q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
+                GetLastTimeFilter(),
                 new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("__OculusDBType", DBDataTypes.Application),
@@ -252,7 +253,7 @@ namespace OculusDB
 
             }),
                 new BsonDocument("$or", a)
-            }), GetLastTimeFilter() };
+            })};
             return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
     }
