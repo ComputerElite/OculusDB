@@ -1,6 +1,7 @@
 ﻿html {
     background-color: var(--bgColor);
     font-family: 'Open Sans';
+    font-size: 1rem;
 }
 
 :root {
@@ -15,6 +16,7 @@
     --highlightedColor: #63FAC3;
     --brightHoverColor: #4aaf8b;
     --brightHighlightColor: #397e66;
+    font-size: 18px!important;
 }
 
 h1 {

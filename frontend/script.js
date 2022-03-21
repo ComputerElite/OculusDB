@@ -383,6 +383,7 @@ function FormatApplicationActivity(a) {
     </div>
     <div class="buttons">
         <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
+        <input type="button" value="View Application" onclick="OpenApplication('${a.id}')">
     </div>
 </div>`
 }

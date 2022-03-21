@@ -189,6 +189,29 @@ namespace OculusDB
                 }
                 return true;
             }));
+            server.AddRoute("GET", "/api/user", new Func<ServerRequest, bool>(request =>
+            {
+                try
+                {
+                    string token = request.queryString.Get("token") ?? "";
+                    LoginResponse response = new LoginResponse();
+                    if (token != config.masterToken)
+                    {
+                        response.status = "This user does not exist";
+                        request.SendString(JsonSerializer.Serialize(response), "application/json");
+                        return true;
+                    }
+                    response.username = "admin";
+                    response.redirect = "/admin";
+                    response.authorized = true;
+                    request.SendString(JsonSerializer.Serialize(response), "application/json");
+                }
+                catch
+                {
+                    request.SendString("{}", "application/json");
+                }
+                return true;
+            }));
             server.AddRoute("GET", "/api/serverconsole", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;

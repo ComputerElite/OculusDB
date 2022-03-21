@@ -36,6 +36,7 @@
                 document.getElementById("id").innerHTML = activity.__id
                 document.getElementById("lastUpdated").innerHTML = new Date(activity.__lastUpdated).toLocaleString()
                 document.getElementById("this").innerHTML = AutoFormat(activity)
+                RevealDescription(activity.id)
             }).catch(err => {
                 if(err == 404) {
                     alert("The item has not been found")
