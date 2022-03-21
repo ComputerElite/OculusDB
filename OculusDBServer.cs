@@ -22,7 +22,7 @@ namespace OculusDB
         public Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
-            {"{meta}", "<meta property='og:site_name' content='OculusDB'><meta name='og:color' content='#63FAC3'>" }
+            {"{meta}", "<meta property='og:site_name' content='OculusDB'><meta name='theme-color' content='#63FAC3'>" }
         };
 
         public string GetToken(ServerRequest request, bool send403 = true)
