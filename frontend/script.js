@@ -160,7 +160,7 @@ function FormatApplication(application, htmlId = "") {
     <div class="info">
         <div class="flex header" onclick="RevealDescription('${htmlId}_${application.id}')">
             <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_${application.id}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">${application.displayName}</div>
+            <div stlye="font-size: 1.25em;">${application.displayName} (${GetHeadsets(application.supported_hmd_platforms)})</div>
         </div>
         <div class="hidden" id="${htmlId}_${application.id}">
             
@@ -583,4 +583,9 @@ function SetCookie(name, value, expiration) {
 // Local convenience stuff
 var script = document.createElement("script")
 script.src = "/debug.js"
+document.head.appendChild(script)
+
+// Add analytics
+var script = document.createElement("script")
+script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
 document.head.appendChild(script)
