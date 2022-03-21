@@ -223,37 +223,37 @@ namespace OculusDB
                 request.SendString("Updated config");
                 return true;
             }));
-            server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html");
-            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html");
-            server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html");
-            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html");
-            server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html");
+            server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace);
+            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace);
+            server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace);
+            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace);
+            server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace);
             server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png");
             server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png");
             server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
-                request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html");
+                request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html", 200, replace);
                 return true;
             }), true);
             server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
-                request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "console.html"), "text/html");
+                request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "console.html"), "text/html", 200, replace);
                 return true;
             }), true);
             server.AddRoute("GET", "/id", new Func<ServerRequest, bool>(request =>
             {
-                request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "id.html").Replace("{0}", request.pathDiff), "text/html");
+                request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "id.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
             }), true);
             server.AddRoute("GET", "/activity", new Func<ServerRequest, bool>(request =>
             {
-                request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "activity.html").Replace("{0}", request.pathDiff), "text/html");
+                request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "activity.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
             }), true);
-            server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js");
-            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css");
+            server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace);
+            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace);
         }
     }
 }
