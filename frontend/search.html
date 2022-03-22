@@ -71,7 +71,7 @@
                 res.json().then(res => {
                     var results = ""
                     res.forEach(x => {
-                        results += FormatApplication(x)
+                        results += FormatApplication(x, x.id)
                     })
                     if(results == "") {
                         results = noResult

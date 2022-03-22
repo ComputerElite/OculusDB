@@ -68,7 +68,7 @@ body {
     cursor: pointer;
     padding: 14px 16px;
     font-size: 1.1em;
-    transition: 0.3s;
+    transition: 0.2s;
 }
 
 button {
@@ -158,6 +158,16 @@ code {
     display: none;
 }
 
+.header {
+    width: 100%;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+.header:hover {
+    color: var(--brightHoverColor);
+}
+
 .application {
     background-color: var(--hightlightColor);
     padding: 10px;
@@ -242,7 +252,7 @@ code {
     left: 0;
     background-color: var(--highlightedColor);
     transform-origin: bottom right;
-    transition: transform 0.25s ease-out;
+    transition: transform 0.2s ease-out;
 }
 
 .underlineAnimation:hover:after {
@@ -268,10 +278,7 @@ td {
     vertical-align: top;
 }
 
-.header {
-    width: fit-content;
-    cursor: pointer;
-}
+
 
 .label {
     width: fit-content!important;
@@ -357,10 +364,15 @@ input[type=checkbox] {
     margin-bottom: 12px;
     margin-top: 12px;
     cursor: pointer;
+    transition: 0.2s ease-in-out;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.checkmarkContainer:hover {
+    color: var(--brightHoverColor)
 }
 
 .checkmark {
@@ -374,6 +386,20 @@ input[type=checkbox] {
 
 .centerIt input {
     margin: 2.5px;
+}
+
+
+
+.checkmarkContainer:hover input ~ .checkmark {
+    background-color: var(--hightlightColorIntense);
+}
+
+.checkmarkContainer input:checked ~ .checkmark {
+    background-color: var(--highlightedColor);
+}
+
+input[type=checkbox]:checked {
+    background-color: var(--hightlightedColor);
 }
 
 .checkmark:after {
@@ -392,16 +418,4 @@ input[type=checkbox] {
     -webkit-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
-}
-
-.checkmarkContainer:hover input ~ .checkmark {
-    background-color: var(--hightlightColorIntense);
-}
-
-.checkmarkContainer input:checked ~ .checkmark {
-    background-color: var(--highlightedColor);
-}
-
-input[type=checkbox]:checked {
-    background-color: var(--hightlightedColor);
 }

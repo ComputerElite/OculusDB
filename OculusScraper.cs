@@ -75,7 +75,20 @@ namespace OculusDB
                         Logger.Log("Started Scraping thread for " + idds.Count + " apps of " + HeadsetTools.GetHeadsetCodeName(h));
                         foreach (string id in idds)
                         {
-                            Scrape(id, h);
+                            bool success = false;
+                            for(int i = 1; i <= 3 && !success; i++)
+                            {
+                                try
+                                {
+                                    Scrape(id, h);
+                                    success = true;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (i == 3) Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                    else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
+                                }
+                            }
                         }
                         doneScrapeThreads++;
                         Logger.Log("Scraping thread for " + idds.Count + " apps of " + HeadsetTools.GetHeadsetCodeName(h) + " has finished. Threads to finish: " + (totalScrapeThreads - doneScrapeThreads));
