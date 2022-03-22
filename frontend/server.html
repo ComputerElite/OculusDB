@@ -31,8 +31,8 @@
                 var updates = ""
                 res.forEach(x => {
                     updates += `
-                    <div>
-                        <h4>Update on ${new Date(x.time).toLocaleString()}</h4>
+                    <div style="margin-bottom: 50px;">
+                        <h4 style="margin-bottom: 10px;">Update on ${new Date(x.time).toLocaleString()}</h4>
                         ${Format(x.changelog)}
                     </div>
                     `

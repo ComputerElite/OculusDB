@@ -19,6 +19,10 @@
     font-size: 18px!important;
 }
 
+b {
+    color: var(--highlightedColor);
+}
+
 h1 {
     color: var(--highlightedColor);
 }
@@ -278,11 +282,19 @@ td {
     vertical-align: top;
 }
 
+.websitename {
+    color: var(--textColor);
+    transition: 0.2s ease-in-out;
+}
 
+.websitename:hover {
+    color: var(--highlightedColor);
+}
 
 .label {
     width: fit-content!important;
     white-space: nowrap;
+    color: var(--highlightedColor);
 }
 
 .value {

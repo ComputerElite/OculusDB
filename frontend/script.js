@@ -1,7 +1,7 @@
 ﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
 document.body.innerHTML = `<div class="navBar">
-<div class="navBarInner" style="cursor: pointer;" onclick="window.location.href = '/'">
+<div class="navBarInner websitename" style="cursor: pointer;" onclick="window.location.href = '/'">
     <img class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
     <div class="navBarElement">
         OculusDB
@@ -70,9 +70,9 @@ function GetValuesOFCheckboxes(options) {
 function PopUp(html) {
     var popup = document.getElementById("popup")
     if(popup) popup.remove();
-    document.body.innerHTML = `
+    document.body.innerHTML+= `
         <div class="centerIt popUp" id="popup" onclick="ClosePopUp(event)"><div class="popUpContent">${html}</div></div>
-    ` + document.body.innerHTML
+    `
 }
 
 function ClosePopUp(e) {
@@ -466,7 +466,7 @@ function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, vers
     if(IsHeadsetAndroid(hmd)) {
         return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${id}', '_blank')">`
     }
-    return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}','${version}', '${parentApplication.displayName}')">`
+    return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}','${version}', '${parentApplication.displayName.replace("'", "\\'")}')">`
 }
 
 function RiftDownloadPopUp(appid, versionid, version, appname) {
@@ -482,7 +482,7 @@ function RiftDownloadPopUp(appid, versionid, version, appname) {
             <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
             <br>
             <br>
-            <i>To close this pop up click </i>
+            <i>To close this pop up click next to it</i>
         </div>
     `)
 }
