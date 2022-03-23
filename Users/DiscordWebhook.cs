@@ -20,7 +20,6 @@ namespace OculusDB.Users
             } }
         public string url { get; set; } = "";
         public string applicationId { get; set; } = "";
-        public string displayName { get; set; } = "";
         public List<string> activities { get; set; } = new List<string>();
 
         public void SendWebhook(BsonDocument activity)
