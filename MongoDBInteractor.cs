@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using OculusDB.Database;
+using OculusDB.Users;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 using System;
@@ -22,14 +23,14 @@ namespace OculusDB
         public static IMongoDatabase oculusDBDatabase = null;
         public static IMongoCollection<BsonDocument> dataCollection = null;
         public static IMongoCollection<BsonDocument> activityCollection = null;
-        public static IMongoCollection<BsonDocument> userCollection = null;
+        public static IMongoCollection<DiscordActivityWebhook> webhookCollection = null;
 
         public static void Initialize()
         {
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
             dataCollection = oculusDBDatabase.GetCollection<BsonDocument>("data");
-            userCollection = oculusDBDatabase.GetCollection<BsonDocument>("users");
+            webhookCollection = oculusDBDatabase.GetCollection<DiscordActivityWebhook>("webhooks");
             activityCollection = oculusDBDatabase.GetCollection<BsonDocument>("activity");
 
             ConventionPack pack = new ConventionPack();
@@ -130,6 +131,21 @@ namespace OculusDB
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
         {
             return activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+        }
+
+        public static List<BsonDocument> GetLatestActivities(DateTime after)
+        {
+            return activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList();
+        }
+
+        public static long DeleteOldData(DateTime before)
+        {
+            return dataCollection.DeleteMany(x => x["__lastUpdated"] < before).DeletedCount;
+        }
+
+        public static List<DiscordActivityWebhook> GetWebhooks()
+        {
+            return webhookCollection.Find(x => true).ToList();
         }
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId)

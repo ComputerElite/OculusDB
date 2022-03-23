@@ -3,6 +3,7 @@ using ComputerUtils.VarUtils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using OculusDB.Database;
+using OculusDB.Users;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 using System;
@@ -49,6 +50,15 @@ namespace OculusDB
         public static void FinishCurrentScrape()
         {
             Logger.Log("Finished scrape of OculusDB");
+            ////////////////////////////////////////////////////////////////
+            // If there are db size issues move this below Config.Save(); //
+            ////////////////////////////////////////////////////////////////
+            if(config.deleteOldData)
+            {
+                Logger.Log("Deleting old data");
+                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
+            }
+            DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();

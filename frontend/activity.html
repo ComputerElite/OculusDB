@@ -12,9 +12,9 @@
             <h2>OculusDB Info</h2>
             <a href="/api/activityid/{0}">Raw Json</a>
             <table>
-                <tr class="label"><td>OculusDB Type</td><td id="type">Fetching...</td></tr>
-                <tr class="label"><td>Activity id</td><td id="id">Fetching...</td></tr>
-                <tr><td>Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
+                <tr><td class="label">OculusDB Type</td><td id="type">Fetching...</td></tr>
+                <tr><td class="label">Activity id</td><td id="id">Fetching...</td></tr>
+                <tr><td class="label">Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
             </table>
             <div>
                 <h2>Selected Activity</h2>
@@ -35,8 +35,8 @@
                 document.getElementById("type").innerHTML = activity.__OculusDBType
                 document.getElementById("id").innerHTML = activity.__id
                 document.getElementById("lastUpdated").innerHTML = new Date(activity.__lastUpdated).toLocaleString()
-                document.getElementById("this").innerHTML = AutoFormat(activity)
-                RevealDescription(activity.__id)
+                document.getElementById("this").innerHTML = AutoFormat(activity, "", "activity")
+                RevealDescription("activity")
             }).catch(err => {
                 if(err == 404) {
                     alert("The item has not been found")

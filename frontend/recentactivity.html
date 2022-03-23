@@ -10,6 +10,8 @@
 <body>
     <div class="content">
         <h2>Recent Activity</h2>
+        <h3>Want to get these updates on your Discord server?</h3>
+        Hit me up on Discord <code>ComputerElite#0486</code>. I will add you once you messaged me.
         <label class="checkmarkContainer">
             Show Updates
             <input id="vers" type='checkbox' onclick='Update()'>
@@ -95,7 +97,7 @@
                 activity = res
                 var html = ""
                 activity.forEach(a => {
-                    html += AutoFormat(a)
+                    html += AutoFormat(a, "", a.__id)
                 })
                 if(html == "") html = noActivity
                 activityContainer.innerHTML = html

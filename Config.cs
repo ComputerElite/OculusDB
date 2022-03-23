@@ -15,6 +15,7 @@ namespace OculusDB
         public string masterToken { get; set; } = "";
         public string mongoDBName { get; set; } = "OculusDB";
         public string oculusToken { get; set; } = "OC|1317831034909742|";
+        public bool deleteOldData { get; set; } = true;
         public DateTime lastDBUpdate { get; set; } = DateTime.MinValue;
         public ScrapingResumeData ScrapingResumeData { get; set; } = new ScrapingResumeData();
         public List<Update> updates { get; set; } = new List<Update>();

@@ -239,20 +239,20 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
 }
 
 
-function FormatDLCActivity(a) {
+function FormatDLCActivity(a, htmlid) {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${a.__id}')">
+        <div class="flex header" onclick="RevealDescription('${htmlid}')">
             <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${a.__id}_trigger" class="anim noselect">&gt;</div>
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">DLC <b>${a.displayName}</b> ${a.__OculusDBType == "ActivityNewDLC" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</b></div>
         </div>
-        <div class="hidden" id="${a.__id}">
+        <div class="hidden" id="${htmlid}">
             <table>
                 <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
                 <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, a.__id)}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
             </table>
         </div>
@@ -283,25 +283,25 @@ function FormatDLCPackActivityDLC(a, i) {
 </div>`
 }
 
-function FormatDLCPackActivity(a) {
+function FormatDLCPackActivity(a, htmlid) {
     var included = ""
     a.includedDLCs.forEach(d => {
         included += FormatDLCPackActivityDLC(d, a.__id)
     })
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${a.id}')">
+        <div class="flex header" onclick="RevealDescription('${htmlid}')">
             <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${a.id}_trigger" class="anim noselect">&gt;</div>
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">DLC Pack ${a.displayName} ${a.__OculusDBType == "ActivityNewDLCPack" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</div>
         </div>
-        <div class="hidden" id="${a.id}">
+        <div class="hidden" id="${htmlid}">
             
             <table>
                 <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
                 <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, a.__id)}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">DLC pack id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
             </table>
@@ -359,16 +359,16 @@ function FormatParentApplication(a, activityId) {
 </div>`
 }
 
-function FormatApplicationActivity(a) {
+function FormatApplicationActivity(a, htmlid) {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${a.__id}')">
+        <div class="flex header" onclick="RevealDescription('${htmlid}')">
             <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${a.__id}_trigger" class="anim noselect">&gt;</div>
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             
             <div stlye="font-size: 1.25em;">New Application released! <b>${a.displayName}</b></div>
         </div>
-        <div class="hidden" id="${a.__id}">
+        <div class="hidden" id="${htmlid}">
             <table>
                 <tr><td class="label">Description</td><td class="value">${a.displayLongDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
@@ -388,19 +388,19 @@ function FormatApplicationActivity(a) {
 </div>`
 }
 
-function FormatPriceChanged(a) {
+function FormatPriceChanged(a, htmlid) {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${a.__id}')">
+        <div class="flex header" onclick="RevealDescription('${htmlid}')">
             <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${a.__id}_trigger" class="anim noselect">&gt;</div>
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">Price of <b>${a.parentApplication.displayName}</b> changed from ${a.oldPriceFormatted} to <b>${a.newPriceFormatted}</b></div>
         </div>
-        <div class="hidden" id="${a.__id}">
+        <div class="hidden" id="${htmlid}">
             <table>
                 <tr><td class="label">New Price</td><td class="value">${a.newPriceFormatted}</td></tr>
                 <tr><td class="label">Old Price</td><td class="value">${a.oldPriceFormatted}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, a.__id)}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
             </table>
         </div>
@@ -416,11 +416,11 @@ function AutoFormat(e, connected, htmlid = "") {
     if(e.__OculusDBType == "IAPItem") return FormatDLC(e, htmlid)
     if(e.__OculusDBType == "IAPItemPack") return FormatDLCPack(e, connected.dlcs, htmlid)
     if(e.__OculusDBType == "Version") return FormatVersion(e, htmlid)
-    if(e.__OculusDBType == "ActivityNewDLC" || e.__OculusDBType == "ActivityDLCUpdated") return FormatDLCActivity(e)
-    if(e.__OculusDBType == "ActivityNewDLCPack" || e.__OculusDBType == "ActivityDLCPackUpdated") return FormatDLCPackActivity(e)
-    if(e.__OculusDBType == "ActivityNewVersion" || e.__OculusDBType == "ActivityVersionUpdated") return FormatVersionActivity(e)
-    if(e.__OculusDBType == "ActivityNewApplication") return FormatApplicationActivity(e)
-    if(e.__OculusDBType == "ActivityPriceChanged") return FormatPriceChanged(e)
+    if(e.__OculusDBType == "ActivityNewDLC" || e.__OculusDBType == "ActivityDLCUpdated") return FormatDLCActivity(e, htmlid)
+    if(e.__OculusDBType == "ActivityNewDLCPack" || e.__OculusDBType == "ActivityDLCPackUpdated") return FormatDLCPackActivity(e, htmlid)
+    if(e.__OculusDBType == "ActivityNewVersion" || e.__OculusDBType == "ActivityVersionUpdated") return FormatVersionActivity(e, htmlid)
+    if(e.__OculusDBType == "ActivityNewApplication") return FormatApplicationActivity(e, htmlid)
+    if(e.__OculusDBType == "ActivityPriceChanged") return FormatPriceChanged(e, htmlid)
     return ""
 }
 
@@ -428,7 +428,7 @@ function GetDLC(dlcs, id) {
     return dlcs.filter(x => x.id == id)[0]
 }
 
-function FormatVersionActivity(v) {
+function FormatVersionActivity(v, htmlid) {
     var releaseChannels = ""
     v.releaseChannels.forEach(x => {
         releaseChannels += `${x.channel_name}, `
@@ -437,19 +437,19 @@ function FormatVersionActivity(v) {
     var downloadable = releaseChannels != ""
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${v.id}')">
+        <div class="flex header" onclick="RevealDescription('${htmlid}')">
             <div>${GetTimeString(v.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_trigger" class="anim noselect">&gt;</div>
+            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
             <div stlye="font-size: 1.25em;">Version <b>${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</b> of <b>${v.parentApplication.displayName}</b> ${v.__OculusDBType == "ActivityVersionUpdated" ? `has been updated` : `has been uploaded`}</div>
         </div>
-        <div class="hidden" id="${v.id}">
+        <div class="hidden" id="${htmlid}">
             <table>
                 <tr><td class="label">Uploaded</td><td class="value">${new Date(v.uploadedTime).toLocaleString()}</td></tr>
                 <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
                 <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
                 <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
                 <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, v.__id)}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>
             </table>
