@@ -83,10 +83,33 @@
                 fetch(`/api/pricehistory/${id}`).then(res => res.json().then(res => {
                     var x = []
                     var y = []
+                    var layout = {
+                        width: "100%",
+                        height: "100%",
+                        font: {
+                            color: "#EEEEEE"
+                        },
+                        plot_bgcolor: "#181A1B",
+                        paper_bgcolor: "#181A1B",
+                        xaxis: {
+                            title: "Time"
+                        },
+                        yaxis: {
+                            title: "Price",
+                            tickvals: [],
+                            ticktext: []
+                        }
+                    }
                     res.forEach(p => {
                         x.unshift(p.__lastUpdated)
-                        y.unshift(p.newPriceFormatted ?? p.priceFormatted)
+                        y.unshift(p.newPriceOffsetNumerical ?? p.priceOffsetNumerical)
+                        if(p.newPriceFormatted ?? p.priceOffsetFormatted) {
+                            layout.yaxis.tickvals.unshift(p.newPriceOffsetNumerical ?? p.priceOffsetNumerical)
+                            layout.yaxis.ticktext.unshift(p.newPriceFormatted ?? p.priceOffsetFormatted)
+                        }
+                        
                     })
+                    console.log(layout)
                     priceHistory.innerHTML = ""
                     Plotly.newPlot(priceHistory, [{
                         x: x,
@@ -95,15 +118,7 @@
                             shape: "hv",
                             color: "#63FAC3"
                         }
-                    }], {
-                        width: "100%",
-                        height: "100%",
-                        font: {
-                            color: "#EEEEEE"
-                        },
-                        plot_bgcolor: "#181A1B",
-                        paper_bgcolor: "#181A1B"
-                    })
+                    }], layout)
                 }))
             }
 

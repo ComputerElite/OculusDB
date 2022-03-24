@@ -11,6 +11,11 @@
     <body>
         <div class="content">
             <div>
+                <h2>Search OculusDB</h2>
+                <div class="navBarElement">
+                    <input type="text" placeholder="Query" id="query2">
+                    <input type="button" onclick="Search('query2')" value="Search">
+                </div>
                 <h2>Welcome to Oculus DB</h2>
                 <h5><i>A work in progress but functional Oculus exploring and monitoring service</i></h5>
                 OculusDB monitores the entirety of Oculus with it's own database which gets completly updated about once a day (estimate)
@@ -20,7 +25,7 @@
                 <br>
                 All data is being gathered from Oculus GraphQL api at <a href="https://graphql.oculus.com/graphql">https://graphql.oculus.com/graphql</a>.
                 <h3>Download info</h3>
-                Downloads may only work if you are logged in on <a href="https://oculus.com">https://oculus.com</a> with your Oculus Account which owns the game you want to download.
+                <b>Downloads</b> may <b>only work</b> if you are <b>logged in on <a href="https://oculus.com">https://oculus.com</a></b> with your Oculus Account which owns the game you want to download.
                 <h3>Project info</h3>
                 As OculusDB is work in progress some features are missing. You can check the ToDo list <a href="https://github.com/ComputerElite/OculusDB/projects/1">here</a>.
                 <br>
@@ -30,5 +35,12 @@
             </div>
         </div>
         <script src="/script.js"></script>
+        <script>
+            document.getElementById("query2").onkeydown = e => {
+                if(e.code == "Enter") {
+                    Search("query2")
+                }
+            }
+        </script>
     </body>
 </html>
