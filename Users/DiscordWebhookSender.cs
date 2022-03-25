@@ -13,16 +13,27 @@ namespace OculusDB.Users
         public static void SendActivity(DateTime start)
         {
             Logger.Log("Sending activity via Discord webhooks after " + start);
-            List<DiscordActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
-            if(activityWebhooks.Count <= 0) return;
-            List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(start);
-            foreach(DiscordActivityWebhook activityWebhook in activityWebhooks)
+            Thread t = new Thread(() =>
             {
-                foreach(BsonDocument activity in activities)
+                List<DiscordActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
+                if (activityWebhooks.Count <= 0) return;
+                List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(start);
+                foreach (DiscordActivityWebhook activityWebhook in activityWebhooks)
                 {
-                    activityWebhook.SendWebhook(activity);
+                    foreach (BsonDocument activity in activities)
+                    {
+                        try
+                        {
+                            activityWebhook.SendWebhook(activity);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
+                        }
+                    }
                 }
-            }
+            });
+            t.Start();
         }
     }
 }
