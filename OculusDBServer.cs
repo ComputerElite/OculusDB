@@ -1,4 +1,5 @@
-﻿using ComputerUtils.Logging;
+﻿using ComputerUtils.Discord;
+using ComputerUtils.Logging;
 using ComputerUtils.Updating;
 using ComputerUtils.VarUtils;
 using ComputerUtils.Webserver;
@@ -41,12 +42,33 @@ namespace OculusDB
             return GetToken(request, send403) == config.masterToken;
         }
 
+        public void SendMasterWebhookMessage(string title, string description, int color)
+        {
+            if (config.masterWebhookUrl == "") return;
+            try
+            {
+                Logger.Log("Sending master webhook");
+                DiscordWebhook webhook = new DiscordWebhook(config.masterWebhookUrl);
+                webhook.SendEmbed(title, description, "master " + DateTime.UtcNow, "OculusDB", "https://computerelite.github.io/assets/CE_512px.png", config.publicAddress, "https://computerelite.github.io/assets/CE_512px.png", config.publicAddress, color);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Exception while sending webhook" + ex.ToString(), LoggingType.Warning);
+            }
+        }
+
+        public void HandleExeption(object sender, UnhandledExceptionEventArgs args)
+        {
+            SendMasterWebhookMessage("Critical Unhandled Exception", "ComputerAnalytics managed to crash. Well done Developer: " + ((Exception)args.ExceptionObject).ToString().Substring(0, 1900), 0xFF0000);
+        }
+
         public void StartServer(HttpServer httpServer)
         {
             server = httpServer;
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
+            AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             server.StartServer(config.port);
 
             OculusInteractor.Init();
