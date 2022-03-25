@@ -73,10 +73,17 @@ namespace OculusDB
                 const int maxAppsToDo = 500;
                 Logger.Log("Settings up scraping threads for " + HeadsetTools.GetHeadsetCodeName(h));
                 List<string> ids = new List<string>();
-                foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
+                try
                 {
-                    ids.Add(a.id);
+                    foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
+                    {
+                        ids.Add(a.id);
+                    }
+                } catch(Exception e)
+                {
+                    OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
                 }
+                
                 while (current < ids.Count)
                 {
                     Thread t = new Thread((ids) =>

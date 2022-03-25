@@ -20,7 +20,7 @@ namespace OculusDB
     public class OculusDBServer
     {
         public HttpServer server = null;
-        public Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
+        public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" }
@@ -42,7 +42,12 @@ namespace OculusDB
             return GetToken(request, send403) == config.masterToken;
         }
 
-        public void SendMasterWebhookMessage(string title, string description, int color)
+        public static string FormatException(Exception e)
+        {
+            return e.ToString().Substring(0, e.ToString().Length > 1900 ? 1900 : e.ToString().Length);
+        }
+
+        public static void SendMasterWebhookMessage(string title, string description, int color)
         {
             if (config.masterWebhookUrl == "") return;
             try
@@ -59,7 +64,8 @@ namespace OculusDB
 
         public void HandleExeption(object sender, UnhandledExceptionEventArgs args)
         {
-            SendMasterWebhookMessage("Critical Unhandled Exception", "ComputerAnalytics managed to crash. Well done Developer: " + ((Exception)args.ExceptionObject).ToString().Substring(0, 1900), 0xFF0000);
+            Logger.Log("Unhandled exception has been catched: " + args.ExceptionObject.ToString());
+            SendMasterWebhookMessage("Critical Unhandled Exception", "ComputerAnalytics managed to crash. Well done Developer: " + FormatException((Exception)args.ExceptionObject), 0xFF0000);
         }
 
         public void StartServer(HttpServer httpServer)
@@ -73,7 +79,10 @@ namespace OculusDB
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
+            //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
             OculusScraper.StartScrapingThread();
+
+            
 
             server.AddRoute("POST", "/api/updateserver", new Func<ServerRequest, bool>(request =>
             {

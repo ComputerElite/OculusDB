@@ -38,6 +38,10 @@ namespace OculusDB
         {
             Data<AppStoreAllAppsSection> s = GraphQLClient.AllApps(headset);
             int i = 0;
+            if(s.data.node == null)
+            {
+                throw new Exception("Could not get data to enumerate applications.");
+            }
             while (i < s.data.node.all_items.count)
             {
                 string cursor = "";

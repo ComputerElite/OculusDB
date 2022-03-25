@@ -145,7 +145,7 @@ namespace OculusDB
 
         public static List<DiscordActivityWebhook> GetWebhooks()
         {
-            return webhookCollection.Find(x => true).ToList();
+            return webhookCollection.Find(new BsonDocument()).ToList();
         }
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId)
