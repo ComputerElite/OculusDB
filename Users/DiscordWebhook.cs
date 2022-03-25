@@ -134,7 +134,7 @@ namespace OculusDB.Users
                 meta.Add("Application id", v.parentApplication.id);
                 id = v.parentApplication.id;
             }
-            if (applicationId != "" && applicationId != id) return;
+            if (applicationId != "" && applicationId != id || applicationId == "" && (type == DBDataTypes.ActivityNewVersion || type == DBDataTypes.ActivityVersionUpdated)) return;
             foreach (KeyValuePair<string, string> item in meta)
             {
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
