@@ -15,7 +15,7 @@ namespace OculusDB.Users
             Logger.Log("Sending activity via Discord webhooks after " + start);
             List<DiscordActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
             if(activityWebhooks.Count <= 0) return;
-            List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(DateTime.MinValue);
+            List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(start);
             foreach(DiscordActivityWebhook activityWebhook in activityWebhooks)
             {
                 foreach(BsonDocument activity in activities)
