@@ -141,7 +141,7 @@ namespace OculusDB.Users
             }
             embed.description += "**Activity link:** " + websiteUrl + "activity/" + activity["_id"].ToString();
             webhook.SendEmbed(embed, "OculusDB", icon);
-            Thread.Sleep(1100);
+            Thread.Sleep(1500);
         }
     }
 }
