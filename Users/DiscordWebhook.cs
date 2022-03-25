@@ -11,6 +11,7 @@ using OculusGraphQLApiLib;
 
 namespace OculusDB.Users
 {
+    [BsonIgnoreExtraElements]
     public class DiscordActivityWebhook
     {
         [BsonIgnore]
