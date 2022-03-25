@@ -9,7 +9,9 @@ using OculusGraphQLApiLib.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OculusDB
@@ -45,6 +47,7 @@ namespace OculusDB
             SetupLimitedScrape(Headset.MONTEREY);
             SetupLimitedScrape(Headset.GEARVR);
             SetupLimitedScrape(Headset.PACIFIC);
+            SetupLimitedScrapeAppLab();
         }
 
         public static void FinishCurrentScrape()
@@ -63,6 +66,58 @@ namespace OculusDB
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();
             StartScrapingThread();
+        }
+
+        public static void SetupLimitedScrapeAppLab()
+        {
+            Thread t = new Thread(() =>
+            {
+                WebClient c = new WebClient();
+                List<SidequestApplabGame> s = JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true"));
+                List<string> ids = new List<string>();
+                foreach (SidequestApplabGame a in s)
+                {
+                    string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
+                    if (id.Length <= 16)
+                    {
+                        ids.Add(id);
+                    }
+                }
+                int current = 0;
+                const int maxAppsToDo = 500;
+                while (current < ids.Count)
+                {
+                    Thread t = new Thread((ids) =>
+                    {
+                        List<string> idds = (List<string>)ids;
+                        Logger.Log("Started Scraping thread for " + idds.Count + " apps of AppLab");
+                        foreach (string id in idds)
+                        {
+                            bool success = false;
+                            for (int i = 1; i <= 3 && !success; i++)
+                            {
+                                try
+                                {
+                                    Scrape(id, Headset.MONTEREY);
+                                    success = true;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (i == 3) Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                    else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
+                                }
+                            }
+                        }
+                        doneScrapeThreads++;
+                        Logger.Log("Scraping thread for " + idds.Count + " apps of AppLab has finished. Threads to finish: " + (totalScrapeThreads - doneScrapeThreads));
+                        if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
+                    });
+                    t.Start(ids.Skip(current).Take(maxAppsToDo).ToList());
+                    current += maxAppsToDo;
+                    totalScrapeThreads++;
+                }
+            });
+            t.Start();
         }
 
         public static void SetupLimitedScrape(Headset h)
@@ -260,5 +315,12 @@ namespace OculusDB
             }
             else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
         }
+    }
+
+    public class SidequestApplabGame
+    {
+        public string oculus_url { get; set; } = "";
+        public string name { get; set; } = "";
+        public string image_url { get; set; } = "";
     }
 }
