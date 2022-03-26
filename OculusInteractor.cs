@@ -16,7 +16,6 @@ namespace OculusDB
         public static void Init()
         {
             GraphQLClient.forcedLocale = "en_US";
-            GraphQLClient.oculusStoreToken = OculusDBEnvironment.config.oculusToken;
             GraphQLClient.throwException = false;
         }
         public static List<Application> GetAllApplications(Headset headset, int appsToSkip, int appsToDo)

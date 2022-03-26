@@ -42,7 +42,14 @@ namespace OculusDB
                 config.ScrapingResumeData.currentScrapeStart = DateTime.Now;
                 config.Save();
             }
-
+            if(config.oculusTokens.Count <= 0)
+            {
+                Logger.Log("Cannot scrape as no Oculus tokens are configured", LoggingType.Error);
+                OculusDBServer.SendMasterWebhookMessage("Cannot scrape data", "Please add 1 or more Oculus tokens to the config", 0xFF0000);
+                return;
+            }
+            config.lastOculusToken = (config.lastOculusToken + 1) % config.oculusTokens.Count;
+            GraphQLClient.oculusStoreToken = config.oculusTokens[config.lastOculusToken];
             SetupLimitedScrape(Headset.RIFT);
             SetupLimitedScrape(Headset.MONTEREY);
             SetupLimitedScrape(Headset.GEARVR);
