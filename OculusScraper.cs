@@ -23,7 +23,9 @@ namespace OculusDB
                 return OculusDBEnvironment.config;
             } }
         public static int totalScrapeThreads = 0;
+        public const int maxAppsToDo = 1000;
         public static int doneScrapeThreads = 0;
+        public static List<string> updated = new List<string>();
 
         public static void StartScrapingThread()
         {
@@ -48,6 +50,7 @@ namespace OculusDB
                 OculusDBServer.SendMasterWebhookMessage("Cannot scrape data", "Please add 1 or more Oculus tokens to the config", 0xFF0000);
                 return;
             }
+            updated = new List<string>();
             config.lastOculusToken = (config.lastOculusToken + 1) % config.oculusTokens.Count;
             GraphQLClient.oculusStoreToken = config.oculusTokens[config.lastOculusToken];
             SetupLimitedScrape(Headset.RIFT);
@@ -66,7 +69,7 @@ namespace OculusDB
             if(config.deleteOldData)
             {
                 Logger.Log("Deleting old data");
-                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
+                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate, updated)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
             }
             DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
@@ -91,7 +94,6 @@ namespace OculusDB
                     }
                 }
                 int current = 0;
-                const int maxAppsToDo = 500;
                 while (current < ids.Count)
                 {
                     Thread t = new Thread((ids) =>
@@ -132,7 +134,6 @@ namespace OculusDB
             Thread t = new Thread(() =>
             {
                 int current = 0;
-                const int maxAppsToDo = 500;
                 Logger.Log("Settings up scraping threads for " + HeadsetTools.GetHeadsetCodeName(h));
                 List<string> ids = new List<string>();
                 try
@@ -333,6 +334,7 @@ namespace OculusDB
                 }
             }
             else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+            updated.Add(a.id);
         }
 
         public static string FormatPrice(long offsetAmount, string currency)

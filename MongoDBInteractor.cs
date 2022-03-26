@@ -139,9 +139,14 @@ namespace OculusDB
             return activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList();
         }
 
-        public static long DeleteOldData(DateTime before)
+        public static long DeleteOldData(DateTime before, List<string> ids)
         {
-            return dataCollection.DeleteMany(x => x["__lastUpdated"] < before).DeletedCount;
+            long deleted = 0;
+            foreach(string id in ids)
+            {
+                deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == id) || (x["__OculusDBType"] != DBDataTypes.Application && x["parentApplication"]["id"] == id))).DeletedCount;
+            }
+            return deleted;
         }
 
         public static List<DiscordActivityWebhook> GetWebhooks()
