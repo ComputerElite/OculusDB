@@ -197,8 +197,8 @@ namespace OculusDB
                 e.hmd = headset;
                 e.publisherName = a.publisher_name;
                 e.displayName = a.displayName;
-                e.priceFormatted = a.current_offer.price.formatted;
-                e.priceOffset = a.current_offer.price.offset_amount;
+                e.priceFormatted = a.baseline_offer.price.formatted;
+                e.priceOffset = a.baseline_offer.price.offset_amount;
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
@@ -308,11 +308,23 @@ namespace OculusDB
             priceChange.parentApplication.hmd = headset;
             priceChange.parentApplication.canonicalName = a.canonicalName;
             priceChange.parentApplication.displayName = a.displayName;
-            priceChange.newPriceFormatted = a.current_offer.price.formatted;
-            priceChange.newPriceOffset = a.current_offer.price.offset_amount;
+
+            // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
+            // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
+            // So if the user owns the app use the baseline price. If not use the current_price
+            // That way discounts for the apps the user owns can't be tracked. I love oculus
+            if(a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
+            {
+                priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
+            } else
+            {
+                priceChange.newPriceOffset = a.current_offer.price.offset_amount;
+            }
+
+            priceChange.newPriceFormatted = FormatPrice(priceChange.newPriceOffsetNumerical, a.current_offer.price.currency);
             if (lastPriceChange != null)
             {
-                if (lastPriceChange.newPriceOffset != a.current_offer.price.offset_amount)
+                if (lastPriceChange.newPriceOffset != priceChange.newPriceOffset)
                 {
                     priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
                     priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
@@ -321,6 +333,16 @@ namespace OculusDB
                 }
             }
             else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+        }
+
+        public static string FormatPrice(long offsetAmount, string currency)
+        {
+            string symbol = "";
+            if (currency == "USD") symbol = "$";
+            if (currency == "EUR") symbol = "€";
+            string price = symbol + String.Format("{0:0.00}", offsetAmount / 100.0);
+            
+            return price;
         }
     }
 
