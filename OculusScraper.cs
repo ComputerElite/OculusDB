@@ -197,8 +197,8 @@ namespace OculusDB
                 e.hmd = headset;
                 e.publisherName = a.publisher_name;
                 e.displayName = a.displayName;
-                e.priceFormatted = a.baseline_offer.price.formatted;
                 e.priceOffset = a.baseline_offer.price.offset_amount;
+                e.priceFormatted = FormatPrice(e.priceOffsetNumerical, a.current_offer.price.currency);
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
