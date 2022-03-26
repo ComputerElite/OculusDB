@@ -54,7 +54,7 @@ namespace OculusDB
             {
                 Logger.Log("Sending master webhook");
                 DiscordWebhook webhook = new DiscordWebhook(config.masterWebhookUrl);
-                webhook.SendEmbed(title, description, "master " + DateTime.UtcNow, "OculusDB", "https://computerelite.github.io/assets/CE_512px.png", config.publicAddress, "https://computerelite.github.io/assets/CE_512px.png", config.publicAddress, color);
+                webhook.SendEmbed(title, description, "master " + DateTime.UtcNow, "OculusDB", config.publicAddress + "logo", config.publicAddress, config.publicAddress + "logo", config.publicAddress, color);
             }
             catch (Exception ex)
             {

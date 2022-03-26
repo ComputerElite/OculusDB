@@ -37,6 +37,7 @@ namespace OculusDB
             pack.Add(new IgnoreExtraElementsConvention(true));
             ConventionRegistry.Register("Ignore extra elements cause it's annoying", pack, t => true);
 
+            // Don't ask. It's important stuff to reduce DB size and fix a lot of errors
             RemoveIdRemap<Application>();
             RemoveIdRemap<ParentApplication>();
             RemoveIdRemap<AndroidBinary>();
