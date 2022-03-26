@@ -24,6 +24,7 @@ namespace OculusDB
             } }
         public static int totalScrapeThreads = 0;
         public const int maxAppsToDo = 1000;
+        public static int failedApps = 0;
         public static int doneScrapeThreads = 0;
         public static List<string> updated = new List<string>();
 
@@ -51,13 +52,18 @@ namespace OculusDB
                 return;
             }
             updated = new List<string>();
-            config.lastOculusToken = (config.lastOculusToken + 1) % config.oculusTokens.Count;
-            GraphQLClient.oculusStoreToken = config.oculusTokens[config.lastOculusToken];
+            SwitchToken();
             SetupLimitedScrape(Headset.RIFT);
             SetupLimitedScrape(Headset.MONTEREY);
             SetupLimitedScrape(Headset.GEARVR);
             SetupLimitedScrape(Headset.PACIFIC);
             SetupLimitedScrapeAppLab();
+        }
+
+        public static void SwitchToken()
+        {
+            config.lastOculusToken = (config.lastOculusToken + 1) % config.oculusTokens.Count;
+            GraphQLClient.oculusStoreToken = config.oculusTokens[config.lastOculusToken];
         }
 
         public static void FinishCurrentScrape()
@@ -112,7 +118,12 @@ namespace OculusDB
                                 }
                                 catch (Exception ex)
                                 {
-                                    if (i == 3) Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                    if (i == 3)
+                                    {
+                                        Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                        failedApps++;
+                                        if (Stop()) break;
+                                    }
                                     else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
                             }
@@ -127,6 +138,22 @@ namespace OculusDB
                 }
             });
             t.Start();
+        }
+
+        public static bool Stop()
+        {
+            if(failedApps == 100)
+            {
+                OculusDBServer.SendMasterWebhookMessage("Warning", "More than 100 apps have failed to get scraped. Token will be switched and retry will be in 30 minutes", 0xFF0000);
+                Task.Delay(30 * 60 * 1000).Wait();
+                OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be restarted now", 0x00FF00);
+                ScrapeAll();
+
+            } else if(failedApps > 100)
+            {
+                return true;
+            }
+            return false;
         }
 
         public static void SetupLimitedScrape(Headset h)
@@ -165,7 +192,12 @@ namespace OculusDB
                                 }
                                 catch (Exception ex)
                                 {
-                                    if (i == 3) Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                    if (i == 3)
+                                    {
+                                        Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                        failedApps++;
+                                        if (Stop()) break;
+                                    }
                                     else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
                             }
