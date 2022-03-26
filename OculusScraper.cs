@@ -51,6 +51,7 @@ namespace OculusDB
                 OculusDBServer.SendMasterWebhookMessage("Cannot scrape data", "Please add 1 or more Oculus tokens to the config", 0xFF0000);
                 return;
             }
+            failedApps = 0;
             updated = new List<string>();
             SwitchToken();
             SetupLimitedScrape(Headset.RIFT);
@@ -122,7 +123,7 @@ namespace OculusDB
                                     {
                                         Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
                                         failedApps++;
-                                        if (Stop()) break;
+                                        if (Stop()) return;
                                     }
                                     else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
@@ -139,18 +140,20 @@ namespace OculusDB
             });
             t.Start();
         }
-
+        public const int maxAppsToFail = 25;
         public static bool Stop()
         {
-            if(failedApps == 100)
+            if(failedApps == maxAppsToFail)
             {
-                OculusDBServer.SendMasterWebhookMessage("Warning", "More than 100 apps have failed to get scraped. Token will be switched and retry will be in 30 minutes", 0xFF0000);
+                Logger.Log(maxAppsToFail + " apps failed to get scraped", LoggingType.Warning);
+                OculusDBServer.SendMasterWebhookMessage("Warning", "More than " + maxAppsToFail + " apps have failed to get scraped. Token will be switched and retry will be in 30 minutes", 0xFF0000);
                 Task.Delay(30 * 60 * 1000).Wait();
                 OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be restarted now", 0x00FF00);
                 ScrapeAll();
-
-            } else if(failedApps > 100)
+                return true;
+            } else if(failedApps > maxAppsToFail)
             {
+                Logger.Log("Stopping thread");
                 return true;
             }
             return false;
@@ -196,7 +199,7 @@ namespace OculusDB
                                     {
                                         Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
                                         failedApps++;
-                                        if (Stop()) break;
+                                        if (Stop()) return;
                                     }
                                     else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
