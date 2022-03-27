@@ -23,10 +23,12 @@ namespace OculusDB
                 return OculusDBEnvironment.config;
             } }
         public static int totalScrapeThreads = 0;
-        public const int maxAppsToDo = 1000;
         public static int failedApps = 0;
         public static int doneScrapeThreads = 0;
-        public static List<string> updated = new List<string>();
+
+        public const int maxAppsToDo = 1000;
+        public const int maxAppsToFail = 25;
+        public const int minutesPause = 60;
 
         public static void StartScrapingThread()
         {
@@ -52,7 +54,7 @@ namespace OculusDB
                 return;
             }
             failedApps = 0;
-            updated = new List<string>();
+            config.ScrapingResumeData.updated = new List<string>();
             SwitchToken();
             SetupLimitedScrape(Headset.RIFT);
             SetupLimitedScrape(Headset.MONTEREY);
@@ -76,12 +78,15 @@ namespace OculusDB
             if(config.deleteOldData)
             {
                 Logger.Log("Deleting old data");
-                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate, updated)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
+                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
             }
             DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();
+            OculusDBServer.SendMasterWebhookMessage("Info", "Scrape which has been started on " + config.lastDBUpdate + " has finished. The next scrape will start in " + minutesPause + " minutes", 0xFF0000);
+            Task.Delay(minutesPause * 60 * 1000).Wait();
+            OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be started now", 0x00FF00);
             StartScrapingThread();
         }
 
@@ -140,14 +145,14 @@ namespace OculusDB
             });
             t.Start();
         }
-        public const int maxAppsToFail = 25;
+        
         public static bool Stop()
         {
             if(failedApps == maxAppsToFail)
             {
                 Logger.Log(maxAppsToFail + " apps failed to get scraped", LoggingType.Warning);
-                OculusDBServer.SendMasterWebhookMessage("Warning", "More than " + maxAppsToFail + " apps have failed to get scraped. Token will be switched and retry will be in 30 minutes", 0xFF0000);
-                Task.Delay(30 * 60 * 1000).Wait();
+                OculusDBServer.SendMasterWebhookMessage("Warning", "More than " + maxAppsToFail + " apps have failed to get scraped. Token will be switched and retry will be in " + minutesPause + " minutes", 0xFF0000);
+                Task.Delay(minutesPause * 60 * 1000).Wait();
                 OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be restarted now", 0x00FF00);
                 ScrapeAll();
                 return true;
@@ -369,7 +374,8 @@ namespace OculusDB
                 }
             }
             else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
-            updated.Add(a.id);
+            config.ScrapingResumeData.updated.Add(a.id);
+            config.Save();
         }
 
         public static string FormatPrice(long offsetAmount, string currency)

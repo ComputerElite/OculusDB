@@ -17,6 +17,7 @@
             <h2>Admin panel</h2>
             <div style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
                 <input type="button" value="Update server" onclick="Update()">
+                <input type="button" value="Restart server" onclick="Restart()">
                 <div style="width: 90%; background-color: var(--hightlightColor); height: 10px;"><div style="background-color: var(--highlightedColor); height: 100%; width: 0%;" id="progress"></div></div>
                 <input type="button" value="View Console" onclick="location.href = '/console'">
                 <a href="/api/config" download="OculusDBConfig.json">Download config</a>
@@ -40,7 +41,15 @@
                 document.getElementById("ram").innerHTML = res.ramUsageString
                 document.getElementById("working").innerHTML = res.workingDirectory
             }))
-
+            function Restart() {
+                fetch("/restartserver", {
+                    method: "POST"
+                }).then(res => {
+                    res.text().then(res => {
+                        alert(res)
+                    })
+                })
+            }
             const progress = document.getElementById("progress")
             function Update() {
                 var input = document.createElement("input")

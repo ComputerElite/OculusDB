@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComputerUtils.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,12 +32,19 @@ namespace OculusDB
 
         public void Save()
         {
-            File.WriteAllText(OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json", JsonSerializer.Serialize(this));
+            try
+            {
+                File.WriteAllText(OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json", JsonSerializer.Serialize(this));
+            } catch(Exception e)
+            {
+                Logger.Log("couldn't save config: " + e.ToString(), LoggingType.Warning);
+            }
         }
     }
 
     public class ScrapingResumeData
     {
         public DateTime currentScrapeStart { get; set; } = DateTime.MinValue;
+        public List<string> updated { get; set; } = new List<string>();
     }
 }

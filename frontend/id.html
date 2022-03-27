@@ -100,15 +100,22 @@
                             ticktext: []
                         }
                     }
+                    var prices = {}
                     res.forEach(p => {
                         x.unshift(p.__lastUpdated)
                         y.unshift(p.newPriceOffsetNumerical ?? p.priceOffsetNumerical)
                         if(p.newPriceFormatted ?? p.priceOffsetFormatted) {
-                            layout.yaxis.tickvals.unshift(p.newPriceOffsetNumerical ?? p.priceOffsetNumerical)
-                            layout.yaxis.ticktext.unshift(p.newPriceFormatted ?? p.priceOffsetFormatted)
+                            prices[p.newPriceOffsetNumerical ?? p.priceOffsetNumerical] = p.newPriceFormatted ?? p.priceOffsetFormatted
                         }
-                        
                     })
+                    Object.keys(prices).sort().reduce(
+                        (obj, key) => { 
+                            layout.yaxis.tickvals.push(key)
+                            layout.yaxis.ticktext.push(prices[key])
+                            return obj;
+                        }, 
+                        {}
+                    );
                     console.log(layout)
                     priceHistory.innerHTML = ""
                     Plotly.newPlot(priceHistory, [{
