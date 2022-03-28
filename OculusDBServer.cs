@@ -83,12 +83,13 @@ namespace OculusDB
             OculusScraper.StartScrapingThread();
 
             WebClient webClient = new WebClient();
+            webClient.Headers.Add("origin", "https://oculus.com");
 
             server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
-                    string res = webClient.UploadString(GraphQLClient.oculusUri, request.bodyString);
+                    string res = webClient.UploadString(GraphQLClient.oculusUri + "?" + request.bodyString, "POST", "");
                     request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
                     {
                         {
