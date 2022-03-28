@@ -82,7 +82,32 @@ namespace OculusDB
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
             OculusScraper.StartScrapingThread();
 
-            
+            WebClient webClient = new WebClient();
+
+            server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
+            {
+                try
+                {
+                    string res = webClient.UploadString(GraphQLClient.oculusUri, request.bodyString);
+                    request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
+                    {
+                        {
+                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
+                        }
+                    });
+                } catch(Exception e)
+                {
+                    string res = webClient.UploadString(GraphQLClient.oculusUri, request.bodyString);
+                    request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
+                    {
+                        {
+                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
+                        }
+                    });
+                }
+                
+                return true;
+            }));
 
             server.AddRoute("POST", "/api/updateserver", new Func<ServerRequest, bool>(request =>
             {
@@ -110,6 +135,7 @@ namespace OculusDB
                 m.ramUsage = currentProcess.WorkingSet64;
                 m.ramUsageString = SizeConverter.ByteSizeToString(m.ramUsage);
                 m.workingDirectory = OculusDBEnvironment.workingDir;
+                m.test = Updater.GetBaseDir();
                 request.SendString(JsonSerializer.Serialize(m), "application/json");
                 return true;
             }));

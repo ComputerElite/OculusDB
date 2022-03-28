@@ -10,6 +10,7 @@ namespace OculusDB
     {
         public long ramUsage { get; set; } = 0;
         public string ramUsageString { get; set; } = "";
+        public string test { get; set; } = "";
         public string workingDirectory { get; set; } = "";
     }
 }

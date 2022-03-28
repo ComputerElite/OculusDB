@@ -54,7 +54,6 @@ namespace OculusDB
                 return;
             }
             failedApps = 0;
-            config.ScrapingResumeData.updated = new List<string>();
             SwitchToken();
             SetupLimitedScrape(Headset.RIFT);
             SetupLimitedScrape(Headset.MONTEREY);
@@ -80,6 +79,9 @@ namespace OculusDB
                 Logger.Log("Deleting old data");
                 Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
             }
+
+            config.ScrapingResumeData.updated = new List<string>();
+            config.Save();
             DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
