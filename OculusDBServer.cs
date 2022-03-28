@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace OculusDB
 {
@@ -80,7 +81,7 @@ namespace OculusDB
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
-            OculusScraper.StartScrapingThread();
+            //OculusScraper.StartScrapingThread();
 
             WebClient webClient = new WebClient();
             webClient.Headers.Add("origin", "https://oculus.com");
@@ -109,7 +110,22 @@ namespace OculusDB
                 
                 return true;
             }));
-
+            server.AddRoute("GET", "/applicationspecific/", new Func<ServerRequest, bool>(request =>
+            {
+                if(!(new Regex(@"^[0-9]+$").IsMatch(request.pathDiff)))
+                {
+                    request.SendString("Only application ids are allowed", "text/plain", 400);
+                    return true;
+                }
+                string file = "frontend" + Path.DirectorySeparatorChar + "applicationspecific" + Path.DirectorySeparatorChar + request.pathDiff + ".html";
+                if (File.Exists(file))
+                {
+                    request.SendFile(file);
+                    return true;
+                }
+                request.SendString("No special utilities available", "text/plain", 404);
+                return true;
+            }), true);
             server.AddRoute("POST", "/api/updateserver", new Func<ServerRequest, bool>(request =>
             {
                 if(!IsUserAdmin(request)) return true;

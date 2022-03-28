@@ -461,10 +461,13 @@ function FormatVersionActivity(v, htmlid) {
     </div>
 </div>`
 }
+function GetDownloadLink(id) {
+    return `https://securecdn.oculus.com/binaries/download/?id=${id}`
+}
 
 function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${id}', '_blank')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${GetDownloadLink(id)}', '_blank')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}','${version}', '${parentApplication.displayName.replace("'", "\\'")}')">`
 }

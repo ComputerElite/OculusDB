@@ -19,7 +19,12 @@
                 <h2>This</h2>
                 <div id="this"><div class="loader"></div></div>
             </div>
-
+            <div id="specificContainer">
+                <h2>Application specific</h2>
+                <div id="specific">
+                    <div class="loader"></div>
+                </div>
+            </div>
             <div class="tabContainer">
                 <h2>Connected</h2>
                 <div class="tab">
@@ -57,10 +62,11 @@
             const dlcs = document.getElementById("dlcs")
             const versions = document.getElementById("versions")
 
+            // query params
+            const downloadVersion = params.get("downloadversion")
+
             var object = {}
             var connected = {}
-
-            //AddConnected();
 
             GetObjectById(id).then(res => {
                 object = res
@@ -76,6 +82,107 @@
                     alet("An unknown error occurred")
                 }
             })
+
+            function AddApplicationSpecific(id) {
+                fetch(`/applicationspecific/${id}`).then(res => {
+                    if(res.status != 200) {
+                        document.getElementById("specificContainer").style.display = "none"
+                        return
+                    }
+                    res.text().then(res => {
+                        document.getElementById("specific").innerHTML = res
+                        Array.prototype.forEach.call(document.getElementById("specific").getElementsByTagName("script"), e => {
+                                s = document.createElement("script")
+                                s.innerHTML = e.innerHTML
+                                document.head.appendChild(s)
+                            })
+                    })
+                })
+            }
+
+            function AddConnected() {
+                fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
+                    connected = res
+                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
+                    RevealDescription("this_" + object.id)
+                    if(object.__OculusDBType != "Version"){
+                        var script = document.createElement("script")
+                        script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
+                        script.onload = () => PlotPrice()
+                        document.head.appendChild(script)
+                    } else {
+                        priceHistory.innerHTML = "Prices are not available for Versions"
+                    }
+                    if(object.__OculusDBType == "Application") {
+                        AddApplicationSpecific(object.id)
+                    }
+                    var apps = ""
+                    connected.applications.forEach(a => {
+                        apps += FormatApplication(a, a.id)
+                    })
+                    if(!apps) apps = noResult
+                    applications.innerHTML = apps
+
+                    UpdateVersions(false)
+
+                    var ds = ""
+                    connected.dlcs.forEach(d => {
+                        ds += FormatDLC(d, d.id)
+                    })
+                    if(!ds) ds = noResult
+                    dlcs.innerHTML = ds
+
+                    var dps = ""
+                    connected.dlcPacks.forEach(dp => {
+                        dps += FormatDLCPack(dp, connected.dlcs, dp.id)
+                    })
+                    if(!dps) dps = noResult
+                    dlcpacks.innerHTML = dps
+                }))
+            }
+
+            function DownloadVersionPopUp(version) {
+                var v = GetVersion(version)
+                if(IsHeadsetAndroid(v.parentApplication.hmd)) {
+                    PopUp(`<div>Do you want to Download version ${version}. If the download doesn't start log in on oculus.com</div>
+                            <div style="display: flex;">
+                                <input type="button" onclick="DownloadVersion('${version}')" value="Yes">
+                                <input type="button" onclick="document.getElementById('popup').click()" value="No">
+                            </div>`)
+                } else {
+                    PopUp(`<div>Do you want to Download version ${version}. If the download doesn't start log in on oculus.com</div>
+                            <div style="display: flex;">
+                                <input type="button" onclick="RiftDownloadPopUp('${v.parentApplication.id}','${v.id}','${v.version}', '${v.parentApplication.displayName.replace("'", "\\'")}')" value="Yes">
+                                <input type="button" onclick="document.getElementById('popup').click()" value="No">
+                            </div>`)
+                }
+                
+            }
+
+            function GetVersion(version) {
+                var res;
+                connected.versions.forEach(v => {
+                    if(v.version == version && v.binary_release_channels.nodes.length > 0) res = v
+                });
+                return res
+            }
+
+            function DownloadVersion(version) {
+                window.open(GetDownloadLink(GetVersion(version).id), "_blank")
+                document.getElementById('popup').click()
+            }
+
+            function UpdateVersions(showAll) {
+                var vers = `<label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
+                connected.versions.forEach(v => {
+                    if(downloadVersion && downloadVersion == v.version) {
+                        DownloadVersionPopUp(v.version)
+                    }
+                    if(v.binary_release_channels.nodes.length > 0 || showAll)
+                        vers += FormatVersion(v, v.id)
+                })
+                versions.innerHTML = vers
+            }
 
             const priceHistory = document.getElementById("history")
 
@@ -127,53 +234,6 @@
                         }
                     }], layout)
                 }))
-            }
-
-            function AddConnected() {
-                fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
-                    connected = res
-                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
-                    RevealDescription("this_" + object.id)
-                    if(object.__OculusDBType != "Version"){
-                        var script = document.createElement("script")
-                        script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
-                        script.onload = () => PlotPrice()
-                        document.head.appendChild(script)
-                    } else {
-                        priceHistory.innerHTML = "Prices are not available for Versions"
-                    }
-                    var apps = ""
-                    connected.applications.forEach(a => {
-                        apps += FormatApplication(a, a.id)
-                    })
-                    if(!apps) apps = noResult
-                    applications.innerHTML = apps
-
-                    UpdateVersions(false)
-
-                    var ds = ""
-                    connected.dlcs.forEach(d => {
-                        ds += FormatDLC(d, d.id)
-                    })
-                    if(!ds) ds = noResult
-                    dlcs.innerHTML = ds
-
-                    var dps = ""
-                    connected.dlcPacks.forEach(dp => {
-                        dps += FormatDLCPack(dp, connected.dlcs, dp.id)
-                    })
-                    if(!dps) dps = noResult
-                    dlcpacks.innerHTML = dps
-                }))
-            }
-
-            function UpdateVersions(showAll) {
-                var vers = `<label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
-                connected.versions.forEach(v => {
-                    if(v.binary_release_channels.nodes.length > 0 || showAll)
-                        vers += FormatVersion(v, v.id)
-                })
-                versions.innerHTML = vers
             }
         </script>
     </body>

@@ -1,0 +1,16 @@
+<div id="latestVer"></div>
+<script>
+    fetch("https://raw.githubusercontent.com/BMBF/resources/master/com.beatgames.beatsaber/core-mods.json").then(res => {
+        res.json().then(json => {
+            arr = []
+            for (const [key, value] of Object.entries(json)) {
+                arr.push(key)
+            }
+            latest = arr.map( a => a.replace(/\d+/g, n => +n+100000 ) ).sort().map( a => a.replace(/\d+/g, n => +n-100000 ) ).reverse()[0]
+            console.log(latest)
+            if(params.get("downloadlatestmoddable"))
+                window.location.href = `?downloadversion=${latest}`
+            document.getElementById("latestVer").innerHTML = `<input type="button" onclick="DownloadVersion('${latest}')" style="font-size: 1.2em;" value="Download latest moddable version (${latest})">`
+        })
+    })
+</script>
