@@ -42,7 +42,7 @@
                 document.getElementById("working").innerHTML = res.workingDirectory
             }))
             function Restart() {
-                fetch("/restartserver", {
+                fetch("/api/restartserver", {
                     method: "POST"
                 }).then(res => {
                     res.text().then(res => {
