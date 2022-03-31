@@ -28,7 +28,7 @@ namespace OculusDB
 
         public const int maxAppsToDo = 1000;
         public const int maxAppsToFail = 25;
-        public const int minutesPause = 60;
+        public const int minutesPause = 30;
 
         public static void StartScrapingThread()
         {
@@ -86,8 +86,8 @@ namespace OculusDB
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();
-            OculusDBServer.SendMasterWebhookMessage("Info", "Scrape which has been started on " + config.lastDBUpdate + " has finished. The next scrape will start in " + minutesPause + " minutes", 0xFF0000);
-            Task.Delay(minutesPause * 60 * 1000).Wait();
+            OculusDBServer.SendMasterWebhookMessage("Info", "Scrape which has been started on " + config.lastDBUpdate + " has finished. The next scrape will start " + (config.pauseAfterScrape ? "in " + minutesPause + " minutes" : "now"), 0x00FF00);
+            if (config.pauseAfterScrape) Task.Delay(minutesPause * 60 * 1000).Wait();
             OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be started now", 0x00FF00);
             StartScrapingThread();
         }
