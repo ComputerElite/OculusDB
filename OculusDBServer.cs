@@ -83,11 +83,10 @@ namespace OculusDB
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
             OculusScraper.StartScrapingThread();
 
-            WebClient webClient = new WebClient();
-            webClient.Headers.Add("origin", "https://oculus.com");
-
             server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
             {
+                WebClient webClient = new WebClient();
+                webClient.Headers.Add("origin", "https://oculus.com");
                 try
                 {
                     string res = webClient.UploadString(GraphQLClient.oculusUri + "?" + request.bodyString, "POST", "");
