@@ -13,6 +13,7 @@ document.body.innerHTML =  document.body.innerHTML + `<div class="navBar">
         <input type="button" onclick="Search('query')" value="Search">
     </div>
     <a class="underlineAnimation navBarElement" href="/login">Login</a>
+    <a class="underlineAnimation navBarElement" href="/privacy">Privacy Policy</a>
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
 </div>

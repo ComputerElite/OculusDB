@@ -81,6 +81,8 @@ namespace OculusDB
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
+
+            // DON'T FORGET TO ADD IT BACK EVERY TIME.
             OculusScraper.StartScrapingThread();
 
             server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
@@ -333,6 +335,7 @@ namespace OculusDB
             server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace);
             server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png");
             server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png");
+            server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html");
             server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
