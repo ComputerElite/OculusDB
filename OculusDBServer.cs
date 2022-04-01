@@ -328,38 +328,38 @@ namespace OculusDB
                 request.SendString("Updated config");
                 return true;
             }));
-            server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace);
-            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace);
-            server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace);
-            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace);
-            server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace);
-            server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png");
-            server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png");
-            server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html");
+            server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true);
+            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true);
+            server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true);
+            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true);
+            server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace, true, true, true);
+            server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png", true, true, true);
+            server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png", true, true, true);
+            server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html", replace, true, true, true);
             server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html", 200, replace);
                 return true;
-            }), true);
+            }), true, true, true, true);
             server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "console.html"), "text/html", 200, replace);
                 return true;
-            }), true);
+            }), true, true, true, true);
             server.AddRoute("GET", "/id", new Func<ServerRequest, bool>(request =>
             {
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "id.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
-            }), true);
+            }), true, true, true, true);
             server.AddRoute("GET", "/activity", new Func<ServerRequest, bool>(request =>
             {
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "activity.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
-            }), true);
-            server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace);
-            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace);
+            }), true, true, true, true);
+            server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace, true, true, true);
+            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
         }
     }
 }
