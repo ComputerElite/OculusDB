@@ -81,7 +81,7 @@ namespace OculusDB
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
 
             server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
             {
