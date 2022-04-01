@@ -9,16 +9,12 @@
     </head>
     <body>
         <div class="content">
-            <h2>OculusDB Info</h2>
-            <a href="/api/id/{0}">Raw Json</a>
-            <table>
-                <tr><td class="label">OculusDB Type</td><td id="type">Fetching...</td></tr>
-                <tr><td class="label">Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
-            </table>
+            
             <div>
                 <h2>This</h2>
                 <div id="this"><div class="loader"></div></div>
             </div>
+            <div id="anchor" style="height: 0;"></div>
             <div id="specificContainer">
                 <h2>Application specific</h2>
                 <div id="specific">
@@ -28,10 +24,10 @@
             <div class="tabContainer">
                 <h2>Connected</h2>
                 <div class="tab">
-                    <button class="tablinks active" onclick="openTab(event, 'applications')">Applications</button>
-                    <button class="tablinks" onclick="openTab(event, 'dlcs')">DLCs</button>
-                    <button class="tablinks" onclick="openTab(event, 'dlcpacks')">DLC Packs</button>
-                    <button class="tablinks" onclick="openTab(event, 'versions')">Versions</button>
+                    <button id="applications_button" class="tablinks active" onclick="openTab(this, 'applications')">Applications</button>
+                    <button id="dlcs_button" class="tablinks" onclick="openTab(this, 'dlcs')">DLCs</button>
+                    <button id="dlcpacks_button" class="tablinks" onclick="openTab(this, 'dlcpacks')">DLC Packs</button>
+                    <button id="versions_button" class="tablinks" onclick="openTab(this, 'versions')">Versions</button>
                 </div>
                 <div id="applications" style="display: block;" class="tabcontent active">
                     <div class="loader"></div>
@@ -53,6 +49,12 @@
                     <div class="loader"></div>
                 </div>
             </div>
+            <h2>OculusDB Info</h2>
+            <a href="/api/id/{0}">Raw Json</a>
+            <table>
+                <tr><td class="label">OculusDB Type</td><td id="type">Fetching...</td></tr>
+                <tr><td class="label">Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
+            </table>
         </div>
         <script src="/script.js"></script>
         <script>
@@ -67,6 +69,12 @@
 
             var object = {}
             var connected = {}
+
+            var connectedSection = params.get("connected")
+
+            if(connectedSection) {
+                openTab(document.getElementById(connectedSection.toLowerCase() + "_button"), connectedSection)
+            }
 
             GetObjectById(id).then(res => {
                 object = res
@@ -138,6 +146,10 @@
                     })
                     if(!dps) dps = noResult
                     dlcpacks.innerHTML = dps
+
+                    if(connectedSection) {
+                        document.getElementById("anchor").scrollIntoView()
+                    }
                 }))
             }
 

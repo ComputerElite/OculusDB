@@ -1,6 +1,6 @@
 ﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
-document.body.innerHTML = `<div class="navBar">
+document.body.innerHTML =  document.body.innerHTML + `<div class="navBar">
 <div class="navBarInner websitename" style="cursor: pointer;" onclick="window.location.href = '/'">
     <img class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
     <div class="navBarElement">
@@ -16,7 +16,7 @@ document.body.innerHTML = `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
 </div>
-</div>` + document.body.innerHTML
+</div>`
 
 const loader = `<div class="centerIt">
 <div class="loader"></div>
@@ -104,7 +104,7 @@ function openTab(evt, tab) {
   
     // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(tab).style.display = "block";
-    evt.currentTarget.className += " active";
+    evt.className += " active";
   }
 
 document.getElementById("query").onkeydown = e => {

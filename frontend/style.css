@@ -224,7 +224,7 @@ code {
     justify-content: space-between;
     flex-direction: row;
     padding: 10px;
-    position: absolute;
+    position: fixed;
     width: 100%;
     box-sizing: border-box;
 }
