@@ -83,7 +83,11 @@
                 document.getElementById("lastUpdated").innerHTML = new Date(object.__lastUpdated).toLocaleString()
             }).catch(err => {
                 if(err == 404) {
-                    alert("The item has not been found")
+                    PopUp(`
+                        <div>The item has not been found on OculusDB. This may be an database issue and should be resolved automatically within the next day. Do you want to try another website?</div>
+                        <input type="button" value="Yes" onclick="window.location.href = 'https://computerelite.github.io/tools/Oculus/AppVersions.html?id=${id}'">
+                        <input type="button" value="No" onclick="ClosePopUp()">
+                    `)
                 } else if(err == 500) {
                     alert("Internal Server error")
                 } else {

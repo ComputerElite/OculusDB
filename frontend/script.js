@@ -76,7 +76,7 @@ function PopUp(html) {
     `
 }
 
-function ClosePopUp(e) {
+function ClosePopUp(e = {target: {id: "popup"}}) {
     if(e.target.id == "popup") {
         document.getElementById("popup").remove()
     }

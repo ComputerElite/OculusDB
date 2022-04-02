@@ -17,6 +17,7 @@ namespace OculusDB
         {
             GraphQLClient.forcedLocale = "en_US";
             GraphQLClient.throwException = false;
+            GraphQLClient.log = false;
         }
         public static List<Application> GetAllApplications(Headset headset, int appsToSkip, int appsToDo)
         {

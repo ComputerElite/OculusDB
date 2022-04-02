@@ -26,7 +26,7 @@ namespace OculusDB
         public static int failedApps = 0;
         public static int doneScrapeThreads = 0;
 
-        public const int maxAppsToDo = 1000;
+        public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
         public const int minutesPause = 30;
 
@@ -132,7 +132,7 @@ namespace OculusDB
                                         failedApps++;
                                         if (Stop()) return;
                                     }
-                                    else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
+                                    //else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
                             }
                         }
@@ -208,7 +208,7 @@ namespace OculusDB
                                         failedApps++;
                                         if (Stop()) return;
                                     }
-                                    else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
+                                    //else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
                             }
                         }
@@ -229,7 +229,7 @@ namespace OculusDB
         {
             if (MongoDBInteractor.DoesIdExistInCurrentScrape(id))
             {
-                Logger.Log(id + " exists in current scrape. Skipping");
+                //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
             Application a = GraphQLClient.GetAppDetail(id, headset).data.node;
@@ -281,7 +281,6 @@ namespace OculusDB
             }
             if (d.data.node.latest_supported_binary.firstIapItems != null)
             {
-                Logger.Log("Adding " + d.data.node.latest_supported_binary.firstIapItems.edges.Count + " of " + d.data.node.latest_supported_binary.firstIapItems.count + " DLCs");
                 foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
                 {
                     // For whatever reason Oculus sets parentApplication wrong. e. g. Beat Saber for Rift: it sets Beat Saber for quest
