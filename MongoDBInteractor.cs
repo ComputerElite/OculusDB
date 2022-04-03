@@ -219,7 +219,6 @@ namespace OculusDB
             BsonDocument org = GetByID(id).First();
             BsonDocument q = new BsonDocument
             {
-                GetLastTimeFilter(),
                 new BsonDocument("$or", new BsonArray
                 {
                     new BsonDocument("id", id),
@@ -247,7 +246,6 @@ namespace OculusDB
         {
             BsonDocument q = new BsonDocument
             {
-                GetLastTimeFilter(),
                 new BsonDocument("$or", new BsonArray
                 {
                     new BsonDocument("__OculusDBType", DBDataTypes.IAPItem),
@@ -264,11 +262,6 @@ namespace OculusDB
                 else dlcs.dlcPacks.Add(ObjectConverter.ConvertToDBType(doc));
             }
             return dlcs;
-        }
-
-        public static BsonDocument GetLastTimeFilter()
-        {
-            return new BsonDocument("__lastUpdated", new BsonDocument("$gte", OculusDBEnvironment.config.lastDBUpdate));
         }
 
         public static List<BsonDocument> GetDistinct(IEnumerable<BsonDocument> data)
@@ -293,7 +286,6 @@ namespace OculusDB
                 new BsonDocument("parentApplication.hmd", h)
             }));
             BsonDocument q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
-                GetLastTimeFilter(),
                 new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("__OculusDBType", DBDataTypes.Application),
