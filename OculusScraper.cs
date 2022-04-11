@@ -76,6 +76,9 @@ namespace OculusDB
         public static bool IsTokenValidUserToken()
         {
             ViewerData<OculusUserWrapper> currentUser = GraphQLClient.GetCurrentUser();
+            if (currentUser == null) return false;
+            if (currentUser.data == null) return false;
+            if (currentUser.data.viewer == null) return false;
             if (currentUser.data.viewer.user == null) return false;
 
             // Maybe change that to not include username
