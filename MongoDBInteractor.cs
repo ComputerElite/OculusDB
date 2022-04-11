@@ -113,6 +113,26 @@ namespace OculusDB
             return activityCollection.CountDocuments(new BsonDocument());
         }
 
+        public static List<BsonDocument> GetBestReviews(int skip, int take)
+        {
+            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["quality_rating_aggregate"]).Skip(skip).Limit(take).ToList();
+        }
+
+        public static List<BsonDocument> GetName(int skip, int take)
+        {
+            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["display_name"]).Skip(skip).Limit(take).ToList();
+        }
+
+        public static List<BsonDocument> GetPub(int skip, int take)
+        {
+            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["publisher_name"]).Skip(skip).Limit(take).ToList();
+        }
+
+        public static List<BsonDocument> GetRelease(int skip, int take)
+        {
+            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["release_date"]).Skip(skip).Limit(take).ToList();
+        }
+
         public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
         {
             string[] stuff = typeConstraint.Split(',');

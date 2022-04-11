@@ -18,6 +18,7 @@ namespace OculusDB
         public string masterWebhookUrl { get; set; } = "";
         public List<string> oculusTokens { get; set; } = new List<string> { "OC|1317831034909742|" };
         public int lastOculusToken { get; set; } = 0;
+        public int lastValidToken { get; set; } = 0;
         public bool deleteOldData { get; set; } = true;
         public bool pauseAfterScrape { get; set; } = false;
         public DateTime lastDBUpdate { get; set; } = DateTime.MinValue;

@@ -25,6 +25,7 @@ namespace OculusDB
         public static int totalScrapeThreads = 0;
         public static int failedApps = 0;
         public static int doneScrapeThreads = 0;
+        public static DateTime lastUpdate = DateTime.Now;
 
         public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
@@ -38,6 +39,16 @@ namespace OculusDB
                 return;
             }
             ScrapeAll();
+        }
+
+        public static void CheckRunning()
+        {
+            if(DateTime.Now - new TimeSpan(0, minutesPause + 10, 0) > lastUpdate)
+            {
+                // Time to restart scraping threads
+                StartScrapingThread();
+                OculusDBServer.SendMasterWebhookMessage("Scraping thread restarting", "Scraping thread hasn't updated in the last 30 min. Restarting the thread", 0xFFFF00);
+            }
         }
 
         public static void ScrapeAll()
@@ -62,10 +73,27 @@ namespace OculusDB
             SetupLimitedScrapeAppLab();
         }
 
+        public static bool IsTokenValidUserToken()
+        {
+            ViewerData<OculusUserWrapper> currentUser = GraphQLClient.GetCurrentUser();
+            if (currentUser.data.viewer.user == null) return false;
+
+            // Maybe change that to not include username
+            Logger.Log("Using token of " + currentUser.data.viewer.user.alias);
+            return true;
+        }
+
         public static void SwitchToken()
         {
             config.lastOculusToken = (config.lastOculusToken + 1) % config.oculusTokens.Count;
             GraphQLClient.oculusStoreToken = config.oculusTokens[config.lastOculusToken];
+            if(!IsTokenValidUserToken())
+            {
+                OculusDBServer.SendMasterWebhookMessage("Token issue", "Token at index " + config.lastOculusToken + " didn't return an username. It is either expired or got rate limited", 0xFFFF00);
+            } else
+            {
+                config.lastValidToken = config.lastOculusToken;
+            }
         }
 
         public static void FinishCurrentScrape()
@@ -181,7 +209,8 @@ namespace OculusDB
                     }
                 } catch(Exception e)
                 {
-                    OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
+                    Logger.Log(e.ToString(), LoggingType.Warning);
+                    //OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
                 }
                 
                 while (current < ids.Count)
@@ -227,6 +256,7 @@ namespace OculusDB
 
         public static void Scrape(string id, Headset headset)
         {
+            lastUpdate = DateTime.Now;
             if (MongoDBInteractor.DoesIdExistInCurrentScrape(id))
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");

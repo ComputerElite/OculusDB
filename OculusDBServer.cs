@@ -78,6 +78,9 @@ namespace OculusDB
             AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             server.StartServer(config.port);
 
+            // Comment if not in dev env
+            server.CacheValidityInSeconds = 0;
+
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
@@ -85,6 +88,50 @@ namespace OculusDB
             // DON'T FORGET TO ADD IT BACK EVERY TIME.
             OculusScraper.StartScrapingThread();
 
+            server.AddRoute("GET", "/api/explore", new Func<ServerRequest, bool>(request =>
+            {
+                try
+                {
+                    int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
+                    if (count > 1000) count = 1000;
+                    if (count < 0)
+                    {
+                        request.SendString("[]", "application/json");
+                        return true;
+                    }
+                    int skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
+                    if (skip < 0) skip = 0;
+                    string sorting = (request.queryString.Get("sorting") ?? "name").ToLower();
+                    List<BsonDocument> results = new List<BsonDocument>();
+                    switch(sorting)
+                    {
+                        case "reviews":
+                            results = MongoDBInteractor.GetBestReviews(skip, count);
+                            break;
+                        case "name":
+                            results = MongoDBInteractor.GetName(skip, count);
+                            break;
+                        case "publisher":
+                            results = MongoDBInteractor.GetPub(skip, count);
+                            break;
+                        case "releasetime":
+                            results = MongoDBInteractor.GetRelease(skip, count);
+                            break;
+                    }
+                    List<dynamic> asObjects = new List<dynamic>();
+                    foreach (BsonDocument res in results)
+                    {
+                        asObjects.Add(ObjectConverter.ConvertToDBType(res));
+                    }
+                    request.SendString(JsonSerializer.Serialize(asObjects), "application/json");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex.ToString(), LoggingType.Warning);
+                    request.SendString("count and skip must be numerical values", "text/plain", 400);
+                }
+                return true;
+            }));
             server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
             {
                 WebClient webClient = new WebClient();
@@ -358,6 +405,7 @@ namespace OculusDB
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "activity.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
             }), true, true, true, true);
+            server.AddRouteFile("/explore", "frontend" + Path.DirectorySeparatorChar + "explore.html", replace, true, true, true);
             server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace, true, true, true);
             server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
         }
