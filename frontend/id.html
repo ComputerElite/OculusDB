@@ -189,7 +189,11 @@
             }
 
             function UpdateVersions(showAll) {
-                var vers = `<label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
+                var vers = `Don't forget to sign in on <a href="https://oculus.com">oculus.com</a> to be able to download the game (you must own it)
+                <br>
+                If you <b>get an error when downloading</b> you aren't signed in
+                <br>
+                <label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
                 connected.versions.forEach(v => {
                     if(downloadVersion && downloadVersion == v.version) {
                         DownloadVersionPopUp(v.version)
