@@ -350,6 +350,17 @@ input:focus {
     background-color: var(--bgColor);
 }
 
+select {
+    padding: 5px;
+    border-radius: 5px;
+    background-color: var(--bgColor);
+    color: var(--textColor);
+    border: 1px var(--highlightedColor) solid;
+}
+
+select:active {
+    border: none;
+}
 
 input {
     border: 1px solid var(--brightHoverColor);
