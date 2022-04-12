@@ -92,6 +92,7 @@ namespace OculusDB
             GraphQLClient.oculusStoreToken = config.oculusTokens[config.lastOculusToken];
             if(!IsTokenValidUserToken())
             {
+                Logger.Log("Current token didn't return an username: " + config.lastOculusToken);
                 OculusDBServer.SendMasterWebhookMessage("Token issue", "Token at index " + config.lastOculusToken + " didn't return an username. It is either expired or got rate limited", 0xFFFF00);
             } else
             {
@@ -215,7 +216,7 @@ namespace OculusDB
                     Logger.Log(e.ToString(), LoggingType.Warning);
                     //OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
                 }
-                
+                Logger.Log("Queued " + ids.Count + " apps for scraping for " + HeadsetTools.GetHeadsetCodeName(h));
                 while (current < ids.Count)
                 {
                     Thread t = new Thread((ids) =>
