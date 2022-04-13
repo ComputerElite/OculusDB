@@ -79,13 +79,14 @@ namespace OculusDB
             server.StartServer(config.port);
 
             // Comment if not in dev env
-            server.CacheValidityInSeconds = 0;
+            //server.CacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
-            //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(3, 0, 0, 0));
 
-            // DON'T FORGET TO ADD IT BACK EVERY TIME.
+            /////////////////////////////////////////////
+            // DON'T FORGET TO ADD IT BACK EVERY TIME. //
+            /////////////////////////////////////////////
             OculusScraper.StartScrapingThread();
 
             server.AddRoute("GET", "/api/explore", new Func<ServerRequest, bool>(request =>
@@ -218,6 +219,8 @@ namespace OculusDB
             server.AddRoute("GET", "/api/connected/", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetConnected(request.pathDiff)), "application/json");
+                // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
+                OculusScraper.CheckRunning();
                 return true;
             }), true);
             server.AddRoute("GET", "/api/search/", new Func<ServerRequest, bool>(request =>
