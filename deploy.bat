@@ -12,10 +12,11 @@ echo Pushed to GitHub
 
 echo Commit id %id%
 echo Deleting existing update zip
-del "bin\Debug\net6.0\net6.0.zip"
+del net6.0.zip"
 
 echo Creating new update zip
-7z a "bin\Debug\net6.0\net6.0.zip" "bin\Debug\net6.0\*.dll" "bin\Debug\net6.0\*.pdb" "bin\Debug\net6.0\*.exe" "bin\Debug\net6.0\*.json" "bin\Debug\net6.0\frontend" "bin\Debug\net6.0\ref" "bin\Debug\net6.0\runtimes"
+cd bin\Debug\net6.0\
+7z a net6.0.zip *.dll *.pdb *.exe *.json frontend ref runtimes
 
 echo Created update zip
 echo Changelog:
