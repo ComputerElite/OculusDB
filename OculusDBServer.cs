@@ -375,6 +375,7 @@ namespace OculusDB
             {
                 if (!IsUserAdmin(request)) return true;
                 config = JsonSerializer.Deserialize<Config>(request.bodyString);
+                config.Save();
                 request.SendString("Updated config");
                 return true;
             }));
