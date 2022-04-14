@@ -78,6 +78,26 @@ body {
 button {
     color: var(--textColor)
 }
+
+.contextMenu {
+    position:absolute;
+    background-color: var(--hightlightColor);
+    border-radius: 5px;
+    top: 0;
+    left: 0;
+    border: 1px solid var(--highlightedColor);
+}
+
+.contextMenuElement {
+    background-color: var(--hightlightColor);
+    color: var(--textColor);
+    padding: 5px;
+}
+
+.contextMenuElement:hover {
+    background-color: var(--hoverColor);
+    color: var(--highlightedColor);
+}
   
   /* Change background color of buttons on hover */
 .tab button:hover {

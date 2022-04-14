@@ -33,6 +33,71 @@ const noActivity = `
 </div>
 `
 
+const contextMenu = `
+<div class="contextMenu" id="contextMenu">
+
+</div>`
+
+// context menu
+function UpdateContextMenu() {
+    console.log("registering context menu events")
+    Array.prototype.forEach.call(document.getElementsByClassName("contextmenuenabled"), (e) => {
+        
+        e.oncontextmenu = ContextMenuEnabled
+    })
+}
+
+function Copy(text) {
+    navigator.clipboard.writeText(text)
+}
+
+var contextMenuOpened = Date.now()
+var opened = false
+
+document.onclick = e => {
+    ClearContextMenu()
+}
+
+function ClearContextMenu() {
+    var oldMenu = document.getElementById("contextMenu")
+    if(oldMenu) {
+        oldMenu.remove()
+    }
+}
+
+function ContextMenuEnabled(event) {
+    if(Date.now() - contextMenuOpened < 500 && opened) return
+    opened = true
+    contextMenuOpened = Date.now()
+    event.preventDefault()
+    
+    ClearContextMenu()
+    console.log(event)
+    document.body.innerHTML += contextMenu
+    var menu = document.getElementById("contextMenu")
+    menu.style.top = event.pageY + "px"
+    menu.style.left= event.pageX + "px"
+    var target = event.target
+
+    i = 0
+    var currentOption
+    console.log(target.getAttribute(`cmov-${i}`))
+    while(currentOption = target.getAttribute(`cmov-${i}`)) {
+        menu.innerHTML += `
+        <div onclick="${currentOption};ClearContextMenu()" class="contextMenuElement anim">
+            ${target.getAttribute(`cmon-${i}`)}
+        </div>
+        `
+        i++
+    }
+
+    console.log(parseInt(menu.style.left.replace("px", "")))
+    console.log((parseInt(menu.style.left.replace("px", "")) - 10) + "px")
+    while(parseInt(menu.style.left.replace("px", "")) + menu.offsetWidth >= window.innerWidth - 30) {
+        menu.style.left = (parseInt(menu.style.left.replace("px", "")) - 10) + "px"
+    }
+}
+
 // Add analytics
 var script = document.createElement("script")
 script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
@@ -468,7 +533,7 @@ function GetDownloadLink(id) {
 
 function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${GetDownloadLink(id)}', '_blank')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${GetDownloadLink(id)}', '_blank')" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}','${version}', '${parentApplication.displayName.replace("'", "\\'")}')">`
 }

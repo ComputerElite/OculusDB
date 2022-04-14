@@ -139,7 +139,7 @@
                     if(!apps) apps = noResult
                     applications.innerHTML = apps
 
-                    UpdateVersions(false)
+                    
 
                     var ds = ""
                     connected.dlcs.forEach(d => {
@@ -158,6 +158,8 @@
                     if(connectedSection) {
                         document.getElementById("anchor").scrollIntoView()
                     }
+
+                    UpdateVersions(false)
                 }))
             }
 
