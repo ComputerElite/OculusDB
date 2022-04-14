@@ -22,7 +22,7 @@ echo Creating new update zip
 echo Created update zip
 echo Changelog:
 echo.
-echo %changelog%\nFull changes: https://github.com/ComputerElite/OculusDB/commit/18fc696eeb74f8e7a4df03b4596501f02d2f2989
+echo %changelog%\nFull changes: https://github.com/ComputerElite/OculusDB/commit/%id%
 
 start "" https://oculusdb.rui2015.me/admin
 cd..
