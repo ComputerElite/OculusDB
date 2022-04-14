@@ -162,9 +162,18 @@ namespace OculusDB
         public static long DeleteOldData(DateTime before, List<string> ids)
         {
             long deleted = 0;
-            foreach(string id in ids)
+            for(int i = 0; i < ids.Count; i++)
             {
-                deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == id) || (x["__OculusDBType"] != DBDataTypes.Application && x["parentApplication"]["id"] == id))).DeletedCount;
+                try
+                {
+                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == ids[i]) || (x["__OculusDBType"] != DBDataTypes.Application && x["parentApplication"]["id"] == ids[i]))).DeletedCount;
+                }
+                catch
+                {
+                    i--;
+                    Logger.Log("Sleeping for 5000 ms before continuing to delete old data due to error");
+                    Thread.Sleep(5000);
+                }
             }
             return deleted;
         }
