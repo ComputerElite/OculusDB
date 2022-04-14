@@ -523,7 +523,7 @@ function FormatVersionActivity(v, htmlid) {
     </div>
     <div class="buttons">
         <input type="button" value="Details" onclick="OpenActivity('${v.__id}')">
-        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
     </div>
 </div>`
 }
@@ -531,11 +531,11 @@ function GetDownloadLink(id) {
     return `https://securecdn.oculus.com/binaries/download/?id=${id}`
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version) {
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication) {
     if(IsHeadsetAndroid(hmd)) {
         return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${GetDownloadLink(id)}', '_blank')" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}')">`
     }
-    return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
+    return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
 
 function RiftDownloadPopUp(appid, versionid) {
@@ -599,7 +599,7 @@ function FormatVersion(v, htmlid = "") {
         </div>
     </div>
     <div class="buttons">
-        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
     </div>
 </div>`
 }
