@@ -545,7 +545,7 @@ function RiftDownloadPopUp(appid, versionid, version, appname) {
             <br>
             <b>1. </b> Setup Oculus Downgrader by following <a href="https://computerelite.github.io/tools/Oculus/OculusDowngraderGuide.html">these instructions</a>
             <br>
-            <b>2. </b> Using Option 2 in Oculus Downgraders main menu search for <code>${appname}</code>. Then select version <code>${version}</code> and follow the provided instructions.
+            <b>2. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid}|l --appid ${appid} --versionid ${versionid}</code> into Oculus Downgrader and hit enter. The download will start and the app get launched afterwards.
             <br>
             <br>
             <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
