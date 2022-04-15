@@ -253,6 +253,26 @@ function GetHeadsetName(headset) {
     }
 }
 
+function GetHeadsetNameOD(headset) {
+    switch (headset)
+    {
+        case "RIFT":
+            return "Rift";
+        case "LAGUNA":
+            return "Rift";
+        case "MONTEREY":
+            return "Quest";
+        case "HOLLYWOOD":
+            return "Quest";
+        case "GEARVR":
+            return "GearVR";
+        case "PACIFIC":
+            return "Go";
+        default:
+            return "unknown";
+    }
+}
+
 function GetHeadsets(list) {
     var names = []
     list.forEach(x => names.push(GetHeadsetName(x)))
@@ -656,7 +676,7 @@ function GetDownloadLink(id) {
 
 function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${GetDownloadLink(id)}', '_blank')" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="window.open('${GetDownloadLink(id)}', '_blank')" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onclick="RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
@@ -668,7 +688,7 @@ function RiftDownloadPopUp(appid, versionid) {
             <br>
             <b>1. </b> Setup Oculus Downgrader by following <a href="https://computerelite.github.io/tools/Oculus/OculusDowngraderGuide.html">these instructions</a>
             <br>
-            <b>2. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid}|l --appid ${appid} --versionid ${versionid}</code> into Oculus Downgrader and hit enter. The download will start and the app get launched afterwards.
+            <b>2. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid} --headset rift</code> into Oculus Downgrader and hit enter. The download will start and the app get launched afterwards.
             <br>
             <br>
             <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
@@ -679,14 +699,16 @@ function RiftDownloadPopUp(appid, versionid) {
     `)
 }
 
-function AndroidDownloadPopUp(appid, versionid) {
+function AndroidDownloadPopUp(appid, versionid, hmd) {
     PopUp(`
         <div>
             <b>To download apps via Oculus Downgrader follow the following instructions:</b>
             <br>
             <b>1. </b> Setup Oculus Downgrader by following <a href="https://computerelite.github.io/tools/Oculus/OculusDowngraderGuide.html">these instructions</a>
             <br>
-            <b>2. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid}|l --appid ${appid} --versionid ${versionid}</code> into Oculus Downgrader and hit enter. The download will start and the app get installed afterwards. Make sure that your headset is connected via USB.
+            <b>2. Select the right headset via option 8</b>
+            <br>
+            <b>3. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid}</code> into Oculus Downgrader and hit enter. The download will start and the app get installed afterwards. Make sure that your headset is connected via USB.
             <br>
             <br>
             <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
