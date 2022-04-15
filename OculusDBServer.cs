@@ -392,13 +392,13 @@ namespace OculusDB
                 if (!IsUserAdmin(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html", 200, replace);
                 return true;
-            }), true, true, true, true);
+            }), true, true, true);
             server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "console.html"), "text/html", 200, replace);
                 return true;
-            }), true, true, true, true);
+            }), true, true, true);
             server.AddRoute("GET", "/id", new Func<ServerRequest, bool>(request =>
             {
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "id.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
