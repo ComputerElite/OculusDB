@@ -1,4 +1,5 @@
 ﻿using ComputerUtils.Logging;
+using ComputerUtils.Updating;
 using ComputerUtils.VarUtils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -46,8 +48,8 @@ namespace OculusDB
             if(DateTime.Now - new TimeSpan(0, minutesPause + 10, 0) > lastUpdate)
             {
                 // Time to restart scraping threads
-                StartScrapingThread();
-                OculusDBServer.SendMasterWebhookMessage("Scraping thread restarting", "Scraping thread hasn't updated in the last 30 min. Restarting the thread", 0xFFFF00);
+                OculusDBServer.SendMasterWebhookMessage("Server restarting", "Scraping thread hasn't updated in the last 30 min. Restarting the server", 0xFFFF00);
+                Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
             }
         }
 
