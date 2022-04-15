@@ -1,13 +1,20 @@
 ﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
 document.body.innerHTML =  document.body.innerHTML + `<div class="navBar">
-<div class="navBarInner websitename" style="cursor: pointer;" onclick="window.location.href = '/'">
+<div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
     <img class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
-    <div class="navBarElement">
+    <div class="navBarElement title anim">
         OculusDB
     </div>
 </div>
-<div class="navBarInner" style="flex-direction: row-reverse;">
+<div class="navBarToggle anim">
+    <div class="navBarPart"></div>
+    <div class="navBarPart"></div>
+    <div class="navBarPartBottom"></div>
+</div>
+<div class="navBarToggleHitbox">
+</div>
+<div class="navBarInnerRight anim">
     <div class="navBarElement">
         <input type="text" placeholder="Query" id="query">
         <input type="button" onclick="Search('query')" value="Search">
@@ -226,159 +233,6 @@ function GetOculusLink(id, hmd) {
     return link + "/" + id
 }
 
-function FormatApplication(application, htmlId = "") {
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlId}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">${application.displayName} (${GetHeadsets(application.supported_hmd_platforms)})</div>
-        </div>
-        <div class="hidden" id="${htmlId}">
-            
-            <table>
-                <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Current price</td><td class="value">${application.current_offer.price.formatted}</td></tr>
-                <tr><td class="label">Baseline price</td><td class="value">${application.baseline_offer.price.offset_amount != 0 && application.baseline_offer.price.offset_amount < application.current_offer.price.offset_amount ? application.baseline_offer.price.formatted : application.current_offer.price.formatted}</td></tr>
-                <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate.toFixed(2)}</td></tr>
-                <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
-                <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
-                <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
-                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
-                <tr><td class="label">Id</td><td class="value">${application.id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenApplication('${application.id}')">
-    </div>
-</div>`
-}
-
-function FormatDLC(dlc, htmlid = "") {
-    if(htmlid == "") htmlid = dlc.id
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
-        </div>
-        <div class="hidden" id="${htmlid}">
-            
-            <table>
-                <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
-                <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Download" onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
-    </div>
-</div>`
-}
-
-function FormatDLCPack(dlc, dlcs, htmlid = "") {
-    var included = ""
-    dlc.bundle_items.forEach(d => {
-        included += FormatDLC(GetDLC(dlcs, d.id), htmlid + "_" + d.id)
-    })
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${dlc.id}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
-        </div>
-        <div class="hidden" id="${htmlid}">
-            
-            <table>
-                <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
-                <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
-                <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Download" onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
-    </div>
-</div>`
-}
-
-
-function FormatDLCActivity(a, htmlid) {
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">DLC <b>${a.displayName}</b> ${a.__OculusDBType == "ActivityNewDLC" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</b></div>
-        </div>
-        <div class="hidden" id="${htmlid}">
-            <table>
-                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
-                <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
-                <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
-    </div>
-</div>`
-}
-
-function FormatDLCPackActivityDLC(a, i) {
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${i}_${a.__id}')" >
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_${a.__id}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;"></div>
-        </div>
-        <div class="hidden" id="${i}_${a.__id}">
-            <table>
-                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenApplication('${a.id}')">
-    </div>
-</div>`
-}
-
-function FormatDLCPackActivity(a, htmlid) {
-    var included = ""
-    a.includedDLCs.forEach(d => {
-        included += FormatDLCPackActivityDLC(d, a.__id)
-    })
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">DLC Pack ${a.displayName} ${a.__OculusDBType == "ActivityNewDLCPack" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</div>
-        </div>
-        <div class="hidden" id="${htmlid}">
-            
-            <table>
-                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
-                <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
-                <tr><td class="label">DLC pack id</td><td class="value">${a.id}</td></tr>
-                <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Download" onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${a.id}', '_blank')">
-    </div>
-</div>`
-}
-
 function GetHeadsetName(headset) {
     switch (headset)
     {
@@ -405,37 +259,253 @@ function GetHeadsets(list) {
     return names.join(", ")
 }
 
+function FormatDLC(dlc, htmlid = "") {
+    if(htmlid == "") htmlid = dlc.id
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Download" onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            
+            <table>
+                <colgroup>
+                    <col width="130em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
+                <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>`
+}
+
+function FormatDLCPack(dlc, dlcs, htmlid = "") {
+    var included = ""
+    dlc.bundle_items.forEach(d => {
+        included += FormatDLC(GetDLC(dlcs, d.id), htmlid + "_" + d.id)
+    })
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${dlc.id}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Download" onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            
+            <table>
+                <colgroup>
+                    <col width="150em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
+                <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
+                <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
+            </table>
+        </div>
+    </div>
+    
+</div>`
+}
+
+
+function FormatDLCActivity(a, htmlid) {
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(a.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">DLC <b>${a.displayName}</b> ${a.__OculusDBType == "ActivityNewDLC" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</b></div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
+                <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
+                <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+            </table>
+        </div>
+    </div>
+    
+</div>`
+}
+
+function FormatDLCPackActivityDLC(a, i) {
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${i}_${a.__id}')" >
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_${a.__id}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;"></div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenApplication('${a.id}')">
+            </div>
+        </div>
+
+        <div class="hidden" id="${i}_${a.__id}">
+            <table>
+                <colgroup>
+                    <col width="130em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>`
+}
+
+function FormatDLCPackActivity(a, htmlid) {
+    var included = ""
+    a.includedDLCs.forEach(d => {
+        included += FormatDLCPackActivityDLC(d, a.__id)
+    })
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(a.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">DLC Pack ${a.displayName} ${a.__OculusDBType == "ActivityNewDLCPack" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Download" onclick="window.open('https://securecdn.oculus.com/binaries/download/?id=${a.id}', '_blank')">
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            
+            <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
+                <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
+                <tr><td class="label">DLC pack id</td><td class="value">${a.id}</td></tr>
+                <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>`
+}
+
 function FormatParentApplication(a, activityId) {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${activityId}_${a.id}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${activityId}_${a.id}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">${a.displayName}</div>
+        
+
+
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${activityId}_${a.id}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${activityId}_${a.id}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${a.displayName}</div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenApplication('${a.id}')">
+            </div>
         </div>
+
         <div class="hidden" id="${activityId}_${a.id}">
             <table>
+                <colgroup>
+                    <col width="160em">
+                    <col width="0*">
+                </colgroup>
                 <tr><td class="label">Canonical name</td><td class="value">${a.canonicalName}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${a.id}</td></tr>
             </table>
         </div>
     </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenApplication('${a.id}')">
+</div>`
+}
+
+function FormatApplication(application, htmlId = "") {
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlId}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${application.displayName} (${GetHeadsets(application.supported_hmd_platforms)})</div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenApplication('${application.id}')">
+            </div>
+        </div>
+        <div class="hidden" id="${htmlId}">
+            <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Current price</td><td class="value">${application.current_offer.price.formatted}</td></tr>
+                <tr><td class="label">Baseline price</td><td class="value">${application.baseline_offer.price.offset_amount != 0 && application.baseline_offer.price.offset_amount < application.current_offer.price.offset_amount ? application.baseline_offer.price.formatted : application.current_offer.price.formatted}</td></tr>
+                <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate.toFixed(2)}</td></tr>
+                <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
+                <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
+                <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
+                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
+                <tr><td class="label">Id</td><td class="value">${application.id}</td></tr>
+            </table>
+        </div>
     </div>
+
 </div>`
 }
 
 function FormatApplicationActivity(a, htmlid) {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            
-            <div stlye="font-size: 1.25em;">New Application released! <b>${a.displayName}</b></div>
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(a.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">New Application released! <b>${a.displayName}</b></div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
+                <input type="button" value="View Application" onclick="OpenApplication('${a.id}')">
+            </div>
         </div>
+
         <div class="hidden" id="${htmlid}">
             <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="0*">
+                </colgroup>
                 <tr><td class="label">Description</td><td class="value">${a.displayLongDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(a.supportedHmdPlatforms)}</td></tr>
@@ -447,23 +517,30 @@ function FormatApplicationActivity(a, htmlid) {
             </table>
         </div>
     </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
-        <input type="button" value="View Application" onclick="OpenApplication('${a.id}')">
-    </div>
 </div>`
 }
 
 function FormatPriceChanged(a, htmlid) {
     return `<div class="application">
     <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div>${GetTimeString(a.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">Price of <b>${a.parentApplication.displayName}</b> changed from ${a.oldPriceFormatted} to <b>${a.newPriceFormatted}</b></div>
+
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(a.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">Price of <b>${a.parentApplication.displayName}</b> changed from ${a.oldPriceFormatted} to <b>${a.newPriceFormatted}</b></div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
+            </div>
         </div>
+
         <div class="hidden" id="${htmlid}">
             <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="0*">
+                </colgroup>
                 <tr><td class="label">New Price</td><td class="value">${a.newPriceFormatted}</td></tr>
                 <tr><td class="label">Old Price</td><td class="value">${a.oldPriceFormatted}</td></tr>
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
@@ -471,8 +548,87 @@ function FormatPriceChanged(a, htmlid) {
             </table>
         </div>
     </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenActivity('${a.__id}')">
+    
+</div>`
+}
+
+function FormatVersion(v, htmlid = "") {
+    var releaseChannels = ""
+    v.binary_release_channels.nodes.forEach(x => {
+        releaseChannels += `${x.channel_name}, `
+    })
+    if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
+    var downloadable = releaseChannels != ""
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</div>
+            </div>
+            <div class="buttons">
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            <table>
+                <colgroup>
+                    <col width="180em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Uploaded</td><td class="value">${new Date(v.created_date * 1000).toLocaleString()}</td></tr>
+                <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
+                <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
+                <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
+                <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
+                <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>`
+}
+
+function FormatVersionActivity(v, htmlid) {
+    var releaseChannels = ""
+    v.releaseChannels.forEach(x => {
+        releaseChannels += `${x.channel_name}, `
+    })
+    if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
+    var downloadable = releaseChannels != ""
+    return `<div class="application">
+    <div class="info">
+
+
+
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(v.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">Version <b>${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</b> of <b>${v.parentApplication.displayName}</b> ${v.__OculusDBType == "ActivityVersionUpdated" ? `has been updated` : `has been uploaded`}</div>
+            </div>
+            <div class="buttons">
+                <input type="button" value="Details" onclick="OpenActivity('${v.__id}')">
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
+            </div>
+        </div>
+        
+        <div class="hidden" id="${htmlid}">
+            <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="0*">
+                </colgroup>
+                <tr><td class="label">Uploaded</td><td class="value">${new Date(v.uploadedTime).toLocaleString()}</td></tr>
+                <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
+                <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
+                <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
+                <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
+                <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
+                <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>
+            </table>
+        </div>
     </div>
 </div>`
 }
@@ -494,39 +650,6 @@ function GetDLC(dlcs, id) {
     return dlcs.filter(x => x.id == id)[0]
 }
 
-function FormatVersionActivity(v, htmlid) {
-    var releaseChannels = ""
-    v.releaseChannels.forEach(x => {
-        releaseChannels += `${x.channel_name}, `
-    })
-    if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
-    var downloadable = releaseChannels != ""
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div>${GetTimeString(v.__lastUpdated)}</div>
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">Version <b>${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</b> of <b>${v.parentApplication.displayName}</b> ${v.__OculusDBType == "ActivityVersionUpdated" ? `has been updated` : `has been uploaded`}</div>
-        </div>
-        <div class="hidden" id="${htmlid}">
-            <table>
-                <tr><td class="label">Uploaded</td><td class="value">${new Date(v.uploadedTime).toLocaleString()}</td></tr>
-                <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
-                <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
-                <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
-                <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
-                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
-                <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
-                <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        <input type="button" value="Details" onclick="OpenActivity('${v.__id}')">
-        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
-    </div>
-</div>`
-}
 function GetDownloadLink(id) {
     return `https://securecdn.oculus.com/binaries/download/?id=${id}`
 }
@@ -574,35 +697,7 @@ function AndroidDownloadPopUp(appid, versionid) {
     `)
 }
 
-function FormatVersion(v, htmlid = "") {
-    var releaseChannels = ""
-    v.binary_release_channels.nodes.forEach(x => {
-        releaseChannels += `${x.channel_name}, `
-    })
-    if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
-    var downloadable = releaseChannels != ""
-    return `<div class="application">
-    <div class="info">
-        <div class="flex header" onclick="RevealDescription('${htmlid}')">
-            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-            <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</div>
-        </div>
-        <div class="hidden" id="${htmlid}">
-            <table>
-                <tr><td class="label">Uploaded</td><td class="value">${new Date(v.created_date * 1000).toLocaleString()}</td></tr>
-                <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
-                <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
-                <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
-                <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
-                <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
-            </table>
-        </div>
-    </div>
-    <div class="buttons">
-        ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
-    </div>
-</div>`
-}
+
 
 function GetTimeString(d) {
     var date = new Date(d)

@@ -4,6 +4,24 @@
     font-size: 1rem;
 }
 
+/* For icons but it's weird so I won't do em for now */
+.iconColor1 {
+    transition: 0.2s ease-in-out;
+    stroke: var(--highlightedColor);
+    stroke-width: 0.5;
+    fill: var(--hightlightColorIntense)
+}
+
+.iconColor2 {
+    transition: 0.2s ease-in-out;
+    stroke: var(--textColor);
+}
+
+.iconColor3 {
+    transition: 0.2s ease-in-out;
+    fill: var(--textColor);
+}
+
 :root {
     --red: #eb0303;
     --redDark: #ab0d0e;
@@ -166,6 +184,11 @@ code {
     align-items: center;
 }
 
+.outside {
+    display: flex;
+    align-items: flex-start;
+}
+
 .anim {
     transition: 0.2s ease-in-out;
 }
@@ -201,10 +224,6 @@ code {
     justify-content: space-between;
 }
 
-.application table {
-    width: 100%;
-}
-
 .buttons {
     display: flex;
     flex-direction: column;
@@ -218,6 +237,7 @@ code {
 
 .info {
     flex: 1;
+    width: 100%;
 }
 
 .popUp {
@@ -249,11 +269,102 @@ code {
     box-sizing: border-box;
 }
 
-.navBarInner {
+.navBarInnerLeft {
     display: flex;
-    flex-direction: row;
     justify-items: center;
     align-items: center;
+}
+
+.navBarInnerRight {
+    display: flex;
+    justify-items: center;
+    align-items: center;
+}
+
+/* mobile*/
+@media screen and (max-aspect-ratio: 1/1) {
+    .navBarInnerLeft {
+        flex-direction: column;
+    }
+
+    .title {
+        display: none;
+    }
+
+    .navBarInnerRight {
+        height: max-content;
+        flex-direction: column;
+        display: none;
+        background-color: var(--hightlightColor);
+        padding: 10px;
+        border-radius: 5px;
+        transform: translateY(35px);
+    }
+
+    .navBarPart {
+        width: 1cm;
+        height: 0.2cm;
+        border-top: 0.1cm solid var(--highlightedColor);
+    }
+
+    .navBarPartBottom {
+        width: 1cm;
+        height: 0.1cm;
+        border-top: 0.1cm solid var(--highlightedColor);
+    }
+
+    .navBarToggle {
+        height: min-content;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    .navBarToggle:hover {
+        transform: rotate(90deg);
+    }
+
+    .navBarToggleHitbox:hover ~ .navBarInnerRight {
+        display: flex !important;
+    }
+
+    .navBarInnerRight:hover {
+        display: flex !important;
+    }
+
+    .navBarToggle:hover ~ .navBarInnerRight {
+        display: flex !important;
+    }
+
+    .navBarToggle:hover ~ .navBarToggleHitbox {
+        width: 300px;
+        height: 60px;
+    }
+
+    .navBarToggleHitbox {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+    }
+
+    .navBarToggleHitbox:hover {
+        width: 300px;
+        height: 60px;
+    }
+}
+
+/* desktop*/
+@media screen and (min-aspect-ratio: 1/1) {
+    .navBarInnerLeft {
+        flex-direction: row;
+    }
+    .navBarInnerRight {
+        flex-direction: row-reverse;
+    }
+
+    .navBarToggle {
+        display: none;
+    }
 }
 
 .navBarElement {
@@ -288,18 +399,26 @@ table {
     background-color: var(--hightlightColor);
     border-radius: 5px;
     padding: 20px;
+    
     border-collapse: collapse;
+}
+
+.application table {
+    width: 100%;
+    table-layout: fixed;
 }
 
 tr {
     border-bottom: 2px solid var(--textColor);
-
+    max-width: 100%;
 }
 
 td {
     padding: 10px;
-    padding-right: 20px;
     vertical-align: top;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: fit-content;
 }
 
 .websitename {
@@ -319,6 +438,7 @@ td {
 
 .value {
     width: 100%;
+    text-overflow: ellipsis;
 }
 
 a {
