@@ -196,13 +196,18 @@
 
             function UpdateVersions(showAll) {
                 var vers = `<label class="checkmarkContainer">Show all versions<input type='checkbox' onclick='UpdateVersions(${!showAll})'${showAll ? " checked" : ""}><span class="checkmark"></span></label>`
+                var hmd = -1
                 connected.versions.forEach(v => {
+                    hmd = v.parentApplication.hmd
                     if(downloadVersion && downloadVersion == v.version) {
                         DownloadVersionPopUp(v.version)
                     }
                     if(v.binary_release_channels.nodes.length > 0 || showAll)
                         vers += FormatVersion(v, v.id)
                 })
+                if(hmd != -1) {
+                    vers = `These versions are for <b>${GetLogicalHeadsetNameEnum(hmd)}</b>. If you want them for another headset search again and click on another entry for this game.` + vers
+                }
                 versions.innerHTML = vers
             }
 

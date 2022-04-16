@@ -253,6 +253,66 @@ function GetHeadsetName(headset) {
     }
 }
 
+function GetHeadsetNameEnum(headset) {
+    switch (headset)
+    {
+        case 0:
+            return "Rift";
+        case 5:
+            return "Rift S";
+        case 1:
+            return "Quest 1";
+        case 2:
+            return "Quest 2";
+        case 3:
+            return "GearVR";
+        case 4:
+            return "Go";
+        default:
+            return "unknown";
+    }
+}
+
+function GetLogicalHeadsetNameEnum(headset) {
+    switch (headset)
+    {
+        case 0:
+            return "Rift and Rift S";
+        case 5:
+            return "Rift and Rift S";
+        case 1:
+            return "Quest 1 and Quest 2";
+        case 2:
+            return "Quest 1 and Quest 2";
+        case 3:
+            return "GearVR";
+        case 4:
+            return "Go";
+        default:
+            return "unknown";
+    }
+}
+
+function GetLogicalHeadsetCodeNameEnum(headset) {
+    switch (headset)
+    {
+        case "0":
+            return "RIFT";
+        case "1":
+            return "MONTEREY";
+        case "2":
+            return "MONTEREY";
+        case "3":
+            return "GEARVR";
+        case "4":
+            return "PACIFIC";
+        case "5":
+            return "RIFT";
+        default:
+            return "unknown";
+    }
+}
+
 function GetHeadsetNameOD(headset) {
     switch (headset)
     {
@@ -477,7 +537,7 @@ function FormatApplication(application, htmlId = "") {
         <div class="flex outside">
             <div class="flex header" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">${application.displayName} (${GetHeadsets(application.supported_hmd_platforms)})</div>
+                <div stlye="font-size: 1.25em;">${application.displayName} (${ GetLogicalHeadsetNameEnum(application.hmd).replace(" and ", ", ")})</div>
             </div>
             <div class="buttons">
                 <input type="button" value="Details" onclick="OpenApplication('${application.id}')">
@@ -691,7 +751,7 @@ function RiftDownloadPopUp(appid, versionid) {
             <b>2. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid} --headset rift</code> into Oculus Downgrader and hit enter. The download will start and the app get launched afterwards.
             <br>
             <br>
-            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
+            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid} --headset rift</code> to download the version with once command
             <br>
             <br>
             <i>To close this pop up click next to it</i>
@@ -708,10 +768,10 @@ function AndroidDownloadPopUp(appid, versionid, hmd) {
             <br>
             <b>2. Select the right headset via option 8</b>
             <br>
-            <b>3. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid}</code> into Oculus Downgrader and hit enter. The download will start and the app get installed afterwards. Make sure that your headset is connected via USB.
+            <b>3. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid} --headset ${GetLogicalHeadsetCodeNameEnum(hmd)}</code> into Oculus Downgrader and hit enter. The download will start and the app get installed afterwards. Make sure that your headset is connected via USB.
             <br>
             <br>
-            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid}</code> to download the version with once command
+            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid} --headset ${GetLogicalHeadsetCodeNameEnum(hmd)}</code> to download the version with once command
             <br>
             <br>
             <i>To close this pop up click next to it</i>
