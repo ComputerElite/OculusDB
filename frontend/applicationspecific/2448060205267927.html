@@ -10,7 +10,8 @@
             console.log(latest)
             if(params.get("downloadlatestmoddable"))
                 window.location.href = `?downloadversion=${latest}`
-            document.getElementById("latestVer").innerHTML = `<input type="button" onclick="DownloadVersion('${latest}')" style="font-size: 1.2em;" value="Download latest moddable version (${latest})">`
+            var id = GetVersion(latest).id
+            document.getElementById("latestVer").innerHTML = `<input type="button" onclick="DownloadVersion('${latest}')" style="font-size: 1.2em;" value="Download latest moddable version (${latest})" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('2448060205267927','${id}', 'HOLLYWOOD')">`
         })
     })
 </script>
