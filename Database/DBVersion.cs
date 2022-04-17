@@ -1,4 +1,5 @@
-﻿using OculusGraphQLApiLib.Results;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using OculusGraphQLApiLib.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,11 @@ namespace OculusDB.Database
         public long versionCode { get; set; } = 0;
         public long created_date { get; set; } = 0;
         public Nodes<ReleaseChannel> binary_release_channels { get; set; } = null;
+        [BsonIgnore]
+        public bool downloadable { get
+            {
+                return binary_release_channels != null && binary_release_channels.nodes.Count > 0;
+            } }
         public Edges<Node<AppItemBundle>> firstIapItems { get; set; } = new Edges<Node<AppItemBundle>>();
     }
 }

@@ -32,6 +32,13 @@ namespace OculusDB.Database
         public DateTime uploadedTime { get; set; } = DateTime.Now;
         public string version { get; set; } = "";
         public long versionCode { get; set; } = 0;
+        public bool downloadable
+        {
+            get
+            {
+                return releaseChannels != null && releaseChannels.Count > 0;
+            }
+        }
         public List<ReleaseChannel> releaseChannels { get; set; } = new List<ReleaseChannel>();
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
     }
