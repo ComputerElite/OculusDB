@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css">
+        <title>Api docs - OculusDB</title>
+        <meta property="og:title" content="Api docs - OculusDB">
+        <meta property="og:description" content="Api documentation of OculusDB">
+        <style>
+            .json-container {
+                border: var(--brightHighlightColor) 1px solid;
+                border-radius: 5px;
+                background-color: var(--bgColor) !important;
+                font-family: Consolas;
+                padding: 5px;
+                color: var(--textColor) !important;
+                width: 100%;
+                height: fit-content;
+                font-size: .6em;
+            }
+
+            .json-key {
+                color: var(--textColor) !important;
+            }
+
+            .string {
+                color: #DD1144;
+            }
+
+            .numeric {
+                color: var(--brightHighlightColor);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">
+            <h2>Api documentation</h2>
+            <h3>Enums</h3>
+            <div id="enums">
+
+            </div>
+            <h3>Endpoints</h3>
+            <div id="endpoints">
+
+            </div>
+        </div>
+        
+        <script src="/script.js"></script>
+        <script src="/jsonview.js"></script>
+        <script>
+            const endpoints = document.getElementById("endpoints")
+            const enums = document.getElementById("enums")
+            var docs = []
+
+            FetchDocs()
+
+            function FetchDocs() {
+                fetch("/api/api.json").then(res => res.json().then(res => {
+                    docs = res
+                    DisplayDocs()
+                }))
+            }
+            
+
+            async function DisplayDocs() {
+                endpoints.innerHTML = ""
+                var i = 0
+                docs.endpoints.forEach(e => {
+                    endpoints.innerHTML += FormatEndpoint(e, i)
+                    var tree = jsonview.create(JSON.stringify(e.exampleResponse))
+                    jsonview.render(tree, document.getElementById(`${i}_code`))
+                    jsonview.expand(tree)
+                    i++
+                })
+                i = 0
+                enums.innerHTML = ""
+                docs.enums.forEach(e => {
+                    enums.innerHTML += FormatEnum(e, i)
+                    i++
+                })
+                i++
+            }
+
+            function FormatParameter(parameter) {
+                return `
+                    <div style="margin-bottom: 20px;">
+                        <code>${parameter.name}</code>
+                        <div>${parameter.description}</div>
+                        ${parameter.default ? `<div>Default value: <code>${parameter.default}</code></div>` : ""}
+                        <i>(${parameter.required ? "required" : "optional"})</i>
+                    </div>
+                `
+                
+            }
+
+            function FormatEnumValue(v) {
+                return `
+                    <div style="margin-bottom: 20px;">
+                        <code>${v.enumName}</code>
+                        <div>value: <b>${v.value}</b></div>
+                        <div>${v.description}</div>
+                    </div>
+                `
+                
+            }
+
+            function FormatEnum(e, i) {
+                var values = ""
+                e.values.forEach(v => {
+                    values += FormatEnumValue(v)
+                })
+                var usedOn = ""
+                e.usedOn.forEach(u => {
+                    usedOn += `<code>${u}</code><br>`
+                })
+                return `
+                <div class="application">
+                    <div class="info">
+                        <div class="flex outside">
+                            <div class="flex header" onclick="RevealDescription('${i}')">
+                                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_trigger" class="anim noselect">&gt;</div>
+                                <code style="margin-left: 10px">${e.name}</code>    
+                            </div>
+                        </div>
+
+                        <div class="hidden" id="${i}">
+                            <div>
+                                ${e.description}
+                            </div>
+                            <h3>Values</h3>
+                            <div>
+                                ${values}
+                            </div>
+                            <h3>Example of variables which contain this enum</h3>
+                            <div>
+                                ${usedOn}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+            }
+
+            function FormatEndpoint(endpoint, i) {
+                var parameters = ""
+                endpoint.parameters.forEach(p => {
+                    parameters += FormatParameter(p)
+                })
+                return `
+                <div class="application">
+                    <div class="info">
+                        <div class="flex outside">
+                            <div class="flex header" onclick="RevealDescription('e_${i}')">
+                                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="e_${i}_trigger" class="anim noselect">&gt;</div>
+                                <div class="method">${endpoint.method}</div>
+                                <code style="margin-left: 10px">${endpoint.url.replace(/</g, "&lt").replace(/>/g, "&gt")}</code>    
+                            </div>
+                        </div>
+
+                        <div class="hidden" id="e_${i}">
+                            <div>
+                                ${endpoint.description}
+                            </div>
+                            <h3>Parameters</h3>
+                            <div>
+                                ${parameters}
+                            </div>
+                            <h3>Example response</h3>
+                            <div id="${i}_code">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+            }
+        </script>
+    </body>
+</html>
