@@ -132,13 +132,13 @@ namespace OculusDB
             {
                 WebClient c = new WebClient();
                 List<SidequestApplabGame> s = JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true"));
-                List<string> ids = new List<string>();
+                List<ToScrapeApp> ids = new List<ToScrapeApp>();
                 foreach (SidequestApplabGame a in s)
                 {
                     string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
                     if (id.Length <= 16)
                     {
-                        ids.Add(id);
+                        ids.Add(new ToScrapeApp(id, a.image_url));
                     }
                 }
                 int current = 0;
@@ -146,9 +146,9 @@ namespace OculusDB
                 {
                     Thread t = new Thread((ids) =>
                     {
-                        List<string> idds = (List<string>)ids;
+                        List<ToScrapeApp> idds = (List<ToScrapeApp>)ids;
                         Logger.Log("Started Scraping thread for " + idds.Count + " apps of AppLab");
-                        foreach (string id in idds)
+                        foreach (ToScrapeApp id in idds)
                         {
                             bool success = false;
                             for (int i = 1; i <= 3 && !success; i++)
@@ -162,7 +162,7 @@ namespace OculusDB
                                 {
                                     if (i == 3)
                                     {
-                                        Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
                                         failedApps++;
                                         if (Stop()) return;
                                     }
@@ -206,12 +206,12 @@ namespace OculusDB
             {
                 int current = 0;
                 Logger.Log("Settings up scraping threads for " + HeadsetTools.GetHeadsetCodeName(h));
-                List<string> ids = new List<string>();
+                List<ToScrapeApp> ids = new List<ToScrapeApp>();
                 try
                 {
                     foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
                     {
-                        ids.Add(a.id);
+                        ids.Add(new ToScrapeApp(a.id, a.cover_square_image.uri));
                     }
                 } catch(Exception e)
                 {
@@ -223,9 +223,9 @@ namespace OculusDB
                 {
                     Thread t = new Thread((ids) =>
                     {
-                        List<string> idds = (List<string>)ids;
+                        List<ToScrapeApp> idds = (List<ToScrapeApp>)ids;
                         Logger.Log("Started Scraping thread for " + idds.Count + " apps of " + HeadsetTools.GetHeadsetCodeName(h));
-                        foreach (string id in idds)
+                        foreach (ToScrapeApp id in idds)
                         {
                             bool success = false;
                             for(int i = 1; i <= 3 && !success; i++)
@@ -239,7 +239,7 @@ namespace OculusDB
                                 {
                                     if (i == 3)
                                     {
-                                        Logger.Log("Scraping of id " + id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
                                         failedApps++;
                                         if (Stop()) return;
                                     }
@@ -260,15 +260,15 @@ namespace OculusDB
         }
 
 
-        public static void Scrape(string id, Headset headset)
+        public static void Scrape(ToScrapeApp id, Headset headset)
         {
             lastUpdate = DateTime.Now;
-            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id))
+            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id))
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
-            Application a = GraphQLClient.GetAppDetail(id, headset).data.node;
+            Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
             if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
             {
                 DBActivityNewApplication e = new DBActivityNewApplication();
@@ -379,7 +379,7 @@ namespace OculusDB
                 }
             }
                 
-            MongoDBInteractor.AddApplication(a, headset);
+            MongoDBInteractor.AddApplication(a, headset, id.image);
             DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
             DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
             priceChange.parentApplication.id = a.id;
@@ -431,5 +431,17 @@ namespace OculusDB
         public string oculus_url { get; set; } = "";
         public string name { get; set; } = "";
         public string image_url { get; set; } = "";
+    }
+
+    public class ToScrapeApp
+    {
+        public string id { get; set; } = "";
+        public string image { get; set; } = "";
+
+        public ToScrapeApp(string id, string image)
+        {
+            this.id = id;
+            this.image = image;
+        }
     }
 }

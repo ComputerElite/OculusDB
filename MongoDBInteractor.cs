@@ -199,10 +199,11 @@ namespace OculusDB
             activityCollection.InsertOne(d);
         }
 
-        public static void AddApplication(Application a, Headset h)
+        public static void AddApplication(Application a, Headset h, string image)
         {
             DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
             dba.hmd = h;
+            dba.img = image;
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
