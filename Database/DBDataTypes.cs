@@ -12,7 +12,6 @@ namespace OculusDB.Database
         public const string Version = "Version";
         public const string IAPItem = "IAPItem";
         public const string IAPItemPack = "IAPItemPack";
-        public const string MonitoringApplication = "MonitoringApplication";
 
 
         //Activities

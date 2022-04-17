@@ -98,6 +98,35 @@
                     "description": "Webhook only: Version is now downloadable"
                 }
             ]
+        },
+        {
+            "name": "Database types",
+            "description": "Types of data found on OculusDB",
+            "usedOn": [
+                "__OculusDBType"
+            ],
+            "values": [
+                {
+                    "value": "Application",
+                    "enumName": "Application",
+                    "description": "An Application"
+                },
+                {
+                    "value": "Version",
+                    "enumName": "Version",
+                    "description": "A version"
+                },
+                {
+                    "value": "IAPItem",
+                    "enumName": "IAPItem",
+                    "description": "A dlc"
+                },
+                {
+                    "value": "IAPItemPack",
+                    "enumName": "IAPItemPack",
+                    "description": "A dlc pack"
+                }
+            ]
         }
     ],
     "endpoints": [
@@ -123,7 +152,7 @@
         {
             "url": "/api/id/<id>",
             "method": "GET",
-            "description": "WIP",
+            "description": "Retrieves an object by its id",
             "parameters": [
                 {
                     "name": "id",
@@ -5660,7 +5689,7 @@
         {
             "url": "/api/pricehistory/<id>",
             "method": "GET",
-            "description": "WIP",
+            "description": "Gives you the price history of an item.",
             "parameters": [
                 {
                     "name": "id",
