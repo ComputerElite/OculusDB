@@ -27,7 +27,7 @@
         </div>
         <script src="/script.js"></script>
         <script>
-            fetch("/api/updates").then(res => res.json().then(res => {
+            fetch("/api/v1/updates").then(res => res.json().then(res => {
                 var updates = ""
                 res.forEach(x => {
                     updates += `
@@ -63,7 +63,7 @@
                 return res.replace("\\n", "<br>")
             }
 
-            fetch("/api/database").then(res => res.json().then(res => {
+            fetch("/api/v1/database").then(res => res.json().then(res => {
                 document.getElementById("db").innerHTML = `
                 <table>
                     <tr><td class="label">Last Database update</td><td class="value">${new Date(res.lastUpdated).toLocaleString()}</td></tr>

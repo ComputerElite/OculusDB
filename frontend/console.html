@@ -28,7 +28,7 @@
             const scroll = document.getElementById("scroll")
 
             setInterval(() => {
-                fetch("/api/serverconsole").then(res => res.text().then(text => {
+                fetch("/api/v1/serverconsole").then(res => res.text().then(text => {
                     console.value += text
                     if(scroll.checked) console.scrollTop = console.scrollHeight
                 }))

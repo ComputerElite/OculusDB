@@ -93,7 +93,7 @@
             if(constraints == "") constraints = "none"
 
 
-            fetch("/api/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => res.json().then(res => {
+            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => res.json().then(res => {
                 activity = res
                 var html = ""
                 activity.forEach(a => {

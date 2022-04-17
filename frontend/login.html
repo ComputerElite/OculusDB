@@ -23,7 +23,7 @@
             const b = document.getElementById("b")
             var currentUser = {}
 
-            fetch("/api/user?token=" + GetCookie("token")).then(res => {
+            fetch("/api/v1/user?token=" + GetCookie("token")).then(res => {
                 res.json().then(res => {
                     currentUser = res
                     if(res.redirect == "/admin") b.value = "Admin"
@@ -34,7 +34,7 @@
                 if(password.value == "") {
                     window.location.href = currentUser.redirect
                 }
-                fetch("/api/login", {
+                fetch("/api/v1/login", {
                     method: "POST",
                     body: JSON.stringify({
                         password: document.getElementById("password").value

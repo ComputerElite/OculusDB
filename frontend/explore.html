@@ -51,7 +51,7 @@
 
             function Update() {
                 results.innerHTML = loader
-                fetch("/api/explore?sorting=" + sort.value).then(res => res.json().then(res => {
+                fetch("/api/v1/explore?sorting=" + sort.value).then(res => res.json().then(res => {
                     var apps = ""
                     res.forEach(e => {
                         apps += FormatApplication(e, e.id)

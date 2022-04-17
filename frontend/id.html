@@ -54,7 +54,7 @@
                 </div>
             </div>
             <h2>OculusDB Info</h2>
-            <a href="/api/id/{0}">Raw Json</a>
+            <a href="/api/v1/id/{0}">Raw Json</a>
             <table>
                 <tr><td class="label">OculusDB Type</td><td id="type">Fetching...</td></tr>
                 <tr><td class="label">Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
@@ -117,7 +117,7 @@
             }
 
             function AddConnected() {
-                fetch(`/api/connected/${id}`).then(res => res.json().then(res => {
+                fetch(`/api/v1/connected/${id}`).then(res => res.json().then(res => {
                     connected = res
                     document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
                     RevealDescription("this_" + object.id)
@@ -214,7 +214,7 @@
             const priceHistory = document.getElementById("history")
 
             function PlotPrice() {
-                fetch(`/api/pricehistory/${id}`).then(res => res.json().then(res => {
+                fetch(`/api/v1/pricehistory/${id}`).then(res => res.json().then(res => {
                     var x = []
                     var y = []
                     var layout = {

@@ -67,7 +67,7 @@
 
             document.getElementById("query").value = query
             SearchResults.innerHTML = loader
-            fetch("/api/search/" + query + "?headsets=" + params.get("headsets")).then(res => {
+            fetch("/api/v1/search/" + query + "?headsets=" + params.get("headsets")).then(res => {
                 res.json().then(res => {
                     var results = ""
                     res.forEach(x => {

@@ -187,7 +187,7 @@ const params = new URLSearchParams(window.location.search)
 
 function GetObjectById(id) {
     return new Promise((resolve, reject) => {
-        fetch("/api/id/" + id).then(res => {
+        fetch("/api/v1/id/" + id).then(res => {
             if(res.status != 200) reject(res.status)
             res.json().then(res => resolve(res))
         })
@@ -197,7 +197,7 @@ function GetObjectById(id) {
 
 function GetActivityById(id) {
     return new Promise((resolve, reject) => {
-        fetch("/api/activityid/" + id).then(res => {
+        fetch("/api/v1/activityid/" + id).then(res => {
             if(res.status != 200) reject(res.status)
             res.json().then(res => resolve(res))
         })

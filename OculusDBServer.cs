@@ -91,7 +91,9 @@ namespace OculusDB
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
-            server.AddRoute("GET", "/api/explore", new Func<ServerRequest, bool>(request =>
+
+            server.AddRouteRedirect("GET", "/api/explore/", "/api/v1/explore/");
+            server.AddRoute("GET", "/api/v1/explore/", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
@@ -177,7 +179,7 @@ namespace OculusDB
                 request.SendString("No special utilities available", "text/plain", 404);
                 return true;
             }), true);
-            server.AddRoute("POST", "/api/updateserver", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("POST", "/api/updateserver/", new Func<ServerRequest, bool>(request =>
             {
                 if(!IsUserAdmin(request)) return true;
                 Update u = new Update();
@@ -188,14 +190,14 @@ namespace OculusDB
                 Updater.StartUpdateNetApp(request.bodyBytes, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
                 return true;
             }));
-            server.AddRoute("POST", "/api/restartserver", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("POST", "/api/restartserver/", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 request.SendString("Restarting");
                 Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
                 return true;
             }));
-            server.AddRoute("GET", "/api/servermetrics", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/servermetrics/", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
                 ServerMetrics m = new ServerMetrics();
@@ -207,7 +209,8 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(m), "application/json");
                 return true;
             }));
-            server.AddRoute("GET", "/api/id/", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/id/", "/api/v1/id/", true);
+            server.AddRoute("GET", "/api/v1/id/", new Func<ServerRequest, bool>(request =>
             {
                 List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff);
                 if(d.Count <= 0)
@@ -218,14 +221,16 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 return true;
             }), true);
-            server.AddRoute("GET", "/api/connected/", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/connected/", "/api/v1/connected/", true);
+            server.AddRoute("GET", "/api/v1/connected/", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetConnected(request.pathDiff)), "application/json");
                 // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
                 OculusScraper.CheckRunning();
                 return true;
             }), true);
-            server.AddRoute("GET", "/api/search/", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/search/", "/api/v1/search/", true);
+            server.AddRoute("GET", "/api/v1/search/", new Func<ServerRequest, bool>(request =>
             {
                 List<Headset> headsets = new List<Headset>();
                 foreach(string h in (request.queryString.Get("headsets") ?? "MONTEREY,RIFT,PACIFIC,GEARVR").Split(','))
@@ -247,19 +252,22 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(apps), "application/json");
                 return true;
             }), true);
-            server.AddRoute("GET", "/api/dlcs/", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/dlcs/", "/api/v1/dlcs/", true);
+            server.AddRoute("GET", "/api/va/dlcs/", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetDLCs(request.pathDiff)), "application/json");
                 return true;
             }), true);
-            server.AddRoute("GET", "/api/pricehistory/", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/pricehistory/", "/api/v1/pricehistory/", true);
+            server.AddRoute("GET", "/api/v1/pricehistory/", new Func<ServerRequest, bool>(request =>
             {
                 List<dynamic> changes = new List<dynamic>();
                 foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff)) changes.Add(ObjectConverter.ConvertToDBType(d));
                 request.SendString(JsonSerializer.Serialize(changes), "application/json");
                 return true;
             }), true);
-            server.AddRoute("GET", "/api/activity", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/activity/", "/api/v1/activity/");
+            server.AddRoute("GET", "/api/v1/activity/", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
@@ -288,7 +296,8 @@ namespace OculusDB
                
                 return true;
             }));
-            server.AddRoute("GET", "/api/activityid", new Func<ServerRequest, bool>(request =>
+            server.AddRouteRedirect("GET", "/api/activityid/", "/api/v1/activityid/", true);
+            server.AddRoute("GET", "/api/v1/activityid/", new Func<ServerRequest, bool>(request =>
             {
                 List<BsonDocument> d = MongoDBInteractor.GetActivityById(request.pathDiff);
                 if (d.Count <= 0)
@@ -299,7 +308,7 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 return true; 
             }), true);
-            server.AddRoute("POST", "/api/login", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
@@ -323,7 +332,7 @@ namespace OculusDB
                 }
                 return true;
             }));
-            server.AddRoute("GET", "/api/user", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
@@ -358,12 +367,12 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(config));
                 return true;
             }));
-            server.AddRoute("GET", "/api/updates", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/v1/updates", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(config.updates.Take(50)));
                 return true;
             }));
-            server.AddRoute("GET", "/api/database", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/api/v1/database", new Func<ServerRequest, bool>(request =>
             {
                 DBInfo info = new DBInfo();
                 info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
