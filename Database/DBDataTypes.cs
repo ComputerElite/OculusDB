@@ -25,5 +25,8 @@ namespace OculusDB.Database
         public const string ActivityDLCUpdated = "ActivityDLCUpdated";
         public const string ActivityNewDLCPack = "ActivityNewDLCPack";
         public const string ActivityDLCPackUpdated = "ActivityDLCPackUpdated";
+
+        // not a DB property. Gets resolved on runtime for webhooks
+        public const string ActivityVersionDownloadable = "ActivityVersionDownloadable";
     }
 }

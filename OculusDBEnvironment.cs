@@ -13,6 +13,10 @@ namespace OculusDB
         public static string workingDir = "";
         public static string dataDir = "";
         public static Config config = new Config();
+        public static string userAgent { get
+            {
+                return "OculusDB/1.0";
+            } }
 
         public static void AddVariablesDependentOnVariablesAndFixAllOtherVariables()
         {

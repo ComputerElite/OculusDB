@@ -8,11 +8,14 @@ using ComputerUtils.Discord;
 using OculusDB.Database;
 using MongoDB.Bson.Serialization.Attributes;
 using OculusGraphQLApiLib;
+using System.Net;
+using ComputerUtils.Logging;
+using System.Text.Json;
 
 namespace OculusDB.Users
 {
     [BsonIgnoreExtraElements]
-    public class DiscordActivityWebhook
+    public class ActivityWebhook
     {
         [BsonIgnore]
         public Config config { get
@@ -21,19 +24,49 @@ namespace OculusDB.Users
             } }
         public string url { get; set; } = "";
         public string applicationId { get; set; } = "";
+        public ActivityWebhookType type { get; set; } = ActivityWebhookType.Discord;
         public List<string> activities { get; set; } = new List<string>();
 
-        public void SendWebhook(BsonDocument activity)
+        public void SendOculusDBWebhook(BsonDocument activity)
+        {
+            if (!SendWebhook(activity)) return;
+            string type = activity["__OculusDBType"].ToString();
+            if(CheckDownloadableType(activity) && !(activities.Contains(DBDataTypes.ActivityNewVersion) ||activities.Contains(DBDataTypes.ActivityVersionUpdated)))
+            {
+                activity["__OculusDBType"] = DBDataTypes.ActivityVersionDownloadable;
+            }
+            WebClient c = new WebClient();
+            c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
+            c.UploadString(url, "POST", JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(activity)));
+        }
+
+        public bool CheckDownloadableType(BsonDocument activity)
         {
             string type = activity["__OculusDBType"].ToString();
-            if (!activities.Contains(type)) return;
+            return (type == DBDataTypes.ActivityNewVersion || type == DBDataTypes.ActivityVersionUpdated) && activity["releaseChannels"].AsBsonArray.Count > 0 && activities.Contains(DBDataTypes.ActivityVersionDownloadable);
+        }
+
+        public bool SendWebhook(BsonDocument activity)
+        {
+            string type = activity["__OculusDBType"].ToString();
+            if (!activities.Contains(type) && !CheckDownloadableType(activity)) return false;
+            string id;
+            if (type == DBDataTypes.ActivityNewApplication) id = activity["id"].ToString();
+            else id = activity["parentApplication"]["id"].ToString();
+            if (applicationId != "" && applicationId != id || applicationId == "" && (type == DBDataTypes.ActivityNewVersion || type == DBDataTypes.ActivityVersionUpdated) && this.type == ActivityWebhookType.Discord) return false;
+            return true;
+        }
+
+        public void SendDiscordWebhook(BsonDocument activity)
+        {
+            if (!SendWebhook(activity)) return;
+            string type = activity["__OculusDBType"].ToString();
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
             string websiteUrl = config.publicAddress;
             string icon = websiteUrl + "logo";
             embed.author = new DiscordEmbedAuthor { icon_url = icon, name = "OculusDB", url = websiteUrl };
             Dictionary<string, string> meta = new Dictionary<string, string>();
-            string id = "";
             if(type == DBDataTypes.ActivityNewApplication)
             {
                 DBActivityNewApplication app = ObjectConverter.ConvertToDBType(activity);
@@ -43,7 +76,6 @@ namespace OculusDB.Users
                 meta.Add("Id", app.id);
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(app.hmd));
                 meta.Add("Publisher", app.publisherName);
-                id = app.id;
             }
             else if (type == DBDataTypes.ActivityPriceChanged)
             {
@@ -54,7 +86,6 @@ namespace OculusDB.Users
                 meta.Add("Old price", app.oldPriceFormatted);
                 meta.Add("Id", app.parentApplication.id);
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(app.parentApplication.hmd));
-                id = app.parentApplication.id;
             }
             else if (type == DBDataTypes.ActivityNewVersion)
             {
@@ -68,7 +99,6 @@ namespace OculusDB.Users
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
-                id = v.parentApplication.id;
             }
             else if (type == DBDataTypes.ActivityVersionUpdated)
             {
@@ -82,7 +112,6 @@ namespace OculusDB.Users
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
-                id = v.parentApplication.id;
             }
             else if (type == DBDataTypes.ActivityNewDLC)
             {
@@ -94,7 +123,6 @@ namespace OculusDB.Users
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
-                id = v.parentApplication.id;
             }
             else if (type == DBDataTypes.ActivityDLCUpdated)
             {
@@ -106,7 +134,6 @@ namespace OculusDB.Users
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
-                id = v.parentApplication.id;
             }
             else if (type == DBDataTypes.ActivityNewDLCPack)
             {
@@ -119,7 +146,6 @@ namespace OculusDB.Users
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
-                id = v.parentApplication.id;
             }
             else if (type == DBDataTypes.ActivityDLCPackUpdated)
             {
@@ -132,9 +158,7 @@ namespace OculusDB.Users
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
-                id = v.parentApplication.id;
             }
-            if (applicationId != "" && applicationId != id || applicationId == "" && (type == DBDataTypes.ActivityNewVersion || type == DBDataTypes.ActivityVersionUpdated)) return;
             foreach (KeyValuePair<string, string> item in meta)
             {
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
@@ -143,5 +167,11 @@ namespace OculusDB.Users
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1500);
         }
+    }
+
+    public enum ActivityWebhookType
+    {
+        Discord = 0,
+        OculusDB = 1
     }
 }

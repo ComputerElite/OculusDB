@@ -89,6 +89,8 @@ namespace OculusDB
             /////////////////////////////////////////////
             OculusScraper.StartScrapingThread();
 
+            //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
+
             server.AddRoute("GET", "/api/explore", new Func<ServerRequest, bool>(request =>
             {
                 try

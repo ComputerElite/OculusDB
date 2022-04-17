@@ -117,6 +117,10 @@ namespace OculusDB
             {
                 return BsonSerializer.Deserialize<DBActivityDLCPackUpdated>(d);
             }
+            else if (type == DBDataTypes.ActivityVersionDownloadable)
+            {
+                return BsonSerializer.Deserialize<DBActivityVersionUpdated>(d);
+            }
             return d;
         }
     }

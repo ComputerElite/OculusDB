@@ -23,14 +23,14 @@ namespace OculusDB
         public static IMongoDatabase oculusDBDatabase = null;
         public static IMongoCollection<BsonDocument> dataCollection = null;
         public static IMongoCollection<BsonDocument> activityCollection = null;
-        public static IMongoCollection<DiscordActivityWebhook> webhookCollection = null;
+        public static IMongoCollection<ActivityWebhook> webhookCollection = null;
 
         public static void Initialize()
         {
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
             dataCollection = oculusDBDatabase.GetCollection<BsonDocument>("data");
-            webhookCollection = oculusDBDatabase.GetCollection<DiscordActivityWebhook>("webhooks");
+            webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
             activityCollection = oculusDBDatabase.GetCollection<BsonDocument>("activity");
 
             ConventionPack pack = new ConventionPack();
@@ -178,7 +178,7 @@ namespace OculusDB
             return deleted;
         }
 
-        public static List<DiscordActivityWebhook> GetWebhooks()
+        public static List<ActivityWebhook> GetWebhooks()
         {
             return webhookCollection.Find(new BsonDocument()).ToList();
         }
