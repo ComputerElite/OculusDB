@@ -61,15 +61,12 @@
                 }))
             }
             
-
             async function DisplayDocs() {
                 endpoints.innerHTML = ""
+                
                 var i = 0
                 docs.endpoints.forEach(e => {
                     endpoints.innerHTML += FormatEndpoint(e, i)
-                    var tree = jsonview.create(JSON.stringify(e.exampleResponse))
-                    jsonview.render(tree, document.getElementById(`${i}_code`))
-                    jsonview.expand(tree)
                     i++
                 })
                 i = 0
@@ -117,13 +114,13 @@
                 <div class="application">
                     <div class="info">
                         <div class="flex outside">
-                            <div class="flex header" onclick="RevealDescription('${i}')">
-                                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_trigger" class="anim noselect">&gt;</div>
+                            <div class="flex header" onclick="RevealDescription('e_${i}')">
+                                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="e_${i}_trigger" class="anim noselect">&gt;</div>
                                 <code style="margin-left: 10px">${e.name}</code>    
                             </div>
                         </div>
 
-                        <div class="hidden" id="${i}">
+                        <div class="hidden" id="e_${i}">
                             <div>
                                 ${e.description}
                             </div>
@@ -141,6 +138,13 @@
                 `
             }
 
+            function Tree(i) {
+                var tree = jsonview.create(JSON.stringify(docs.endpoints[i].exampleResponse))
+                document.getElementById(`${i}_code`).innerHTML = ""
+                jsonview.render(tree, document.getElementById(`${i}_code`))
+                jsonview.expand(tree)
+            }
+
             function FormatEndpoint(endpoint, i) {
                 var parameters = ""
                 endpoint.parameters.forEach(p => {
@@ -150,14 +154,14 @@
                 <div class="application">
                     <div class="info">
                         <div class="flex outside">
-                            <div class="flex header" onclick="RevealDescription('e_${i}')">
-                                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="e_${i}_trigger" class="anim noselect">&gt;</div>
+                            <div class="flex header" onclick="RevealDescription('${i}'); Tree(${i})">
+                                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_trigger" class="anim noselect">&gt;</div>
                                 <div class="method">${endpoint.method}</div>
                                 <code style="margin-left: 10px">${endpoint.url.replace(/</g, "&lt").replace(/>/g, "&gt")}</code>    
                             </div>
                         </div>
 
-                        <div class="hidden" id="e_${i}">
+                        <div class="hidden" id="${i}">
                             <div>
                                 ${endpoint.description}
                             </div>
