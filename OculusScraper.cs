@@ -332,6 +332,7 @@ namespace OculusDB
                     newDLC.displayShortDescription = dlc.node.display_short_description;
                     newDLC.priceFormatted = dlc.node.current_offer.price.formatted;
                     newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
+                    if (newDLC.priceOffsetNumerical <= 0) continue;
                     BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(dlc.node.id);
                     if (dlc.node.IsIAPItem())
                     {
