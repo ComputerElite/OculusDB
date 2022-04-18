@@ -33,6 +33,8 @@ namespace OculusDB
         public const int maxAppsToFail = 25;
         public const int minutesPause = 30;
 
+        public static List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
+
         public static void StartScrapingThread()
         {
             if(config.mongoDBUrl == "")
@@ -99,7 +101,24 @@ namespace OculusDB
             } else
             {
                 config.lastValidToken = config.lastOculusToken;
+                try
+                {
+                    Logger.Log("Getting entitlements of token at " + config.lastOculusToken);
+                    ViewerData<OculusUserWrapper> user = GraphQLClient.GetActiveEntitelments();
+                    if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null)
+                    {
+                        throw new Exception("Fetching of active entitlements failed");
+                    } else
+                    {
+                        userEntitlements = user.data.viewer.user.active_entitlements;
+                    }
+                } catch (Exception e)
+                {
+                    Logger.Log(e.ToString(), LoggingType.Warning);
+                    OculusDBServer.SendMasterWebhookMessage("Fetching of active entitlements failed", "Failed for token at index " + config.lastOculusToken + ". This may result in some prices being showed as free while they're actually not free.", 0xFFFF00);
+                }
             }
+            config.Save();
         }
 
         public static void FinishCurrentScrape()
@@ -259,6 +278,47 @@ namespace OculusDB
             t.Start();
         }
 
+        public static UserEntitlement GetEntitlementStatusOfAppOrDLC(string appId, string dlcId = null)
+        {
+            if (userEntitlements.Count <= 0) return UserEntitlement.FAILED;
+            foreach(Entitlement entitlement in userEntitlements)
+            {
+                if(entitlement.item.id == appId)
+                {
+                    if(dlcId == null) return UserEntitlement.OWNED;
+                    foreach(IAPEntitlement dlc in entitlement.item.active_dlc_entitlements)
+                    {
+                        if(dlc.item.id == dlcId)
+                        {
+                            return UserEntitlement.OWNED;
+                        }
+                    }
+                    return UserEntitlement.NOTOWNED;
+                }
+            }
+            return UserEntitlement.NOTOWNED;
+        }
+
+        public static IAPEntitlement GetEntitlementOfDLC(string appId, string dlcId)
+        {
+            if (userEntitlements.Count <= 0) return null;
+            foreach(Entitlement entitlement in userEntitlements)
+            {
+                if(entitlement.item.id == appId)
+                {
+                    foreach(IAPEntitlement dlc in entitlement.item.active_dlc_entitlements)
+                    {
+                        if(dlc.item.id == dlcId)
+                        {
+                            return dlc;
+                        }
+                    }
+                    return null;
+                }
+            }
+            return null;
+        }
+
 
         public static void Scrape(ToScrapeApp id, Headset headset)
         {
@@ -330,9 +390,19 @@ namespace OculusDB
                     newDLC.parentApplication.displayName = a.displayName;
                     newDLC.displayName = dlc.node.display_name;
                     newDLC.displayShortDescription = dlc.node.display_short_description;
-                    newDLC.priceFormatted = dlc.node.current_offer.price.formatted;
+
+                    UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id);
+                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0) continue;
+
                     newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
-                    if (newDLC.priceOffsetNumerical <= 0) continue;
+                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0) continue;
+                    else if(ownsDlc == UserEntitlement.OWNED)
+                    {
+                        IAPEntitlement e = GetEntitlementOfDLC(a.id, dlc.node.id);
+                        newDLC.priceOffset = e.item.current_offer.price.offset_amount;
+                    }
+
+                    newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);
                     BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(dlc.node.id);
                     if (dlc.node.IsIAPItem())
                     {
@@ -388,17 +458,27 @@ namespace OculusDB
             priceChange.parentApplication.canonicalName = a.canonicalName;
             priceChange.parentApplication.displayName = a.displayName;
 
-            // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
-            // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
-            // So if the user owns the app use the baseline price. If not use the current_price
-            // That way discounts for the apps the user owns can't be tracked. I love oculus
-            if(a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
+            
+            priceChange.newPriceOffset = a.current_offer.price.offset_amount;
+            
+
+            UserEntitlement ownsApp = GetEntitlementStatusOfAppOrDLC(a.id);
+            if (ownsApp == UserEntitlement.FAILED)
+            {
+                // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
+                // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
+                // So if the user owns the app use the baseline price. If not use the current_price
+                // That way discounts for the apps the user owns can't be tracked. I love oculus
+                if (a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
+                {
+                    priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
+                }
+            }
+            else if (ownsApp == UserEntitlement.OWNED)
             {
                 priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
-            } else
-            {
-                priceChange.newPriceOffset = a.current_offer.price.offset_amount;
             }
+
 
             priceChange.newPriceFormatted = FormatPrice(priceChange.newPriceOffsetNumerical, a.current_offer.price.currency);
             if (lastPriceChange != null)
@@ -444,5 +524,12 @@ namespace OculusDB
             this.id = id;
             this.image = image;
         }
+    }
+
+    public enum UserEntitlement
+    {
+        FAILED,
+        OWNED,
+        NOTOWNED
     }
 }
