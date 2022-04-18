@@ -256,11 +256,11 @@ namespace OculusDB
                                     Scrape(id, h);
                                     success = true;
                                 }
-                                catch (Exception ex)
+                                catch (Exception e)
                                 {
                                     if (i == 3)
                                     {
-                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape:\n" + e.ToString(), LoggingType.Error);
                                         failedApps++;
                                         if (Stop()) return;
                                     }
