@@ -58,9 +58,9 @@
                     res = InsertString(link.absolute, link.start + length, res)
                     length += link.absolute.length - link.relative.length
                 })
-                res = res.replace(/\n/g, "<br>")
+                res = res.replace(/\\n/g, "<br>")
                 res = res.replace(/\t/g, "&emsp;&emsp;&emsp;&emsp;")
-                return res.replace("\\n", "<br>")
+                return res
             }
 
             fetch("/api/v1/database").then(res => res.json().then(res => {
