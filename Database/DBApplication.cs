@@ -36,6 +36,12 @@ namespace OculusDB.Database
         public string publisher_name { get; set; } = "";
         public double quality_rating_aggregate { get; set; } = 0.0;
         public string img { get; set; } = "";
+
+        [BsonIgnore]
+        public string imageLink { get
+            {
+                return "/cdn/images/" + id;
+            } }
         public Nodes<ReleaseChannel> release_channels { get; set; } = new Nodes<ReleaseChannel>();
         public long? release_date { get; set; } = 0;
         public List<string> supported_hmd_platforms { get; set; } = new List<string>();

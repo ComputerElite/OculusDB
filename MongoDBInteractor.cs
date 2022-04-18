@@ -204,6 +204,7 @@ namespace OculusDB
             DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
             dba.hmd = h;
             dba.img = image;
+            OculusScraper.DownloadImage(dba);
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
@@ -304,6 +305,11 @@ namespace OculusDB
             return distinct;
         }
 
+        public static List<BsonDocument> GetAllApplications()
+        {
+            return GetDistinct(dataCollection.Find(new BsonDocument("__OculusDBType", DBDataTypes.Application)).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
+            
+        }
         public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets)
         {
             if (query == "") return new List<BsonDocument>();

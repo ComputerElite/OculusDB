@@ -15,6 +15,11 @@ using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using ComputerUtils.ConsoleUi;
+using ComputerUtils.FileManaging;
+using System.Drawing;
+using SizeConverter = ComputerUtils.VarUtils.SizeConverter;
+using System.Drawing.Imaging;
 
 namespace OculusDB
 {
@@ -77,9 +82,10 @@ namespace OculusDB
             Logger.Log("Starting HttpServer");
             AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             server.StartServer(config.port);
+            FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.CacheValidityInSeconds = 0;
+            //server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -90,6 +96,7 @@ namespace OculusDB
             OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
+            OculusScraper.DownloadImage(ObjectConverter.ConvertToDBType(MongoDBInteractor.GetAllApplications()[0]));
 
 
             server.AddRouteRedirect("GET", "/api/explore/", "/api/v1/explore/");
@@ -390,6 +397,16 @@ namespace OculusDB
                 request.SendString("Updated config");
                 return true;
             }));
+            server.AddRoute("GET", "/cdn/images/", new Func<ServerRequest, bool>(request =>
+            {
+                if (!(new Regex(@"^[0-9]+$").IsMatch(request.pathDiff)))
+                {
+                    request.SendString("Only application ids are allowed", "text/plain", 400);
+                    return true;
+                }
+                request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".jpg");
+                return true;
+            }), true, true, true, true, 120);
             server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true);
             server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true);
             server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true);

@@ -9,6 +9,8 @@ using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -317,6 +319,35 @@ namespace OculusDB
                 }
             }
             return null;
+        }
+
+        public static void DownloadImage(DBApplication a)
+        {
+            try
+            {
+                string loc = OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + Path.GetExtension(a.img.Split('?')[0]);
+                if (a.img == "") return;
+                WebClient c = new WebClient();
+                c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
+                c.DownloadFile(a.img, loc);
+                if (!loc.EndsWith(".jpg"))
+                {
+                    try
+                    {
+                        Bitmap img = new Bitmap(loc);
+                        img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + ".jpg", ImageFormat.Jpeg);
+                        img.Dispose();
+                        File.Delete(loc);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log("Couldn't convert image to jpg:\n" + e.ToString(), LoggingType.Warning);
+                    }
+                }
+            } catch(Exception e)
+            {
+                Logger.Log("Couldn't download image of " + a.id + ":\n" + e.ToString, LoggingType.Warning);
+            }
         }
 
 
