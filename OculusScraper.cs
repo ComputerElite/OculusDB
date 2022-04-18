@@ -105,12 +105,12 @@ namespace OculusDB
                 {
                     Logger.Log("Getting entitlements of token at " + config.lastOculusToken);
                     ViewerData<OculusUserWrapper> user = GraphQLClient.GetActiveEntitelments();
-                    if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null)
+                    if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null ||user.data.viewer.user.active_entitlements.nodes == null)
                     {
                         throw new Exception("Fetching of active entitlements failed");
                     } else
                     {
-                        userEntitlements = user.data.viewer.user.active_entitlements;
+                        userEntitlements = user.data.viewer.user.active_entitlements.nodes;
                     }
                 } catch (Exception e)
                 {
