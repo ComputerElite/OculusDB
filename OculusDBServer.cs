@@ -96,7 +96,7 @@ namespace OculusDB
             OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
-            OculusScraper.DownloadImage(ObjectConverter.ConvertToDBType(MongoDBInteractor.GetAllApplications()[0]));
+            //OculusScraper.DownloadImage(ObjectConverter.ConvertToDBType(MongoDBInteractor.GetAllApplications()[0]));
 
 
             server.AddRouteRedirect("GET", "/api/explore/", "/api/v1/explore/");
