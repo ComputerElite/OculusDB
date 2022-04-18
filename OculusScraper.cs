@@ -71,7 +71,7 @@ namespace OculusDB
             failedApps = 0;
             SwitchToken();
             SetupLimitedScrape(Headset.RIFT);
-            SetupLimitedScrape(Headset.MONTEREY);
+            SetupLimitedScrape(Headset.HOLLYWOOD);
             SetupLimitedScrape(Headset.GEARVR);
             SetupLimitedScrape(Headset.PACIFIC);
             SetupLimitedScrapeAppLab();
