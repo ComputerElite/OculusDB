@@ -85,7 +85,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            server.DefaultCacheValidityInSeconds = 0;
+            //server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -93,7 +93,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
             //OculusScraper.DownloadImage(ObjectConverter.ConvertToDBType(MongoDBInteractor.GetAllApplications()[0]));
