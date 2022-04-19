@@ -85,7 +85,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
+            server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -93,7 +93,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            OculusScraper.StartScrapingThread();
+            //OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
             //OculusScraper.DownloadImage(ObjectConverter.ConvertToDBType(MongoDBInteractor.GetAllApplications()[0]));
@@ -413,6 +413,7 @@ namespace OculusDB
             server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true);
             server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace, true, true, true);
             server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png", true, true, true);
+            server.AddRouteFile("/notfound.jpg", "frontend" + Path.DirectorySeparatorChar + "notfound.jpg", true, true, true);
             server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png", true, true, true);
             server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html", replace, true, true, true);
             server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
