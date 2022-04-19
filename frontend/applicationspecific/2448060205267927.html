@@ -1,3 +1,6 @@
+<div id="2448060205267927_help">
+
+</div>
 <div id="latestVer"></div>
 <script>
     fetch("https://raw.githubusercontent.com/BMBF/resources/master/com.beatgames.beatsaber/core-mods.json").then(res => {
@@ -14,4 +17,11 @@
             document.getElementById("latestVer").innerHTML = `<input type="button" onclick="DownloadVersion('${latest}')" style="font-size: 1.2em;" value="Download latest moddable version (${latest})" oncontextmenu="ContextMenuEnabled(event)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('2448060205267927','${id}', 'HOLLYWOOD')">`
         })
     })
+    document.getElementById("2448060205267927_help").innerHTML = GetCollapsableInfo("Help: The APK fails to install on Sidequest and says <code>SAFESIDE</code> or is stuck on <code>Checking APK against blacklist</code>", `
+    <br>Download <code>MultiUserADBInterface.zip</code> from <a href="https://github.com/ComputerElite/MultiUserADBInterface/releases/latest">here</a>. Then unzip the file you downloaded (right click -> extract all). After that's done open the MultiUserADBInterface executable and type in <code>1</code> followed by enter to install an apk. Then drag and drop the apk on which you got the error when installing with Sidequest into the window and press enter. Finally select the User you want to install the apk and you're done.
+    <br>
+    <br><i>do all of this while your quest is plugged in. If you have any issues feel free to ask</i>
+    <br>
+    <br>Note: This will <b>not</b> make Sidequest able to install the APK. It'll install the APK without Sidequest
+    `, "2448060205267927_help_content")
 </script>

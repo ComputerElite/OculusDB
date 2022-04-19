@@ -353,6 +353,23 @@ function GetHeadsets(list) {
     return names.join(", ")
 }
 
+function GetCollapsableInfo(title, collapsed, htmlid) {
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${title}</div>
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            ${collapsed}
+        </div>
+    </div>
+</div>`
+}
+
 function FormatDLC(dlc, htmlid = "") {
     if(htmlid == "") htmlid = dlc.id
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
