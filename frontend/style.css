@@ -186,7 +186,7 @@ code {
 
 .outside {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .anim {
@@ -227,8 +227,7 @@ code {
 .buttons {
     display: flex;
     flex-direction: column;
-    align-items: end;
-    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .buttons input {
@@ -510,6 +509,7 @@ input[type=button] {
     color: var(--brightHoverColor);
     height: fit-content;
     width: fit-content;
+    font-size: .8em;
 }
 
 input[type=checkbox] {

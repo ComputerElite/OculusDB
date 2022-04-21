@@ -375,12 +375,12 @@ function FormatDLC(dlc, htmlid = "") {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
             </div>
         </div>
 
@@ -408,12 +408,12 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${dlc.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">${dlc.display_name}</div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
             </div>
         </div>
 
@@ -456,13 +456,13 @@ function FormatDLCActivity(a, htmlid) {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy activity link" cmov-0="Copy(GetActivityLink('${a.__id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">DLC <b>${a.displayName}</b> ${a.__OculusDBType == "ActivityNewDLC" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</b></div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
             </div>
         </div>
 
@@ -488,12 +488,12 @@ function FormatDLCPackActivityDLC(a, i) {
     return `<div class="application">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${i}_${a.__id}')" >
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_${a.__id}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;"></div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
             </div>
         </div>
 
@@ -519,13 +519,13 @@ function FormatDLCPackActivity(a, htmlid) {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy activity link" cmov-0="Copy(GetActivityLink('${a.__id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${a.id}', '_blank')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">DLC Pack ${a.displayName} ${a.__OculusDBType == "ActivityNewDLCPack" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${a.id}', '_blank')">
             </div>
         </div>
 
@@ -551,16 +551,13 @@ function FormatDLCPackActivity(a, htmlid) {
 function FormatParentApplication(a, activityId) {
     return `<div class="application">
     <div class="info">
-        
-
-
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${activityId}_${a.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${activityId}_${a.id}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">${a.displayName}</div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
             </div>
         </div>
 
@@ -582,14 +579,15 @@ function FormatApplication(application, htmlId = "") {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${application.id}')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
                 <img onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
                 <div stlye="font-size: 1.25em;">${application.displayName} (${ GetLogicalHeadsetNameEnum(application.hmd).replace(" and ", ", ")})</div>
             </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${application.id}')">
-            </div>
+            
         </div>
         <div class="hidden" id="${htmlId}">
             <table>
@@ -617,14 +615,14 @@ function FormatApplicationActivity(a, htmlid) {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy activity link" cmov-0="Copy(GetActivityLink('${a.__id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
+                <input type="button" value="View Application" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">New Application released! <b>${a.displayName}</b></div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
-                <input type="button" value="View Application" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
             </div>
         </div>
 
@@ -653,13 +651,13 @@ function FormatPriceChanged(a, htmlid) {
     <div class="info">
 
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">Price of <b>${a.parentApplication.displayName}</b> changed from ${a.oldPriceFormatted} to <b>${a.newPriceFormatted}</b></div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
             </div>
         </div>
 
@@ -690,13 +688,14 @@ function FormatVersion(v, htmlid = "") {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${v.id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</div>
             </div>
-            <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
-            </div>
+            
         </div>
 
         <div class="hidden" id="${htmlid}">
@@ -727,14 +726,14 @@ function FormatVersionActivity(v, htmlid) {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy activity link" cmov-0="Copy(GetActivityLink('${v.__id}'))">
     <div class="info">
         <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
+            </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(v.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
                 <div stlye="font-size: 1.25em;">Version <b>${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</b> of <b>${v.parentApplication.displayName}</b> ${v.__OculusDBType == "ActivityVersionUpdated" ? `has been updated` : `has been uploaded`}</div>
-            </div>
-            <div class="buttons">
-                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
             </div>
         </div>
         
