@@ -126,13 +126,13 @@ namespace OculusDB
         public static void FinishCurrentScrape()
         {
             Logger.Log("Finished scrape of OculusDB");
-            ////////////////////////////////////////////////////////////////
-            // If there are db size issues move this below Config.Save(); //
-            ////////////////////////////////////////////////////////////////
+            ///////////////////////////////
+            // There are DB size issues. //
+            ///////////////////////////////
             if(config.deleteOldData)
             {
                 Logger.Log("Deleting old data");
-                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.lastDBUpdate, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.lastDBUpdate, LoggingType.Important);
+                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.ScrapingResumeData.currentScrapeStart, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.ScrapingResumeData.currentScrapeStart, LoggingType.Important);
             }
 
             config.ScrapingResumeData.updated = new List<string>();
