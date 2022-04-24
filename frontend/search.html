@@ -80,9 +80,9 @@
                 })
             })
 
-            function Update() {
+            function Update(refresh = true) {
                 params.set("headsets", GetValuesOFCheckboxes(options))
-                window.location.href = "?" + params.toString()
+                if(refresh) window.location.href = "?" + params.toString()
             }
         </script>
     </body>

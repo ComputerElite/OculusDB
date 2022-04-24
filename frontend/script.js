@@ -120,7 +120,7 @@ function SetCheckboxesBasedOnValue(options, value) {
         for (const [key, value] of Object.entries(options)) {
             document.getElementById(key).checked = true
         }
-        Update()
+        Update(false)
     }
 }
 
