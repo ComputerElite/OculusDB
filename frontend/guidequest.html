@@ -36,9 +36,13 @@
             <br>
             <br>
             <h3>5. Install the downgraded version</h3>
-            Find the apk downloaded in steap 3 and drag and drop it into SideQuest.
+            Find the apk downloaded in step 3 and drag and drop it into SideQuest.
             <br>
-            Alternitavely press the box with a down arrow at the top right in SideQuest and select the APK.
+            Alternitively press the box with a down arrow at the top right of SideQuest and select the APK.
+            <br>
+            <div id="sq">
+
+            </div>
             <br>
             <br>
             <b>Congrats. You now downgraded your game</b>
@@ -57,6 +61,13 @@
             }
             document.body.innerHTML = document.body.innerHTML.replace(/\{game\}/g, game)
             document.body.innerHTML = document.body.innerHTML.replace(/\{gamecode\}/g, gameCode)
+            document.getElementById("sq").innerHTML = GetCollapsableInfo("Help: The APK fails to install on Sidequest and says <code>SAFESIDE</code> or is stuck on <code>Checking APK against blacklist</code>", `
+    <br>Download <code>MultiUserADBInterface.zip</code> from <a href="https://github.com/ComputerElite/MultiUserADBInterface/releases/latest">here</a>. Then unzip the file you downloaded (right click -> extract all). After that's done open the MultiUserADBInterface executable and type in <code>1</code> followed by enter to install an apk. Then drag and drop the apk on which you got the error when installing with Sidequest into the window and press enter. Finally select the User you want to install the apk and you're done.
+    <br>
+    <br><i>do all of this while your quest is plugged in. If you have any issues feel free to ask</i>
+    <br>
+    <br>Note: This will <b>not</b> make Sidequest able to install the APK. It'll install the APK without Sidequest
+    `, "sidequestHelp")
         </script>
     </body>
 </html>
