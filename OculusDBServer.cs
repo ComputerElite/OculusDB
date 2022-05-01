@@ -29,7 +29,9 @@ namespace OculusDB
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
-            {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" }
+            {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
+            {"{oculusloginlink}", "https://oculus.com/experiences/quest" },
+            {"{BSLGDC}", "https://discord.gg/MrwMx5e" }
         };
 
         public string GetToken(ServerRequest request, bool send403 = true)
@@ -85,7 +87,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
+            server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -93,7 +95,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            OculusScraper.StartScrapingThread();
+            //OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -442,7 +444,11 @@ namespace OculusDB
             server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
             server.AddRouteFile("/api/docs", "frontend" + Path.DirectorySeparatorChar + "api.html", replace, true, true, true);
             server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true);
+            server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true);
 
+            server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true);
+
+            server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true);
             server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "api.json").Replace("\n", ""), "text/html", 200);

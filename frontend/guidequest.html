@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Downgrade guide Quest - OculusDB</title>
+        <meta property="og:title" content="Downgrade guide Quest - OculusDB">
+        <meta property="og:description" content="A guide to downgrade your quest games">
+    </head>
+    <body>
+        <div class="content">
+            <h2>Downgrading quest games</h2>
+            
+            <h3>1. Log in on oculus.com</h3>
+            Simply open <a href="{oculusloginlink}">oculus.com</a> and log in with your Oculus or Facebook account.
+            <br>
+            <br>
+            <h3>2. Search the game you want to downgrade</h3>
+            Search {gamecode} in the search box at the top right corner.
+            <br>
+            Click the details button on {game}. Make sure that {game} is for your headset (e. g. Quest)
+            <br>
+            <br>
+            <h3>3. Download the desired version</h3>
+            Scroll down and click on <code>Versions</code>. Then click the download button on the version you want.
+            <br>
+            If you get an error saying site not found make sure that you <b>own {game}</b> and <b>are logging in</b>.
+            <br>
+            <br>
+            <h3>4. Uninstall {game} via Sidequest</h3>
+            In Sidequest (setup guide can be found <a href="https://sidequestvr.com/setup-howto">here</a>) click the 9 squares in the top right corner.
+            <br>
+            Then find {gamecode} and click the cog on the right. In the pop up press <code>Uninstall App</code>
+            <br>
+            <i>This step is necessary so step 5 works</i>
+            <br>
+            <br>
+            <h3>5. Install the downgraded version</h3>
+            Find the apk downloaded in steap 3 and drag and drop it into SideQuest.
+            <br>
+            Alternitavely press the box with a down arrow at the top right in SideQuest and select the APK.
+            <br>
+            <br>
+            <b>Congrats. You now downgraded your game</b>
+            <br>
+            If you need help join the <a href="{BSLGDC}">Beat Saber Legacy Group Discord Server</a> and ask for help there.
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            var game = "the game"
+            var gameCode = "the game"
+            if(params.get("game")) {
+                if(!game.includes("<") && !game.includes(">")) {
+                    game = params.get("game")
+                    gameCode = "<code>" + params.get("game") + "</code>"
+                }
+            }
+            document.body.innerHTML = document.body.innerHTML.replace(/\{game\}/g, game)
+            document.body.innerHTML = document.body.innerHTML.replace(/\{gamecode\}/g, gameCode)
+        </script>
+    </body>
+</html>

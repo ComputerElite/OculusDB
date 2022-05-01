@@ -23,6 +23,7 @@ document.body.innerHTML =  document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/privacy">Privacy Policy</a>
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
+    <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
 </div>
 </div>`
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Downgrade guide Rift - OculusDB</title>
+        <meta property="og:title" content="Downgrade guide Rift - OculusDB">
+        <meta property="og:description" content="A guide to downgrade your rift games">
+    </head>
+    <body>
+        <div class="content">
+            <h2>Downgrading rift games</h2>
+            
+            <h3>1. Search the game you want to downgrade</h3>
+            Search {gamecode} in the search box at the top right corner.
+            <br>
+            Click the details button on {game}. Make sure that {game} is for your headset (Rift and Rift S apply for Link and Air Link as well)
+            <br>
+            <br>
+            <h3>2. Download the desired version</h3>
+            Scroll down and click on <code>Versions</code>. Then click the download button on the version you want and follow the provided instructions
+            <br>
+            <br>
+            <b>Congrats. You now downgraded your game</b>
+            <br>
+            If you need help join the <a href="{BSLGDC}">Beat Saber Legacy Group Discord Server</a> and ask for help there.
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            var game = "the game"
+            var gameCode = "the game"
+            if(params.get("game")) {
+                if(!game.includes("<") && !game.includes(">")) {
+                    game = params.get("game")
+                    gameCode = "<code>" + params.get("game") + "</code>"
+                }
+            }
+            document.body.innerHTML = document.body.innerHTML.replace(/\{game\}/g, game)
+            document.body.innerHTML = document.body.innerHTML.replace(/\{gamecode\}/g, gameCode)
+        </script>
+    </body>
+</html>

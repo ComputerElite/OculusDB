@@ -281,7 +281,7 @@ code {
 }
 
 /* mobile*/
-@media screen and (max-aspect-ratio: 1/1) {
+@media screen and (max-width: 1200px) {
     .navBarInnerLeft {
         flex-direction: column;
     }
@@ -353,7 +353,7 @@ code {
 }
 
 /* desktop*/
-@media screen and (min-aspect-ratio: 1/1) {
+@media screen and (min-width: 1200px) {
     .navBarInnerLeft {
         flex-direction: row;
     }
