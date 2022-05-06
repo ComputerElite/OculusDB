@@ -796,7 +796,7 @@ function RiftDownloadPopUp(appid, versionid) {
             <b>2. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid} --headset rift</code> into Oculus Downgrader and hit enter. The download will start and the app get launched afterwards.
             <br>
             <br>
-            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid} --headset rift</code> to download the version with once command
+            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid} --headset rift</code> to download the version with one command
             <br>
             <br>
             <i>To close this pop up click next to it</i>
@@ -816,7 +816,7 @@ function AndroidDownloadPopUp(appid, versionid, hmd) {
             <b>3. </b> Using Option 11 in Oculus Downgraders main menu enter your password and afterwards paste <code>d --appid ${appid} --versionid ${versionid} --headset ${GetLogicalHeadsetCodeNameEnum(hmd)}</code> into Oculus Downgrader and hit enter. The download will start and the app get installed afterwards. Make sure that your headset is connected via USB.
             <br>
             <br>
-            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid} --headset ${GetLogicalHeadsetCodeNameEnum(hmd)}</code> to download the version with once command
+            <b>Like automation? </b> Use <code>"Oculus Downgrader.exe" -nU d --appid ${appid} --versionid ${versionid} --headset ${GetLogicalHeadsetCodeNameEnum(hmd)}</code> to download the version with one command
             <br>
             <br>
             <i>To close this pop up click next to it</i>

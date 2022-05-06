@@ -30,12 +30,74 @@ namespace OculusDB
         public static int failedApps = 0;
         public static int doneScrapeThreads = 0;
         public static DateTime lastUpdate = DateTime.Now;
+        public static List<PriorityScrape> priorityScrapeApps = new List<PriorityScrape>();
+        public static bool priorityScrapeRunning = false;
 
         public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
         public const int minutesPause = 30;
 
         public static List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
+
+        public static void AddApp(string id, Headset headset)
+        {
+            for(int i = 0; i< priorityScrapeApps.Count; i++)
+            {
+                // Doesn't seem to work. Look into it dumb CE
+                // Edit: It does work without changes. Tired me forgot about caching of ComputerUtils
+                if(priorityScrapeApps[i].minNextScrape <= DateTime.Now)
+                {
+                    priorityScrapeApps.RemoveAt(i);
+                    i--;
+                }
+            }
+            //Logger.Log("Length of priority scrape queue: " + priorityScrapeApps.Count, LoggingType.Important);
+            if(priorityScrapeApps.FirstOrDefault(x => x.id == id) == null)
+            {
+                priorityScrapeApps.Add(new PriorityScrape { id = id, headset = headset, minNextScrape = DateTime.Now + new TimeSpan(0, 0, 10)});
+                ScrapeNext();
+            }
+        }
+
+        public static void ScrapeNext()
+        {
+            for(int i = 0; i < priorityScrapeApps.Count; i++)
+            {
+                if(!priorityScrapeApps[i].scraped)
+                {
+                    priorityScrapeApps[i].scraped = true;
+                    ScrapePriority(priorityScrapeApps[i]);
+                    return;
+                }
+            }
+        }
+
+        public static void ScrapePriority(PriorityScrape s)
+        {
+            if (priorityScrapeRunning) return;
+            priorityScrapeRunning = true;
+            Logger.Log("Starting priority scrape of: " + s.id, LoggingType.Important);
+            bool success = false;
+            for (int i = 1; i <= 3 && !success; i++)
+            {
+                try
+                {
+                    Scrape(new ToScrapeApp(s.id, ""), s.headset, true);
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    if (i == 3)
+                    {
+                        Logger.Log("Scraping of id " + s.id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                        priorityScrapeRunning = false;
+                        if (Stop()) return;
+                    }
+                }
+            }
+            priorityScrapeRunning = false;
+            ScrapeNext();
+        }
 
         public static void StartScrapingThread()
         {
@@ -352,10 +414,10 @@ namespace OculusDB
         }
 
 
-        public static void Scrape(ToScrapeApp id, Headset headset)
+        public static void Scrape(ToScrapeApp id, Headset headset, bool force = false)
         {
             lastUpdate = DateTime.Now;
-            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id))
+            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id) && !force)
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
@@ -537,6 +599,14 @@ namespace OculusDB
             
             return price;
         }
+    }
+
+    public class PriorityScrape
+    {
+        public bool scraped = false;
+        public string id { get; set; } = "";
+        public Headset headset { get; set; } = Headset.HOLLYWOOD;
+        public DateTime minNextScrape { get; set; } = DateTime.Now;
     }
 
     public class SidequestApplabGame

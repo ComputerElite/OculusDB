@@ -69,6 +69,20 @@ namespace OculusDB
                 Logger.Log("Exception while sending webhook" + ex.ToString(), LoggingType.Warning);
             }
         }
+        public static void SendMasterWebhookMessage(string message, string title, string description, int color)
+        {
+            if (config.masterWebhookUrl == "") return;
+            try
+            {
+                Logger.Log("Sending master webhook");
+                DiscordWebhook webhook = new DiscordWebhook(config.masterWebhookUrl);
+                webhook.SendEmbed(title, description, "master " + DateTime.UtcNow, "OculusDB", config.publicAddress + "logo", config.publicAddress, config.publicAddress + "logo", config.publicAddress, color);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Exception while sending webhook" + ex.ToString(), LoggingType.Warning);
+            }
+        }
 
         public void HandleExeption(object sender, UnhandledExceptionEventArgs args)
         {
@@ -232,9 +246,16 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/connected/", "/api/v1/connected/", true);
             server.AddRoute("GET", "/api/v1/connected/", new Func<ServerRequest, bool>(request =>
             {
-                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetConnected(request.pathDiff)), "application/json");
+                ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
+                request.SendString(JsonSerializer.Serialize(connected), "application/json");
                 // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
                 OculusScraper.CheckRunning();
+
+                // Requests a priority scrape for every app
+                foreach(DBApplication a in connected.applications)
+                {
+                    OculusScraper.AddApp(a.id, a.hmd);
+                }
                 return true;
             }), true, true, true, true, 360); // 6 mins
             server.AddRouteRedirect("GET", "/api/search/", "/api/v1/search/", true);
