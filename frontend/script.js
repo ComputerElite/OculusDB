@@ -373,11 +373,11 @@ function GetCollapsableInfo(title, collapsed, htmlid) {
 
 function FormatDLC(dlc, htmlid = "") {
     if(htmlid == "") htmlid = dlc.id
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
+    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.d}'))">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.latestAssetFileId}', '_blank')">
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -389,11 +389,12 @@ function FormatDLC(dlc, htmlid = "") {
             
             <table>
                 <colgroup>
-                    <col width="130em">
+                    <col width="220em">
                     <col width="0*">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
+                <tr><td class="label">latest asset file id</td><td class="value">${dlc.latestAssetFileId}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
             </table>
         </div>

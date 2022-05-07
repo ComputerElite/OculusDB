@@ -32,6 +32,7 @@ namespace OculusDB
         public static DateTime lastUpdate = DateTime.Now;
         public static List<PriorityScrape> priorityScrapeApps = new List<PriorityScrape>();
         public static bool priorityScrapeRunning = false;
+        public static DateTime scrapeResumeTime = DateTime.MinValue;
 
         public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
@@ -74,7 +75,7 @@ namespace OculusDB
 
         public static void ScrapePriority(PriorityScrape s)
         {
-            if (priorityScrapeRunning) return;
+            if (priorityScrapeRunning || scrapeResumeTime > DateTime.Now) return;
             priorityScrapeRunning = true;
             Logger.Log("Starting priority scrape of: " + s.id, LoggingType.Important);
             bool success = false;
@@ -271,6 +272,7 @@ namespace OculusDB
             {
                 Logger.Log(maxAppsToFail + " apps failed to get scraped", LoggingType.Warning);
                 OculusDBServer.SendMasterWebhookMessage("Warning", "More than " + maxAppsToFail + " apps have failed to get scraped. Token will be switched and retry will be in " + minutesPause + " minutes", 0xFF0000);
+                scrapeResumeTime = DateTime.Now + TimeSpan.FromMinutes(minutesPause);
                 Task.Delay(minutesPause * 60 * 1000).Wait();
                 OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be restarted now", 0x00FF00);
                 ScrapeAll();
