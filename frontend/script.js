@@ -358,7 +358,7 @@ function GetChangelog(version) {
     if(version.changeLog == null) {
         return "We are working on getting the changelog for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
     } else if(version.changeLog) {
-        return version.changeLog.replace(/\n/, "<br/>").replace(/\</, "&lt;").replace(/\>/, "&gt;")
+        return version.changeLog.replace(/\</, "&lt;").replace(/\>/, "&gt;").replace(/\n/, "<br>")
     } else {
         return "No changes documented"
     }
