@@ -484,6 +484,7 @@ namespace OculusDB
                     newDLC.parentApplication.displayName = a.displayName;
                     newDLC.displayName = dlc.node.display_name;
                     newDLC.displayShortDescription = dlc.node.display_short_description;
+                    newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
 
                     UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id);
                     if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0) continue;

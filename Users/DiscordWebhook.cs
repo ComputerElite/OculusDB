@@ -94,7 +94,9 @@ namespace OculusDB.Users
                 meta.Add("Version", v.version);
                 meta.Add("Version code", v.versionCode.ToString());
                 meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
-                meta.Add("Release channels", String.Join(", ", v.releaseChannels));
+                List<string> releaseChannels = new List<string>();
+                foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
+                meta.Add("Release channels", String.Join(", ", releaseChannels));
                 meta.Add("Id", v.id);
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
@@ -107,7 +109,9 @@ namespace OculusDB.Users
                 meta.Add("Version", v.version);
                 meta.Add("Version code", v.versionCode.ToString());
                 meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
-                meta.Add("Release channels", String.Join(", ", v.releaseChannels));
+                List<string> releaseChannels = new List<string>();
+                foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
+                meta.Add("Release channels", String.Join(", ", releaseChannels));
                 meta.Add("Id", v.id);
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);

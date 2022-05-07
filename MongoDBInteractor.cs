@@ -115,22 +115,22 @@ namespace OculusDB
 
         public static List<BsonDocument> GetBestReviews(int skip, int take)
         {
-            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["quality_rating_aggregate"]).Skip(skip).Limit(take).ToList();
+            return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["quality_rating_aggregate"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetName(int skip, int take)
         {
-            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["display_name"]).Skip(skip).Limit(take).ToList();
+            return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["display_name"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetPub(int skip, int take)
         {
-            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["publisher_name"]).Skip(skip).Limit(take).ToList();
+            return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["publisher_name"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetRelease(int skip, int take)
         {
-            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["release_date"]).Skip(skip).Limit(take).ToList();
+            return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["release_date"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
@@ -236,6 +236,7 @@ namespace OculusDB
         {
             DBIAPItem dba = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
             dba.parentApplication.hmd = h;
+            dba.latestAssetFileId = a.latest_supported_asset_file != null ? a.latest_supported_asset_file.id : "";
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
