@@ -444,7 +444,6 @@ namespace OculusDB
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             string packageName = "";
             ConnectedList connected = MongoDBInteractor.GetConnected(a.id);
-            MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
                 if(packageName == "")
@@ -492,6 +491,7 @@ namespace OculusDB
                     }
                 }
             }
+            MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
             if (d.data.node.latest_supported_binary.firstIapItems != null)
             {
                 foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
