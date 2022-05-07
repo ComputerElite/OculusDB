@@ -354,6 +354,16 @@ function GetHeadsets(list) {
     return names.join(", ")
 }
 
+function GetChangelog(version) {
+    if(version.changeLog == null) {
+        return "We are working on getting the changelog for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
+    } else if(version.changeLog) {
+        return version.changeLog.replace(/\n/, "<br>").replace(/\</, "&lt;").replace(/\>/, "&gt;")
+    } else {
+        return "No changes documented"
+    }
+}
+
 function GetCollapsableInfo(title, collapsed, htmlid) {
     return `<div class="application">
     <div class="info">
@@ -373,7 +383,7 @@ function GetCollapsableInfo(title, collapsed, htmlid) {
 
 function FormatDLC(dlc, htmlid = "") {
     if(htmlid == "") htmlid = dlc.id
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.d}'))">
+    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
@@ -711,6 +721,7 @@ function FormatVersion(v, htmlid = "") {
                 <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
                 <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
                 <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
+                <tr><td class="label">Changelog</td><td class="value">${GetChangelog(v)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
             </table>
         </div>
@@ -750,6 +761,7 @@ function FormatVersionActivity(v, htmlid) {
                 <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
                 <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
                 <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
+                <tr><td class="label">Changelog</td><td class="value">${GetChangelog(v)}</td></tr>
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>

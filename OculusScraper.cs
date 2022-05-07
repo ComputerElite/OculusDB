@@ -416,14 +416,15 @@ namespace OculusDB
         }
 
 
-        public static void Scrape(ToScrapeApp id, Headset headset, bool force = false)
+        public static void Scrape(ToScrapeApp id, Headset headset, bool priority = false)
         {
             lastUpdate = DateTime.Now;
-            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id) && !force)
+            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id) && !priority)
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
+            DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
             if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
             {
@@ -432,8 +433,8 @@ namespace OculusDB
                 e.hmd = headset;
                 e.publisherName = a.publisher_name;
                 e.displayName = a.displayName;
-                e.priceOffset = a.baseline_offer.price.offset_amount;
-                e.priceFormatted = FormatPrice(e.priceOffsetNumerical, a.current_offer.price.currency);
+                if(a.baseline_offer != null) e.priceOffset = a.baseline_offer.price.offset_amount;
+                if (a.current_offer != null) e.priceFormatted = FormatPrice(e.priceOffsetNumerical, a.current_offer.price.currency);
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
@@ -442,19 +443,21 @@ namespace OculusDB
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
-                MongoDBInteractor.AddVersion(b, a, headset);
+                AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                MongoDBInteractor.AddVersion(bin, a, headset);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
                     
                 DBActivityNewVersion newVersion = new DBActivityNewVersion();
-                newVersion.id = b.id;
+                newVersion.id = bin.id;
+                newVersion.changeLog = bin.changeLog;
                 newVersion.parentApplication.id = a.id;
                 newVersion.parentApplication.hmd = headset;
                 newVersion.parentApplication.canonicalName = a.canonicalName;
                 newVersion.parentApplication.displayName = a.displayName;
-                newVersion.releaseChannels = b.binary_release_channels.nodes;
-                newVersion.version = b.version;
-                newVersion.versionCode = b.versionCode;
-                newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(b.created_date);
+                newVersion.releaseChannels = bin.binary_release_channels.nodes;
+                newVersion.version = bin.version;
+                newVersion.versionCode = bin.versionCode;
+                newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
                 if (lastActivity == null)
                 {
                     MongoDBInteractor.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument());
@@ -462,7 +465,7 @@ namespace OculusDB
                 else
                 {
                     DBActivityVersionUpdated oldUpdate = lastActivity["__OculusDBType"] == DBDataTypes.ActivityNewVersion ? ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(ObjectConverter.ConvertToDBType(lastActivity)) : ObjectConverter.ConvertToDBType(lastActivity);
-                    if (String.Join(',', oldUpdate.releaseChannels.Select(x => x.channel_name).ToList()) != String.Join(',', newVersion.releaseChannels.Select(x => x.channel_name).ToList()))
+                    if (oldUpdate.changeLog != newVersion.changeLog || String.Join(',', oldUpdate.releaseChannels.Select(x => x.channel_name).ToList()) != String.Join(',', newVersion.releaseChannels.Select(x => x.channel_name).ToList()))
                     {
                         DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
                         toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
@@ -555,29 +558,32 @@ namespace OculusDB
             priceChange.parentApplication.canonicalName = a.canonicalName;
             priceChange.parentApplication.displayName = a.displayName;
 
-            
-            priceChange.newPriceOffset = a.current_offer.price.offset_amount;
+
+            if (a.current_offer != null) priceChange.newPriceOffset = a.current_offer.price.offset_amount;
             
 
             UserEntitlement ownsApp = GetEntitlementStatusOfAppOrDLC(a.id);
             if (ownsApp == UserEntitlement.FAILED)
             {
-                // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
-                // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
-                // So if the user owns the app use the baseline price. If not use the current_price
-                // That way discounts for the apps the user owns can't be tracked. I love oculus
-                if (a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
+                if (a.current_offer != null && a.baseline_offer != null)
                 {
-                    priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
+                    // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
+                    // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
+                    // So if the user owns the app use the baseline price. If not use the current_price
+                    // That way discounts for the apps the user owns can't be tracked. I love oculus
+                    if (a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
+                    {
+                        priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
+                    }
                 }
             }
             else if (ownsApp == UserEntitlement.OWNED)
             {
-                priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
+                if (a.baseline_offer != null) priceChange.newPriceOffset = a.baseline_offer.price.offset_amount;
             }
 
 
-            priceChange.newPriceFormatted = FormatPrice(priceChange.newPriceOffsetNumerical, a.current_offer.price.currency);
+            if (a.current_offer != null) priceChange.newPriceFormatted = FormatPrice(priceChange.newPriceOffsetNumerical, a.current_offer.price.currency);
             if (lastPriceChange != null)
             {
                 if (lastPriceChange.newPriceOffset != priceChange.newPriceOffset)
@@ -589,7 +595,11 @@ namespace OculusDB
                 }
             }
             else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
-            config.ScrapingResumeData.updated.Add(a.id);
+            if(priority)
+            {
+                MongoDBInteractor.DeleteOldData(priorityScrapeStart, new List<string> { a.id });
+            }
+            if(!priority) config.ScrapingResumeData.updated.Add(a.id);
             config.Save();
         }
 

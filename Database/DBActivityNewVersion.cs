@@ -32,6 +32,7 @@ namespace OculusDB.Database
         public DateTime uploadedTime { get; set; } = DateTime.Now;
         public string version { get; set; } = "";
         public long versionCode { get; set; } = 0;
+        public string changeLog { get; set; } = null;
         public bool downloadable
         {
             get
