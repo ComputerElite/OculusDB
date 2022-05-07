@@ -246,6 +246,7 @@
                 "publisher_name": "Beat Games",
                 "quality_rating_aggregate": 4.5939113572113,
                 "img": "https://scontent.oculuscdn.com/v/t64.5771-25/75500286_1144685689675853_23622678126689561_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=1&ccb=1-5&_nc_sid=79b88e&_nc_ohc=k5PIPwtLsY8AX9F6A2e&_nc_ht=scontent.oculuscdn.com&oh=00_AT_DQsDmoEbRyNQBYx-4basmFbEodXJhjFJRXIJcGx6llg&oe=62614A4D",
+                "packageName": "com.beatgames.beatsaber",
                 "release_channels": {
                     "count": 2,
                     "nodes": [
@@ -1559,6 +1560,1228 @@
             }
         },
         {
+            "url": "/api/v1/packagename/<packagename>",
+            "method": "GET",
+            "description": "Gets an android application by package name. Only android applications as only those have an package name",
+            "parameters": [
+                {
+                    "name": "packagename",
+                    "description": "The package name of the application",
+                    "required": true
+                }
+            ],
+            "exampleResponse": {
+                "applications": [
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:15.813Z",
+                        "__OculusDBType": "Application",
+                        "hmd": 1,
+                        "appName": "Beat Saber",
+                        "baseline_offer": {
+                            "end_time": 0,
+                            "id": "333786537325310",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "2999",
+                                "currency": "USD",
+                                "formatted": "$0.00"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "0",
+                                "currency": "USD",
+                                "formatted": "$0.00"
+                            }
+                        },
+                        "canonicalName": "beat-games-beat-saber-android6d0f",
+                        "current_gift_offer": {
+                            "end_time": 0,
+                            "id": "333786537325310",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "0",
+                                "currency": "USD",
+                                "formatted": "$0.00"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "0",
+                                "currency": "USD",
+                                "formatted": "$0.00"
+                            }
+                        },
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "333786537325310",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "2999",
+                                "currency": "EUR",
+                                "formatted": "€29.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": null
+                        },
+                        "displayName": "Beat Saber",
+                        "display_name": "Beat Saber",
+                        "display_long_description": "Beat Saber is a unique VR rhythm game where your goal is to slash the beats (represented by small cubes) as they are coming at you. \n\nEvery beat indicates which saber you need to use and also the direction you need to match. All the music is composed to perfectly fit the handmade levels. \n\nOur goal is to make players almost dance while cutting the cubes and avoiding obstacles.\n\nEach cut is strongly supported by great sound and visual effects to emphasize the rhythm.",
+                        "genre_names": [
+                            "Music & Rhythm",
+                            "Casual"
+                        ],
+                        "has_in_app_ads": false,
+                        "id": "2448060205267927",
+                        "is_approved": false,
+                        "is_concept": false,
+                        "is_enterprise_enabled": false,
+                        "organization": {
+                            "id": "",
+                            "is_authorized_for_quest": false
+                        },
+                        "platform": "ANDROID_6DOF",
+                        "publisher_name": "Beat Games",
+                        "quality_rating_aggregate": 4.5939113572113,
+                        "img": "https://scontent.oculuscdn.com/v/t64.5771-25/75500286_1144685689675853_23622678126689561_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=1&ccb=1-5&_nc_sid=79b88e&_nc_ohc=k5PIPwtLsY8AX9F6A2e&_nc_ht=scontent.oculuscdn.com&oh=00_AT_DQsDmoEbRyNQBYx-4basmFbEodXJhjFJRXIJcGx6llg&oe=62614A4D",
+                        "packageName": "com.beatgames.beatsaber",
+                        "release_channels": {},
+                        "release_date": 1558459800,
+                        "supported_hmd_platforms": [
+                            "MONTEREY",
+                            "HOLLYWOOD"
+                        ],
+                        "supported_hmd_platforms_enum": [
+                            1,
+                            2
+                        ],
+                        "website_url": "http://beatsaber.com/"
+                    }
+                ],
+                "versions": [
+                    {
+                        "__lastUpdated": "2022-04-17T17:48:33.772Z",
+                        "__OculusDBType": "Version",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "id": "7332184890188743",
+                        "version": "1.22.0",
+                        "platform": "",
+                        "file_name": "beat-saber.apk",
+                        "versionCode": 324,
+                        "created_date": 1649947351,
+                        "binary_release_channels": {
+                            "count": 0,
+                            "nodes": []
+                        },
+                        "downloadable": false,
+                        "firstIapItems": {
+                            "count": 0,
+                            "edges": [],
+                            "page_info": {
+                                "end_cursor": "",
+                                "start_cursor": ""
+                            }
+                        }
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:48:33.862Z",
+                        "__OculusDBType": "Version",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "id": "7330686237005275",
+                        "version": "1.21.0",
+                        "platform": "",
+                        "file_name": "beat-saber.apk",
+                        "versionCode": 323,
+                        "created_date": 1649923574,
+                        "binary_release_channels": {
+                            "count": 0,
+                            "nodes": []
+                        },
+                        "downloadable": false,
+                        "firstIapItems": {
+                            "count": 0,
+                            "edges": [],
+                            "page_info": {
+                                "end_cursor": "",
+                                "start_cursor": ""
+                            }
+                        }
+                    }
+                ],
+                "dlcs": [
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:15.767Z",
+                        "__OculusDBType": "IAPItem",
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "369167697263334",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "199",
+                                "currency": "EUR",
+                                "formatted": "€1.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": null
+                        },
+                        "display_name": "Aero Chord - \"Boundless\"",
+                        "display_short_description": "Aero Chord - \"Boundless\"",
+                        "id": "1783115368454901",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "",
+                            "hmd": 1
+                        }
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:15.677Z",
+                        "__OculusDBType": "IAPItem",
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "435584893890280",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "199",
+                                "currency": "EUR",
+                                "formatted": "€1.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": null
+                        },
+                        "display_name": "Pegboard Nerds - \"Emoji VIP\"",
+                        "display_short_description": "Pegboard Nerds - \"Emoji VIP\"",
+                        "id": "1783116131788158",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "",
+                            "hmd": 1
+                        }
+                    }
+                ],
+                "dlcPacks": [
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:05.537Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783115368454901"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783116131788158"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783125008453937"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783149608451477"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783152675117837"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783153245117780"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783153968451041"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783154905117614"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783155641784207"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "1783156588450779"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "366733030847898",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "1040",
+                                "currency": "EUR",
+                                "formatted": "€10.40"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1592",
+                                "currency": "EUR",
+                                "formatted": "€15.92"
+                            }
+                        },
+                        "display_name": "Monstercat Music Pack Vol. 1",
+                        "display_short_description": "Monstercat Music Pack Vol. 1",
+                        "id": "2290801264532616",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:05.444Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770908846316393"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770910612982883"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770911869649424"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770913256315952"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770917722982172"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770918872982057"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770920186315259"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770921416315136"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770922959648315"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "2770924596314818"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "350531308994316",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "0",
+                                "currency": "EUR",
+                                "formatted": "€0.00"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": null
+                        },
+                        "display_name": "Imagine Dragons",
+                        "display_short_description": "Imagine Dragons Music Pack is brought to you by Universal Music.",
+                        "id": "927338940944484",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:05.353Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3062125070528101"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3062123500528258"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3062122113861730"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3062108080529800"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "661808237675575",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "350",
+                                "currency": "EUR",
+                                "formatted": "€3.50"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "398",
+                                "currency": "EUR",
+                                "formatted": "€3.98"
+                            }
+                        },
+                        "display_name": "Panic! At The Disco Music Pack",
+                        "display_short_description": "Panic! At The Disco Music Pack",
+                        "id": "431217147580268",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:05.262Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3167273280013279"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3167282863345654"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3167285353345405"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3167286856678588"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3167289436678330"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3167294436677830"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "416727189007967",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "449",
+                                "currency": "EUR",
+                                "formatted": "€4.49"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "597",
+                                "currency": "EUR",
+                                "formatted": "€5.97"
+                            }
+                        },
+                        "display_name": "Rocket League x Monstercat Music Pack",
+                        "display_short_description": "Rocket League x Monstercat Music Pack",
+                        "id": "972838139769578",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:05.166Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3298573383549934"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3298574606883145"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3298576076882998"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3298577206882885"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3298578496882756"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3298579793549293"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "1265660143637206",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "899",
+                                "currency": "EUR",
+                                "formatted": "€8.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1194",
+                                "currency": "EUR",
+                                "formatted": "€11.94"
+                            }
+                        },
+                        "display_name": "Green Day Music Pack",
+                        "display_short_description": "Green Day Music Pack",
+                        "id": "2746185245463008",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:05.064Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3613261605414442"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3613321438741792"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3633491896724746"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3636895143051088"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3636896056384330"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "603257243558928",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "320",
+                                "currency": "EUR",
+                                "formatted": "€3.20"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "398",
+                                "currency": "EUR",
+                                "formatted": "€3.98"
+                            }
+                        },
+                        "display_name": "Timbaland Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from Timbaland to Beat Saber! Dive into the pulsing music of Timbaland and slash the beats in our brand new Timbaland Music Pack. See you on the leaderboards!\r\n\r\nTimbaland Music Pack is brought to you by BeatClub.",
+                        "id": "795960637593332",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.968Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259402197448743"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259402827448680"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259403394115290"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259404387448524"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259405037448459"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259405757448387"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259406250781671"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259407174114912"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259408064114823"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3259409834114646"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3261931940529102"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "1565199783686629",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "1181",
+                                "currency": "EUR",
+                                "formatted": "€11.81"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1990",
+                                "currency": "EUR",
+                                "formatted": "€19.90"
+                            }
+                        },
+                        "display_name": "Linkin Park Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from Linkin Park to Beat Saber! Dive into the pulsing music of Linkin Park and slash the beats in our brand new Linkin Park Music Pack. See you on the leaderboards!",
+                        "id": "2600626453535707",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.871Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3516114515110842"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3516115998444027"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3516116938443933"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517709994951294"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517710914951202"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517711621617798"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517712118284415"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517713574950936"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517715964950697"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517716594950634"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517717314950562"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "3517717898283837"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "1930367117100757",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "1124",
+                                "currency": "EUR",
+                                "formatted": "€11.24"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1791",
+                                "currency": "EUR",
+                                "formatted": "€17.91"
+                            }
+                        },
+                        "display_name": "TinyTAN | Beat Saber: BTS Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from BTS to Beat Saber! Dive into the pulsing music of BTS and slash the beats in our brand new BTS Music Pack. See you on the leaderboards!  \r\n\r\nBTS Music Pack is brought to you by Big Hit Entertainment.",
+                        "id": "1344234089113846",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.776Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535311776542739"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535328026541114"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535337039873546"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535337916540125"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535338796540037"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535339413206642"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5535340313206552"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "591303668423895",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "999",
+                                "currency": "EUR",
+                                "formatted": "€9.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1393",
+                                "currency": "EUR",
+                                "formatted": "€13.93"
+                            }
+                        },
+                        "display_name": "Beat Saber: Interscope Mixtape",
+                        "display_short_description": "Beat Games studio brings fresh beats from Interscope Mixtape to Beat Saber! Dive into the pulsing music of Interscope Mixtape and slash the beats in our brand new Beat Saber: Interscope Mixtape. See you on the leaderboards!",
+                        "id": "226539502191513",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.681Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5967322003341712"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5967321103341802"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5967320250008554"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5967319230008656"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5966878770052702"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5966567433417169"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5966564790084100"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "5966323836774862"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "2703235576639665",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "917",
+                                "currency": "EUR",
+                                "formatted": "€9.17"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1592",
+                                "currency": "EUR",
+                                "formatted": "€15.92"
+                            }
+                        },
+                        "display_name": "Skrillex Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from Skrillex to Beat Saber! Dive into the pulsing music of Skrillex and slash the beats in our brand new Skrillex Music Pack. See you on the leaderboards!  \n\nSkrillex Music Pack includes the tracks: \n\n- Bangarang (feat. Sirah)\n- Butterflies\n- Don’t Go\n- First of the Year (Equinox) \n- Ragga Bomb (feat. Ragga Twins)\n- Rock ‘n’ Roll (Will Take You to the Mountain)\n- Scary Monsters and Nice Sprites\n- The Devil’s Den \n\nSkrillex Music Pack is brought to you by OWSLA/Atlantic Records.",
+                        "id": "262363735466272",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.585Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122420097831901"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122437477830163"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122442534496324"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122461804494397"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122464557827455"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122569111150333"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122571651150079"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122573917816519"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122579887815922"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6122582334482344"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "1316559755428075",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "1299",
+                                "currency": "EUR",
+                                "formatted": "€12.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1990",
+                                "currency": "EUR",
+                                "formatted": "€19.90"
+                            }
+                        },
+                        "display_name": "Billie Eilish Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from Billie Eilish to Beat Saber! Dive into the pulsing music of Billie Eilish and slash the beats in our brand new Billie Eilish Music Pack. See you on the leaderboards!",
+                        "id": "1291186994635784",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.49Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477598918980682"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477605425646698"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477610502312857"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477622178978356"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477627142311193"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477631338977440"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477650038975570"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477656932308214"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477662475640993"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "6477668495640391"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "3431226957015026",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "1299",
+                                "currency": "EUR",
+                                "formatted": "€12.99"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1990",
+                                "currency": "EUR",
+                                "formatted": "€19.90"
+                            }
+                        },
+                        "display_name": "Lady Gaga Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from Lady Gaga to Beat Saber! Dive into the pulsing music of Lady Gaga and slash the beats in our brand new Lady Gaga Music Pack. See you on the leaderboards!  \n\nLady Gaga Music Pack includes the tracks: \n- Alejandro\n- Bad Romance \n- Born This Way\n- Just Dance (feat. Colby O’Donis)\n- Paparazzi\n- Poker Face\n- Rain On Me (with Ariana Grande)\n- Stupid Love\n- Telephone (feat. Beyoncé)\n- The Edge Of Glory\n\nLady Gaga Music Pack is brought to you by Interscope Records.",
+                        "id": "429197888664846",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    },
+                    {
+                        "__lastUpdated": "2022-04-17T17:49:04.395Z",
+                        "__OculusDBType": "IAPItemPack",
+                        "bundle_items": [
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181558021918098"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181559908584576"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181561135251120"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181562298584337"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181563465250887"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181564641917436"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181565708583996"
+                            },
+                            {
+                                "__OculusDBType": "IAPItem",
+                                "id": "7181566875250546"
+                            }
+                        ],
+                        "is_360_sensor_setup_required": false,
+                        "is_guardian_required": false,
+                        "is_roomscale_required": false,
+                        "is_touch_required": false,
+                        "current_offer": {
+                            "end_time": 0,
+                            "id": "3077562585892474",
+                            "show_timer": false,
+                            "price": {
+                                "offset_amount": "798",
+                                "currency": "EUR",
+                                "formatted": "€7.98"
+                            },
+                            "promo_benefit": null,
+                            "strikethrough_price": {
+                                "offset_amount": "1393",
+                                "currency": "EUR",
+                                "formatted": "€13.93"
+                            }
+                        },
+                        "display_name": "Fall Out Boy Music Pack",
+                        "display_short_description": "Beat Games studio brings fresh beats from Fall Out Boy to Beat Saber! Dive into the pulsing music of Fall Out Boy and slash the beats in our brand new Fall Out Boy Music Pack. See you on the leaderboards!",
+                        "id": "642685050137603",
+                        "parentApplication": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "parent_application": {
+                            "id": "2448060205267927",
+                            "canonicalName": "beat-games-beat-saber-android6d0f",
+                            "displayName": "Beat Saber",
+                            "hmd": 1
+                        },
+                        "latest_supported_asset_file": {
+                            "id": ""
+                        },
+                        "__typename": ""
+                    }
+                ]
+            }
+        },
+        {
             "url": "/api/v1/search/<query>",
             "method": "GET",
             "description": "Performs an query on the database",
@@ -1625,6 +2848,7 @@
                     "publisher_name": "Beat Games",
                     "quality_rating_aggregate": 3.9066666666667,
                     "img": "https://scontent.oculuscdn.com/v/t64.5771-25/38974480_2249125205120340_7388791226113196032_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=109&ccb=1-5&_nc_sid=79b88e&_nc_ohc=6Ob4uCN-V7oAX8RV1h6&_nc_ht=scontent.oculuscdn.com&oh=00_AT87XbXj6lkRWcgHe4IO8TpgjX4aBmrNUrouRitD5O1YLQ&oe=6260EE59",
+                    "packageName": "com.beatgames.beatsaber",
                     "release_channels": {
                         "count": 1,
                         "nodes": [
@@ -1748,6 +2972,7 @@
                     "publisher_name": "Beat Games",
                     "quality_rating_aggregate": 4.5939113572113,
                     "img": "https://scontent.oculuscdn.com/v/t64.5771-25/75500286_1144685689675853_23622678126689561_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=1&ccb=1-5&_nc_sid=79b88e&_nc_ohc=k5PIPwtLsY8AX9F6A2e&_nc_ht=scontent.oculuscdn.com&oh=00_AT_DQsDmoEbRyNQBYx-4basmFbEodXJhjFJRXIJcGx6llg&oe=62614A4D",
+                    "packageName": "com.beatgames.beatsaber",
                     "release_channels": {
                         "count": 2,
                         "nodes": [
@@ -1908,6 +3133,7 @@
                     "publisher_name": "Beat Games",
                     "quality_rating_aggregate": 4.7933511854222,
                     "img": "https://scontent.oculuscdn.com/v/t64.5771-25/57572957_513056217027878_5500908928512235765_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=111&ccb=1-5&_nc_sid=79b88e&_nc_ohc=hwYMoedT5VAAX_0sTnB&_nc_ht=scontent.oculuscdn.com&oh=00_AT-RBG3XJFK0Qq-_rfikkn7fVkMumqA_OyUSF3wyMz-kJQ&oe=6260992E",
+                    "packageName": "com.beatgames.beatsaber",
                     "release_channels": {
                         "count": 2,
                         "nodes": [

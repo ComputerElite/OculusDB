@@ -358,7 +358,7 @@ function GetChangelog(version) {
     if(version.changeLog == null) {
         return "We are working on getting the changelog for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
     } else if(version.changeLog) {
-        return version.changeLog.replace(/\n/, "<br>").replace(/\</, "&lt;").replace(/\>/, "&gt;")
+        return version.changeLog.replace(/\n/, "<br/>").replace(/\</, "&lt;").replace(/\>/, "&gt;")
     } else {
         return "No changes documented"
     }
@@ -613,6 +613,7 @@ function FormatApplication(application, htmlId = "") {
                 <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate.toFixed(2)}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
+                <tr><td class="label">Package name</td><td class="value">${application.packageName ? application.packageName : "Not available"}</td></tr>
                 <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
                 <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
                 <tr><td class="label">Id</td><td class="value">${application.id}</td></tr>
