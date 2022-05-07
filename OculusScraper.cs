@@ -195,7 +195,7 @@ namespace OculusDB
             if(config.deleteOldData)
             {
                 Logger.Log("Deleting old data");
-                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldData(config.ScrapingResumeData.currentScrapeStart, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.ScrapingResumeData.currentScrapeStart, LoggingType.Important);
+                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldDataExceptVersions(config.ScrapingResumeData.currentScrapeStart, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.ScrapingResumeData.currentScrapeStart, LoggingType.Important);
             }
 
             config.ScrapingResumeData.updated = new List<string>();
@@ -270,11 +270,12 @@ namespace OculusDB
         {
             if(failedApps == maxAppsToFail)
             {
-                Logger.Log(maxAppsToFail + " apps failed to get scraped", LoggingType.Warning);
+                Logger.Log(maxAppsToFail + " apps failed to get scraped", LoggingType.Error);
                 OculusDBServer.SendMasterWebhookMessage("Warning", "More than " + maxAppsToFail + " apps have failed to get scraped. Token will be switched and retry will be in " + minutesPause + " minutes", 0xFF0000);
                 scrapeResumeTime = DateTime.Now + TimeSpan.FromMinutes(minutesPause);
                 Task.Delay(minutesPause * 60 * 1000).Wait();
                 OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be restarted now", 0x00FF00);
+                Logger.Log("Scrape will be started now", LoggingType.Important);
                 ScrapeAll();
                 return true;
             } else if(failedApps > maxAppsToFail)
@@ -442,6 +443,8 @@ namespace OculusDB
             }
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             string packageName = "";
+            ConnectedList connected = MongoDBInteractor.GetConnected(a.id);
+            MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
                 if(packageName == "")
@@ -450,6 +453,15 @@ namespace OculusDB
                     packageName = info.data.app_binary_info.info[0].binary.package_name;
                 }
                 AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+
+                // Preserve changelogs across scrapes by:
+                // - Don't delete versions after scrape
+                // - If not priority scrape enter changelog of most recent versions
+                if(!priority && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
+                {
+                    bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
+                }
+
                 MongoDBInteractor.AddVersion(bin, a, headset);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
                     

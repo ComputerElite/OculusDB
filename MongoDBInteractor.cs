@@ -183,6 +183,40 @@ namespace OculusDB
             return deleted;
         }
 
+        public static long DeleteOldDataExceptVersions(DateTime before, List<string> ids)
+        {
+            long deleted = 0;
+            for (int i = 0; i < ids.Count; i++)
+            {
+                try
+                {
+                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == ids[i]) || (x["__OculusDBType"] != DBDataTypes.Application && x["__OculusDBType"] != DBDataTypes.Version && x["parentApplication"]["id"] == ids[i]))).DeletedCount;
+                }
+                catch
+                {
+                    i--;
+                    Logger.Log("Sleeping for 5000 ms before continuing to delete old data due to error");
+                    Thread.Sleep(5000);
+                }
+            }
+            return deleted;
+        }
+
+        public static long DeleteOldVersions(DateTime before, string appId)
+        {
+            long deleted = 0;
+            try
+            {
+                deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["__OculusDBType"] == DBDataTypes.Version && x["parentApplication"]["id"] == appId).DeletedCount;
+            }
+            catch
+            {
+                Logger.Log("Sleeping for 5000 ms before continuing to delete old data due to error");
+                Thread.Sleep(5000);
+            }
+            return deleted;
+        }
+
         public static List<ActivityWebhook> GetWebhooks()
         {
             return webhookCollection.Find(new BsonDocument()).ToList();
