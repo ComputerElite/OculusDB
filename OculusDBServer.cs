@@ -231,6 +231,17 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(m), "application/json");
                 return true;
             }));
+            server.AddRoute("GET", "/api/v1/packagename/", new Func<ServerRequest, bool>(request =>
+            {
+                List<BsonDocument> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff);
+                if (d.Count <= 0)
+                {
+                    request.SendString("{}", "application/json", 404);
+                    return true;
+                }
+                request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+                return true;
+            }), true, true, true, true);
             server.AddRouteRedirect("GET", "/api/id/", "/api/v1/id/", true);
             server.AddRoute("GET", "/api/v1/id/", new Func<ServerRequest, bool>(request =>
             {

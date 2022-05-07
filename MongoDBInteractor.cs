@@ -113,6 +113,11 @@ namespace OculusDB
             return activityCollection.CountDocuments(new BsonDocument());
         }
 
+        public static List<BsonDocument> GetApplicationByPackageName(string packageName)
+        {
+            return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application && x["packageName"] == packageName).ToList();
+        }
+
         public static List<BsonDocument> GetBestReviews(int skip, int take)
         {
             return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["quality_rating_aggregate"]).Skip(skip).Limit(take).ToList());
@@ -199,11 +204,12 @@ namespace OculusDB
             activityCollection.InsertOne(d);
         }
 
-        public static void AddApplication(Application a, Headset h, string image)
+        public static void AddApplication(Application a, Headset h, string image, string packageName)
         {
             DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
             dba.hmd = h;
             dba.img = image;
+            dba.packageName = packageName;
             OculusScraper.DownloadImage(dba);
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
@@ -309,7 +315,6 @@ namespace OculusDB
         public static List<BsonDocument> GetAllApplications()
         {
             return GetDistinct(dataCollection.Find(new BsonDocument("__OculusDBType", DBDataTypes.Application)).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
-            
         }
         public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets)
         {
@@ -333,6 +338,7 @@ namespace OculusDB
                 new BsonDocument("displayName", regex),
                 new BsonDocument("canonicalName", regex),
                 new BsonDocument("publisher_name", regex),
+                new BsonDocument("packageName", regex),
                 new BsonDocument("id", query),
 
             }),

@@ -36,6 +36,7 @@ namespace OculusDB.Database
         public string publisher_name { get; set; } = "";
         public double quality_rating_aggregate { get; set; } = 0.0;
         public string img { get; set; } = "";
+        public string packageName { get; set; } = "";
 
         [BsonIgnore]
         public string imageLink { get

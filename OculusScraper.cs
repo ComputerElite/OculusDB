@@ -441,8 +441,14 @@ namespace OculusDB
                 MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument());
             }
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
+            string packageName = "";
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
+                if(packageName == "")
+                {
+                    PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
+                    packageName = info.data.app_binary_info.info[0].binary.package_name;
+                }
                 AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
                 MongoDBInteractor.AddVersion(bin, a, headset);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
@@ -550,7 +556,7 @@ namespace OculusDB
                 }
             }
                 
-            MongoDBInteractor.AddApplication(a, headset, id.image);
+            MongoDBInteractor.AddApplication(a, headset, id.image, packageName);
             DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
             DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
             priceChange.parentApplication.id = a.id;
