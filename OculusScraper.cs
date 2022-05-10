@@ -90,7 +90,7 @@ namespace OculusDB
                 {
                     if (i == 3)
                     {
-                        Logger.Log("Scraping of id " + s.id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                        Logger.Log("Scraping of id " + s.id + " failed. No retiries remaining. Next attempt to scrape in next scrape: " + ex.ToString(), LoggingType.Error);
                         priorityScrapeRunning = false;
                         if (Stop()) return;
                     }
@@ -246,7 +246,7 @@ namespace OculusDB
                                 {
                                     if (i == 3)
                                     {
-                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape.", LoggingType.Error);
+                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape: " + ex.ToString(), LoggingType.Error);
                                         failedApps++;
                                         if (Stop()) return;
                                     }
@@ -419,7 +419,6 @@ namespace OculusDB
 
         public static void Scrape(ToScrapeApp id, Headset headset, bool priority = false)
         {
-            lastUpdate = DateTime.Now;
             if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id) && !priority)
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");
@@ -618,6 +617,7 @@ namespace OculusDB
                 MongoDBInteractor.DeleteOldData(priorityScrapeStart, new List<string> { a.id });
             }
             if(!priority) config.ScrapingResumeData.updated.Add(a.id);
+            lastUpdate = DateTime.Now;
             config.Save();
         }
 
