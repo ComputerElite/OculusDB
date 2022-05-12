@@ -135,6 +135,7 @@ namespace OculusDB
             }
             failedApps = 0;
             SwitchToken();
+            OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be started now", 0x00FF00);
             SetupLimitedScrape(Headset.RIFT);
             SetupLimitedScrape(Headset.HOLLYWOOD);
             SetupLimitedScrape(Headset.GEARVR);
@@ -173,10 +174,9 @@ namespace OculusDB
                     if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null ||user.data.viewer.user.active_entitlements.nodes == null)
                     {
                         throw new Exception("Fetching of active entitlements failed");
-                    } else
-                    {
-                        userEntitlements = user.data.viewer.user.active_entitlements.nodes;
                     }
+                    userEntitlements = user.data.viewer.user.active_entitlements.nodes;
+                    OculusDBServer.SendMasterWebhookMessage("Info", "Got entitlements for token at index " + config.lastOculusToken, 0x00FF00);
                 } catch (Exception e)
                 {
                     Logger.Log(e.ToString(), LoggingType.Warning);
@@ -206,7 +206,6 @@ namespace OculusDB
             config.Save();
             OculusDBServer.SendMasterWebhookMessage("Info", "Scrape which has been started on " + config.lastDBUpdate + " has finished. The next scrape will start " + (config.pauseAfterScrape ? "in " + minutesPause + " minutes" : "now"), 0x00FF00);
             if (config.pauseAfterScrape) Task.Delay(minutesPause * 60 * 1000).Wait();
-            OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be started now", 0x00FF00);
             StartScrapingThread();
         }
 
