@@ -425,6 +425,7 @@ namespace OculusDB
             }
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
+            if (a == null) throw new Exception("Application is null");
             if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
             {
                 DBActivityNewApplication e = new DBActivityNewApplication();

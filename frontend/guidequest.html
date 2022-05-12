@@ -12,11 +12,15 @@
             <h2>Downgrading quest games</h2>
             
             <h3>1. Log in on oculus.com</h3>
-            Simply open <a href="{oculusloginlink}">oculus.com</a> and log in with your Oculus or Facebook account.
+            Simply open <a href="{oculusloginlink}">oculus.com</a> and log in with your Oculus or Facebook account. After you logged in you can close that tab.
             <br>
             <br>
             <h3>2. Search the game you want to downgrade</h3>
-            Search {gamecode} in the search box at the top right corner.
+            Search {gamecode} in the search box below.
+            <div class="navBarElement">
+                <input type="text" placeholder="Query" id="query2">
+                <input type="button" onclick="Search('query2')" value="Search">
+            </div>
             <br>
             Click the details button on {game}. Make sure that {game} is for your headset (e. g. Quest)
             <br>
@@ -27,7 +31,7 @@
             If you get an error saying site not found make sure that you <b>own {game}</b> and <b>are logging in</b>.
             <br>
             <br>
-            <h3>4. Uninstall {game} via Sidequest</h3>
+            <h3>4. Uninstall {game} via Sidequest (if it isn't already)</h3>
             In Sidequest (setup guide can be found <a href="https://sidequestvr.com/setup-howto">here</a>) click the 9 squares in the top right corner.
             <br>
             Then find {gamecode} and click the cog on the right. In the pop up press <code>Uninstall App</code>
@@ -57,6 +61,9 @@
                 if(!game.includes("<") && !game.includes(">")) {
                     game = params.get("game")
                     gameCode = "<code>" + params.get("game") + "</code>"
+                    setTimeout(() => {
+                        document.getElementById("query2").value = game
+                    }, 0)
                 }
             }
             document.body.innerHTML = document.body.innerHTML.replace(/\{game\}/g, game)
