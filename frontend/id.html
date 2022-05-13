@@ -28,12 +28,12 @@
             <div class="tabContainer">
                 <h2>Connected</h2>
                 <div class="tab">
-                    <button id="applications_button" class="tablinks active" onclick="openTab(this, 'applications')">Applications</button>
+                    <button id="applications_button" class="tablinks" onclick="openTab(this, 'applications')">Applications</button>
                     <button id="dlcs_button" class="tablinks" onclick="openTab(this, 'dlcs')">DLCs</button>
                     <button id="dlcpacks_button" class="tablinks" onclick="openTab(this, 'dlcpacks')">DLC Packs</button>
-                    <button id="versions_button" class="tablinks" onclick="openTab(this, 'versions')">Versions</button>
+                    <button id="versions_button" class="tablinks active" onclick="openTab(this, 'versions')">Versions</button>
                 </div>
-                <div id="applications" style="display: block;" class="tabcontent active">
+                <div id="applications" class="tabcontent">
                     <div class="loader"></div>
                 </div>
                 <div id="dlcs" class="tabcontent">
@@ -42,7 +42,7 @@
                 <div id="dlcpacks" class="tabcontent">
                     <div class="loader"></div>
                 </div>
-                <div id="versions" class="tabcontent">
+                <div id="versions" style="display: block;" class="tabcontent active">
                     <div class="loader"></div>
                 </div>
                 <input type="checkbox">
