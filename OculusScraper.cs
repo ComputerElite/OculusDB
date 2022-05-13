@@ -423,6 +423,7 @@ namespace OculusDB
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
+            Logger.Log("Scraping " + id.id);
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
             if (a == null) throw new Exception("Application is null");
@@ -618,6 +619,7 @@ namespace OculusDB
             }
             if(!priority) config.ScrapingResumeData.updated.Add(a.id);
             lastUpdate = DateTime.Now;
+            Logger.Log("Scraped " + id.id);
             config.Save();
         }
 

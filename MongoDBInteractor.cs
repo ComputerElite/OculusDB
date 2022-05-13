@@ -288,7 +288,12 @@ namespace OculusDB
         public static ConnectedList GetConnected(string id)
         {
             ConnectedList l = new ConnectedList();
-            BsonDocument org = GetByID(id).First();
+            List<BsonDocument> docs = GetByID(id);
+            if(docs.Count() <= 0)
+            {
+                return new ConnectedList();
+            }
+            BsonDocument org = docs.First();
             BsonDocument q = new BsonDocument
             {
                 new BsonDocument("$or", new BsonArray
