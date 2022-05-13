@@ -418,6 +418,7 @@ namespace OculusDB
 
         public static void Scrape(ToScrapeApp id, Headset headset, bool priority = false)
         {
+            lastUpdate = DateTime.Now;
             if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id) && !priority)
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");
@@ -618,7 +619,6 @@ namespace OculusDB
                 MongoDBInteractor.DeleteOldData(priorityScrapeStart, new List<string> { a.id });
             }
             if(!priority) config.ScrapingResumeData.updated.Add(a.id);
-            lastUpdate = DateTime.Now;
             Logger.Log("Scraped " + id.id);
             config.Save();
         }
