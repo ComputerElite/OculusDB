@@ -348,6 +348,10 @@ function GetHeadsetNameOD(headset) {
     }
 }
 
+function SendDataToParent(data) {
+    window.top.postMessage(data, "*")
+}
+
 function GetHeadsets(list) {
     var names = []
     list.forEach(x => names.push(GetHeadsetName(x)))
@@ -702,7 +706,7 @@ function FormatVersion(v, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -742,7 +746,7 @@ function FormatVersionActivity(v, htmlid) {
         <div class="flex outside">
             <div class="buttons">
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication)}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(v.__lastUpdated)}</div>
@@ -793,9 +797,33 @@ function GetDownloadLink(id) {
     return `https://securecdn.oculus.com/binaries/download/?id=${id}`
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication) {
+var sendToParent = InIframe()
+
+function InIframe () {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
+function AndroidDownload(id, parentApplicationId,parentApplicationName, version) {
+    if(sendToParent) {
+        SendDataToParent(JSON.stringify({
+            type: "Download",
+            binaryId: id,
+            parentId: parentApplicationId,
+            parentName: parentApplicationName,
+            version: version
+        }))
+    } else {
+        window.open(GetDownloadLink(id))
+    }
+}
+
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('${GetDownloadLink(id)}', '_blank')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName}', '${version}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
