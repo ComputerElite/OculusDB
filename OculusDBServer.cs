@@ -409,7 +409,7 @@ namespace OculusDB
             }));
             server.AddRoute("GET", "/api/v1/updates", new Func<ServerRequest, bool>(request =>
             {
-                request.SendString(JsonSerializer.Serialize(config.updates.Take(50)));
+                request.SendString(JsonSerializer.Serialize(config.updates.Take(200)));
                 return true;
             }));
             server.AddRoute("GET", "/api/v1/database", new Func<ServerRequest, bool>(request =>
