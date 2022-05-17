@@ -31,8 +31,6 @@ jobs:
     - name: Restore dependencies
       working-directory: 'OculusDB/OculusDB'
       run: dotnet restore
-    - name: List dir
-      run: tree -fi
     - name: Build
       working-directory: 'OculusDB/OculusDB'
       run: dotnet build --no-restore
@@ -45,4 +43,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: net6.0.zip
-        path: net6.0.zip
+        path: OculusDB/OculusDB/bin/Debug/net6.0
