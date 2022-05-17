@@ -1,0 +1,45 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: 'OculusDB/OculusDB'
+    - uses: actions/checkout@v3
+      with:
+        repository: 'ComputerElite/ComputerUtils'
+        path: 'ComputerUtils/ComputerUtils'
+    - uses: actions/checkout@v3
+      with:
+        repository: 'ComputerElite/OculusGraphQLApiLib'
+        path: 'OculusGraphQLApiLib/culusGraphQLApiLib'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      working-directory: 'OculusDB/OculusDB'
+      run: dotnet restore
+    - name: Build
+      working-directory: 'OculusDB/OculusDB'
+      run: dotnet build --no-restore
+    - name: Zip build
+      uses: papeloto/action-zip@v1
+      with:
+        files: OculusDB/OculusDB/bin/net6.0
+        dest: net6.0.zip
+    - name: Upload net6.0.zip
+      uses: actions/upload-artifact@v3
+      with:
+        name: net6.0.zip
+        path: net6.0.zip
