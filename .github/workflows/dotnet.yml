@@ -41,11 +41,6 @@ jobs:
       with:
         files: OculusDB/OculusDB/bin/Debug/net6.0
         dest: net6.0.zip
-    - name: Zip build
-      uses: papeloto/action-zip@v1
-      with:
-        files: OculusDB/OculusDB/bin/Release/net6.0
-        dest: net6.0.zip
     - name: Upload net6.0.zip
       uses: actions/upload-artifact@v3
       with:
