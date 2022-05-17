@@ -14,10 +14,12 @@ jobs:
     steps:
     - run: pwd
     - uses: actions/checkout@v3
+      with:
+        path: 'OculusDB/OculusDB'
     - uses: actions/checkout@v3
       with:
         repository: 'ComputerElite/ComputerUtils'
-        path: 'ComputerUtils'
+        path: 'ComputerUtils/'
     - uses: actions/checkout@v3
       with:
         repository: 'ComputerElite/OculusGraphQLApiLib'
@@ -27,10 +29,12 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
+      working-directory: 'OculusDB/OculusDB'
       run: dotnet restore
     - name: List dir
       run: tree -fi
     - name: Build
+      working-directory: 'OculusDB/OculusDB'
       run: dotnet build --no-restore
     - name: Zip build
       uses: papeloto/action-zip@v1
