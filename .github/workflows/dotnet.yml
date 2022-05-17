@@ -13,8 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        path: 'OculusDB/OculusDB'
     - uses: actions/checkout@v3
       with:
         repository: 'ComputerElite/ComputerUtils'
