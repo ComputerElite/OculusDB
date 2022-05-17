@@ -30,6 +30,8 @@ jobs:
     - name: Restore dependencies
       working-directory: 'OculusDB/OculusDB'
       run: dotnet restore
+    - name: List dir
+      run: ls
     - name: Build
       working-directory: 'OculusDB/OculusDB'
       run: dotnet build --no-restore
