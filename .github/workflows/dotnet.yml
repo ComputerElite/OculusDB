@@ -28,8 +28,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: List dir
-      run: ls
-      working-directory: 'ComputerUtils/ComputerUtils'
+      run: tree -fi
     - name: Build
       run: dotnet build --no-restore
     - name: Zip build
