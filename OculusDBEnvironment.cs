@@ -15,7 +15,7 @@ namespace OculusDB
         public static Config config = new Config();
         public static string userAgent { get
             {
-                return "ODB/0.1";
+                return "ODB/1.0";
             } }
 
         public static void AddVariablesDependentOnVariablesAndFixAllOtherVariables()
