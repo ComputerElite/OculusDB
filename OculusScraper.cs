@@ -122,7 +122,7 @@ namespace OculusDB
 
         public static void ScrapeAll()
         {
-            GraphQLClient.log = true;
+            //GraphQLClient.log = true;
             if(config.ScrapingResumeData.currentScrapeStart == DateTime.MinValue)
             {
                 config.ScrapingResumeData.currentScrapeStart = DateTime.Now;
