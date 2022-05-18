@@ -38,6 +38,7 @@ namespace OculusDB.Users
                         catch (Exception ex)
                         {
                             Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
+                            break;
                         }
                     }
                 }
