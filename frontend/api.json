@@ -145,7 +145,7 @@
         {
             "url": "/api/v1/updates",
             "method": "GET",
-            "description": "Gets the 50 most recent updates to OculusDB",
+            "description": "Gets the 200 most recent updates to OculusDB",
             "parameters": [],
             "exampleResponse": [
                 {

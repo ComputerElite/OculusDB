@@ -817,7 +817,21 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version)
             version: version
         }))
     } else {
-        window.open(GetDownloadLink(id))
+        if(localStorage.fuckpopups) {
+            window.open(GetDownloadLink(id))
+        } else {
+            PopUp(`
+            <div>
+                To download games you must be logged in on <a href="{oculusloginlink}">oculus.com</a>. If you aren't logged in you won't be able to download games.
+                <br>
+                <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
+                <div>
+                    <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
+                    <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { window.open(GetDownloadLink('${id}')); ClosePopUp(); }">
+                </div>
+            </div>
+        `)
+        }
     }
 }
 
