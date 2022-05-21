@@ -36,7 +36,7 @@ namespace OculusDB
 
         public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
-        public const int minutesPause = 60;
+        public const int minutesPause = 120;
 
         public static List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
 
