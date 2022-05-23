@@ -478,6 +478,9 @@ namespace OculusDB
             server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true);
             server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true);
 
+            // for all the annoying people out there4
+            server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
+
             server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true);
 
             server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true);

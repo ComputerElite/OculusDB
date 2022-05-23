@@ -501,10 +501,6 @@ select:active {
     border: none;
 }
 
-input {
-    border: 1px solid var(--brightHoverColor);
-}
-
 input[type=button] {
     color: var(--brightHoverColor);
     height: fit-content;
