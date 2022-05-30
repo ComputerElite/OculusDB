@@ -278,7 +278,7 @@ namespace OculusDB
                     Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
                     if(conv != Headset.INVALID) headsets.Add(conv);
                 }
-                List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets);
+                List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets, request.queryString.Get("quick") == null ? false : true);
                 if (d.Count <= 0)
                 {
                     request.SendString("[]", "application/json", 200);
@@ -461,7 +461,7 @@ namespace OculusDB
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "console.html"), "text/html", 200, replace);
                 return true;
             }), true, true, true);
-            server.AddRoute("GET", "/id", new Func<ServerRequest, bool>(request =>
+            server.AddRoute("GET", "/id/", new Func<ServerRequest, bool>(request =>
             {
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "id.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;

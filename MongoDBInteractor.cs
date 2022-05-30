@@ -355,35 +355,51 @@ namespace OculusDB
         {
             return GetDistinct(dataCollection.Find(new BsonDocument("__OculusDBType", DBDataTypes.Application)).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
-        public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets)
+        public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets, bool quick)
         {
             if (query == "") return new List<BsonDocument>();
             if (headsets.Count <= 0) return new List<BsonDocument>();
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query.Replace(" ", ".*") + ".*/i"));
             BsonArray a = new BsonArray();
-            foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
+            BsonDocument q;
+            if (!quick)
             {
-                new BsonDocument("hmd", h),
-                new BsonDocument("parentApplication.hmd", h)
-            }));
-            BsonDocument q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
-                new BsonDocument("$or", new BsonArray
-            {
-                new BsonDocument("__OculusDBType", DBDataTypes.Application),
-                new BsonDocument("__OculusDBType", DBDataTypes.IAPItem),
-                new BsonDocument("__OculusDBType", DBDataTypes.IAPItemPack)
-            }), new BsonDocument("$or", new BsonArray
-            {
-                new BsonDocument("displayName", regex),
-                new BsonDocument("canonicalName", regex),
-                new BsonDocument("publisher_name", regex),
-                new BsonDocument("packageName", regex),
-                new BsonDocument("id", query),
+                foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
+                {
+                    new BsonDocument("hmd", h),
+                    new BsonDocument("parentApplication.hmd", h)
+                }));
+                q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
+                    new BsonDocument("$or", new BsonArray
+                {
+                    new BsonDocument("__OculusDBType", DBDataTypes.Application),
+                    new BsonDocument("__OculusDBType", DBDataTypes.IAPItem),
+                    new BsonDocument("__OculusDBType", DBDataTypes.IAPItemPack)
+                }), new BsonDocument("$or", new BsonArray
+                {
+                    new BsonDocument("displayName", regex),
+                    new BsonDocument("canonicalName", regex),
+                    new BsonDocument("publisher_name", regex),
+                    new BsonDocument("packageName", regex),
+                    new BsonDocument("id", query),
 
-            }),
-                new BsonDocument("$or", a)
-            })};
-            return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
+                }),
+                    new BsonDocument("$or", a)
+                })};
+                return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
+            } else
+            {
+                Logger.Log("The quick brown fox jumped over the lazy search");
+                foreach (Headset h in headsets) a.Add(new BsonDocument("hmd", h));
+                q = new BsonDocument() { new BsonDocument("$and", new BsonArray {
+                    new BsonDocument("__OculusDBType", DBDataTypes.Application),
+                    new BsonDocument("displayName", regex),
+                    new BsonDocument("$or", a)
+                })};
+                Logger.Log(q.ToJson(), LoggingType.Important);
+                return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
+            }
+            
         }
     }
 }
