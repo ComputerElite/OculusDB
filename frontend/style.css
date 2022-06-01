@@ -1,5 +1,10 @@
 ﻿html {
-    background-color: var(--bgColor);
+    /* background-color: var(--bgColor); */
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg');
+    background-attachment: fixed;
+    background-blend-mode: darken;
+    background-size: cover;
+    background-color: #111111DD;
     font-family: 'Open Sans';
     font-size: 1rem;
 }
@@ -472,6 +477,7 @@ input {
     background-color: var(--bgColor);
     padding: 5px;
     outline-width: 0;
+    border: 1px solid var(--brightHoverColor);
 }
 
 

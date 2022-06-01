@@ -9,65 +9,100 @@
     </head>
     <body>
         <div class="content">
-            <h2>Downgrading quest games</h2>
+            <h2>Downgrading games</h2>
             
-            <h3>1. Log in on oculus.com</h3>
-            Simply open <a href="{oculusloginlink}">oculus.com</a> and log in with your Oculus or Facebook account. After you logged in, you can close that tab.
-            <br>
-            <br>
-            <h3>2. Search the game you want to downgrade</h3>
-            Search {gamecode} in the search box below.
+            <h3>1. Type in the games name</h3>
             <div class="navBarElement">
-                <input type="text" placeholder="Query" id="query2">
-                <input type="button" onclick="Search('query2')" value="Search">
+                <input type="text" placeholder="Game name" id="game">
+                <select id="headset">
+                    <option value="HOLLYWOOD">Quest</option>
+                    <option value="RIFT">Rift/Oculus Link</option>
+                    <option value="GEARVR">GearVR</option>
+                    <option value="PACIFIC">Go</option>
+                </select>
             </div>
             <br>
-            Click the details button on {game}. Make sure that {game} is for your headset (e. g. Quest)
-            <br>
-            <br>
-            <h3>3. Download the desired version</h3>
-            Scroll down and click on <code>Versions</code>. Then click the download button on the version you want.
-            <br>
-            If you get an error saying site not found make sure that you <b>own {game}</b> and <b>are logging in</b>.
-            <br>
-            <br>
-            <h3>4. Uninstall {game} via Sidequest (if it isn't already)</h3>
-            In Sidequest (setup guide can be found <a href="https://sidequestvr.com/setup-howto">here</a>) click the 9 squares in the top right corner.
-            <br>
-            Then find {gamecode} and click the cog on the right. In the pop up press <code>Uninstall App</code>
-            <br>
-            <i>This step is necessary so step 5 works</i>
-            <br>
-            <br>
-            <h3>5. Install the downgraded version</h3>
-            Find the apk downloaded in step 3 and drag and drop it into SideQuest.
-            <br>
-            Alternitively press the box with a down arrow at the top right of SideQuest and select the APK.
-            <br>
-            <div id="sq">
-
+            <h3>2. Type in the version you want</h3>
+            <div class="navBarElement">
+                <input type="text" placeholder="Game version" id="version">
             </div>
+            <br>
+            <h3>3. Hit Search</h3>
+            <div class="navBarElement">
+                <input type="button" value="Search" onclick="SearchVersion()">
+            </div>
+            <div class="textbox" id="text"></div>
+            <h3>Result:</h3>
+            <div id="res">
+                Results will appear after you searched.
+            </div>
+            <h3>4. Download and install the downloaded apk</h3>
+            After pressing the download button and doing what it says follow <a href="https://sidequestvr.com/setup-howto">this guide</a> to install SideQuest.
+            <br>
+            After installing Sidequest and setting it up drag and drop the file you downloaded from the download button above into SideQuest to install the apk.
             <br>
             <br>
             <b>Congrats. You now downgraded your game</b>
             <br>
+            <br>
+            <div id="sq"></div>
             If you need help join the <a href="{BSLGDC}">Beat Saber Legacy Group Discord Server</a> and ask for help there.
         </div>
         <script src="/script.js"></script>
         <script>
-            var game = "the game"
-            var gameCode = "the game"
-            if(params.get("game")) {
-                if(!game.includes("<") && !game.includes(">")) {
-                    game = params.get("game")
-                    gameCode = "<code>" + params.get("game") + "</code>"
-                    setTimeout(() => {
-                        document.getElementById("query2").value = game
-                    }, 0)
+            document.getElementById("game").value = params.get("game") ?? ""
+            document.getElementById("version").value = params.get("version") ?? ""
+            document.getElementById("headset").value = params.get("headset") ?? "HOLLYWOOD"
+            if( params.get("game") && params.get("version")) {
+                SearchVersion()
+            }
+
+            function SearchVersion(useoptions) {
+                var game = document.getElementById("game").value
+                var version = document.getElementById("version").value
+                if(game && version) {
+                    var app = null
+                    HideTextBox("text")
+                    document.getElementById("res").innerHTML = loader
+                    fetch("/api/v1/search/" + game + "?headsets=" + document.getElementById("headset").value).then(res => {
+                        res.json().then(res => {
+                            var results = {l: 100000, id: 0}
+                            res.forEach(x => {
+                                if(x.displayName.length < results.l) {
+                                    results.l = x.displayName.length
+                                    results.id = x.id
+                                }
+                            })
+                            if(!results.id) {
+                                TextBoxError("text", "No app with this name could be found. Try a different one.")
+                                return
+                            }
+                            fetch("/api/v1/connected/" + results.id).then(res => res.json().then(res => {
+                                var v = []
+                                res.versions.forEach(x => {
+                                    console.log(x)
+                                    if(x.version.startsWith(version) && x.downloadable) {
+                                        v.push(x)
+                                    }
+                                })
+                                if(v.length > 0) {
+                                    // Display version
+                                    document.getElementById("res").innerHTML = ""
+                                    v.forEach(x => {
+                                        document.getElementById("res").innerHTML += AutoFormat(x)
+                                    })
+                                    
+                                } else {
+                                    TextBoxError("text", "No matching version could be found. Try a different one.")
+                                }
+                            }))
+                        })
+                    })
+                } else {
+                    TextBoxError("text", "Please put in a game and version before searching.")
                 }
             }
-            document.body.innerHTML = document.body.innerHTML.replace(/\{game\}/g, game)
-            document.body.innerHTML = document.body.innerHTML.replace(/\{gamecode\}/g, gameCode)
+
             document.getElementById("sq").innerHTML = GetCollapsableInfo("Help: The APK fails to install on Sidequest and says <code>SAFESIDE</code> or is stuck on <code>Checking APK against blacklist</code>", `
     <br>Download <code>MultiUserADBInterface.zip</code> from <a href="https://github.com/ComputerElite/MultiUserADBInterface/releases/latest">here</a>. Then unzip the file you downloaded (right click -> extract all). After that's done open the MultiUserADBInterface executable and type in <code>1</code> followed by enter to install an apk. Then drag and drop the apk on which you got the error when installing with Sidequest into the window and press enter. Finally select the User you want to install the apk and you're done.
     <br>
