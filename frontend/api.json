@@ -7291,6 +7291,593 @@
                     "hmd": 1
                 }
             }
+        },
+        {
+            "url": "/api/v1/allapps",
+            "method": "GET",
+            "description": "Gets a list of all apps in the database. May be slow due to the large number of apps.",
+            "parameters": [],
+            "exampleResponse": [{
+                "__lastUpdated": "2022-06-03T16:23:42.779Z",
+                "__OculusDBType": "Application",
+                "hmd": 4,
+                "appName": "The Wizards - Trials of Meliora",
+                "baseline_offer": {
+                    "end_time": 0,
+                    "id": "264731347419181",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "399",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    }
+                },
+                "canonicalName": "carbon-studio-the-wizards-gearvr",
+                "current_gift_offer": {
+                    "end_time": 0,
+                    "id": "264731347419181",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    }
+                },
+                "current_offer": {
+                    "end_time": 0,
+                    "id": "264731347419181",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "399",
+                        "currency": "EUR",
+                        "formatted": "€3.99"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": null
+                },
+                "displayName": "The Wizards - Trials of Meliora",
+                "display_name": "The Wizards - Trials of Meliora",
+                "display_long_description": "Become a powerful wizard and test your mettle as a defender of the Realm of Meliora! Based on the award-winning spellcaster The Wizards, this game is a completely new magical adventure set in the same fantasy world, developed from the ground for Oculus Go and Gear VR. \n\nNow with two more levels, new enemies and game mechanics!\n\nFeatures:\n• Detailed graphics powered by Unreal Engine 4\n• Intuitive gesture-based system of spellcasting\n• Four elemental spells with unique conjuring gestures\n• Five original fantasy levels\n• Leveling and spell upgrading system for the ultimate wizardry \n• Online leaderboard to challenge fellow wizards\n\nIMPORTANT: The game does not support some phones (i.e. Galaxy S6 series). Please check compatible devices list before buying the game.",
+                "genre_names": [
+                    "Action",
+                    "Arcade",
+                    "Shooter"
+                ],
+                "has_in_app_ads": false,
+                "id": "1830914413625836",
+                "is_approved": false,
+                "is_concept": false,
+                "is_enterprise_enabled": false,
+                "organization": {
+                    "id": "",
+                    "is_authorized_for_quest": false
+                },
+                "platform": "ANDROID",
+                "publisher_name": "Carbon Studio",
+                "quality_rating_aggregate": 3.8762886597938,
+                "img": "https://scontent.oculuscdn.com/v/t64.5771-25/12139370_294367597848258_1415606751016779776_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=107&ccb=1-7&_nc_sid=79b88e&_nc_ohc=vOAtfHevg9EAX8LhbPE&_nc_ht=scontent.oculuscdn.com&oh=00_AT_cqMiZRgsVfnGD34NIB_XzPollrB7P1vXb-d6fpSOC5w&oe=629F9B8F",
+                "packageName": "com.YourCompany.TheWizards_GEAR",
+                "imageLink": "/cdn/images/1830914413625836",
+                "release_channels": {
+                    "count": 1,
+                    "nodes": [
+                        {
+                            "id": "195334711243420",
+                            "channel_name": "LIVE",
+                            "latest_supported_binary": {
+                                "binary_application": null,
+                                "id": "",
+                                "version": "",
+                                "platform": "",
+                                "package_name": null,
+                                "file_name": "",
+                                "uri": "",
+                                "change_log": null,
+                                "changeLog": null,
+                                "richChangeLog": "",
+                                "firewall_exceptions_required": false,
+                                "is_2d_mode_supported": false,
+                                "launch_file": "",
+                                "launch_file_2d": null,
+                                "launch_parameters": "",
+                                "launch_parameters_2d": null,
+                                "Platform": "PC",
+                                "release_notes_plain_text": "",
+                                "required_space": "0",
+                                "required_space_numerical": 0,
+                                "size": "0",
+                                "size_numerical": 0,
+                                "status": "DRAFT",
+                                "supported_hmd_platforms": [],
+                                "supported_hmd_platforms_enum": [],
+                                "__isAppBinary": "",
+                                "__isAppBinaryWithFileAsset": "",
+                                "version_code": 0,
+                                "versionCode": 0,
+                                "created_date": 0,
+                                "binary_release_channels": null,
+                                "lastIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "firstIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "asset_files": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "__typename": ""
+                            }
+                        }
+                    ]
+                },
+                "release_date": 1530810000,
+                "supported_hmd_platforms": [
+                    "GEARVR",
+                    "PACIFIC"
+                ],
+                "supported_hmd_platforms_enum": [
+                    3,
+                    4
+                ],
+                "website_url": "http://www.thewizardsgame.com/trials"
+            },
+            {
+                "__lastUpdated": "2022-06-03T16:23:42.123Z",
+                "__OculusDBType": "Application",
+                "hmd": 1,
+                "appName": "Warchasm",
+                "baseline_offer": {
+                    "end_time": 0,
+                    "id": "917396435655451",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "1299",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    }
+                },
+                "canonicalName": "defective-penguin-games-warchasm-android6d0f",
+                "current_gift_offer": {
+                    "end_time": 0,
+                    "id": "917396435655451",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    }
+                },
+                "current_offer": {
+                    "end_time": 0,
+                    "id": "917396435655451",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "1299",
+                        "currency": "EUR",
+                        "formatted": "€12.99"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": null
+                },
+                "displayName": "Warchasm",
+                "display_name": "Warchasm",
+                "display_long_description": "Rain down a deluge of droid destruction while avoiding the hazards of an alien world in this fast paced arcade shoot em up.\n\nPitted against an army of murderous mechs you must battle your way through a myriad of locales from overrun space ports to bubbling lava filled volcanoes in order to escape the Warchasm. To aid you in your fight against the alien onslaught you will have an array of weapons at your disposal from ray guns and blasters to devastating mortars and high tech, quad missile launchers.\n\nYou will need a cool head, a keen eye and razor sharp reflexes as you fight off the alien horde and make your way through this perilous VR adventure.\n\nSo grab your guns, dive in to the action and experience your first Warchasm!",
+                "genre_names": [
+                    "Action",
+                    "Arcade",
+                    "Shooter"
+                ],
+                "has_in_app_ads": false,
+                "id": "3619628068084513",
+                "is_approved": false,
+                "is_concept": true,
+                "is_enterprise_enabled": false,
+                "organization": {
+                    "id": "",
+                    "is_authorized_for_quest": false
+                },
+                "platform": "ANDROID_6DOF",
+                "publisher_name": "Defective Penguin Games",
+                "quality_rating_aggregate": 4.92,
+                "img": "https://cdn.sidequestvr.com/file/120613/38974873_4427207727339935_7314658343433266777_njpg.jpg",
+                "packageName": "com.DefectivePenguinGames.Warchasm_OQ",
+                "imageLink": "/cdn/images/3619628068084513",
+                "release_channels": {
+                    "count": 3,
+                    "nodes": [
+                        {
+                            "id": "430449448270240",
+                            "channel_name": "LIVE",
+                            "latest_supported_binary": {
+                                "binary_application": null,
+                                "id": "",
+                                "version": "",
+                                "platform": "",
+                                "package_name": null,
+                                "file_name": "",
+                                "uri": "",
+                                "change_log": null,
+                                "changeLog": null,
+                                "richChangeLog": "",
+                                "firewall_exceptions_required": false,
+                                "is_2d_mode_supported": false,
+                                "launch_file": "",
+                                "launch_file_2d": null,
+                                "launch_parameters": "",
+                                "launch_parameters_2d": null,
+                                "Platform": "PC",
+                                "release_notes_plain_text": "",
+                                "required_space": "0",
+                                "required_space_numerical": 0,
+                                "size": "0",
+                                "size_numerical": 0,
+                                "status": "DRAFT",
+                                "supported_hmd_platforms": [],
+                                "supported_hmd_platforms_enum": [],
+                                "__isAppBinary": "",
+                                "__isAppBinaryWithFileAsset": "",
+                                "version_code": 0,
+                                "versionCode": 0,
+                                "created_date": 0,
+                                "binary_release_channels": null,
+                                "lastIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "firstIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "asset_files": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "__typename": ""
+                            }
+                        },
+                        {
+                            "id": "324451078977600",
+                            "channel_name": "BETA",
+                            "latest_supported_binary": {
+                                "binary_application": null,
+                                "id": "",
+                                "version": "",
+                                "platform": "",
+                                "package_name": null,
+                                "file_name": "",
+                                "uri": "",
+                                "change_log": null,
+                                "changeLog": null,
+                                "richChangeLog": "",
+                                "firewall_exceptions_required": false,
+                                "is_2d_mode_supported": false,
+                                "launch_file": "",
+                                "launch_file_2d": null,
+                                "launch_parameters": "",
+                                "launch_parameters_2d": null,
+                                "Platform": "PC",
+                                "release_notes_plain_text": "",
+                                "required_space": "0",
+                                "required_space_numerical": 0,
+                                "size": "0",
+                                "size_numerical": 0,
+                                "status": "DRAFT",
+                                "supported_hmd_platforms": [],
+                                "supported_hmd_platforms_enum": [],
+                                "__isAppBinary": "",
+                                "__isAppBinaryWithFileAsset": "",
+                                "version_code": 0,
+                                "versionCode": 0,
+                                "created_date": 0,
+                                "binary_release_channels": null,
+                                "lastIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "firstIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "asset_files": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "__typename": ""
+                            }
+                        },
+                        {
+                            "id": "991382195034167",
+                            "channel_name": "ALPHA",
+                            "latest_supported_binary": {
+                                "binary_application": null,
+                                "id": "",
+                                "version": "",
+                                "platform": "",
+                                "package_name": null,
+                                "file_name": "",
+                                "uri": "",
+                                "change_log": null,
+                                "changeLog": null,
+                                "richChangeLog": "",
+                                "firewall_exceptions_required": false,
+                                "is_2d_mode_supported": false,
+                                "launch_file": "",
+                                "launch_file_2d": null,
+                                "launch_parameters": "",
+                                "launch_parameters_2d": null,
+                                "Platform": "PC",
+                                "release_notes_plain_text": "",
+                                "required_space": "0",
+                                "required_space_numerical": 0,
+                                "size": "0",
+                                "size_numerical": 0,
+                                "status": "DRAFT",
+                                "supported_hmd_platforms": [],
+                                "supported_hmd_platforms_enum": [],
+                                "__isAppBinary": "",
+                                "__isAppBinaryWithFileAsset": "",
+                                "version_code": 0,
+                                "versionCode": 0,
+                                "created_date": 0,
+                                "binary_release_channels": null,
+                                "lastIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "firstIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "asset_files": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "__typename": ""
+                            }
+                        }
+                    ]
+                },
+                "release_date": 1631138400,
+                "supported_hmd_platforms": [
+                    "MONTEREY",
+                    "HOLLYWOOD"
+                ],
+                "supported_hmd_platforms_enum": [
+                    1,
+                    2
+                ],
+                "website_url": "https://defectivepenguin.com/"
+            },
+            {
+                "__lastUpdated": "2022-06-03T16:23:39.755Z",
+                "__OculusDBType": "Application",
+                "hmd": 2,
+                "appName": "Knockout League",
+                "baseline_offer": {
+                    "end_time": 0,
+                    "id": "738933853186193",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "1999",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    }
+                },
+                "canonicalName": "grab-games-knockout-league-android6d0f",
+                "current_gift_offer": {
+                    "end_time": 0,
+                    "id": "738933853186193",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": {
+                        "offset_amount": "0",
+                        "currency": "USD",
+                        "formatted": "$0.00"
+                    }
+                },
+                "current_offer": {
+                    "end_time": 0,
+                    "id": "738933853186193",
+                    "show_timer": false,
+                    "price": {
+                        "offset_amount": "1999",
+                        "currency": "EUR",
+                        "formatted": "€19.99"
+                    },
+                    "promo_benefit": null,
+                    "strikethrough_price": null
+                },
+                "displayName": "Knockout League",
+                "display_name": "Knockout League",
+                "display_long_description": "Welcome to the Knockout League, a single player arcade style boxing game built from the ground up for Virtual Reality. Its intuitive gameplay involves moving and dodging with your body and 1:1 punch movement that lets you attack how you want without relying on buttons for main gameplay. Train up with various boxing drills to take on a crazy cast of characters with different fighting styles and gameplay in order to become the champion of the Knockout League!\n\nOculus Cross-Buy enabled!",
+                "genre_names": [
+                    "Fighting",
+                    "Adventure",
+                    "Action"
+                ],
+                "has_in_app_ads": false,
+                "id": "2078236868960051",
+                "is_approved": false,
+                "is_concept": false,
+                "is_enterprise_enabled": false,
+                "organization": {
+                    "id": "",
+                    "is_authorized_for_quest": false
+                },
+                "platform": "ANDROID_6DOF",
+                "publisher_name": "Grab Games",
+                "quality_rating_aggregate": 3.6134020618557,
+                "img": "https://scontent.oculuscdn.com/v/t64.5771-25/38982597_555039948326738_1139226898304335872_n.jpg?stp=dst-jpg_q92_s720x720&_nc_cat=109&ccb=1-7&_nc_sid=79b88e&_nc_ohc=FwSiBAVZxBgAX_agnkB&_nc_ht=scontent.oculuscdn.com&oh=00_AT8NA9EuXGFqJkuRWZV6vjnDUeSS3DOlEUulvflBfYJ_dA&oe=629E46FC",
+                "packageName": "com.grab.knockout",
+                "imageLink": "/cdn/images/2078236868960051",
+                "release_channels": {
+                    "count": 1,
+                    "nodes": [
+                        {
+                            "id": "2593273034047907",
+                            "channel_name": "LIVE",
+                            "latest_supported_binary": {
+                                "binary_application": null,
+                                "id": "",
+                                "version": "",
+                                "platform": "",
+                                "package_name": null,
+                                "file_name": "",
+                                "uri": "",
+                                "change_log": null,
+                                "changeLog": null,
+                                "richChangeLog": "",
+                                "firewall_exceptions_required": false,
+                                "is_2d_mode_supported": false,
+                                "launch_file": "",
+                                "launch_file_2d": null,
+                                "launch_parameters": "",
+                                "launch_parameters_2d": null,
+                                "Platform": "PC",
+                                "release_notes_plain_text": "",
+                                "required_space": "0",
+                                "required_space_numerical": 0,
+                                "size": "0",
+                                "size_numerical": 0,
+                                "status": "DRAFT",
+                                "supported_hmd_platforms": [],
+                                "supported_hmd_platforms_enum": [],
+                                "__isAppBinary": "",
+                                "__isAppBinaryWithFileAsset": "",
+                                "version_code": 0,
+                                "versionCode": 0,
+                                "created_date": 0,
+                                "binary_release_channels": null,
+                                "lastIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "firstIapItems": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "asset_files": {
+                                    "count": 0,
+                                    "edges": [],
+                                    "page_info": {
+                                        "end_cursor": "",
+                                        "start_cursor": ""
+                                    }
+                                },
+                                "__typename": ""
+                            }
+                        }
+                    ]
+                },
+                "release_date": 1571331600,
+                "supported_hmd_platforms": [
+                    "MONTEREY",
+                    "HOLLYWOOD",
+                    "RIFT",
+                    "LAGUNA"
+                ],
+                "supported_hmd_platforms_enum": [
+                    1,
+                    2,
+                    0,
+                    5
+                ],
+                "website_url": "http://www.knockoutleaguevr.com/"
+            }]
         }
     ]
 }

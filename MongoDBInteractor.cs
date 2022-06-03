@@ -355,6 +355,7 @@ namespace OculusDB
         {
             return GetDistinct(dataCollection.Find(new BsonDocument("__OculusDBType", DBDataTypes.Application)).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
+
         public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets, bool quick)
         {
             if (query == "") return new List<BsonDocument>();
