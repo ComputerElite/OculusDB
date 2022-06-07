@@ -103,7 +103,7 @@ function ContextMenuEnabled(event, initiator) {
         menu.style.left = (parseInt(menu.style.left.replace("px", "")) - 10) + "px"
     }
 }
-
+if(params.get("isqavs")) localStorage.isQAVS = "true"
 // Add analytics
 if(!localStorage.isQAVS) {
     var script = document.createElement("script")
