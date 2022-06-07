@@ -90,7 +90,7 @@ namespace OculusDB.Users
             else if (type == DBDataTypes.ActivityNewVersion)
             {
                 DBActivityNewVersion v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "New Version released";
+                embed.title = "New Version uploaded";
                 meta.Add("Version", v.version);
                 meta.Add("Version code", v.versionCode.ToString());
                 meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
