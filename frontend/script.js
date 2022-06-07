@@ -105,9 +105,11 @@ function ContextMenuEnabled(event, initiator) {
 }
 
 // Add analytics
-var script = document.createElement("script")
-script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
-document.head.appendChild(script)
+if(!localStorage.isQAVS) {
+    var script = document.createElement("script")
+    script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
+    document.head.appendChild(script)
+}
 
 function SetCheckboxesBasedOnValue(options, value) {
     if(value != undefined) {
