@@ -427,6 +427,8 @@ namespace OculusDB
                 DBInfo info = new DBInfo();
                 info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
                 info.lastUpdated = config.lastDBUpdate;
+                info.appsToScrape = config.ScrapingResumeData.appsToScrape;
+                info.scrapedApps = config.ScrapingResumeData.updated.Count;
                 info.dataDocuments = MongoDBInteractor.CountDataDocuments();
                 info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
                 request.SendString(JsonSerializer.Serialize(info));

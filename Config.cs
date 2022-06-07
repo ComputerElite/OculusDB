@@ -49,5 +49,7 @@ namespace OculusDB
     {
         public DateTime currentScrapeStart { get; set; } = DateTime.MinValue;
         public List<string> updated { get; set; } = new List<string>();
+        public long appsToScrape { get; set; } = 0;
+        public long scrapedApps { get; set; } = 0;
     }
 }

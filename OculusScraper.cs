@@ -222,6 +222,7 @@ namespace OculusDB
                     string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
                     if (id.Length <= 16)
                     {
+                        config.ScrapingResumeData.appsToScrape++;
                         ids.Add(new ToScrapeApp(id, a.image_url));
                     }
                 }
@@ -298,6 +299,7 @@ namespace OculusDB
                     foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
                     {
                         ids.Add(new ToScrapeApp(a.id, a.cover_square_image.uri));
+                        config.ScrapingResumeData.appsToScrape++;
                     }
                 } catch(Exception e)
                 {
@@ -331,6 +333,7 @@ namespace OculusDB
                                     }
                                     //else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
                                 }
+                                config.ScrapingResumeData.scrapedApps++;
                             }
                         }
                         doneScrapeThreads++;

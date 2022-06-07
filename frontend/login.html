@@ -36,7 +36,7 @@
                 }
                 var pwd = password.value
                 if(pwd.length < 100 || pwd.includes("@") || pwd.includes(" ") || pwd.startsWith("OC")) {
-                    TextBoxError("status", `Whoops, seems like you wanted to log in with your Oculus/Facebook/Meta Account.<br>To do that, visit <a href="{oculusloginlink}">oculus.com</a> and log in there.`)
+                    TextBoxError("status", `Whoops, seems like you wanted to log in with your Oculus/Facebook/Meta Account.<br>To do that, visit <a href="{oculusloginlink}">{oculusloginlink}</a> and log in there.`)
                     return
                 }
                 fetch("/api/v1/login", {
