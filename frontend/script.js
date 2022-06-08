@@ -103,13 +103,6 @@ function ContextMenuEnabled(event, initiator) {
         menu.style.left = (parseInt(menu.style.left.replace("px", "")) - 10) + "px"
     }
 }
-if(params.get("isqavs")) localStorage.isQAVS = "true"
-// Add analytics
-if(!localStorage.isQAVS) {
-    var script = document.createElement("script")
-    script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
-    document.head.appendChild(script)
-}
 
 function SetCheckboxesBasedOnValue(options, value) {
     if(value != undefined) {
@@ -187,6 +180,13 @@ document.getElementById("query").onkeydown = e => {
     }
 }
 const params = new URLSearchParams(window.location.search)
+if(params.get("isqavs")) localStorage.isQAVS = "true"
+// Add analytics
+if(!localStorage.isQAVS) {
+    var script = document.createElement("script")
+    script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
+    document.head.appendChild(script)
+}
 
 function GetObjectById(id) {
     return new Promise((resolve, reject) => {
