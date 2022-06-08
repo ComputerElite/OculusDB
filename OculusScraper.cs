@@ -137,6 +137,7 @@ namespace OculusDB
             failedApps = 0;
             SwitchToken();
             OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be started now", 0x00FF00);
+            config.ScrapingResumeData.appsToScrape = 0;
             SetupLimitedScrape(Headset.RIFT);
             SetupLimitedScrape(Headset.HOLLYWOOD);
             SetupLimitedScrape(Headset.GEARVR);

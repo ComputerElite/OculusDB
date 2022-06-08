@@ -1,20 +1,18 @@
 ﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
-document.body.innerHTML =  document.body.innerHTML + `<div class="navBar">
+document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 <div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
     <img class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
     <div class="navBarElement title anim">
         OculusDB
     </div>
 </div>
-<div class="navBarToggle anim">
+<div id="navBarToggle" class="navBarToggle anim">
     <div class="navBarPart"></div>
     <div class="navBarPart"></div>
     <div class="navBarPartBottom"></div>
 </div>
-<div class="navBarToggleHitbox">
-</div>
-<div class="navBarInnerRight anim">
+<div id="navBarContent" class="navBarInnerRight anim">
     <div class="navBarElement">
         <input type="text" placeholder="Query" id="query">
         <input type="button" onclick="Search('query')" value="Search">
@@ -26,6 +24,13 @@ document.body.innerHTML =  document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
 </div>
 </div>`
+
+var navBarOpen = false
+document.getElementById("navBarToggle").onclick = e => {
+    navBarOpen = !navBarOpen
+    document.getElementById("navBarToggle").classList.toggle("rotate", navBarOpen)
+    document.getElementById("navBarContent").classList.toggle("visible", navBarOpen)
+}
 
 const loader = `<div class="centerIt">
 <div class="loader"></div>

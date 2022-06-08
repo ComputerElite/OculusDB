@@ -285,6 +285,10 @@ code {
     align-items: center;
 }
 
+.visible {
+    display: flex !important;
+}
+
 /* mobile*/
 @media screen and (max-width: 1200px) {
     .navBarInnerLeft {
@@ -302,7 +306,7 @@ code {
         background-color: var(--hightlightColor);
         padding: 10px;
         border-radius: 5px;
-        transform: translateY(35px);
+        transform: translateY(60px) translateX(-20px);
     }
 
     .navBarPart {
@@ -320,40 +324,8 @@ code {
     .navBarToggle {
         height: min-content;
         position: absolute;
-        top: 10px;
-        right: 10px;
-    }
-
-    .navBarToggle:hover {
-        transform: rotate(90deg);
-    }
-
-    .navBarToggleHitbox:hover ~ .navBarInnerRight {
-        display: flex !important;
-    }
-
-    .navBarInnerRight:hover {
-        display: flex !important;
-    }
-
-    .navBarToggle:hover ~ .navBarInnerRight {
-        display: flex !important;
-    }
-
-    .navBarToggle:hover ~ .navBarToggleHitbox {
-        width: 300px;
-        height: 60px;
-    }
-
-    .navBarToggleHitbox {
-        position: absolute;
-        top: 0px;
-        right: 0px;
-    }
-
-    .navBarToggleHitbox:hover {
-        width: 300px;
-        height: 60px;
+        top: 15px;
+        right: 20px;
     }
 }
 
