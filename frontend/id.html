@@ -237,9 +237,9 @@
                     var prices = {}
                     res.forEach(p => {
                         x.unshift(p.__lastUpdated)
-                        y.unshift(p.newPriceOffsetNumerical ?? p.priceOffsetNumerical)
-                        if(p.newPriceFormatted ?? p.priceOffsetFormatted) {
-                            prices[p.newPriceOffsetNumerical ?? p.priceOffsetNumerical] = p.newPriceFormatted ?? p.priceOffsetFormatted
+                        y.unshift(p.newPriceOffsetNumerical ? p.newPriceOffsetNumerical : p.priceOffsetNumerical)
+                        if(p.newPriceOffsetFormatted ? p.newPriceOffsetFormatted : p.priceOffsetFormatted) {
+                            prices[p.newPriceOffsetNumerical ? p.newPriceOffsetNumerical : p.priceOffsetNumerical] = p.newPriceOffsetFormatted ? p.newPriceOffsetFormatted : p.priceOffsetFormatted
                         }
                     })
                     Object.keys(prices).sort().reduce(

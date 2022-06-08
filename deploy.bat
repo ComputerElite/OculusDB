@@ -1,4 +1,6 @@
 @echo off
+echo replacing frontend dir with the one from Debug
+copy /Y "bin\Debug\net6.0\frontend" frontend
 
 set /p changelog=Changelog: 
 echo Pushing to GitHub
