@@ -406,7 +406,7 @@ function FormatDLC(dlc, htmlid = "") {
             <table>
                 <colgroup>
                     <col width="220em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
@@ -440,7 +440,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
             <table>
                 <colgroup>
                     <col width="150em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
@@ -488,7 +488,7 @@ function FormatDLCActivity(a, htmlid) {
             <table>
                 <colgroup>
                     <col width="200em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
@@ -519,7 +519,7 @@ function FormatDLCPackActivityDLC(a, i) {
             <table>
                 <colgroup>
                     <col width="130em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
@@ -552,7 +552,7 @@ function FormatDLCPackActivity(a, htmlid) {
             <table>
                 <colgroup>
                     <col width="200em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
@@ -583,7 +583,7 @@ function FormatParentApplication(a, activityId) {
             <table>
                 <colgroup>
                     <col width="160em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Canonical name</td><td class="value">${a.canonicalName}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${a.id}</td></tr>
@@ -611,7 +611,7 @@ function FormatApplication(application, htmlId = "") {
             <table>
                 <colgroup>
                     <col width="200em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Current price</td><td class="value">${application.current_offer.price.formatted}</td></tr>
@@ -649,7 +649,7 @@ function FormatApplicationActivity(a, htmlid) {
             <table>
                 <colgroup>
                     <col width="200em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${a.displayLongDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
@@ -684,7 +684,7 @@ function FormatPriceChanged(a, htmlid) {
             <table>
                 <colgroup>
                     <col width="200em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">New Price</td><td class="value">${a.newPriceFormatted}</td></tr>
                 <tr><td class="label">Old Price</td><td class="value">${a.oldPriceFormatted}</td></tr>
@@ -721,7 +721,7 @@ function FormatVersion(v, htmlid = "") {
             <table>
                 <colgroup>
                     <col width="180em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Uploaded</td><td class="value">${new Date(v.created_date * 1000).toLocaleString()}</td></tr>
                 <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
@@ -761,7 +761,7 @@ function FormatVersionActivity(v, htmlid) {
             <table>
                 <colgroup>
                     <col width="200em">
-                    <col width="0*">
+                    <col width="100%">
                 </colgroup>
                 <tr><td class="label">Uploaded</td><td class="value">${new Date(v.uploadedTime).toLocaleString()}</td></tr>
                 <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
