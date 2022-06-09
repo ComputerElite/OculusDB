@@ -21,6 +21,7 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/privacy">Privacy Policy</a>
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
+    <a class="underlineAnimation navBarElement" href="/downloadstats">Download stats</a>
     <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
 </div>
 </div>`
@@ -43,6 +44,12 @@ const noResult = `
 const noActivity = `
 <div class="application centerIt" style="cursor: default;">
     <b>No Activity</b>
+</div>
+`
+
+const noDownloads = `
+<div class="application centerIt" style="cursor: default;">
+    <b>No download on this page</b>
 </div>
 `
 
@@ -398,7 +405,7 @@ function FormatDLC(dlc, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.latestAssetFileId}', '_blank')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.latestAssetFileId}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -413,6 +420,7 @@ function FormatDLC(dlc, htmlid = "") {
                     <col width="220em">
                     <col width="100%">
                 </colgroup>
+                ${dlc.downloads ? `<tr><td class="label">Downloads</td><td class="value">${dlc.downloads}</td></tr>` : ""}
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
                 <tr><td class="label">latest asset file id</td><td class="value">${dlc.latestAssetFileId}</td></tr>
@@ -432,7 +440,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${dlc.id}', '_blank')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.id}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${dlc.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -447,6 +455,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
                     <col width="150em">
                     <col width="100%">
                 </colgroup>
+                ${dlc.downloads ? `<tr><td class="label">Downloads</td><td class="value">${dlc.downloads}</td></tr>` : ""}
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
                 <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
@@ -543,7 +552,7 @@ function FormatDLCPackActivity(a, htmlid) {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('https://securecdn.oculus.com/binaries/download/?id=${a.id}', '_blank')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.id}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
@@ -717,7 +726,7 @@ function FormatVersion(v, htmlid = "") {
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</div>
+                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode + (v.downloads ? `; ${v.downloads}` : ``)})</div>
             </div>
             
         </div>
@@ -728,6 +737,7 @@ function FormatVersion(v, htmlid = "") {
                     <col width="180em">
                     <col width="100%">
                 </colgroup>
+                ${v.downloads ? `<tr><td class="label">Downloads</td><td class="value">${v.downloads}</td></tr>` : ""}
                 <tr><td class="label">Uploaded</td><td class="value">${new Date(v.created_date * 1000).toLocaleString()}</td></tr>
                 <tr><td class="label">Release Channels</td><td class="value">${downloadable ? releaseChannels : "none"}</td></tr>
                 <tr><td class="label">Downloadable</td><td class="value">${downloadable}</td></tr>
@@ -814,6 +824,16 @@ function InIframe () {
     }
 }
 
+function DownloadID(id) {
+    window.open(GetDownloadLink(id), "_blank")
+    fetch("/api/v1/reportdownload", {
+        method: "POST",
+        body: JSON.stringify({
+            id: id
+        })
+    })
+}
+
 function AndroidDownload(id, parentApplicationId,parentApplicationName, version) {
     if(sendToParent) {
         SendDataToParent(JSON.stringify({
@@ -825,7 +845,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version)
         }))
     } else {
         if(localStorage.fuckpopups) {
-            window.open(GetDownloadLink(id))
+            DownloadID(id)
         } else {
             PopUp(`
             <div>

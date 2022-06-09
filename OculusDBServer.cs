@@ -20,6 +20,7 @@ using ComputerUtils.FileManaging;
 using System.Drawing;
 using SizeConverter = ComputerUtils.VarUtils.SizeConverter;
 using System.Drawing.Imaging;
+using OculusDB.Analytics;
 
 namespace OculusDB
 {
@@ -113,7 +114,27 @@ namespace OculusDB
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
-
+            server.AddRoute("POST", "/api/v1/reportdownload", new Func<ServerRequest, bool>(request =>
+            {
+                request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
+                return true;
+            }));
+            server.AddRoute("GET", "/api/v1/applicationanalytics/", new Func<ServerRequest, bool>(request =>
+            {
+                DateTime after = DateTime.Parse(request.queryString.Get("after") ?? DateTime.MinValue.ToString());
+                int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
+                if (count > 1000) count = 1000;
+                if (count <= 0)
+                {
+                    request.SendString("[]", "application/json");
+                    return true;
+                }
+                int skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
+                if (skip < 0) skip = 0;
+                if (request.pathDiff == "") request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetApplicationAnalytics(after, skip, count)));
+                else request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetAllAnalyticsForApplication(request.pathDiff, after)));
+                return true;
+            }), true, true, true, true, 900); // 15 mins
             server.AddRouteRedirect("GET", "/api/explore/", "/api/v1/explore/");
             server.AddRoute("GET", "/api/v1/explore/", new Func<ServerRequest, bool>(request =>
             {
@@ -121,7 +142,7 @@ namespace OculusDB
                 {
                     int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
                     if (count > 1000) count = 1000;
-                    if (count < 0)
+                    if (count <= 0)
                     {
                         request.SendString("[]", "application/json");
                         return true;
@@ -456,6 +477,7 @@ namespace OculusDB
             server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true);
             server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true);
             server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true);
+            server.AddRouteFile("/downloadstats", "frontend" + Path.DirectorySeparatorChar + "downloadstats.html", replace, true, true, true);
             server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace, true, true, true);
             server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png", true, true, true);
             server.AddRouteFile("/notfound.jpg", "frontend" + Path.DirectorySeparatorChar + "notfound.jpg", true, true, true);

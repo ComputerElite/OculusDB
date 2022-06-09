@@ -73,6 +73,7 @@
 
             var object = {}
             var connected = {}
+            var analytics = []
 
             var connectedSection = params.get("connected")
 
@@ -116,11 +117,36 @@
                 })
             }
 
+            function AddDownloadStats(id) {
+                fetch(`/api/v1/applicationanalytics/${id}`).then(res => {
+                    res.json().then(res => {
+                        analytics = res
+                        UpdateConnected(false)
+                    })
+                })
+            }
+
             function AddConnected() {
                 fetch(`/api/v1/connected/${id}`).then(res => res.json().then(res => {
                     connected = res
-                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
-                    RevealDescription("this_" + object.id)
+                    UpdateConnected(true)
+                }))
+            }
+
+            function GetDownloads(id) {
+                for(var i = 0; i < analytics.length; i++) {
+                    if(analytics[i].itemId == id) {
+                        return analytics[i].count + " downloads"
+                    }
+                }
+                return "No recorded downloads"
+            }
+
+            function UpdateConnected(first = false) {
+                document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
+                RevealDescription("this_" + object.id)
+                if(first) {
+                    AddDownloadStats(connected.applications[0].id)
                     if(object.__OculusDBType != "Version"){
                         var script = document.createElement("script")
                         script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
@@ -129,38 +155,43 @@
                     } else {
                         priceHistory.innerHTML = "Prices are not available for Versions"
                     }
-                    if(object.__OculusDBType == "Application") {
-                        AddApplicationSpecific(object.id)
-                    }
-                    var apps = ""
-                    connected.applications.forEach(a => {
-                        apps += FormatApplication(a, a.id)
-                    })
-                    if(!apps) apps = noResult
-                    applications.innerHTML = apps
+                }
+                
+                if(first && object.__OculusDBType == "Application") {
+                    AddApplicationSpecific(object.id)
+                }
+                var apps = ""
+                connected.applications.forEach(a => {
+                    a.downloads = GetDownloads(a.id)
+                    apps += FormatApplication(a, a.id)
+                })
+                if(!apps) apps = noResult
+                applications.innerHTML = apps
 
+                
+
+                var ds = ""
+                connected.dlcs.forEach(d => {
                     
+                    d.downloads = GetDownloads(d.id)
+                    ds += FormatDLC(d, d.id)
+                })
+                if(!ds) ds = noResult
+                dlcs.innerHTML = ds
 
-                    var ds = ""
-                    connected.dlcs.forEach(d => {
-                        ds += FormatDLC(d, d.id)
-                    })
-                    if(!ds) ds = noResult
-                    dlcs.innerHTML = ds
+                var dps = ""
+                connected.dlcPacks.forEach(dp => {
+                    dp.downloads = GetDownloads(dp.id)
+                    dps += FormatDLCPack(dp, connected.dlcs, dp.id)
+                })
+                if(!dps) dps = noResult
+                dlcpacks.innerHTML = dps
 
-                    var dps = ""
-                    connected.dlcPacks.forEach(dp => {
-                        dps += FormatDLCPack(dp, connected.dlcs, dp.id)
-                    })
-                    if(!dps) dps = noResult
-                    dlcpacks.innerHTML = dps
+                if(connectedSection) {
+                    document.getElementById("anchor").scrollIntoView()
+                }
 
-                    if(connectedSection) {
-                        document.getElementById("anchor").scrollIntoView()
-                    }
-
-                    UpdateVersions(false)
-                }))
+                UpdateVersions(false)
             }
 
             function DownloadVersionPopUp(version) {
@@ -199,6 +230,7 @@
                 var hmd = -1
                 connected.versions.forEach(v => {
                     hmd = v.parentApplication.hmd
+                    v.downloads = GetDownloads(v.id)
                     if(downloadVersion && downloadVersion == v.version) {
                         DownloadVersionPopUp(v.version)
                     }

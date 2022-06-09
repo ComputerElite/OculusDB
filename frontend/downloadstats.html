@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {meta}
+    <link rel="stylesheet" href="/style.css">
+    <title>Download stats - OculusDB</title>
+    <meta property="og:title" content="Download stats - OculusDB">
+    <meta property="og:description" content="Shows you which applications have been downloaded the most">
+</head>
+<body>
+    <div class="content">
+        <h2>Download stats</h2>
+        Download stats <b>only</b> include downloads made with OculusDB.
+        <div id="activity">
+            <div class="loader"></div>
+        </div>
+        <div class="centerIt">
+            <input type="button" value="Previous Page" onclick="TurnPage(-50)">
+            <input type="button" value="Next Page" onclick="TurnPage(50)">
+        </div>
+    </div>
+    <script src="/script.js"></script>
+    <script>
+            // Download stats info:
+            //     Download stats only show on this page and in the connected section of applications. Rift downloads aren't being recorded
+
+            const activityContainer = document.getElementById("activity")
+            var activity = []
+
+            var skip = parseInt(params.get("skip"))
+            if(!skip) skip = 0
+
+            function TurnPage(items) {
+                skip += items
+                if(skip < 0) skip = 0;
+                params.set("skip", skip)
+                window.location.href = "?" + params.toString()
+            }
+
+
+            fetch("/api/v1/applicationanalytics?skip=" + skip).then(res => res.json().then(res => {
+                activity = res
+                var html = ""
+                activity.forEach(a => {
+                    html += `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.parentId}')">
+            </div>
+            <div class="flex header">
+                <img onerror="this.src = '/notfound.jpg'" src="${"/cdn/images/" + a.parentId}" style="max-height: 4em; width: auto; margin-right: 10px;">
+                <div class="downloadCount">${a.count} downloads</div>
+                <div stlye="font-size: 1.25em;">${a.applicationName}</div>
+                
+            </div>
+        </div>
+    </div>
+</div>`
+                })
+                if(html == "") html = noDownloads
+                activityContainer.innerHTML = html
+                UpdateContextMenu()
+            }))
+    </script>
+</body>
+</html>

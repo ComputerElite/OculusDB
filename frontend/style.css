@@ -28,6 +28,11 @@
     fill: var(--textColor);
 }
 
+.downloadCount {
+    color: var(--highlightedColor);
+    margin-right: 1rem;
+}
+
 :root {
     --red: #eb0303;
     --redDark: #ab0d0e;

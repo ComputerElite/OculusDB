@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using OculusDB.Analytics;
 using OculusDB.Database;
 using OculusDB.Users;
 using OculusGraphQLApiLib;
@@ -24,6 +25,7 @@ namespace OculusDB
         public static IMongoCollection<BsonDocument> dataCollection = null;
         public static IMongoCollection<BsonDocument> activityCollection = null;
         public static IMongoCollection<ActivityWebhook> webhookCollection = null;
+        public static IMongoCollection<Analytic> analyticsCollection = null;
 
         public static void Initialize()
         {
@@ -32,6 +34,7 @@ namespace OculusDB
             dataCollection = oculusDBDatabase.GetCollection<BsonDocument>("data");
             webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
             activityCollection = oculusDBDatabase.GetCollection<BsonDocument>("activity");
+            analyticsCollection = oculusDBDatabase.GetCollection<Analytic>("analytics");
 
             ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
@@ -101,6 +104,64 @@ namespace OculusDB
                     .SetIsRequired(true); // again specific to your needs
                 }
             });
+        }
+
+        public static void AddAnalytic(Analytic a)
+        {
+            analyticsCollection.InsertOne(a);
+        }
+
+        public static List<Analytic> GetAllAnalyticsForApplication(string parentApplicationId, DateTime after)
+        {
+            return analyticsCollection.Aggregate<Analytic>(new BsonDocument[]
+{
+    new BsonDocument("$match",
+    new BsonDocument
+        {
+            { "parentId", parentApplicationId },
+            { "reported",
+    new BsonDocument("$gte",
+    after) }
+        }),
+    new BsonDocument("$group",
+    new BsonDocument
+        {
+            { "_id",
+    new BsonDocument("id", "$itemId") },
+            { "itemId",
+    new BsonDocument("$first", "$itemId") },
+            { "parentId",
+    new BsonDocument("$first", "$parentId") },
+            { "count",
+    new BsonDocument("$sum", 1) }
+        })
+}).ToList();
+        }
+
+        public static List<Analytic> GetApplicationAnalytics(DateTime after, int skip = 0, int take = 50)
+        {
+            return analyticsCollection.Aggregate<Analytic>(new BsonDocument[]
+{
+    new BsonDocument("$match",
+    new BsonDocument
+        {
+            { "reported",
+    new BsonDocument("$gte",
+    after) }
+        }),
+    new BsonDocument("$group",
+    new BsonDocument
+        {
+            { "_id",
+    new BsonDocument("id", "$parentId") },
+            { "parentId",
+    new BsonDocument("$first", "$parentId") },
+            { "applicationName",
+    new BsonDocument("$first", "$applicationName") },
+            { "count",
+    new BsonDocument("$sum", 1) }
+        })
+}).ToEnumerable().OrderByDescending(x => x.count).Skip(skip).Take(take).ToList();
         }
 
         public static long CountDataDocuments()
