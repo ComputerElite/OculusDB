@@ -826,7 +826,7 @@ function InIframe () {
 
 function DownloadID(id) {
     window.open(GetDownloadLink(id), "_blank")
-    fetch("/api/v1/reportdownload", {
+    fetch("/api/v1/reportdownload?time=" + Date.now(), {
         method: "POST",
         body: JSON.stringify({
             id: id
