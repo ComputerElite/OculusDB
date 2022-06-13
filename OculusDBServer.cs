@@ -520,7 +520,7 @@ namespace OculusDB
             server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true);
             server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
             {
-                request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "api.json").Replace("\n", ""), "text/html", 200);
+                request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "api.json").Replace("\n", ""), "application/json", 200);
                 return true;
             }), true, true, true, true);
         }
