@@ -89,9 +89,8 @@
             }).catch(err => {
                 if(err == 404) {
                     PopUp(`
-                        <div>The item has not been found on OculusDB. This may be an database issue and should be resolved automatically within the next day. Do you want to try another website?</div>
-                        <input type="button" value="Yes" onclick="window.location.href = 'https://computerelite.github.io/tools/Oculus/AppVersions.html?id=${id}'">
-                        <input type="button" value="No" onclick="ClosePopUp()">
+                        <div>The item has not been found on OculusDB. If the app you wanted to view exists it'll be attempted to scrape it and you may see the app within the next minutes.</div>
+                        <input type="button" value="Ok" onclick="ClosePopUp()">
                     `)
                 } else if(err == 500) {
                     alert("Internal Server error")

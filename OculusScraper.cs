@@ -42,6 +42,7 @@ namespace OculusDB
 
         public static void AddApp(string id, Headset headset)
         {
+            Logger.Log("adding " + id, LoggingType.Important);
             for(int i = 0; i< priorityScrapeApps.Count; i++)
             {
                 // Doesn't seem to work. Look into it dumb CE
@@ -441,7 +442,7 @@ namespace OculusDB
                 e.publisherName = a.publisher_name;
                 e.displayName = a.displayName;
                 if(a.baseline_offer != null) e.priceOffset = a.baseline_offer.price.offset_amount;
-                if (a.current_offer != null) e.priceFormatted = FormatPrice(e.priceOffsetNumerical, a.current_offer.price.currency);
+                if (a.current_offer != null && a.current_offer.price != null) e.priceFormatted = FormatPrice(e.priceOffsetNumerical, a.current_offer.price.currency);
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
@@ -498,7 +499,7 @@ namespace OculusDB
                 }
             }
             MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
-            if (d.data.node.latest_supported_binary.firstIapItems != null)
+            if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
             {
                 foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
                 {

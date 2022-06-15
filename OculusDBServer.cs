@@ -280,6 +280,7 @@ namespace OculusDB
                 if(d.Count <= 0)
                 {
                     request.SendString("{}", "application/json", 404);
+                    OculusScraper.AddApp(request.pathDiff, Headset.RIFT);
                     return true;
                 }
                 request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
