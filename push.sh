@@ -1,5 +1,5 @@
 echo replacing frontend dir with the one from Debug
-cp -R bin/Debug/net6.0/frontend frontend
+cp -R bin/Debug/net6.0/frontend ./
 
 read -p "Changelog: " changelog
 echo Pushing to GitHub
