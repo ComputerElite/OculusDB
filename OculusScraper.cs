@@ -498,6 +498,7 @@ namespace OculusDB
                     }
                 }
             }
+            MongoDBInteractor.AddApplication(a, headset, id.image, packageName);
             MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
             if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
             {
@@ -574,8 +575,6 @@ namespace OculusDB
                     }
                 }
             }
-                
-            MongoDBInteractor.AddApplication(a, headset, id.image, packageName);
             DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
             DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
             priceChange.parentApplication.id = a.id;

@@ -25,7 +25,7 @@ echo Changelog:
 echo .
 echo $changelog\\nFull changes: https://github.com/ComputerElite/OculusDB/commit/$id
 
-#start "" https://oculusdb.rui2015.me/admin
+google-chrome "https://oculusdb.rui2015.me/admin"
 cd ..
 cd ..
 cd ..
