@@ -119,6 +119,13 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
                 return true;
             }));
+            server.AddRoute("POST", "/api/v1/reportentitlements", new Func<ServerRequest, bool>(request =>
+            {
+                FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "entitlements");
+                File.WriteAllText(OculusDBEnvironment.dataDir + "entitlements" + Path.DirectorySeparatorChar + DateTime.Now.Ticks + ".json", request.bodyString);
+                request.SendString("Saved entitlements");
+                return true;
+            }));
             server.AddRoute("GET", "/api/v1/applicationanalytics/", new Func<ServerRequest, bool>(request =>
             {
                 DateTime after = DateTime.Parse(request.queryString.Get("after") ?? DateTime.MinValue.ToString());
