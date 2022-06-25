@@ -10,6 +10,26 @@
     font-size: 1rem;
 }
 
+.leftBottom {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: var(--hightlightColorIntense);
+    border-radius: 5px;
+    padding: 5px;
+    animation: popin 2s;
+}
+
+@keyframes popin {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 /* For icons but it's weird so I won't do em for now */
 .iconColor1 {
     transition: 0.2s ease-in-out;
