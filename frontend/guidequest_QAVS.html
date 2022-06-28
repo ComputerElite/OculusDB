@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Downgrade guide Quest - OculusDB</title>
+        <meta property="og:title" content="Downgrade guide Quest - OculusDB">
+        <meta property="og:description" content="A guide to downgrade your quest games with a pc">
+    </head>
+    <body>
+        <div class="content">
+            <h2>Downgrading games</h2>
+            
+            <h3>1. Install Sidequest</h3>
+            Follow <a href="https://sidequestvr.com/setup-howto">this guide</a> install SideQuest to your vr headset.
+
+            <h3>2. Install QuestAppVersionSwitcher</h3>
+            After settings up SideQuest search for <code>QuestAppVersionSwitcher</code> and install it to your headset.
+
+            <h3>3. Set up QuestAppVersionSwitcher</h3>
+            In order to downgrade games you have to log in to your Facebook account on QuestAppVersionSwitcher.
+            To do that open the <code>Tools & Options</code> tab in QuestAppVersionSwitcher and press the Login button.
+            Log in to your Facebook account like you would normally.
+            
+            <h3>4. Download the downgraded game</h3>
+            After you logged in go to the <code>Downgrade</code> tab in QuestAppVersionSwitcher.
+            Search for the game you want to downgrade and press the Download button on a version you want.
+            The download should start and you'll see the progress of the download in the <code>Download progress</code> tab.
+
+            <h4>5. Install the Downgraded game</h4>
+            <h5>5.1 Select the right app</h5>
+            <b>After</b> the download finished, go to the <code>Backups</code> tab in QuestAppVersionSwitcher and press the <code>Change app</code> button at the top to select the app you downgraded.
+            <br>
+            <b>Unsure what to select? Type the games name into this box and hit the Show me the name button</b>
+            <br>
+            <input type="text" placeholder="Game name" id="game">
+            <input type="button" value="Show me the name" onclick="SearchGame()">
+            <div class="textbox" id="text"></div>
+            <div id="res"></div>
+            <h5>5.2 Install the game</h5>
+            From the list of backups select the version you just downloaded. Click the <code>Restore button</code> and follow the provided steps.
+
+            <h4>6. Have fun</h4>
+            You can now play the downgraded game. If you need help join the <a href="{BSLGDC}">Beat Saber Legacy Group Discord Server</a> and ask for help there.
+            
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            document.getElementById("game").value = params.get("game") ?? ""
+            if(params.get("game")) {
+                SearchGame()
+            }
+
+            function SearchGame() {
+                var game = document.getElementById("game").value
+                const ress = document.getElementById("res")
+                if(game) {
+                    var app = null
+                    ress.innerHTML = loader
+                    HideTextBox("text")
+                    fetch("/api/v1/search/" + game + "?headsets=HOLLYWOOD,MONTEREY,PACIFIC,GEARVR").then(res => {
+                        res.json().then(res => {
+                            var results = {l: 100000, id: 0}
+                            res.forEach(x => {
+                                if(x.displayName.length < results.l) {
+                                    results.l = x.displayName.length
+                                    results.packageName = x.packageName
+                                    results.name = x.displayName
+                                }
+                            })
+                            if(!results.packageName) {
+                                TextBoxError("text", "No app with this name could be found. Try a different one.")
+                                return
+                            }
+                            ress.innerHTML = `<u>To select <code>${results.name}</code> choose <code>${results.packageName}</code> in the list of apps</u>`
+                            
+                        })
+                    })
+                } else {
+                    TextBoxError("text", "Please put in a game before searching.")
+                }
+            }
+        </script>
+    </body>
+</html>

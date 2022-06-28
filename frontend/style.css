@@ -11,7 +11,7 @@
 }
 
 .leftBottom {
-    position: absolute;
+    position: fixed;
     bottom: 10px;
     right: 10px;
     background-color: var(--hightlightColorIntense);
@@ -28,6 +28,10 @@
     100% {
         opacity: 1;
     }
+}
+
+.big {
+    font-size: 1.5em !important;
 }
 
 /* For icons but it's weird so I won't do em for now */
@@ -86,6 +90,16 @@ h3 {
 
 h4 {
     color: var(--highlightedColor);
+}
+
+h5 {
+    color: var(--highlightedColor);
+    margin-bottom: 0px;
+}
+
+h6 {
+    color: var(--highlightedColor);
+    margin-bottom: 0px;
 }
 
 .textbox {
@@ -163,7 +177,6 @@ button {
     display: none;
     padding: 6px 12px;
 }
-
 
 
 .content {
