@@ -529,7 +529,9 @@ namespace OculusDB
             server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true);
             server.AddRouteFile("/guide/quest/pc", "frontend" + Path.DirectorySeparatorChar + "guidequest_PC.html", replace, true, true, true);
             server.AddRouteFile("/guide/quest/qavs", "frontend" + Path.DirectorySeparatorChar + "guidequest_QAVS.html", replace, true, true, true);
-
+            server.AddRouteFile("/guide/quest/sqq", "frontend" + Path.DirectorySeparatorChar + "guidequest_SQQ.html", replace, true, true, true);
+            server.AddRouteFile("/assets/sq.png", "frontend" + Path.DirectorySeparatorChar + "sq.png", true, true, true);
+            
             server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true);
             server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
             {
