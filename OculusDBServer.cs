@@ -28,6 +28,7 @@ namespace OculusDB
     {
         public HttpServer server = null;
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
+        public static bool isBlocked = true;
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
@@ -49,6 +50,21 @@ namespace OculusDB
         public bool IsUserAdmin(ServerRequest request, bool send403 = true)
         {
             return GetToken(request, send403) == config.masterToken;
+        }
+
+        public bool DoesUserHaveAccess(ServerRequest request)
+        {
+            if (!isBlocked) return true;
+            Cookie code = request.cookies["access"];
+            Logger.Log(config.accesscode);
+            if (code == null || code.Value != config.accesscode)
+            {
+                Logger.Log("blocked");
+                request.Redirect("/blocked");
+                return false;
+            }
+            Logger.Log("not blocked");
+            return true;
         }
 
         public static string FormatException(Exception e)
@@ -102,7 +118,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
+            server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -137,6 +153,11 @@ namespace OculusDB
                 {
                     request.SendString("{}", "application/json");
                 }
+                return true;
+            }));
+            server.AddRoute("POST", "/api/v1/checkaccess", new Func<ServerRequest, bool>(request =>
+            {
+                request.SendString((config.accesscode == request.bodyString).ToString().ToLower());
                 return true;
             }));
             server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
@@ -200,29 +221,15 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(m), "application/json");
                 return true;
             }));
-
-
-            ///////////////////// BLOCK OCULUSDB HERE
-            if (true)
-            {
-                // Block entire OculusDB
-                server.AddRoute("GET", "/", new Func<ServerRequest, bool>(request =>
-                {
-                    request.SendFile("frontend" + Path.DirectorySeparatorChar + "blocked.html", replace);
-                    return true;
-                }), true, true, true, true);
-                return;
-            }
-
-
-            ////////// CONTINUE NORMAL STUFF
             server.AddRoute("POST", "/api/v1/reportdownload", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
                 return true;
             }));
             server.AddRoute("POST", "/api/v1/reportentitlements", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "entitlements");
                 File.WriteAllText(OculusDBEnvironment.dataDir + "entitlements" + Path.DirectorySeparatorChar + DateTime.Now.Ticks + ".json", request.bodyString);
                 request.SendString("Saved entitlements");
@@ -230,6 +237,7 @@ namespace OculusDB
             }));
             server.AddRoute("GET", "/api/v1/applicationanalytics/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 DateTime after = DateTime.Parse(request.queryString.Get("after") ?? DateTime.MinValue.ToString());
                 int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
                 if (count > 1000) count = 1000;
@@ -247,6 +255,7 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/explore/", "/api/v1/explore/");
             server.AddRoute("GET", "/api/v1/explore/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 try
                 {
                     int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
@@ -291,6 +300,7 @@ namespace OculusDB
             }));
             server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 WebClient webClient = new WebClient();
                 webClient.Headers.Add("origin", "https://oculus.com");
                 try
@@ -317,7 +327,8 @@ namespace OculusDB
             }));
             server.AddRoute("GET", "/applicationspecific/", new Func<ServerRequest, bool>(request =>
             {
-                if(!(new Regex(@"^[0-9]+$").IsMatch(request.pathDiff)))
+                if (!DoesUserHaveAccess(request)) return true;
+                if (!(new Regex(@"^[0-9]+$").IsMatch(request.pathDiff)))
                 {
                     request.SendString("Only application ids are allowed", "text/plain", 400);
                     return true;
@@ -334,6 +345,7 @@ namespace OculusDB
             
             server.AddRoute("GET", "/api/v1/allapps", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 List<DBApplication> apps = new List<DBApplication>();
                 foreach(BsonDocument d in MongoDBInteractor.GetAllApplications())
                 {
@@ -344,6 +356,7 @@ namespace OculusDB
             }), false, true, true, true);
             server.AddRoute("GET", "/api/v1/packagename/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 List<BsonDocument> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff);
                 if (d.Count <= 0)
                 {
@@ -356,6 +369,7 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/id/", "/api/v1/id/", true);
             server.AddRoute("GET", "/api/v1/id/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff);
                 if(d.Count <= 0)
                 {
@@ -372,6 +386,7 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/connected/", "/api/v1/connected/", true);
             server.AddRoute("GET", "/api/v1/connected/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
                 request.SendString(JsonSerializer.Serialize(connected), "application/json");
                 // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
@@ -387,6 +402,7 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/search/", "/api/v1/search/", true);
             server.AddRoute("GET", "/api/v1/search/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 List<Headset> headsets = new List<Headset>();
                 foreach(string h in (request.queryString.Get("headsets") ?? "MONTEREY,RIFT,PACIFIC,GEARVR").Split(','))
                 {
@@ -410,12 +426,14 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/dlcs/", "/api/v1/dlcs/", true);
             server.AddRoute("GET", "/api/v1/dlcs/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetDLCs(request.pathDiff)), "application/json");
                 return true;
             }), true, true, true, true, 360); // 6 mins
             server.AddRouteRedirect("GET", "/api/pricehistory/", "/api/v1/pricehistory/", true);
             server.AddRoute("GET", "/api/v1/pricehistory/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 List<dynamic> changes = new List<dynamic>();
                 foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff)) changes.Add(ObjectConverter.ConvertToDBType(d));
                 request.SendString(JsonSerializer.Serialize(changes), "application/json");
@@ -424,6 +442,7 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/activity/", "/api/v1/activity/");
             server.AddRoute("GET", "/api/v1/activity/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 try
                 {
                     int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
@@ -454,6 +473,7 @@ namespace OculusDB
             server.AddRouteRedirect("GET", "/api/activityid/", "/api/v1/activityid/", true);
             server.AddRoute("GET", "/api/v1/activityid/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 List<BsonDocument> d = MongoDBInteractor.GetActivityById(request.pathDiff);
                 if (d.Count <= 0)
                 {
@@ -465,23 +485,27 @@ namespace OculusDB
             }), true, true, true, true);
             server.AddRoute("GET", "/api/serverconsole", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 if (!IsUserAdmin(request)) return true;
                 request.SendString(Logger.log);
                 return true;
             }));
             server.AddRoute("GET", "/api/config", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 if (!IsUserAdmin(request)) return true;
                 request.SendString(JsonSerializer.Serialize(config));
                 return true;
             }));
             server.AddRoute("GET", "/api/v1/updates", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 request.SendString(JsonSerializer.Serialize(config.updates.Take(200)));
                 return true;
             }));
             server.AddRoute("GET", "/api/v1/database", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 DBInfo info = new DBInfo();
                 info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
                 info.lastUpdated = config.lastDBUpdate;
@@ -494,6 +518,7 @@ namespace OculusDB
             }));
             server.AddRoute("POST", "/api/config", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 if (!IsUserAdmin(request)) return true;
                 config = JsonSerializer.Deserialize<Config>(request.bodyString);
                 config.Save();
@@ -502,6 +527,7 @@ namespace OculusDB
             }));
             server.AddRoute("GET", "/cdn/images/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 if (!(new Regex(@"^[0-9]+$").IsMatch(request.pathDiff)))
                 {
                     request.SendString("Only application ids are allowed", "text/plain", 400);
@@ -510,54 +536,77 @@ namespace OculusDB
                 request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".jpg");
                 return true;
             }), true, true, true, true, 1800); // 30 mins
-            server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true);
-            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true);
-            server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true);
+
+            ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
+            Func<ServerRequest, bool> accessCheck = new Func<ServerRequest, bool>(request =>
+            {
+                return DoesUserHaveAccess(request);
+            });
+
+            server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true, accessCheck);
             
-            server.AddRouteFile("/downloadstats", "frontend" + Path.DirectorySeparatorChar + "downloadstats.html", replace, true, true, true);
-            server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace, true, true, true);
-            server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png", true, true, true);
-            server.AddRouteFile("/notfound.jpg", "frontend" + Path.DirectorySeparatorChar + "notfound.jpg", true, true, true);
-            server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png", true, true, true);
-            server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html", replace, true, true, true);
+            server.AddRouteFile("/downloadstats", "frontend" + Path.DirectorySeparatorChar + "downloadstats.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png", true, true, true, accessCheck);
+            server.AddRouteFile("/notfound.jpg", "frontend" + Path.DirectorySeparatorChar + "notfound.jpg", true, true, true, accessCheck);
+            server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png", true, true, true, accessCheck);
+            server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html", replace, true, true, true, accessCheck);
             
             server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 if (!IsUserAdmin(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "console.html"), "text/html", 200, replace);
                 return true;
             }), true, true, true);
             server.AddRoute("GET", "/id/", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "id.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
             }), true, true, true, true);
             server.AddRoute("GET", "/activity", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "activity.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
                 return true;
             }), true, true, true, true);
-            server.AddRouteFile("/explore", "frontend" + Path.DirectorySeparatorChar + "explore.html", replace, true, true, true);
-            server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace, true, true, true);
-            server.AddRouteFile("/api/docs", "frontend" + Path.DirectorySeparatorChar + "api.html", replace, true, true, true);
-            server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true);
-            server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true);
+            server.AddRouteFile("/explore", "frontend" + Path.DirectorySeparatorChar + "explore.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/api/docs", "frontend" + Path.DirectorySeparatorChar + "api.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true, accessCheck);
 
             // for all the annoying people out there4
             server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
 
-            server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true);
-            server.AddRouteFile("/guide/quest/pc", "frontend" + Path.DirectorySeparatorChar + "guidequest_PC.html", replace, true, true, true);
-            server.AddRouteFile("/guide/quest/qavs", "frontend" + Path.DirectorySeparatorChar + "guidequest_QAVS.html", replace, true, true, true);
-            server.AddRouteFile("/guide/quest/sqq", "frontend" + Path.DirectorySeparatorChar + "guidequest_SQQ.html", replace, true, true, true);
-            server.AddRouteFile("/assets/sq.png", "frontend" + Path.DirectorySeparatorChar + "sq.png", true, true, true);
+            server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/guide/quest/pc", "frontend" + Path.DirectorySeparatorChar + "guidequest_PC.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/guide/quest/qavs", "frontend" + Path.DirectorySeparatorChar + "guidequest_QAVS.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/guide/quest/sqq", "frontend" + Path.DirectorySeparatorChar + "guidequest_SQQ.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/assets/sq.png", "frontend" + Path.DirectorySeparatorChar + "sq.png", true, true, true, accessCheck);
             
-            server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true);
+            server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true, accessCheck);
             server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
             {
+                if (!DoesUserHaveAccess(request)) return true;
                 request.SendString(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "api.json").Replace("\n", ""), "application/json", 200);
                 return true;
             }), true, true, true, true);
+
+            ///////////////////// BLOCK OCULUSDB HERE
+            if (isBlocked)
+            {
+                // Block entire OculusDB
+                server.AddRoute("GET", "/blocked", new Func<ServerRequest, bool>(request =>
+                {
+                    request.SendFile("frontend" + Path.DirectorySeparatorChar + "blocked.html", replace);
+                    return true;
+                }), true, true, true, true);
+                //return;
+            }
         }
     }
 }

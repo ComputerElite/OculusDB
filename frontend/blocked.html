@@ -22,5 +22,29 @@
                 At this point in time I do not know. I'll try to open OculusDB as soon as possible. This could be in a few minutes, hours or more than a day.
             </div>
         </div>
+        <script>
+            const params = new URLSearchParams(window.location.search)
+            if(params.get("access")) {
+                fetch("/api/v1/checkaccess", {
+                    method: "POST",
+                    body: params.get("access")
+                }).then(res => {
+                    res.text().then(res => {
+                        if(res == "true") {
+                            // set cookie. Available for 10 days
+                            SetCookie("access", params.get("access"), 10)
+                            location.href = "/?access=" + params.get("access")
+                        }
+                    })
+                })
+            }
+
+            function SetCookie(name, value, expiration) {
+                var d = new Date();
+                d.setTime(d.getTime() + (expiration * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            }
+        </script>
     </body>
 </html>

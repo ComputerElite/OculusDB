@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace OculusDB
 {
     public class Config
     {
+        public string accesscode { get; set; } = "";
+
         public string publicAddress { get; set; } = "";
         public string crashPingId { get; set; } = "631189193825058826";
         public int port { get; set; } = 504;
