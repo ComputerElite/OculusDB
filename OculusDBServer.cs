@@ -113,7 +113,96 @@ namespace OculusDB
             OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
+
+            ////////////////// LOGIN AND ADMIN STUFF
+            server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>
+            {
+                try
+                {
+                    LoginRequest loginRequest = JsonSerializer.Deserialize<LoginRequest>(request.bodyString);
+                    LoginResponse response = new LoginResponse();
+                    if (loginRequest.password != config.masterToken)
+                    {
+                        response.status = "This user does not exist";
+                        request.SendString(JsonSerializer.Serialize(response), "application/json");
+                        return true;
+                    }
+                    response.username = "admin";
+                    response.redirect = "/admin";
+                    response.token = config.masterToken;
+                    response.authorized = true;
+                    request.SendString(JsonSerializer.Serialize(response), "application/json");
+                }
+                catch
+                {
+                    request.SendString("{}", "application/json");
+                }
+                return true;
+            }));
+            server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
+            {
+                try
+                {
+                    string token = request.queryString.Get("token") ?? "";
+                    LoginResponse response = new LoginResponse();
+                    if (token != config.masterToken)
+                    {
+                        response.status = "This user does not exist";
+                        request.SendString(JsonSerializer.Serialize(response), "application/json");
+                        return true;
+                    }
+                    response.username = "admin";
+                    response.redirect = "/admin";
+                    response.authorized = true;
+                    request.SendString(JsonSerializer.Serialize(response), "application/json");
+                }
+                catch
+                {
+                    request.SendString("{}", "application/json");
+                }
+                return true;
+            }));
+            server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
+            {
+                if (!IsUserAdmin(request)) return true;
+                request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html", 200, replace);
+                return true;
+            }), true, true, true);
+            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true);
             server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
+            server.AddRoute("POST", "/api/updateserver/", new Func<ServerRequest, bool>(request =>
+            {
+                if (!IsUserAdmin(request)) return true;
+                Update u = new Update();
+                u.changelog = request.queryString.Get("changelog");
+                config.updates.Insert(0, u);
+                config.Save();
+                request.SendString("Starting update");
+                Updater.StartUpdateNetApp(request.bodyBytes, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+                return true;
+            }));
+            server.AddRoute("POST", "/api/restartserver/", new Func<ServerRequest, bool>(request =>
+            {
+                if (!IsUserAdmin(request)) return true;
+                request.SendString("Restarting");
+                Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+                return true;
+            }));
+            server.AddRoute("GET", "/api/servermetrics/", new Func<ServerRequest, bool>(request =>
+            {
+                if (!IsUserAdmin(request)) return true;
+                ServerMetrics m = new ServerMetrics();
+                Process currentProcess = Process.GetCurrentProcess();
+                m.ramUsage = currentProcess.WorkingSet64;
+                m.ramUsageString = SizeConverter.ByteSizeToString(m.ramUsage);
+                m.workingDirectory = OculusDBEnvironment.workingDir;
+                m.test = Updater.GetBaseDir();
+                request.SendString(JsonSerializer.Serialize(m), "application/json");
+                return true;
+            }));
+
+
+            ///////////////////// BLOCK OCULUSDB HERE
             if (true)
             {
                 // Block entire OculusDB
@@ -124,6 +213,9 @@ namespace OculusDB
                 }), true, true, true, true);
                 return;
             }
+
+
+            ////////// CONTINUE NORMAL STUFF
             server.AddRoute("POST", "/api/v1/reportdownload", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
@@ -239,36 +331,7 @@ namespace OculusDB
                 request.SendString("No special utilities available", "text/plain", 404);
                 return true;
             }), true, true, true, true);
-            server.AddRoute("POST", "/api/updateserver/", new Func<ServerRequest, bool>(request =>
-            {
-                if(!IsUserAdmin(request)) return true;
-                Update u = new Update();
-                u.changelog = request.queryString.Get("changelog");
-                config.updates.Insert(0, u);
-                config.Save();
-                request.SendString("Starting update");
-                Updater.StartUpdateNetApp(request.bodyBytes, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
-                return true;
-            }));
-            server.AddRoute("POST", "/api/restartserver/", new Func<ServerRequest, bool>(request =>
-            {
-                if (!IsUserAdmin(request)) return true;
-                request.SendString("Restarting");
-                Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
-                return true;
-            }));
-            server.AddRoute("GET", "/api/servermetrics/", new Func<ServerRequest, bool>(request =>
-            {
-                if (!IsUserAdmin(request)) return true;
-                ServerMetrics m = new ServerMetrics();
-                Process currentProcess = Process.GetCurrentProcess();
-                m.ramUsage = currentProcess.WorkingSet64;
-                m.ramUsageString = SizeConverter.ByteSizeToString(m.ramUsage);
-                m.workingDirectory = OculusDBEnvironment.workingDir;
-                m.test = Updater.GetBaseDir();
-                request.SendString(JsonSerializer.Serialize(m), "application/json");
-                return true;
-            }));
+            
             server.AddRoute("GET", "/api/v1/allapps", new Func<ServerRequest, bool>(request =>
             {
                 List<DBApplication> apps = new List<DBApplication>();
@@ -400,53 +463,6 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 return true; 
             }), true, true, true, true);
-            server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>
-            {
-                try
-                {
-                    LoginRequest loginRequest = JsonSerializer.Deserialize<LoginRequest>(request.bodyString);
-                    LoginResponse response = new LoginResponse();
-                    if (loginRequest.password != config.masterToken)
-                    {
-                        response.status = "This user does not exist";
-                        request.SendString(JsonSerializer.Serialize(response), "application/json");
-                        return true;
-                    }
-                    response.username = "admin";
-                    response.redirect = "/admin";
-                    response.token = config.masterToken;
-                    response.authorized = true;
-                    request.SendString(JsonSerializer.Serialize(response), "application/json");
-                }
-                catch
-                {
-                    request.SendString("{}", "application/json");
-                }
-                return true;
-            }));
-            server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
-            {
-                try
-                {
-                    string token = request.queryString.Get("token") ?? "";
-                    LoginResponse response = new LoginResponse();
-                    if (token != config.masterToken)
-                    {
-                        response.status = "This user does not exist";
-                        request.SendString(JsonSerializer.Serialize(response), "application/json");
-                        return true;
-                    }
-                    response.username = "admin";
-                    response.redirect = "/admin";
-                    response.authorized = true;
-                    request.SendString(JsonSerializer.Serialize(response), "application/json");
-                }
-                catch
-                {
-                    request.SendString("{}", "application/json");
-                }
-                return true;
-            }));
             server.AddRoute("GET", "/api/serverconsole", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
@@ -497,19 +513,14 @@ namespace OculusDB
             server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true);
             server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true);
             server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true);
-            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true);
+            
             server.AddRouteFile("/downloadstats", "frontend" + Path.DirectorySeparatorChar + "downloadstats.html", replace, true, true, true);
             server.AddRouteFile("/search", "frontend" + Path.DirectorySeparatorChar + "search.html", replace, true, true, true);
             server.AddRouteFile("/logo", "frontend" + Path.DirectorySeparatorChar + "logo.png", true, true, true);
             server.AddRouteFile("/notfound.jpg", "frontend" + Path.DirectorySeparatorChar + "notfound.jpg", true, true, true);
             server.AddRouteFile("/favicon.ico", "frontend" + Path.DirectorySeparatorChar + "favicon.png", true, true, true);
             server.AddRouteFile("/privacy", "frontend" + Path.DirectorySeparatorChar + "privacy.html", replace, true, true, true);
-            server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
-            {
-                if (!IsUserAdmin(request)) return true;
-                request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html", 200, replace);
-                return true;
-            }), true, true, true);
+            
             server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
