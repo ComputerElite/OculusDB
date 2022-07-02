@@ -113,7 +113,17 @@ namespace OculusDB
             OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
-
+            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
+            if (true)
+            {
+                // Block entire OculusDB
+                server.AddRoute("GET", "/", new Func<ServerRequest, bool>(request =>
+                {
+                    request.SendFile("frontend" + Path.DirectorySeparatorChar + "blocked.html", replace);
+                    return true;
+                }), true, true, true, true);
+                return;
+            }
             server.AddRoute("POST", "/api/v1/reportdownload", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
@@ -518,7 +528,6 @@ namespace OculusDB
             }), true, true, true, true);
             server.AddRouteFile("/explore", "frontend" + Path.DirectorySeparatorChar + "explore.html", replace, true, true, true);
             server.AddRouteFile("/script.js", "frontend" + Path.DirectorySeparatorChar + "script.js", replace, true, true, true);
-            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
             server.AddRouteFile("/api/docs", "frontend" + Path.DirectorySeparatorChar + "api.html", replace, true, true, true);
             server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true);
             server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true);
