@@ -26,13 +26,6 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 </div>
 </div>`
 
-var navBarOpen = false
-document.getElementById("navBarToggle").onclick = e => {
-    navBarOpen = !navBarOpen
-    document.getElementById("navBarToggle").classList.toggle("rotate", navBarOpen)
-    document.getElementById("navBarContent").classList.toggle("visible", navBarOpen)
-}
-
 const loader = `<div class="centerIt">
 <div class="loader"></div>
 </div>`
@@ -58,12 +51,29 @@ const contextMenu = `
 
 </div>`
 
-// add survey
-document.body.innerHTML += `<div class="leftBottom" id="surveyPopup">
-Mind taking a minute to give feedback on OculusDB and its related programs?
-<input type="button" value="Go to Survey" onclick="window.open('https://forms.gle/CaDYkwFbhTTw7LnNA', '_blank')">
-<input type="button" value="Close popup" onclick="document.getElementById('surveyPopup').remove()">
-</div>`
+const params = new URLSearchParams(window.location.search)
+if(params.get("isqavs")) localStorage.isQAVS = "true"
+// Add analytics
+if(!localStorage.isQAVS) {
+    var script = document.createElement("script")
+    script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
+    document.head.appendChild(script)
+
+    // add survey
+    document.body.innerHTML += `<div class="leftBottom" id="surveyPopup">
+    Mind taking a minute to give feedback on OculusDB and its related programs?
+    <input type="button" value="Go to Survey" onclick="window.open('https://forms.gle/CaDYkwFbhTTw7LnNA', '_blank')">
+    <input type="button" value="Close popup" onclick="document.getElementById('surveyPopup').remove()">
+    </div>`
+}
+
+var navBarOpen = false
+document.getElementById("navBarToggle").onclick = e => {
+    navBarOpen = !navBarOpen
+    document.getElementById("navBarToggle").classList.toggle("rotate", navBarOpen)
+    document.getElementById("navBarContent").classList.toggle("visible", navBarOpen)
+}
+
 
 var newTab = false
 
@@ -198,14 +208,7 @@ document.getElementById("query").onkeydown = e => {
         Search("query")
     }
 }
-const params = new URLSearchParams(window.location.search)
-if(params.get("isqavs")) localStorage.isQAVS = "true"
-// Add analytics
-if(!localStorage.isQAVS) {
-    var script = document.createElement("script")
-    script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
-    document.head.appendChild(script)
-}
+
 
 function GetObjectById(id) {
     return new Promise((resolve, reject) => {
@@ -245,7 +248,7 @@ function OpenLocation(tar) {
 }
 
 function GetIdLink(id) {
-    return location.origin + '/id/' + id
+    return location.origin + '/id/' + id + (localStorage.isQAVS ? "?connected=versions" : "")
 }
 
 function GetActivityLink(id) {
