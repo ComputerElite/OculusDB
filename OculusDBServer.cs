@@ -56,7 +56,8 @@ namespace OculusDB
         {
             if (!isBlocked) return true;
             Cookie code = request.cookies["access"];
-            if ((code == null || code.Value != config.accesscode) && !request.context.Request.UserAgent.Contains("QAVS/1.0"))
+            Logger.Log(config.accesscode);
+            if (code == null || code.Value != config.accesscode)
             {
                 Logger.Log("blocked");
                 request.Redirect("/blocked");
@@ -117,7 +118,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
+            server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -125,7 +126,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -581,11 +582,11 @@ namespace OculusDB
             // for all the annoying people out there4
             server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
 
-            server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true);
+            server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/guide/quest/pc", "frontend" + Path.DirectorySeparatorChar + "guidequest_PC.html", replace, true, true, true, accessCheck);
-            server.AddRouteFile("/guide/quest/qavs", "frontend" + Path.DirectorySeparatorChar + "guidequest_QAVS.html", replace, true, true, true);
-            server.AddRouteFile("/guide/quest/sqq", "frontend" + Path.DirectorySeparatorChar + "guidequest_SQQ.html", replace, true, true, true);
-            server.AddRouteFile("/assets/sq.png", "frontend" + Path.DirectorySeparatorChar + "sq.png", true, true, true);
+            server.AddRouteFile("/guide/quest/qavs", "frontend" + Path.DirectorySeparatorChar + "guidequest_QAVS.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/guide/quest/sqq", "frontend" + Path.DirectorySeparatorChar + "guidequest_SQQ.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/assets/sq.png", "frontend" + Path.DirectorySeparatorChar + "sq.png", true, true, true, accessCheck);
             
             server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true, accessCheck);
             server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
