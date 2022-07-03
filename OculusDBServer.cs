@@ -54,9 +54,8 @@ namespace OculusDB
 
         public bool DoesUserHaveAccess(ServerRequest request)
         {
-            if (!isBlocked) return true;
+            if (!isBlocked || DateTime.UtcNow >= new DateTime(2022, 7, 7, 15, 0, 0, DateTimeKind.Utc)) return true;
             Cookie code = request.cookies["access"];
-            Logger.Log(config.accesscode);
             if (code == null || code.Value != config.accesscode)
             {
                 Logger.Log("blocked");
