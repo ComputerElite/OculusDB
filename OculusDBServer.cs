@@ -28,7 +28,7 @@ namespace OculusDB
     {
         public HttpServer server = null;
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
-        public static bool isBlocked = true;
+        public static bool isBlocked = false;
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
@@ -117,7 +117,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            server.DefaultCacheValidityInSeconds = 0;
+            //server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
