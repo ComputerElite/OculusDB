@@ -316,6 +316,7 @@ namespace OculusDB
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
             dba.parentApplication.canonicalName = app.canonicalName;
+            dba.obb = ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary);
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 

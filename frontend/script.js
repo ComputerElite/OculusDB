@@ -721,6 +721,35 @@ function FormatPriceChanged(a, htmlid) {
 </div>`
 }
 
+function GetObb(downloadable, obb, v) {
+    if(!obb) return `none`
+    return `<div class="application">
+    <div class="info">
+        <div class="flex outside">
+        <div class="buttons">
+            ${GetDownloadButtonVersion(downloadable, obb.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+        </div>
+            <div class="flex header" onclick="RevealDescription('${v.id}_${obb.id}')">
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_${obb.id}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${obb.file_name}</div>
+            </div>
+        </div>
+
+        <div class="hidden" id="${v.id}_${obb.id}">
+            <table>
+                <colgroup>
+                    <col width="110em">
+                    <col width="100%">
+                </colgroup>
+                <tr><td class="label">file name</td><td class="value">${obb.file_name}</td></tr>
+                <tr><td class="label">size</td><td class="value">${obb.sizeString}</td></tr>
+                <tr><td class="label">Id</td><td class="value">${obb.id}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>`
+}
+
 function FormatVersion(v, htmlid = "") {
     var releaseChannels = ""
     v.binary_release_channels.nodes.forEach(x => {
@@ -754,6 +783,7 @@ function FormatVersion(v, htmlid = "") {
                 <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
                 <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
                 <tr><td class="label">Changelog</td><td class="value">${GetChangelog(v)}</td></tr>
+                <tr><td class="label">Obb</td><td class="value">${GetObb(downloadable, v.obb, v)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
             </table>
         </div>
