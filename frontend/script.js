@@ -732,13 +732,13 @@ function GetChangelog(version) {
 }
 
 function GetObb(downloadable, obb, v) {
-    if(v.changeLog == null) return "We are working on getting obbs for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
-    if(!obb) return `none`
+    if(!obb) return "We are working on getting obbs for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
+    if(obb.size == 0) return `none`
     return `<div class="application">
     <div class="info">
         <div class="flex outside">
         <div class="buttons">
-            ${GetDownloadButtonVersion(downloadable, obb.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+            ${GetDownloadButtonVersion(downloadable, obb.id, v.parentApplication.hmd, v.parentApplication, v.version, true)}
         </div>
             <div class="flex header" onclick="RevealDescription('${v.id}_${obb.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_${obb.id}_trigger" class="anim noselect">&gt;</div>
@@ -885,14 +885,19 @@ function DownloadID(id) {
     })
 }
 
-function AndroidDownload(id, parentApplicationId,parentApplicationName, version) {
+function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false) {
+    
     if(sendToParent) {
-        SendDataToParent(JSON.stringify({
-            type: "Download",
-            binaryId: id,
-            parentId: parentApplicationId,
-            parentName: parentApplicationName,
-            version: version
+        fetch(`/api/v1/id/${parentApplicationId}`).then(res => res.json().then(res => {
+            SendDataToParent(JSON.stringify({
+                type: "Download",
+                binaryId: id,
+                parentId: parentApplicationId,
+                parentName: parentApplicationName,
+                version: version,
+                isObb: isObb,
+                packageName: res.packageName
+            }))
         }))
     } else {
         if(localStorage.fuckpopups) {
@@ -913,9 +918,9 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version)
     }
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version) {
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName}', '${version}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName}', '${version}', ${isObb})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
