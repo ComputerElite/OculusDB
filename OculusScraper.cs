@@ -460,12 +460,13 @@ namespace OculusDB
                 }
                 AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
 
-                // Preserve changelogs across scrapes by:
+                // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
-                // - If not priority scrape enter changelog of most recent versions
+                // - If not priority scrape enter changelog and obb of most recent versions
                 if(!priority && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
                 {
                     bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
+                    bin.obb_binary = ObjectConverter.ConvertCopy<AssetFile, OBBBinary>(connected.versions.FirstOrDefault(x => x.id == bin.id).obb);
                 }
 
                 MongoDBInteractor.AddVersion(bin, a, headset);
