@@ -42,7 +42,7 @@ namespace OculusDB
 
         public static void AddApp(string id, Headset headset)
         {
-            Logger.Log("adding " + id, LoggingType.Important);
+            Logger.Log("adding " + id + ", priority scrape length: " + priorityScrapeApps.Count, LoggingType.Important);
             for(int i = 0; i< priorityScrapeApps.Count; i++)
             {
                 // Doesn't seem to work. Look into it dumb CE
