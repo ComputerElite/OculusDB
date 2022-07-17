@@ -42,7 +42,7 @@ namespace OculusDB
 
         public static void AddApp(string id, Headset headset)
         {
-            Logger.Log("adding " + id, LoggingType.Important);
+            Logger.Log("adding " + id + ", priority scrape length: " + priorityScrapeApps.Count, LoggingType.Important);
             for(int i = 0; i< priorityScrapeApps.Count; i++)
             {
                 // Doesn't seem to work. Look into it dumb CE
@@ -430,7 +430,7 @@ namespace OculusDB
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
-            Logger.Log("Scraping " + id.id);
+            Logger.Log("Scraping " + id.id, LoggingType.Important);
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
             if (a == null) throw new Exception("Application is null");
@@ -459,7 +459,9 @@ namespace OculusDB
                     packageName = info.data.app_binary_info.info[0].binary.package_name;
                 }
                 AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
-
+                if(priority) {
+                    Logger.Log("Scraping v " + bin.version, LoggingType.Important);
+                }
                 // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
                 // - If not priority scrape enter changelog and obb of most recent versions
