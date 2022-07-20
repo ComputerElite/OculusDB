@@ -55,7 +55,7 @@ namespace OculusDB
             //Logger.Log("Length of priority scrape queue: " + priorityScrapeApps.Count, LoggingType.Important);
             if(priorityScrapeApps.FirstOrDefault(x => x.id == id) == null)
             {
-                priorityScrapeApps.Add(new PriorityScrape { id = id, headset = headset, minNextScrape = DateTime.Now + new TimeSpan(0, 0, 10)});
+                priorityScrapeApps.Add(new PriorityScrape { id = id, headset = headset, minNextScrape = DateTime.Now + new TimeSpan(0, 10, 0)});
                 Logger.Log("added " + id + ", priority scrape length: " + priorityScrapeApps.Count, LoggingType.Important);
                 ScrapeNext();
             }
