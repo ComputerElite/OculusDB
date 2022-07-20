@@ -10,6 +10,10 @@
     font-size: 1rem;
 }
 
+.discordInner {
+    fill: var(--highlightedColor);
+}
+
 .leftBottom {
     position: fixed;
     bottom: 10px;
@@ -329,7 +333,7 @@ code {
 }
 
 /* mobile*/
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1300px) {
     .navBarInnerLeft {
         flex-direction: column;
     }
@@ -366,10 +370,18 @@ code {
         top: 15px;
         right: 20px;
     }
+
+    .navBarMarginLeft {
+        margin-bottom: 35px;
+    }
 }
 
 /* desktop*/
-@media screen and (min-width: 1200px) {
+@media screen and (min-width: 1300px) {
+    .navBarMarginLeft {
+        margin-left: 35px;
+    }
+
     .navBarInnerLeft {
         flex-direction: row;
     }

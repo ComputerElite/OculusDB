@@ -33,7 +33,8 @@ namespace OculusDB
         {
             {"{meta}", "<meta name=\"theme-color\" content=\"#63fac3\">\n<meta property=\"og:site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
             {"{oculusloginlink}", "https://oculus.com/experiences/quest" },
-            {"{BSLGDC}", "https://discord.gg/MrwMx5e" }
+            {"{BSLGDC}", "https://discord.gg/MrwMx5e" },
+            {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" }
         };
 
         public string GetToken(ServerRequest request, bool send403 = true)
@@ -586,7 +587,9 @@ namespace OculusDB
             server.AddRouteFile("/guide/quest/qavs", "frontend" + Path.DirectorySeparatorChar + "guidequest_QAVS.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/guide/quest/sqq", "frontend" + Path.DirectorySeparatorChar + "guidequest_SQQ.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/assets/sq.png", "frontend" + Path.DirectorySeparatorChar + "sq.png", true, true, true, accessCheck);
-            
+            server.AddRouteFile("/assets/discord.svg", "frontend" + Path.DirectorySeparatorChar + "discord.svg", true, true, true, accessCheck);
+
+
             server.AddRouteFile("/guide/rift", "frontend" + Path.DirectorySeparatorChar + "guiderift.html", replace, true, true, true, accessCheck);
             server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
             {

@@ -22,7 +22,8 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
     <a class="underlineAnimation navBarElement" href="/downloadstats">Download stats</a>
-    <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
+    <a class="underlineAnimation navBarElement navBarMarginLeft" href="/guide">Downgrading guide</a>
+    <a class="underlineAnimation navBarElement" style="height: 100%;" href="{OculusDBDC}"><img style="height: 100%;" src="/assets/discord.svg"></a>
 </div>
 </div>`
 
@@ -60,11 +61,13 @@ if(!localStorage.isQAVS) {
     document.head.appendChild(script)
 
     // add survey
+    /*
     document.body.innerHTML += `<div class="leftBottom" id="surveyPopup">
     Mind taking a minute to give feedback on OculusDB and its related programs?
     <input type="button" value="Go to Survey" onclick="window.open('https://forms.gle/CaDYkwFbhTTw7LnNA', '_blank')">
     <input type="button" value="Close popup" onclick="document.getElementById('surveyPopup').remove()">
     </div>`
+    */
 }
 
 var navBarOpen = false
