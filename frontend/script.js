@@ -775,7 +775,7 @@ function FormatVersion(v, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obb == null ? null : v.obb.id)}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -888,42 +888,85 @@ function DownloadID(id) {
     })
 }
 
-function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false) {
-    
+var data = {}
+
+function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false, obbId = "") {
+    data = {
+        type: "Download",
+        binaryId: id,
+        parentId: parentApplicationId,
+        parentName: parentApplicationName,
+        version: version,
+        isObb: isObb,
+        obbId: obbId,
+        downloadLink: GetDownloadLink(id)
+    }
     if(sendToParent) {
         fetch(`/api/v1/id/${parentApplicationId}`).then(res => res.json().then(res => {
-            SendDataToParent(JSON.stringify({
-                type: "Download",
-                binaryId: id,
-                parentId: parentApplicationId,
-                parentName: parentApplicationName,
-                version: version,
-                isObb: isObb,
-                packageName: res.packageName
-            }))
+            data.packageName = res.packageName
+            SendDataToParent(JSON.stringify(data))
+            if(obbId){
+                ObbDownloadPopUp()
+            }
         }))
-    } else {
-        if(localStorage.fuckpopups) {
-            DownloadID(id)
-        } else {
-            PopUp(`
-            <div>
-                To download games you must be logged in on <a href="{oculusloginlink}">{oculusloginlink}</a>. If you aren't logged in you won't be able to download games.
-                <br>
-                <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
-                <div>
-                    <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
-                    <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { window.open(GetDownloadLink('${id}')); ClosePopUp(); }">
-                </div>
-            </div>
-        `)
-        }
+        return
     }
+
+    // Not in iframe which supports downloads
+    if(localStorage.fuckpopups) {
+        DownloadID(id)
+        if(obbId){
+            ObbDownloadPopUp()
+        }
+    } else {
+        PopUp(`
+        <div>
+            To download games you must be logged in on <a href="{oculusloginlink}">{oculusloginlink}</a>. If you aren't logged in you won't be able to download games.
+            <br>
+            <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
+            <div>
+                <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { window.open(GetDownloadLink('${id}')); ClosePopUp();${obbId ? "ObbDownloadPopUp();" : ""} }">
+            </div>
+        </div>
+    `)
+    }
+    if(isObb) {
+        fetch(`/api/v1/id/${data.parentId}`).then(res => res.json().then(res => {
+            data.packageName = res.packageName
+            PopUp(`
+                <div>
+                    For the obb to work you have to copy it to the following directory on your quest. Use SideQuest or another file manager: <code>/Android/obb/${data.packageName}/</code>
+                    <br>
+                    Need help? Join <a href="{OculusDBDC}">The OculusDB Discord server</a>
+                    <br>
+                    <div>
+                        <input type="button" value="OK" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
+                    </div>
+                </div>
+            `)
+        }))
+    }
+   
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false) {
+function ObbDownloadPopUp() {
+    fetch(`/api/v1/id/${data.parentId}`).then(res => res.json().then(res => {
+        PopUp(`
+                <div>
+                    This game requires an obb file (extra files that are required for the game to work). Do you want to download the obb file?
+                    <div>
+                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { AndroidDownload('${data.obbId}', '${data.parentId}', '${data.parentName}', '${data.version}', true, null); ClosePopUp(); }">
+                        <input type="button" value="No" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
+                    </div>
+                </div>
+            `)
+    }))
+}
+
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbId = null) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName}', '${version}', ${isObb})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName}', '${version}', ${isObb}, ${obbId == null ? "null" : `'${obbId}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
