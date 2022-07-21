@@ -41,7 +41,7 @@ namespace OculusDB.Database
         public string id { get; set; } = "";
         public long sizeNumerical
         {
-            get { return int.Parse(size); }
+            get { return long.Parse(size); }
         }
         public string sizeString
         {
