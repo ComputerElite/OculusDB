@@ -76,6 +76,30 @@
     font-size: 18px!important;
 }
 
+.highlight {
+    position: relative;
+}
+
+.highlight::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    content: "";
+    height: 100%;
+    animation: highlightKeyFrames 1s ease-in-out;
+    border-radius: 5px;
+}
+
+@keyframes highlightKeyFrames {
+    0% {
+        background-color: #FDFF4788;
+    }
+    100% {
+        background-color: #FDFF4700;
+    }
+}
+
 b {
     color: var(--highlightedColor);
 }

@@ -52,6 +52,20 @@ const contextMenu = `
 
 </div>`
 
+function HighlightElement(id) {
+    document.getElementById(id).scrollIntoView({
+        behavior: "smooth"
+    })
+    document.getElementById(id).classList.remove("highlight")
+    setTimeout(() => {
+        document.getElementById(id).classList.add("highlight")
+        setTimeout(() => {
+            document.getElementById(id).classList.remove("highlight")
+        }, 4000);
+    }, 0);
+    
+}
+
 const params = new URLSearchParams(window.location.search)
 if(params.get("isqavs")) localStorage.isQAVS = "true"
 // Add analytics
