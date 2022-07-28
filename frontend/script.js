@@ -22,7 +22,8 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
     <a class="underlineAnimation navBarElement" href="/downloadstats">Download stats</a>
-    <a class="underlineAnimation navBarElement navBarMarginLeft" href="/guide">Downgrading guide</a>
+    <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
+    <a class="underlineAnimation navBarElement navBarMarginLeft" href="/supportus">Support us</a>
     <a class="underlineAnimation navBarElement" style="height: 100%;" href="{OculusDBDC}"><img style="height: 100%;" src="/assets/discord.svg"></a>
 </div>
 </div>`

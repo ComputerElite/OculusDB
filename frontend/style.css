@@ -357,7 +357,7 @@ code {
 }
 
 /* mobile*/
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1420px) {
     .navBarInnerLeft {
         flex-direction: column;
     }
@@ -401,7 +401,7 @@ code {
 }
 
 /* desktop*/
-@media screen and (min-width: 1300px) {
+@media screen and (min-width: 1420px) {
     .navBarMarginLeft {
         margin-left: 35px;
     }

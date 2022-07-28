@@ -118,7 +118,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
+            server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -126,7 +126,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            OculusScraper.StartScrapingThread();
+            //OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -578,6 +578,7 @@ namespace OculusDB
             server.AddRouteFile("/api/docs", "frontend" + Path.DirectorySeparatorChar + "api.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true, accessCheck);
             server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/supportus", "frontend" + Path.DirectorySeparatorChar + "supportus.html", replace, true, true, true, accessCheck);
 
             // for all the annoying people out there4
             server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
