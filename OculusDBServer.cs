@@ -118,7 +118,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            server.DefaultCacheValidityInSeconds = 0;
+            //server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -126,7 +126,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -610,6 +610,12 @@ namespace OculusDB
                 }), true, true, true, true);
                 //return;
             }
+
+
+            //// jokes are fun
+            server.AddRouteFile("/cdn/boom.ogg", "frontend" + Path.DirectorySeparatorChar + "assets" + Path.DirectorySeparatorChar + "boom.ogg", true, true, true, accessCheck);
+            server.AddRouteFile("/cdn/modem.ogg", "frontend" + Path.DirectorySeparatorChar + "assets" + Path.DirectorySeparatorChar + "modem.ogg", true, true, true, accessCheck);
+
         }
     }
 }

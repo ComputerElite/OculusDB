@@ -1,4 +1,45 @@
-﻿html {
+﻿/*joke stuff*/
+.flashbang {
+    animation: ease-in-out flashbang 8s;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+@keyframes flashbang {
+    0% {
+        background-color: #00000000;
+        visibility: hidden;
+    }
+    65% {
+        background-color: #00000000;
+        visibility: hidden;
+    }
+    65.000001% {
+        background-color: #FFFFFFFF;
+        visibility: visible;
+    }
+    75% {
+        background-color: #FFFFFFFF;
+        visibility: visible;
+    }
+    95% {
+        background-color: #00000000;
+        visibility: visible;
+    }
+    100% {
+        visibility: hidden;
+    }
+}
+
+
+
+/*end*/
+
+
+html {
     /* background-color: var(--bgColor); */
     background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg');
     background-attachment: fixed;

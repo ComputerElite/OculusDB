@@ -1,4 +1,10 @@
-﻿document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
+﻿var jokeconfig = {
+    flashbang: false,
+    popupad: false,
+    dialupdownload: false
+}
+
+document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
 document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 <div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
@@ -67,6 +73,11 @@ function HighlightElement(id) {
     
 }
 
+function PlaySound(url) {
+    var audio = new Audio(url);
+    audio.play();
+}
+
 const params = new URLSearchParams(window.location.search)
 if(params.get("isqavs")) localStorage.isQAVS = "true"
 // Add analytics
@@ -74,6 +85,31 @@ if(!localStorage.isQAVS) {
     var script = document.createElement("script")
     script.src = "https://analytics.rui2015.me/analytics.js?origin=" + location.origin
     document.head.appendChild(script)
+
+    /// JOKES ///
+    const images = [
+        "https://i.imgur.com/XqQZQ.gif"
+    ]
+
+    if(jokeconfig.flashbang || params.has("flashbang")) {
+        document.body.innerHTML += `<div class="flashbang"></div>`
+    }
+
+    if(jokeconfig.popupad || params.has("popupad")) {
+        setTimeout(() => {
+            PopUp(` <div style="width: 95vw; height: 95vh; position: relative;">
+                        <h1>Ad by our sponsor: Jokes4evabyyourstruely</h1>
+                        <img src="${images[Math.floor(Math.random() * images.length)]}" style="width: 100%; height: 100%;">
+                        <div style="position: absolute; top: 2px; right: 2px; font-size: 16px; color: var(--red); cursor: pointer" onclick="location = 'https://computerelite.github.io/redirect?target=self&random'; ClosePopUp();">X</div>
+                    </div>`)
+            PlaySound("/cdn/boom.ogg")
+        }, 1500);
+    }
+
+    if(params.has("dialupdownload")) {
+        jokeconfig.dialupdownload = true
+    }
+    /// JOKES END
 
     // add survey
     /*
@@ -905,6 +941,43 @@ function DownloadID(id) {
 
 var data = {}
 
+function OpenDownloadWithJokes(id, openObb) {
+    if(jokeconfig.dialupdownload) {
+        PlaySound("/cdn/modem.ogg")
+        TextBoxText("downloadTextBox", "Dialing Oculus")
+        setTimeout(() => {
+            TextBoxText("downloadTextBox", "Asking for entitlement")
+            setTimeout(() => {
+                TextBoxText("downloadTextBox", "Entitlement check cannot be made")
+                setTimeout(() => {
+                    TextBoxText("downloadTextBox", "Can you try again please?")
+                    setTimeout(() => {
+                        TextBoxText("downloadTextBox", "sure")
+                        setTimeout(() => {
+                            TextBoxText("downloadTextBox", "Trying again...")
+                            setTimeout(() => {
+                                TextBoxText("downloadTextBox", "Nope still nothing...")
+                                setTimeout(() => {
+                                    TextBoxText("downloadTextBox", "ok, I give up")
+                                    setTimeout(() => {
+                                        RealDownload(openObb)
+                                    }, 1300);
+                                }, 4200);
+                            }, 7000);
+                        }, 1200);
+                    }, 800);
+                }, 1000);
+            }, 1000);
+        }, 7000);
+    } else RealDownload(id, openObb)
+}
+
+function RealDownload(id, openObb) {
+    window.open(GetDownloadLink(id));
+    ClosePopUp();
+    if(openObb) ObbDownloadPopUp();
+}
+
 function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false, obbId = "") {
     data = {
         type: "Download",
@@ -928,7 +1001,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     }
 
     // Not in iframe which supports downloads
-    if(localStorage.fuckpopups) {
+    if(localStorage.fuckpopups && !jokeconfig.dialupdownload) {
         DownloadID(id)
         if(obbId){
             ObbDownloadPopUp()
@@ -939,9 +1012,10 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
             To download games you must be logged in on <a href="{oculusloginlink}">{oculusloginlink}</a>. If you aren't logged in you won't be able to download games.
             <br>
             <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
+            <div class="textbox" id="downloadTextBox"></div>
             <div>
                 <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { window.open(GetDownloadLink('${id}')); ClosePopUp();${obbId ? "ObbDownloadPopUp();" : ""} }">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbId == true}); }">
             </div>
         </div>
     `)
