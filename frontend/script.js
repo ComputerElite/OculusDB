@@ -78,6 +78,10 @@ function PlaySound(url) {
     audio.play();
 }
 
+function GetRandomBool(trueChance) {
+    return Math.random() * trueChance <= 1 // 1 in x
+}
+
 const params = new URLSearchParams(window.location.search)
 if(params.get("isqavs")) localStorage.isQAVS = "true"
 // Add analytics
@@ -90,6 +94,10 @@ if(!localStorage.isQAVS) {
     const images = [
         "https://i.imgur.com/XqQZQ.gif"
     ]
+
+    if(GetRandomBool(100)) jokeconfig.dialupdownload = true
+    if(GetRandomBool(150)) jokeconfig.flashbang = true
+    if(GetRandomBool(150)) jokeconfig.popupad = true
 
     if(jokeconfig.flashbang || params.has("flashbang")) {
         document.body.innerHTML += `<div class="flashbang"></div>`
@@ -960,7 +968,7 @@ function OpenDownloadWithJokes(id, openObb) {
                                 setTimeout(() => {
                                     TextBoxText("downloadTextBox", "ok, I give up")
                                     setTimeout(() => {
-                                        RealDownload(openObb)
+                                        RealDownload(id, openObb)
                                     }, 1300);
                                 }, 4200);
                             }, 7000);

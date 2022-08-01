@@ -196,13 +196,13 @@
             function DownloadVersionPopUp(version) {
                 var v = GetVersion(version)
                 if(IsHeadsetAndroid(v.parentApplication.hmd)) {
-                    PopUp(`<div>Do you want to Download version ${version}. If the download doesn't start log in on {oculusloginlink}</div>
+                    PopUp(`<div>Do you want to Download version ${version}.</div>
                             <div style="display: flex;">
-                                <input type="button" onclick="DownloadVersion('${version}')" value="Yes">
+                                <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName}', '${v,version}', false)" value="Yes">
                                 <input type="button" onclick="document.getElementById('popup').click()" value="No">
                             </div>`)
                 } else {
-                    PopUp(`<div>Do you want to Download version ${version}. If the download doesn't start log in on {oculusloginlink}</div>
+                    PopUp(`<div>Do you want to Download version ${version}.</div>
                             <div style="display: flex;">
                                 <input type="button" onclick="RiftDownloadPopUp('${v.parentApplication.id}','${v.id}','${v.version}', '${v.parentApplication.displayName.replace("'", "\\'")}')" value="Yes">
                                 <input type="button" onclick="document.getElementById('popup').click()" value="No">
