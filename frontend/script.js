@@ -91,8 +91,13 @@ if(!localStorage.isQAVS) {
     document.head.appendChild(script)
 
     /// JOKES ///
-    const images = [
-        "https://i.imgur.com/XqQZQ.gif"
+    const ads = [
+        {
+            img: "/cdn/BS2.jpg",
+            title: "",
+            xredirect: "",
+            redirect: ""
+        }
     ]
 
     if(GetRandomBool(100)) jokeconfig.dialupdownload = true
@@ -105,10 +110,10 @@ if(!localStorage.isQAVS) {
 
     if(jokeconfig.popupad || params.has("popupad")) {
         setTimeout(() => {
+            var ad = ads[Math.floor(Math.random() * ads.length)]
             PopUp(` <div style="width: 95vw; height: 95vh; position: relative;">
-                        <h1>Ad by our sponsor: Jokes4evabyyourstruely</h1>
-                        <img src="${images[Math.floor(Math.random() * images.length)]}" style="width: 100%; height: 100%;">
-                        <div style="position: absolute; top: 2px; right: 2px; font-size: 16px; color: var(--red); cursor: pointer" onclick="location = 'https://computerelite.github.io/redirect?target=self&random'; ClosePopUp();">X</div>
+                        ${ad.title ? `<img src="${ad.img}" style="width: 100%; height: 100%;" onclick="location = '${ad.redirect ? ad.redirect : `https://computerelite.github.io/redirect?target=self&random`}'">` : ``}
+                        <div style="position: absolute; top: 2px; right: 2px; font-size: 6px; color: var(--red); cursor: pointer" onclick="location = '${ad.xredirect ? ad.xredirect : `https://computerelite.github.io/redirect?target=self&random`}';">X</div>
                     </div>`)
             PlaySound("/cdn/boom.ogg")
         }, 1500);
@@ -493,7 +498,7 @@ function FormatDLC(dlc, htmlid = "") {
                     <col width="100%">
                 </colgroup>
                 ${dlc.downloads ? `<tr><td class="label">Downloads</td><td class="value">${dlc.downloads}</td></tr>` : ""}
-                <tr><td class="label">Description</td><td class="value">${dlc.display_short_description.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Description</td><td class="value">${dlc.display_short_description ? dlc.display_short_description.replace("\n", "<br>") : "no description"}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
                 <tr><td class="label">latest asset file id</td><td class="value">${dlc.latestAssetFileId}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>

@@ -616,6 +616,8 @@ namespace OculusDB
             server.AddRouteFile("/cdn/boom.ogg", "frontend" + Path.DirectorySeparatorChar + "assets" + Path.DirectorySeparatorChar + "boom.ogg", true, true, true, accessCheck);
             server.AddRouteFile("/cdn/modem.ogg", "frontend" + Path.DirectorySeparatorChar + "assets" + Path.DirectorySeparatorChar + "modem.ogg", true, true, true, accessCheck);
 
+            server.AddRouteFile("/cdn/BS2.jpg", "frontend" + Path.DirectorySeparatorChar + "assets" + Path.DirectorySeparatorChar + "BS2.jpg", true, true, true, accessCheck);
+
         }
     }
 }
