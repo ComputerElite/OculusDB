@@ -40,13 +40,6 @@
 
 
 html {
-    /* background-color: var(--bgColor); */
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg');
-    background-attachment: fixed;
-    background-blend-mode: darken;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-color: #111111DD;
     font-family: 'Open Sans';
     font-size: 1rem;
 }
@@ -185,6 +178,13 @@ body {
     margin: 0;
     color: var(--textColor);
     line-height: 1.8;
+    /* background-color: var(--bgColor); */
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg');
+    background-attachment: fixed;
+    background-blend-mode: darken;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #111111DD;
 }
 
 .tabContainer {
