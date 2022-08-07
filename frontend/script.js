@@ -112,7 +112,8 @@ if(!localStorage.isQAVS) {
         setTimeout(() => {
             var ad = ads[Math.floor(Math.random() * ads.length)]
             PopUp(` <div style="width: 95vw; height: 95vh; position: relative;">
-                        ${ad.title ? `<img src="${ad.img}" style="width: 100%; height: 100%;" onclick="location = '${ad.redirect ? ad.redirect : `https://computerelite.github.io/redirect?target=self&random`}'">` : ``}
+                        ${ad.title ? `<h2>${ad.title}</h2>` : ``}
+                        <img src="${ad.img}" style="width: 100%; height: 100%;" onclick="location = '${ad.redirect ? ad.redirect : `https://computerelite.github.io/redirect?target=self&random`}'">
                         <div style="position: absolute; top: 2px; right: 2px; font-size: 6px; color: var(--red); cursor: pointer" onclick="location = '${ad.xredirect ? ad.xredirect : `https://computerelite.github.io/redirect?target=self&random`}';">X</div>
                     </div>`)
             PlaySound("/cdn/boom.ogg")
