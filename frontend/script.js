@@ -582,7 +582,7 @@ function FormatDLCActivity(a, htmlid) {
                     <col width="200em">
                     <col width="100%">
                 </colgroup>
-                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription == null ? "No description available" : a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
                 <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
@@ -613,7 +613,7 @@ function FormatDLCPackActivityDLC(a, i) {
                     <col width="130em">
                     <col width="100%">
                 </colgroup>
-                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription == null ? "No description available" : a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
             </table>
         </div>
@@ -646,7 +646,7 @@ function FormatDLCPackActivity(a, htmlid) {
                     <col width="200em">
                     <col width="100%">
                 </colgroup>
-                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription.replace("\n", "<br>")}</td></tr>
+                <tr><td class="label">Description</td><td class="value">${a.displayShortDescription == null ? "No description available" : a.displayShortDescription.replace("\n", "<br>")}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${a.priceFormatted}</td></tr>
                 <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
