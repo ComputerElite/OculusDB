@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     {meta}
     <link rel="stylesheet" href="/style.css">
     <title>Download stats - OculusDB</title>
-    <meta property="og:title" content="Download stats - OculusDB">
-    <meta property="og:description" content="Shows you which applications have been downloaded the most">
+    <meta name="title" content="Download stats - OculusDB">
+    <meta name="description" content="Shows you which applications have been downloaded the most">
 </head>
 <body>
     <div class="content">
@@ -49,7 +49,7 @@
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.parentId}')">
             </div>
             <div class="flex header">
-                <img onerror="this.src = '/notfound.jpg'" src="${"/cdn/images/" + a.parentId}" style="max-height: 4em; width: auto; margin-right: 10px;">
+                <img alt="Icon of ${a.applicationName}" onerror="this.src = '/notfound.jpg'" src="${"/cdn/images/" + a.parentId}" style="max-height: 4em; width: auto; margin-right: 10px;">
                 <div class="downloadCount">${a.count} downloads</div>
                 <div stlye="font-size: 1.25em;">${a.applicationName}</div>
                 

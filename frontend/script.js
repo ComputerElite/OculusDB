@@ -8,7 +8,7 @@ document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=
 
 document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 <div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
-    <img class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
+    <img alt="ComputerElite icon. Wooden background featuring a windows logo, oculus logo and a piano" class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
     <div class="navBarElement title anim">
         OculusDB
     </div>
@@ -30,7 +30,7 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement" href="/downloadstats">Download stats</a>
     <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
     <a class="underlineAnimation navBarElement navBarMarginLeft" href="/supportus">Support us</a>
-    <a class="underlineAnimation navBarElement" style="height: 100%;" href="{OculusDBDC}"><img style="height: 100%;" src="/assets/discord.svg"></a>
+    <a class="underlineAnimation navBarElement" style="height: 100%;" href="{OculusDBDC}"><img alt="Discord logo" style="height: 100%;" src="/assets/discord.svg"></a>
 </div>
 </div>`
 
@@ -113,7 +113,7 @@ if(!localStorage.isQAVS) {
             var ad = ads[Math.floor(Math.random() * ads.length)]
             PopUp(` <div style="width: 95vw; height: 95vh; position: relative;">
                         ${ad.title ? `<h2>${ad.title}</h2>` : ``}
-                        <img src="${ad.img}" style="width: 100%; height: 100%;" onclick="location = '${ad.redirect ? ad.redirect : `https://computerelite.github.io/redirect?target=self&random`}'">
+                        <img alt="Image of ${ad.title} ad" src="${ad.img}" style="width: 100%; height: 100%;" onclick="location = '${ad.redirect ? ad.redirect : `https://computerelite.github.io/redirect?target=self&random`}'">
                         <div style="position: absolute; top: 2px; right: 2px; font-size: 6px; color: var(--red); cursor: pointer" onclick="location = '${ad.xredirect ? ad.xredirect : `https://computerelite.github.io/redirect?target=self&random`}';">X</div>
                     </div>`)
             PlaySound("/cdn/boom.ogg")
@@ -694,7 +694,7 @@ function FormatApplication(application, htmlId = "") {
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
-                <img onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
+                <img alt="Icon of ${application.displayName}" onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
                 <div stlye="font-size: 1.25em;">${application.displayName} (${ GetLogicalHeadsetNameEnum(application.hmd).replace(" and ", ", ")})</div>
             </div>
             
