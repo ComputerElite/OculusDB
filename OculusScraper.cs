@@ -242,7 +242,7 @@ namespace OculusDB
                             {
                                 try
                                 {
-                                    Scrape(id, Headset.MONTEREY);
+                                    Scrape(id, Headset.HOLLYWOOD);
                                     success = true;
                                 }
                                 catch (Exception ex)

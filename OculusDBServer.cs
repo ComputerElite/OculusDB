@@ -189,8 +189,8 @@ namespace OculusDB
                 request.SendStringReplace(File.ReadAllText("frontend" + Path.DirectorySeparatorChar + "admin.html"), "text/html", 200, replace);
                 return true;
             }), true, true, true);
-            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true);
-            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true);
+            server.AddRouteFile("/login", "frontend" + Path.DirectorySeparatorChar + "login.html", replace, true, true, true, 0, true);
+            server.AddRouteFile("/style.css", "frontend" + Path.DirectorySeparatorChar + "style.css", replace, true, true, true, 0, true);
             server.AddRoute("POST", "/api/updateserver/", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
@@ -296,33 +296,6 @@ namespace OculusDB
                     Logger.Log(ex.ToString(), LoggingType.Warning);
                     request.SendString("count and skip must be numerical values", "text/plain", 400);
                 }
-                return true;
-            }));
-            server.AddRoute("POST", "/api/oculusproxy", new Func<ServerRequest, bool>(request =>
-            {
-                if (!DoesUserHaveAccess(request)) return true;
-                WebClient webClient = new WebClient();
-                webClient.Headers.Add("origin", "https://oculus.com");
-                try
-                {
-                    string res = webClient.UploadString(GraphQLClient.oculusUri + "?" + request.bodyString, "POST", "");
-                    request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
-                    {
-                        {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
-                } catch(Exception e)
-                {
-                    string res = webClient.UploadString(GraphQLClient.oculusUri, request.bodyString);
-                    request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
-                    {
-                        {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
-                }
-                
                 return true;
             }));
             server.AddRoute("GET", "/applicationspecific/", new Func<ServerRequest, bool>(request =>
@@ -538,10 +511,13 @@ namespace OculusDB
             }), true, true, true, true, 1800); // 30 mins
 
             ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
-            Func<ServerRequest, bool> accessCheck = new Func<ServerRequest, bool>(request =>
+            Func<ServerRequest, bool> accessCheck = null;
+            /*
+            new Func<ServerRequest, bool>(request =>
             {
                 return DoesUserHaveAccess(request);
             });
+            */
 
             server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true, accessCheck);
