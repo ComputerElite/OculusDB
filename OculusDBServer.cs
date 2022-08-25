@@ -17,10 +17,10 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using ComputerUtils.ConsoleUi;
 using ComputerUtils.FileManaging;
-using System.Drawing;
 using SizeConverter = ComputerUtils.VarUtils.SizeConverter;
 using System.Drawing.Imaging;
 using OculusDB.Analytics;
+using SixLabors.ImageSharp;
 
 namespace OculusDB
 {
@@ -113,6 +113,17 @@ namespace OculusDB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
+            Logger.Log("Converting old images", LoggingType.Important);
+            foreach (string loc in Directory.EnumerateFiles(OculusDBEnvironment.dataDir + "images"))
+            {
+                if (loc.EndsWith(".webp")) continue;
+                Logger.Log("Converting " + loc, LoggingType.Important);
+                using (var img = Image.Load(loc))
+                {
+                    img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
+                }
+                File.Delete(loc);
+            }
             AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             server.StartServer(config.port);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
@@ -509,7 +520,6 @@ namespace OculusDB
                 request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".webp");
                 return true;
             }), true, true, true, true, 1800, true); // 30 mins
-
             ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
             Func<ServerRequest, bool> accessCheck = null;
             /*
