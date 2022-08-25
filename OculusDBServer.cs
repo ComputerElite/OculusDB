@@ -113,17 +113,52 @@ namespace OculusDB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
-            Logger.Log("Converting old images", LoggingType.Important);
-            foreach (string loc in Directory.EnumerateFiles(OculusDBEnvironment.dataDir + "images"))
+            Thread t = new Thread(() =>
             {
-                if (loc.EndsWith(".webp")) continue;
-                Logger.Log("Converting " + loc, LoggingType.Important);
-                using (var img = Image.Load(loc))
+                Logger.Log("Converting old images", LoggingType.Important);
+                foreach (string loc in Directory.EnumerateFiles(OculusDBEnvironment.dataDir + "images"))
                 {
-                    img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
+                    if (loc.EndsWith(".webp")) continue;
+                    try
+                    {
+                        Logger.Log("Converting " + loc, LoggingType.Important);
+                        using (var img = Image.Load(loc))
+                        {
+                            img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
+                        }
+                        File.Delete(loc);
+                    } catch
+                    {
+                        try
+                        {
+                            Logger.Log("Converting " + loc, LoggingType.Important);
+                            using (var img = Image.Load(loc))
+                            {
+                                img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
+                            }
+                            File.Delete(loc);
+                        }
+                        catch
+                        {
+                            try
+                            {
+                                Logger.Log("Converting " + loc, LoggingType.Important);
+                                using (var img = Image.Load(loc))
+                                {
+                                    img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
+                                }
+                                File.Delete(loc);
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+                    
                 }
-                File.Delete(loc);
-            }
+            });
+            t.Start();
             AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             server.StartServer(config.port);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
