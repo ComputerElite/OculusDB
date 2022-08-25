@@ -508,7 +508,7 @@ namespace OculusDB
                 }
                 request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".webp");
                 return true;
-            }), true, true, true, true, 1800); // 30 mins
+            }), true, true, true, true, 1800, true); // 30 mins
 
             ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
             Func<ServerRequest, bool> accessCheck = null;
