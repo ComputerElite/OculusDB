@@ -405,9 +405,14 @@ namespace OculusDB
                     try
                     {
                         // FUCK YOU NET 6. MORE LIKE FUCK LINUX IMPLEMENTATION OF YOU BUT WHATEVER I JUST WANT IMAGE CONVERSION ON LINUX
-                        Bitmap img = new Bitmap(loc);
-                        img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + ".jpg", ImageFormat.Jpeg);
-                        img.Dispose();
+                        using (var inStream = new MemoryStream(File.ReadAllBytes(loc)))
+                        using (var outStream = new MemoryStream())
+                        {
+                            var imageStream = Image.FromStream(inStream);
+                            imageStream.Save(outStream, ImageFormat.Jpeg);
+                            File.WriteAllBytes(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + ".jpg", outStream.ToArray());
+                        }
+                        
                         File.Delete(loc);
                     }
                     catch (Exception e)
