@@ -506,7 +506,7 @@ namespace OculusDB
                     request.SendString("Only application ids are allowed", "text/plain", 400);
                     return true;
                 }
-                request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".jpg");
+                request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".webp");
                 return true;
             }), true, true, true, true, 1800); // 30 mins
 

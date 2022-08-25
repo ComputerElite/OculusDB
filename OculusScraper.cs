@@ -9,14 +9,13 @@ using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp;
 
 namespace OculusDB
 {
@@ -400,24 +399,19 @@ namespace OculusDB
                 WebClient c = new WebClient();
                 c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
                 c.DownloadFile(a.img, loc);
-                if (!loc.EndsWith(".jpg"))
+                if (!loc.EndsWith(".webp"))
                 {
                     try
                     {
-                        // FUCK YOU NET 6. MORE LIKE FUCK LINUX IMPLEMENTATION OF YOU BUT WHATEVER I JUST WANT IMAGE CONVERSION ON LINUX
-                        using (var inStream = new MemoryStream(File.ReadAllBytes(loc)))
-                        using (var outStream = new MemoryStream())
+                        using (var img = Image.Load(loc))
                         {
-                            var imageStream = Image.FromStream(inStream);
-                            imageStream.Save(outStream, ImageFormat.Jpeg);
-                            File.WriteAllBytes(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + ".jpg", outStream.ToArray());
+                            img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + ".webp");
                         }
-                        
                         File.Delete(loc);
                     }
                     catch (Exception e)
                     {
-                        Logger.Log("Couldn't convert image to jpg:\n" + e.ToString(), LoggingType.Warning);
+                        Logger.Log("Couldn't convert image to webp:\n" + e.ToString(), LoggingType.Warning);
                     }
                 }
             } catch(Exception e)
