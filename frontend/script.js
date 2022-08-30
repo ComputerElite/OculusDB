@@ -518,7 +518,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup='if(MouseUp(event)) DownloadIDList( ${JSON.stringify(dlc.bundle_items.map(x => x.id))})'>
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadIDList('${dlc.bundle_items.map(x => x.id).join(",")}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${dlc.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
