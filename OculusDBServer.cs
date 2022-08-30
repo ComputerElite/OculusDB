@@ -129,33 +129,8 @@ namespace OculusDB
                         File.Delete(loc);
                     } catch
                     {
-                        try
-                        {
-                            Logger.Log("Converting " + loc, LoggingType.Important);
-                            using (var img = Image.Load(loc))
-                            {
-                                img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
-                            }
-                            File.Delete(loc);
-                        }
-                        catch
-                        {
-                            try
-                            {
-                                Logger.Log("Converting " + loc, LoggingType.Important);
-                                using (var img = Image.Load(loc))
-                                {
-                                    img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
-                                }
-                                File.Delete(loc);
-                            }
-                            catch
-                            {
-
-                            }
-                        }
+                        
                     }
-                    
                 }
             });
             t.Start();

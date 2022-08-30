@@ -518,7 +518,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.id}')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadDLCList('${dlc.bundle_items}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${dlc.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -621,6 +621,12 @@ function FormatDLCPackActivityDLC(a, i) {
 </div>`
 }
 
+function DownloadDLCList(dlcs) {
+    dlcs.forEach(x => {
+        DownloadID(x.id)
+    })
+}
+
 function FormatDLCPackActivity(a, htmlid) {
     var included = ""
     a.includedDLCs.forEach(d => {
@@ -630,7 +636,7 @@ function FormatDLCPackActivity(a, htmlid) {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.id}')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadDLCList('${a.includedDÖCs}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
