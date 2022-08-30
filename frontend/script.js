@@ -518,7 +518,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadDLCList('${dlc.bundle_items}')">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup='if(MouseUp(event)) DownloadIDList( ${JSON.stringify(dlc.bundle_items.map(x => x.id))})'>
             </div>
             <div class="flex header" onclick="RevealDescription('${dlc.id}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -621,9 +621,9 @@ function FormatDLCPackActivityDLC(a, i) {
 </div>`
 }
 
-function DownloadDLCList(dlcs) {
-    dlcs.forEach(x => {
-        DownloadID(x.id)
+function DownloadIDList(ids) {
+    ids.split(",").forEach(x => {
+        DownloadID(x)
     })
 }
 
@@ -636,12 +636,12 @@ function FormatDLCPackActivity(a, htmlid) {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadDLCList('${a.includedDÖCs}')">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">DLC Pack ${a.displayName} ${a.__OculusDBType == "ActivityNewDLCPack" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</div>
+                <div stlye="font-size: 1.25em;">DLC Pack ${a.displayName} ${a.__OculusDBType == "ActivityNewDLCPack" ? " has been added to " : " has been updated for "} <b>${a.parentApplication.displayName}</b></div>
             </div>
         </div>
 
