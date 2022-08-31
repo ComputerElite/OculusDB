@@ -526,8 +526,7 @@ namespace OculusDB
                     if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0) continue;
                     else if(ownsDlc == UserEntitlement.OWNED)
                     {
-                        IAPEntitlement e = GetEntitlementOfDLC(a.id, dlc.node.id);
-                        newDLC.priceOffset = e.item.current_offer.price.offset_amount;
+                        continue;
                     }
 
                     newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);

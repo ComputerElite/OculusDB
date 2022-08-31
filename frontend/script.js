@@ -59,10 +59,14 @@ const contextMenu = `
 
 </div>`
 
-function HighlightElement(id) {
+function HighlightElement(id, smooth = true) {
     document.getElementById(id).scrollIntoView({
-        behavior: "smooth"
+        behavior: smooth ? "smooth" : "auto",
+        block: "start"
     })
+    if(!smooth) {
+        window.scrollBy(0, -80)
+    }
     document.getElementById(id).classList.remove("highlight")
     setTimeout(() => {
         document.getElementById(id).classList.add("highlight")
@@ -479,7 +483,7 @@ function GetCollapsableInfo(title, collapsed, htmlid) {
 
 function FormatDLC(dlc, htmlid = "") {
     if(htmlid == "") htmlid = dlc.id
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
+    return `<div class="application" id="anchor_${dlc.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
@@ -514,7 +518,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
     dlc.bundle_items.forEach(d => {
         included += FormatDLC(GetDLC(dlcs, d.id), htmlid + "_" + d.id)
     })
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
+    return `<div class="application" id="anchor_${dlc.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
@@ -842,8 +846,9 @@ function FormatVersion(v, htmlid = "") {
     })
     if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
     var downloadable = releaseChannels != ""
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${v.id}'))">
+    return `<div class="application" id="anchor_${v.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${v.id}'))">
     <div class="info">
+        <div id="anchor" style="height: 0;"></div>
         <div class="flex outside">
             <div class="buttons">
                 ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obb == null ? null : v.obb.id)}

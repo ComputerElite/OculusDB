@@ -178,13 +178,7 @@ body {
     margin: 0;
     color: var(--textColor);
     line-height: 1.8;
-    /* background-color: var(--bgColor); */
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg');
-    background-attachment: fixed;
-    background-blend-mode: darken;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-color: #111111DD;
+    background-color: var(--bgColor);
 }
 
 .tabContainer {
@@ -397,8 +391,35 @@ code {
     display: flex !important;
 }
 
+.leftRightAdjustedContainer {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
+.leftRightAdjustedContainerItemLeft {
+    width: 60% !important;
+}
+
+.leftRightAdjustedContainerItemRight {
+    width: 40% !important;
+    margin-left: 20px;
+}
 /* mobile*/
 @media screen and (max-width: 1420px) {
+    .leftRightAdjustedContainer {
+        flex-direction: column-reverse;
+    }
+    
+    .leftRightAdjustedContainerItemLeft {
+        width: 100% !important;
+    }
+    
+    .leftRightAdjustedContainerItemRight {
+        width: 100% !important;
+        margin-left: 0px;
+    }
+
     .navBarInnerLeft {
         flex-direction: column;
     }
@@ -443,6 +464,7 @@ code {
 
 /* desktop*/
 @media screen and (min-width: 1420px) {
+
     .navBarMarginLeft {
         margin-left: 35px;
     }
