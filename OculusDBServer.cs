@@ -176,6 +176,31 @@ namespace OculusDB
                 }
                 return true;
             }));
+            server.AddRoute("GET", "/api/coremodsproxy", new Func<ServerRequest, bool>(request =>
+            {
+                WebClient webClient = new WebClient();
+                try
+                {
+                    string res = webClient.DownloadString("https://git.bmbf.dev/unicorns/resources/-/raw/master/com.beatgames.beatsaber/core-mods.json");
+                    request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
+                    {
+                        {
+                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
+                    {
+                        {
+                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
+                        }
+                    });
+                }
+
+                return true;
+            }), false, true, true, true, 300); // 5 mins
             server.AddRoute("POST", "/api/v1/checkaccess", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString((config.accesscode == request.bodyString).ToString().ToLower());
