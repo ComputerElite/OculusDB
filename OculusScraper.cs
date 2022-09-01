@@ -450,6 +450,7 @@ namespace OculusDB
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             string packageName = "";
             ConnectedList connected = MongoDBInteractor.GetConnected(a.id);
+            /*
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
                 if(packageName == "")
@@ -500,6 +501,7 @@ namespace OculusDB
                     }
                 }
             }
+            */
             MongoDBInteractor.AddApplication(a, headset, id.image, packageName);
             MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
             if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
@@ -520,14 +522,9 @@ namespace OculusDB
                     newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
 
                     UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id);
-                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0) continue;
 
                     newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
-                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0) continue;
-                    else if(ownsDlc == UserEntitlement.OWNED)
-                    {
-                        continue;
-                    }
+                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0 || ownsDlc == UserEntitlement.OWNED && newDLC.priceOffsetNumerical <= 0) continue;
 
                     newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);
                     BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(dlc.node.id);

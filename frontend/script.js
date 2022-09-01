@@ -490,7 +490,7 @@ function GetCollapsableInfo(title, collapsed, htmlid) {
 
 function FormatDLC(dlc, htmlid = "") {
     if(htmlid == "") htmlid = dlc.id
-    return `<div class="application" id="anchor_${dlc.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
+    return `<div class="application" id="anchor_${htmlid}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
@@ -523,7 +523,22 @@ function FormatDLC(dlc, htmlid = "") {
 function FormatDLCPack(dlc, dlcs, htmlid = "") {
     var included = ""
     dlc.bundle_items.forEach(d => {
-        included += FormatDLC(GetDLC(dlcs, d.id), htmlid + "_" + d.id)
+        var dlc = GetDLC(dlcs, d.id)
+        if(!dlc) {
+            dlc = {
+                id: "unknown",
+                display_name: "Unknown DLC",
+                latestAssetFileId: "0",
+                downloads: 0,
+                display_short_description: "This is an DLC that is now recognized by OculusDB at the time",
+                current_offer: {
+                    price: {
+                        formatted: "0€"
+                    }
+                }
+            }
+        }
+        included += FormatDLC(dlc, htmlid + "_" + d.id)
     })
     return `<div class="application" id="anchor_${dlc.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${dlc.id}'))">
     <div class="info">
