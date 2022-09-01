@@ -1,7 +1,8 @@
 ﻿var jokeconfig = {
     flashbang: false,
     popupad: false,
-    dialupdownload: false
+    dialupdownload: false,
+    supportUs: false
 }
 
 document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
@@ -104,15 +105,16 @@ if(!localStorage.isQAVS) {
         }
     ]
 
-    if(GetRandomBool(100)) jokeconfig.dialupdownload = true
-    if(GetRandomBool(150)) jokeconfig.flashbang = true
-    if(GetRandomBool(150)) jokeconfig.popupad = true
+    if(GetRandomBool(1000) || params.has("dialupdownload")) jokeconfig.dialupdownload = true
+    if(params.has("flashbang")) jokeconfig.flashbang = true
+    if(params.has("popupad")) jokeconfig.popupad = true
+    if(params.has("supportus")) jokeconfig.supportUs = true
 
-    if(jokeconfig.flashbang || params.has("flashbang")) {
+    if(jokeconfig.flashbang) {
         document.body.innerHTML += `<div class="flashbang"></div>`
     }
 
-    if(jokeconfig.popupad || params.has("popupad")) {
+    if(jokeconfig.popupad) {
         setTimeout(() => {
             var ad = ads[Math.floor(Math.random() * ads.length)]
             PopUp(` <div style="width: 95vw; height: 95vh; position: relative;">
@@ -124,8 +126,13 @@ if(!localStorage.isQAVS) {
         }, 1500);
     }
 
-    if(params.has("dialupdownload")) {
-        jokeconfig.dialupdownload = true
+    if(jokeconfig.supportUs) {
+        console.log("e")
+        var e = ""
+        for(let i = 0; i < 500; i++) {
+            e += `<a class="underlineAnimation" style="position: fixed; top: ${Math.random() * 100}vh; left: ${Math.random() * 100}vw;" href="/supportus">Support us</a>`
+        }
+        document.body.innerHTML += e;
     }
     /// JOKES END
 
