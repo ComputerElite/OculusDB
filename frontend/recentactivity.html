@@ -94,16 +94,24 @@
             if(constraints == "") constraints = "none"
 
 
-            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => res.json().then(res => {
-                activity = res
-                var html = ""
-                activity.forEach(a => {
-                    html += AutoFormat(a, "", a.__id)
-                })
-                if(html == "") html = noActivity
-                activityContainer.innerHTML = html
-                UpdateContextMenu()
-            }))
+            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => {
+                if(res.status != 200) {
+                    res.text().then(text => {
+                        PopUp(text)
+                    })
+                } else {
+                    res.json().then(res => {
+                        activity = res
+                        var html = ""
+                        activity.forEach(a => {
+                            html += AutoFormat(a, "", a.__id)
+                        })
+                        if(html == "") html = noActivity
+                        activityContainer.innerHTML = html
+                        UpdateContextMenu()
+                    })
+                }
+            })
     </script>
 </body>
 </html>

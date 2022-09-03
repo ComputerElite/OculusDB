@@ -51,7 +51,7 @@
         <script>
             document.getElementById("game").value = params.get("game") ?? ""
             document.getElementById("version").value = params.get("version") ?? ""
-            document.getElementById("headset").value = params.get("headset") ?? "HOLLYWOOD"
+            document.getElementById("headset").value = params.get("headset") ?? "HOLLYWOOD,MONTEREY"
             if( params.get("game") && params.get("version")) {
                 SearchVersion()
             }
@@ -64,38 +64,44 @@
                     HideTextBox("text")
                     document.getElementById("res").innerHTML = loader
                     fetch("/api/v1/search/" + game + "?headsets=" + document.getElementById("headset").value).then(res => {
-                        res.json().then(res => {
-                            var results = {l: 100000, id: 0}
-                            res.forEach(x => {
-                                if(x.displayName.length < results.l) {
-                                    results.l = x.displayName.length
-                                    results.id = x.id
-                                }
+                        if(res.status != 200) {
+                            res.text().then(text => {
+                                TextBoxError("text", text)
                             })
-                            if(!results.id) {
-                                TextBoxError("text", "No app with this name could be found. Try a different one.")
-                                return
-                            }
-                            fetch("/api/v1/connected/" + results.id).then(res => res.json().then(res => {
-                                var v = []
-                                res.versions.forEach(x => {
-                                    console.log(x)
-                                    if(x.version.startsWith(version) && x.downloadable) {
-                                        v.push(x)
+                        } else {
+                            res.json().then(res => {
+                                var results = {l: 100000, id: 0}
+                                res.forEach(x => {
+                                    if(x.displayName.length < results.l) {
+                                        results.l = x.displayName.length
+                                        results.id = x.id
                                     }
                                 })
-                                if(v.length > 0) {
-                                    // Display version
-                                    document.getElementById("res").innerHTML = ""
-                                    v.forEach(x => {
-                                        document.getElementById("res").innerHTML += AutoFormat(x)
-                                    })
-                                    
-                                } else {
-                                    TextBoxError("text", "No matching version could be found. Try a different one.")
+                                if(!results.id) {
+                                    TextBoxError("text", "No app with this name could be found. Try a different one.")
+                                    return
                                 }
-                            }))
-                        })
+                                fetch("/api/v1/connected/" + results.id).then(res => res.json().then(res => {
+                                    var v = []
+                                    res.versions.forEach(x => {
+                                        console.log(x)
+                                        if(x.version.startsWith(version) && x.downloadable) {
+                                            v.push(x)
+                                        }
+                                    })
+                                    if(v.length > 0) {
+                                        // Display version
+                                        document.getElementById("res").innerHTML = ""
+                                        v.forEach(x => {
+                                            document.getElementById("res").innerHTML += AutoFormat(x)
+                                        })
+                                        
+                                    } else {
+                                        TextBoxError("text", "No matching version could be found. Try a different one.")
+                                    }
+                                }))
+                            })
+                        }
                     })
                 } else {
                     TextBoxError("text", "Please put in a game and version before searching.")

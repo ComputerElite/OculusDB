@@ -36,6 +36,7 @@ namespace OculusDB
             {"{BSLGDC}", "https://discord.gg/MrwMx5e" },
             {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" }
         };
+        public static string apiError = "An internal server error occurred. If possible report the issue on the <a href=\"https://discord.gg/zwRfHQN2UY\">OculusDB Discord server</a>. We are sorry for the inconvenience.";
 
         public string GetToken(ServerRequest request, bool send403 = true)
         {
@@ -139,7 +140,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
+            server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -273,14 +274,6 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
                 return true;
             }));
-            server.AddRoute("POST", "/api/v1/reportentitlements", new Func<ServerRequest, bool>(request =>
-            {
-                if (!DoesUserHaveAccess(request)) return true;
-                FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "entitlements");
-                File.WriteAllText(OculusDBEnvironment.dataDir + "entitlements" + Path.DirectorySeparatorChar + DateTime.Now.Ticks + ".json", request.bodyString);
-                request.SendString("Saved entitlements");
-                return true;
-            }));
             server.AddRoute("GET", "/api/v1/applicationanalytics/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
@@ -302,20 +295,31 @@ namespace OculusDB
             server.AddRoute("GET", "/api/v1/explore/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
+                string sorting = "name";
+                int count = 50;
+                int skip = 0;
                 try
                 {
-                    int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
+                    count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
                     if (count > 1000) count = 1000;
                     if (count <= 0)
                     {
                         request.SendString("[]", "application/json");
                         return true;
                     }
-                    int skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
+                    skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
                     if (skip < 0) skip = 0;
-                    string sorting = (request.queryString.Get("sorting") ?? "name").ToLower();
+                    sorting = (request.queryString.Get("sorting") ?? "name").ToLower();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex.ToString(), LoggingType.Warning);
+                    request.SendString("count and skip must be numerical values", "text/plain", 400);
+                }
+                try
+                {
                     List<BsonDocument> results = new List<BsonDocument>();
-                    switch(sorting)
+                    switch (sorting)
                     {
                         case "reviews":
                             results = MongoDBInteractor.GetBestReviews(skip, count);
@@ -337,10 +341,10 @@ namespace OculusDB
                     }
                     request.SendString(JsonSerializer.Serialize(asObjects), "application/json");
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    Logger.Log(ex.ToString(), LoggingType.Warning);
-                    request.SendString("count and skip must be numerical values", "text/plain", 400);
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
                 }
                 return true;
             }));
@@ -376,45 +380,69 @@ namespace OculusDB
             server.AddRoute("GET", "/api/v1/packagename/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<BsonDocument> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff);
-                if (d.Count <= 0)
+                try
                 {
-                    request.SendString("{}", "application/json", 404);
-                    return true;
+                    List<BsonDocument> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff);
+                    if (d.Count <= 0)
+                    {
+                        request.SendString("{}", "application/json", 404);
+                        return true;
+                    }
+                    request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+                } catch(Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
                 }
-                request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 return true;
             }), true, true, true, true);
             server.AddRouteRedirect("GET", "/api/id/", "/api/v1/id/", true);
             server.AddRoute("GET", "/api/v1/id/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff);
-                if(d.Count <= 0)
+                try
                 {
-                    request.SendString("{}", "application/json", 404);
-                    OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD);
-                    OculusScraper.AddApp(request.pathDiff, Headset.RIFT);
-                    OculusScraper.AddApp(request.pathDiff, Headset.GEARVR);
-                    OculusScraper.AddApp(request.pathDiff, Headset.PACIFIC);
-                    return true;
+                    List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff);
+                    if (d.Count <= 0)
+                    {
+                        request.SendString("{}", "application/json", 404);
+                        OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD);
+                        OculusScraper.AddApp(request.pathDiff, Headset.RIFT);
+                        OculusScraper.AddApp(request.pathDiff, Headset.GEARVR);
+                        OculusScraper.AddApp(request.pathDiff, Headset.PACIFIC);
+                        return true;
+                    }
+                    request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 }
-                request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
+                
                 return true;
             }), true, true, true, true, 120); // 2 mins
             server.AddRouteRedirect("GET", "/api/connected/", "/api/v1/connected/", true);
             server.AddRoute("GET", "/api/v1/connected/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
-                request.SendString(JsonSerializer.Serialize(connected), "application/json");
-                // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
-                OculusScraper.CheckRunning();
-
-                // Requests a priority scrape for every app
-                foreach(DBApplication a in connected.applications)
+                try
                 {
-                    OculusScraper.AddApp(a.id, a.hmd);
+                    ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
+                    request.SendString(JsonSerializer.Serialize(connected), "application/json");
+                    // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
+                    OculusScraper.CheckRunning();
+
+                    // Requests a priority scrape for every app
+                    foreach (DBApplication a in connected.applications)
+                    {
+                        OculusScraper.AddApp(a.id, a.hmd);
+                    }
+                }
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
                 }
                 return true;
             }), true, true, true, true, 360); // 6 mins
@@ -422,84 +450,127 @@ namespace OculusDB
             server.AddRoute("GET", "/api/v1/search/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<Headset> headsets = new List<Headset>();
-                foreach(string h in (request.queryString.Get("headsets") ?? "MONTEREY,RIFT,PACIFIC,GEARVR").Split(','))
+                try
                 {
-                    Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
-                    if(conv != Headset.INVALID) headsets.Add(conv);
+                    List<Headset> headsets = new List<Headset>();
+                    foreach (string h in (request.queryString.Get("headsets") ?? "MONTEREY,RIFT,PACIFIC,GEARVR").Split(','))
+                    {
+                        Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
+                        if (conv != Headset.INVALID) headsets.Add(conv);
+                    }
+                    List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets, request.queryString.Get("quick") == null ? false : true);
+                    if (d.Count <= 0)
+                    {
+                        request.SendString("[]", "application/json", 200);
+                        return true;
+                    }
+                    List<DBApplication> apps = new List<DBApplication>();
+                    foreach (BsonDocument doc in d)
+                    {
+                        apps.Add(ObjectConverter.ConvertToDBType(doc));
+                    }
+                    request.SendString(JsonSerializer.Serialize(apps), "application/json");
                 }
-                List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets, request.queryString.Get("quick") == null ? false : true);
-                if (d.Count <= 0)
+                catch (Exception e)
                 {
-                    request.SendString("[]", "application/json", 200);
-                    return true;
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
                 }
-                List<DBApplication> apps = new List<DBApplication>();
-                foreach(BsonDocument doc in d)
-                {
-                    apps.Add(ObjectConverter.ConvertToDBType(doc));
-                }
-                request.SendString(JsonSerializer.Serialize(apps), "application/json");
                 return true;
             }), true, true, true, true, 360); // 6 mins
             server.AddRouteRedirect("GET", "/api/dlcs/", "/api/v1/dlcs/", true);
             server.AddRoute("GET", "/api/v1/dlcs/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetDLCs(request.pathDiff)), "application/json");
+                try
+                {
+                    request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetDLCs(request.pathDiff)), "application/json");
+                }
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
                 return true;
             }), true, true, true, true, 360); // 6 mins
             server.AddRouteRedirect("GET", "/api/pricehistory/", "/api/v1/pricehistory/", true);
             server.AddRoute("GET", "/api/v1/pricehistory/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<dynamic> changes = new List<dynamic>();
-                foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff)) changes.Add(ObjectConverter.ConvertToDBType(d));
-                request.SendString(JsonSerializer.Serialize(changes), "application/json");
+                try
+                {
+                    List<dynamic> changes = new List<dynamic>();
+                    foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff)) changes.Add(ObjectConverter.ConvertToDBType(d));
+                    request.SendString(JsonSerializer.Serialize(changes), "application/json");
+                }
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
                 return true;
             }), true, true, true, true, 360); // 6 mins
             server.AddRouteRedirect("GET", "/api/activity/", "/api/v1/activity/");
             server.AddRoute("GET", "/api/v1/activity/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
+                int count = 50;
+                int skip = 0;
+                string typeConstraint = "";
                 try
                 {
-                    int count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
+                    count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
                     if(count > 1000) count = 1000;
                     if(count < 0)
                     {
                         request.SendString("[]", "application/json");
                         return true;
                     }
-                    int skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
+                    skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
                     if (skip < 0) skip = 0;
-                    string typeConstraint = request.queryString.Get("typeconstraint") ?? "";
-                    List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(count, skip, typeConstraint);
-                    List<dynamic> asObjects = new List<dynamic>(); 
-                    foreach(BsonDocument activity in activities)
-                    {
-                        asObjects.Add(ObjectConverter.ConvertToDBType(activity));
-                    }
-                    request.SendString(JsonSerializer.Serialize(asObjects), "application/json");
-                } catch (Exception ex)
+                    typeConstraint = request.queryString.Get("typeconstraint") ?? "";
+                }
+                catch (Exception ex)
                 {
                     Logger.Log(ex.ToString(), LoggingType.Warning);
                     request.SendString("count and skip must be numerical values", "text/plain", 400);
                 }
-               
+                try
+                {
+                    List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(count, skip, typeConstraint);
+                    List<dynamic> asObjects = new List<dynamic>();
+                    foreach (BsonDocument activity in activities)
+                    {
+                        asObjects.Add(ObjectConverter.ConvertToDBType(activity));
+                    }
+                    request.SendString(JsonSerializer.Serialize(asObjects), "application/json");
+                }
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
                 return true;
             }), false, true, true, true, 30); // 0.5 mins
             server.AddRouteRedirect("GET", "/api/activityid/", "/api/v1/activityid/", true);
             server.AddRoute("GET", "/api/v1/activityid/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<BsonDocument> d = MongoDBInteractor.GetActivityById(request.pathDiff);
-                if (d.Count <= 0)
+                try
                 {
-                    request.SendString("{}", "application/json", 404);
-                    return true;
+                    List<BsonDocument> d = MongoDBInteractor.GetActivityById(request.pathDiff);
+                    if (d.Count <= 0)
+                    {
+                        request.SendString("{}", "application/json", 404);
+                        return true;
+                    }
+                    request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 }
-                request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
                 return true; 
             }), true, true, true, true);
             server.AddRoute("GET", "/api/serverconsole", new Func<ServerRequest, bool>(request =>
@@ -525,14 +596,22 @@ namespace OculusDB
             server.AddRoute("GET", "/api/v1/database", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                DBInfo info = new DBInfo();
-                info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
-                info.lastUpdated = config.lastDBUpdate;
-                info.appsToScrape = config.ScrapingResumeData.appsToScrape;
-                info.scrapedApps = config.ScrapingResumeData.updated.Count;
-                info.dataDocuments = MongoDBInteractor.CountDataDocuments();
-                info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
-                request.SendString(JsonSerializer.Serialize(info));
+                try
+                {
+                    DBInfo info = new DBInfo();
+                    info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
+                    info.lastUpdated = config.lastDBUpdate;
+                    info.appsToScrape = config.ScrapingResumeData.appsToScrape;
+                    info.scrapedApps = config.ScrapingResumeData.updated.Count;
+                    info.dataDocuments = MongoDBInteractor.CountDataDocuments();
+                    info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
+                    request.SendString(JsonSerializer.Serialize(info));
+                }
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
                 return true;
             }));
             server.AddRoute("POST", "/api/config", new Func<ServerRequest, bool>(request =>

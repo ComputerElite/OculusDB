@@ -89,10 +89,6 @@
                         <div>The item has not been found on OculusDB. If the app you wanted to view exists it'll be attempted to scrape it and you may see the app within the next minutes.</div>
                         <input type="button" value="Ok" onclick="ClosePopUp()">
                     `)
-                } else if(err == 500) {
-                    alert("Internal Server error")
-                } else {
-                    alet("An unknown error occurred")
                 }
             })
 
@@ -124,10 +120,18 @@
             }
 
             function AddConnected() {
-                fetch(`/api/v1/connected/${id}`).then(res => res.json().then(res => {
-                    connected = res
-                    UpdateConnected(true)
-                }))
+                fetch(`/api/v1/connected/${id}`).then(res => {
+                    if(res.status != 200) {
+                        res.text().then(text => {
+                            PopUp(text)
+                        })
+                    } else {
+                        res.json().then(res => {
+                            connected = res
+                            UpdateConnected(true)
+                        })
+                    }
+                })
             }
 
             function GetDownloads(id) {

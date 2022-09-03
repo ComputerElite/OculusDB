@@ -35,9 +35,8 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 </div>
 </div>`
 
-const loader = `<div class="centerIt">
-<div class="loader"></div>
-</div>`
+const loader = `<div class="loader"></div>`
+
 const noResult = `
 <div class="application centerIt" style="cursor: default;">
     <b>No Results</b>
@@ -292,8 +291,14 @@ document.getElementById("query").onkeydown = e => {
 function GetObjectById(id) {
     return new Promise((resolve, reject) => {
         fetch("/api/v1/id/" + id).then(res => {
-            if(res.status != 200) reject(res.status)
-            res.json().then(res => resolve(res))
+            if(res.status != 200) {
+                res.text().then(text => {
+                    PopUp(text)
+                    reject(res.status)
+                })
+            } else {
+                res.json().then(res => resolve(res))
+            }
         })
     })
     
@@ -302,8 +307,14 @@ function GetObjectById(id) {
 function GetActivityById(id) {
     return new Promise((resolve, reject) => {
         fetch("/api/v1/activityid/" + id).then(res => {
-            if(res.status != 200) reject(res.status)
-            res.json().then(res => resolve(res))
+            if(res.status != 200) {
+                res.text().then(text => {
+                    PopUp(text)
+                    reject(res.status)
+                })
+            } else {
+                res.json().then(res => resolve(res))
+            }
         })
     })
     

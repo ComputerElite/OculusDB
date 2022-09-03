@@ -69,16 +69,22 @@
             document.getElementById("query").value = query
             SearchResults.innerHTML = loader
             fetch("/api/v1/search/" + query + "?headsets=" + params.get("headsets")).then(res => {
-                res.json().then(res => {
-                    var results = ""
-                    res.forEach(x => {
-                        results += FormatApplication(x, x.id)
+                if(res.status != 200) {
+                    res.text().then(text => {
+                        PopUp(text)
                     })
-                    if(results == "") {
-                        results = noResult
-                    }
-                    SearchResults.innerHTML = results
-                })
+                } else {
+                    res.json().then(res => {
+                        var results = ""
+                        res.forEach(x => {
+                            results += FormatApplication(x, x.id)
+                        })
+                        if(results == "") {
+                            results = noResult
+                        }
+                        SearchResults.innerHTML = results
+                    })
+                }
             })
 
             function Update(refresh = true) {
