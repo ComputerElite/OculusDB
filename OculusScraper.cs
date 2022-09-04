@@ -349,7 +349,7 @@ namespace OculusDB
             t.Start();
         }
 
-        public static UserEntitlement GetEntitlementStatusOfAppOrDLC(string appId, string dlcId = null)
+        public static UserEntitlement GetEntitlementStatusOfAppOrDLC(string appId, string dlcId = null, string dlcName = "")
         {
             if (userEntitlements.Count <= 0) return UserEntitlement.FAILED;
             foreach(Entitlement entitlement in userEntitlements)
@@ -359,7 +359,7 @@ namespace OculusDB
                     if(dlcId == null) return UserEntitlement.OWNED;
                     foreach(IAPEntitlement dlc in entitlement.item.active_dlc_entitlements)
                     {
-                        if(dlc.item.id == dlcId)
+                        if(dlc.item.id == dlcId ||dlc.item.display_name == dlcName)
                         {
                             return UserEntitlement.OWNED;
                         }
@@ -520,7 +520,8 @@ namespace OculusDB
                     newDLC.displayShortDescription = dlc.node.display_short_description;
                     newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
 
-                    UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id);
+                    // Give me one reason why Oculus returns a different id in the entitlement request and dlc request for the mosterpack dlc????
+                    UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id, dlc.node.display_name);
 
                     newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
                     if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0 || ownsDlc == UserEntitlement.OWNED && newDLC.priceOffsetNumerical <= 0) continue;
