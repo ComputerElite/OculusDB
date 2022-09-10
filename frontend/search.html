@@ -10,6 +10,11 @@
     <body>
         <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
         <div class="content">
+            <div class="navBarElement">
+                <input type="text" placeholder="Query" id="query2">
+                <input type="button" onclick="Search('query2')" value="Search">
+            </div>
+            
             <h1>Results</h1>
             <label class="checkmarkContainer">
                 Rift/Rift S
@@ -44,7 +49,11 @@
 
             var query = params.get("query")
 
-            
+            document.getElementById("query2").onkeydown = e => {
+                if(e.code == "Enter") {
+                    Search("query2")
+                }
+            }
 
             var options = {
                 "rift": [
@@ -67,6 +76,7 @@
             const SearchResults = document.getElementById("searchResults")
 
             document.getElementById("query").value = query
+            document.getElementById("query2").value = query
             SearchResults.innerHTML = loader
             fetch("/api/v1/search/" + query + "?headsets=" + params.get("headsets")).then(res => {
                 if(res.status != 200) {
