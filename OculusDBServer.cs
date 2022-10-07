@@ -31,7 +31,7 @@ namespace OculusDB
         public static bool isBlocked = false;
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
-            {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
+            {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2771261574362850\" crossorigin=\"anonymous\"></script>" },
             {"{oculusloginlink}", "https://oculus.com/experiences/quest" },
             {"{BSLGDC}", "https://discord.gg/MrwMx5e" },
             {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" }
