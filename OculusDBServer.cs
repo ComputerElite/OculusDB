@@ -115,6 +115,7 @@ namespace OculusDB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
+            FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
             Thread t = new Thread(() =>
             {
                 Logger.Log("Converting old images", LoggingType.Important);

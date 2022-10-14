@@ -30,3 +30,15 @@ start "" https://oculusdb.rui2015.me/admin
 cd..
 cd..
 cd..
+
+cd bin\Debug\net6.0\
+echo Deleting existing update zip
+del net6.0.zip
+
+echo Creating new update zip
+7z a net6.0.zip *.dll *.pdb *.exe *.json frontend ref runtimes
+
+echo Created update zip
+cd..
+cd..
+cd..
