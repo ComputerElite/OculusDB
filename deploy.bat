@@ -31,7 +31,7 @@ cd..
 cd..
 cd..
 
-cd bin\Debug\net6.0\
+cd bin\Release\net6.0\
 echo Deleting existing update zip
 del net6.0.zip
 
