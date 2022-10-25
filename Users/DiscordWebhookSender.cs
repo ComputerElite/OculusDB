@@ -45,5 +45,40 @@ namespace OculusDB.Users
             });
             t.Start();
         }
+
+        public static void SendActivity(List<BsonDocument> activities)
+        {
+            Logger.Log("Sending " + activities.Count + " activities via Discord webhooks");
+            Thread t = new Thread(() =>
+            {
+                List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
+                if (activityWebhooks.Count <= 0) return;
+                foreach (ActivityWebhook activityWebhook in activityWebhooks)
+                {
+                    foreach (BsonDocument activity in activities)
+                    {
+                        try
+                        {
+                            switch (activityWebhook.type)
+                            {
+                                case ActivityWebhookType.Discord:
+                                    activityWebhook.SendDiscordWebhook(activity);
+                                    break;
+                                case ActivityWebhookType.OculusDB:
+                                    activityWebhook.SendOculusDBWebhook(activity);
+                                    break;
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
+                            break;
+                        }
+                    }
+                }
+            });
+            t.Start();
+        }
     }
 }

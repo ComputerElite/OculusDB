@@ -202,7 +202,8 @@ namespace OculusDB
 
             config.ScrapingResumeData.updated = new List<string>();
             config.Save();
-            DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
+            // Has been replaced by application specific activity sending
+            //DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();
@@ -429,6 +430,7 @@ namespace OculusDB
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
+            List<BsonDocument> activitiesToSend = new List<BsonDocument>();
             Logger.Log("Scraping " + id.id, LoggingType.Important);
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
@@ -445,6 +447,7 @@ namespace OculusDB
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
+                activitiesToSend.Add(e.ToBsonDocument());
                 MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument());
             }
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
@@ -486,6 +489,7 @@ namespace OculusDB
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
                 if (lastActivity == null)
                 {
+                    activitiesToSend.Add(newVersion.ToBsonDocument());
                     MongoDBInteractor.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument());
                 }
                 else
@@ -496,6 +500,7 @@ namespace OculusDB
                         DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
                         toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
                         toAdd.__lastEntry = lastActivity["_id"].ToString();
+                        activitiesToSend.Add(toAdd.ToBsonDocument());
                         MongoDBInteractor.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument());
                     }
                 }
@@ -533,6 +538,7 @@ namespace OculusDB
                         MongoDBInteractor.AddDLC(dlc.node, headset);
                         if (oldDLC == null)
                         {
+                            activitiesToSend.Add(newDLC.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument());
                         }
                         else if (oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
@@ -540,7 +546,8 @@ namespace OculusDB
                             DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                             updated.__lastEntry = oldDLC["_id"].ToString();
                             updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
-                            MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument().ToBsonDocument().ToBsonDocument().ToBsonDocument());
+                            activitiesToSend.Add(updated.ToBsonDocument());
+                            MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument());
                         }
 
                     }
@@ -561,6 +568,7 @@ namespace OculusDB
                         }
                         if (oldDLC == null)
                         {
+                            activitiesToSend.Add(newDLCPack.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument());
                         }
                         else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToList()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToList()))
@@ -568,6 +576,7 @@ namespace OculusDB
                             DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
                             updated.__lastEntry = oldDLC["_id"].ToString();
                             updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
+                            activitiesToSend.Add(updated.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument());
                         }
                     }
@@ -613,15 +622,21 @@ namespace OculusDB
                     priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
                     priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
                     priceChange.__lastEntry = lastPriceChange.__id;
+                    activitiesToSend.Add(priceChange.ToBsonDocument());
                     MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
                 }
             }
-            else MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+            else
+            {
+                activitiesToSend.Add(priceChange.ToBsonDocument());
+                MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+            }
             if(priority)
             {
                 MongoDBInteractor.DeleteOldData(priorityScrapeStart, new List<string> { a.id });
             }
             if(!priority) config.ScrapingResumeData.updated.Add(a.id);
+            DiscordWebhookSender.SendActivity(activitiesToSend);
             Logger.Log("Scraped " + id.id);
             config.Save();
         }
