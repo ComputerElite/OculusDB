@@ -482,6 +482,64 @@ function GetChangelog(version) {
     }
 }
 
+function AddApplicationSpecific(id) {
+    fetch(`/applicationspecific/${id}`).then(res => {
+        if(res.status != 200) {
+            document.getElementById("specificContainer").style.display = "none"
+            return
+        }
+        res.text().then(res => {
+            document.getElementById("specificContainer").style.display = "block"
+            document.getElementById("specific").innerHTML = res
+            Array.prototype.forEach.call(document.getElementById("specific").getElementsByTagName("script"), e => {
+                s = document.createElement("script")
+                s.innerHTML = e.innerHTML
+                document.head.appendChild(s)
+            })
+        })
+    })
+}
+
+function DownloadVersionPopUp(version, id) {
+    GetVersion(version, id).then(v => {
+        if(IsHeadsetAndroid(v.parentApplication.hmd)) {
+            PopUp(`<div>Do you want to Download version ${version}.</div>
+                    <div style="display: flex;">
+                        <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName}', '${v,version}', false)" value="Yes">
+                        <input type="button" onclick="document.getElementById('popup').click()" value="No">
+                    </div>`)
+        } else {
+            PopUp(`<div>Do you want to Download version ${version}.</div>
+                    <div style="display: flex;">
+                        <input type="button" onclick="RiftDownloadPopUp('${v.parentApplication.id}','${v.id}','${v.version}', '${v.parentApplication.displayName.replace("'", "\\'")}')" value="Yes">
+                        <input type="button" onclick="document.getElementById('popup').click()" value="No">
+                    </div>`)
+        }
+    })
+}
+
+function GetVersion(version, id) {
+    return new Promise((resolve, reject) => {
+        try {
+            var res;
+            connected.versions.forEach(v => {
+                if(v.version == version && v.binary_release_channels.nodes.length > 0) res = v
+            });
+            resolve(res)
+        } catch{
+            PopUp(`<div>Working... ${loader}</div>`)
+            fetch(`/api/v1/connected/${id}`).then(res => res.json().then(connected => {
+                var res;
+                connected.versions.forEach(v => {
+                    if(v.version == version && v.binary_release_channels.nodes.length > 0) res = v
+                });
+                resolve(res)
+            }))
+        }
+        
+    })
+}
+
 function GetCollapsableInfo(title, collapsed, htmlid) {
     return `<div class="application">
     <div class="info">

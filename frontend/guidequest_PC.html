@@ -34,6 +34,11 @@
             </div>
             <div class="textbox" id="text"></div>
             <h3>Result:</h3>
+            <div id="specificContainer" style="display: none;">
+                <div id="specific">
+                    <div class="loader"></div>
+                </div>
+            </div>
             <div id="res">
                 Results will appear after you searched.
             </div>
@@ -81,6 +86,7 @@
                                     TextBoxError("text", "No app with this name could be found. Try a different one.")
                                     return
                                 }
+                                AddApplicationSpecific(results.id)
                                 fetch("/api/v1/connected/" + results.id).then(res => res.json().then(res => {
                                     var v = []
                                     res.versions.forEach(x => {
