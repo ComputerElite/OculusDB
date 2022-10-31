@@ -111,7 +111,7 @@ namespace OculusDB
         public void StartServer(HttpServer httpServer)
         {
             server = httpServer;
-            server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
+            //server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
@@ -142,7 +142,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             // Comment if not in dev env
-            server.DefaultCacheValidityInSeconds = 0;
+            //server.DefaultCacheValidityInSeconds = 0;
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
@@ -185,6 +185,8 @@ namespace OculusDB
                 try
                 {
                     string res = webClient.DownloadString("https://git.bmbf.dev/unicorns/resources/-/raw/master/com.beatgames.beatsaber/core-mods.json");
+                    if (res.Length <= 2) throw new Exception("lol fuck you idiot");
+                    File.WriteAllText(OculusDBEnvironment.dataDir + "coremods.json", res);
                     request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
                     {
                         {
@@ -194,12 +196,23 @@ namespace OculusDB
                 }
                 catch (Exception e)
                 {
-                    request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
+                    if(File.Exists(OculusDBEnvironment.dataDir + "coremods.json"))
                     {
+                        request.SendString(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"), "application/json", 200, true, new Dictionary<string, string>
                         {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
+                            {
+                                "access-control-allow-origin", request.context.Request.Headers.Get("origin")
+                            }
+                        });
+                    } else
+                    {
+                        request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
+                        {
+                            {
+                                "access-control-allow-origin", request.context.Request.Headers.Get("origin")
+                            }
+                        });
+                    }
                 }
 
                 return true;

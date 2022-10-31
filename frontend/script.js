@@ -356,7 +356,7 @@ function OpenActivity(id) {
 function GetOculusLink(id, hmd) {
     var link = "https://www.oculus.com/experiences/"
     if(hmd == 0 || hmd == 5) link += "rift"
-    else if(hmd == 1 ||hmd == 2) link += "quest"
+    else if(hmd == 1 || hmd == 2 || hmd == 6) link += "quest"
     else if(hmd == 3) link += "gear-vr"
     else if(hmd == 4) link += "go"
     return link + "/" + id
@@ -377,6 +377,8 @@ function GetHeadsetName(headset) {
             return "GearVR";
         case "PACIFIC":
             return "Go";
+        case "SEACLIFF":
+            return "Quest Pro";
         default:
             return "unknown";
     }
@@ -393,6 +395,8 @@ function GetHeadsetNameEnum(headset) {
             return "Quest 1";
         case 2:
             return "Quest 2";
+        case 6:
+            return "Quest Pro";
         case 3:
             return "GearVR";
         case 4:
@@ -410,9 +414,11 @@ function GetLogicalHeadsetNameEnum(headset) {
         case 5:
             return "Rift and Rift S";
         case 1:
-            return "Quest 1 and Quest 2";
+            return "Quest 1, 2 and Pro";
         case 2:
-            return "Quest 1 and Quest 2";
+            return "Quest 1, 2 and Pro";
+        case 6:
+            return "Quest 1, 2 and Pro";
         case 3:
             return "GearVR";
         case 4:
@@ -437,6 +443,8 @@ function GetLogicalHeadsetCodeNameEnum(headset) {
             return "PACIFIC";
         case "5":
             return "RIFT";
+        case "6":
+            return "SEACLIFF";
         default:
             return "unknown";
     }
@@ -452,6 +460,8 @@ function GetHeadsetNameOD(headset) {
         case "MONTEREY":
             return "Quest";
         case "HOLLYWOOD":
+            return "Quest";
+        case "SEACLIFF":
             return "Quest";
         case "GEARVR":
             return "GearVR";

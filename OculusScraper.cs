@@ -142,6 +142,7 @@ namespace OculusDB
             SetupLimitedScrape(Headset.HOLLYWOOD);
             SetupLimitedScrape(Headset.GEARVR);
             SetupLimitedScrape(Headset.PACIFIC);
+            SetupLimitedScrape(Headset.SEACLIFF);
             SetupLimitedScrapeAppLab();
         }
 
