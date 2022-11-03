@@ -515,7 +515,7 @@ function DownloadVersionPopUp(version, id) {
         if(IsHeadsetAndroid(v.parentApplication.hmd)) {
             PopUp(`<div>Do you want to Download version ${version}.</div>
                     <div style="display: flex;">
-                        <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName}', '${v,version}', false)" value="Yes">
+                        <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName.replace("'", "\\'")}', '${v,version}', false)" value="Yes">
                         <input type="button" onclick="document.getElementById('popup').click()" value="No">
                     </div>`)
         } else {
@@ -1171,7 +1171,7 @@ function ObbDownloadPopUp() {
                 <div>
                     This game requires an obb file (extra files that are required for the game to work). Do you want to download the obb file?
                     <div>
-                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { AndroidDownload('${data.obbId}', '${data.parentId}', '${data.parentName}', '${data.version}', true, null); ClosePopUp(); }">
+                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { AndroidDownload('${data.obbId}', '${data.parentId}', '${data.parentName.replace("'", "\\'")}', '${data.version}', true, null); ClosePopUp(); }">
                         <input type="button" value="No" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
                     </div>
                 </div>
@@ -1181,7 +1181,7 @@ function ObbDownloadPopUp() {
 
 function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbId = null) {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName}', '${version}', ${isObb}, ${obbId == null ? "null" : `'${obbId}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbId == null ? "null" : `'${obbId}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
