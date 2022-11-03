@@ -23,7 +23,7 @@ namespace OculusDB.Database
         public string file_name { get; set; } = "";
         public long versionCode { get; set; } = 0;
         public long created_date { get; set; } = 0;
-        public OBBBinary obb { get; set; } = null;
+        public List<OBBBinary> obbList { get; set; } = null;
         public Nodes<ReleaseChannel> binary_release_channels { get; set; } = null;
         [BsonIgnore]
         public bool downloadable { get
@@ -39,6 +39,7 @@ namespace OculusDB.Database
         public string uri { get; set; } = "";
         public string size { get; set; } = "0";
         public string id { get; set; } = "";
+        public bool is_required { get; set; } = false;
         public long sizeNumerical
         {
             get { return long.Parse(size); }

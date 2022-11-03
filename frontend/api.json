@@ -482,14 +482,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 16,
                         "created_date": 1657715860,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -584,14 +614,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 15,
                         "created_date": 1657509044,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -686,14 +746,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 14,
                         "created_date": 1654264142,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -788,14 +878,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 13,
                         "created_date": 1654165414,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -890,14 +1010,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 12,
                         "created_date": 1645667862,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -992,14 +1142,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 11,
                         "created_date": 1645579493,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1094,14 +1274,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 10,
                         "created_date": 1645493770,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1196,14 +1406,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 9,
                         "created_date": 1640914135,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1298,14 +1538,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 8,
                         "created_date": 1637561958,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1400,14 +1670,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 7,
                         "created_date": 1637406868,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1502,14 +1802,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 6,
                         "created_date": 1635692720,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1604,14 +1934,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 5,
                         "created_date": 1635610507,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1706,14 +2066,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 4,
                         "created_date": 1635495151,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1808,14 +2198,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 3,
                         "created_date": 1622899058,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -1910,14 +2330,44 @@
                         "file_name": "BattleTalent.apk",
                         "versionCode": 2,
                         "created_date": 1617325116,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [
@@ -2012,14 +2462,44 @@
                         "file_name": "BattleTalent_A.apk",
                         "versionCode": 1,
                         "created_date": 1614661188,
-                        "obb": {
-                            "file_name": "",
-                            "uri": "",
-                            "size": "0",
-                            "id": "",
-                            "sizeNumerical": 0,
-                            "sizeString": "0 Bytes"
-                        },
+                        "obbList": [
+                            {
+                                "file_name": "__Internal_BundledScenes",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798594103525739",
+                                "size": "6776671",
+                                "id": "5798594103525739",
+                                "is_required": true,
+                                "sizeNumerical": 6776671,
+                                "sizeString": "6.46 MB"
+                            },
+                            {
+                                "file_name": "UnityMonoScripts.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593966859086",
+                                "size": "98941",
+                                "id": "5798593966859086",
+                                "is_required": true,
+                                "sizeNumerical": 98941,
+                                "sizeString": "96.62 KB"
+                            },
+                            {
+                                "file_name": "UnityBuiltInShaders.bundle",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593850192431",
+                                "size": "82588",
+                                "id": "5798593850192431",
+                                "is_required": true,
+                                "sizeNumerical": 82588,
+                                "sizeString": "80.65 KB"
+                            },
+                            {
+                                "file_name": "shaders",
+                                "uri": "https://securecdn.oculus.com/binaries/download/?id=5798593723525777",
+                                "size": "27161954",
+                                "id": "5798593723525777",
+                                "is_required": true,
+                                "sizeNumerical": 27161954,
+                                "sizeString": "25.9 MB"
+                            }
+                        ],
                         "binary_release_channels": {
                             "count": 0,
                             "nodes": [

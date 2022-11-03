@@ -316,7 +316,11 @@ namespace OculusDB
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
             dba.parentApplication.canonicalName = app.canonicalName;
-            dba.obb = ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary);
+            foreach(AssetFile f in a.asset_files.nodes)
+            {
+                if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
+                if(f.is_required) dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
+            }
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
@@ -422,7 +426,9 @@ namespace OculusDB
         {
             if (query == "") return new List<BsonDocument>();
             if (headsets.Count <= 0) return new List<BsonDocument>();
+            Logger.Log(query);
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query.Replace(" ", ".*") + ".*/i"));
+            Logger.Log(regex.ToString());
             BsonArray a = new BsonArray();
             BsonDocument q;
             if (!quick)
@@ -449,6 +455,7 @@ namespace OculusDB
                 }),
                     new BsonDocument("$or", a)
                 })};
+                Logger.Log(q.ToString());
                 return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
             } else
             {

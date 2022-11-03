@@ -515,7 +515,7 @@ function DownloadVersionPopUp(version, id) {
         if(IsHeadsetAndroid(v.parentApplication.hmd)) {
             PopUp(`<div>Do you want to Download version ${version}.</div>
                     <div style="display: flex;">
-                        <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName.replace("'", "\\'")}', '${v,version}', false)" value="Yes">
+                        <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName.replace("'", "\\'")}', '${v.version}', false)" value="Yes">
                         <input type="button" onclick="document.getElementById('popup').click()" value="No">
                     </div>`)
         } else {
@@ -910,34 +910,38 @@ function GetChangelog(version) {
     }
 }
 
-function GetObb(downloadable, obb, v) {
+function GetObbs(downloadable, obb, v) {
     if(!obb) return "We are working on getting obbs for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
-    if(obb.size == 0) return `none`
-    return `<div class="application">
-    <div class="info">
-        <div class="flex outside">
-        <div class="buttons">
-            ${GetDownloadButtonVersion(downloadable, obb.id, v.parentApplication.hmd, v.parentApplication, v.version, true)}
-        </div>
-            <div class="flex header" onclick="RevealDescription('${v.id}_${obb.id}')">
-                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_${obb.id}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">${obb.file_name}</div>
+    if(obb.length == 0) return `none`
+    var obbs = ``
+    for(const o of obb) {
+        obbs +=`<div class="application">
+        <div class="info">
+            <div class="flex outside">
+            <div class="buttons">
+                ${GetDownloadButtonVersion(downloadable, o.id, v.parentApplication.hmd, v.parentApplication, v.version, true)}
+            </div>
+                <div class="flex header" onclick="RevealDescription('${v.id}_${o.id}')">
+                    <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_${o.id}_trigger" class="anim noselect">&gt;</div>
+                    <div stlye="font-size: 1.25em;">${o.file_name}</div>
+                </div>
+            </div>
+
+            <div class="hidden" id="${v.id}_${o.id}">
+                <table>
+                    <colgroup>
+                        <col width="110em">
+                        <col width="100%">
+                    </colgroup>
+                    <tr><td class="label">file name</td><td class="value">${o.file_name}</td></tr>
+                    <tr><td class="label">size</td><td class="value">${o.sizeString}</td></tr>
+                    <tr><td class="label">Id</td><td class="value">${o.id}</td></tr>
+                </table>
             </div>
         </div>
-
-        <div class="hidden" id="${v.id}_${obb.id}">
-            <table>
-                <colgroup>
-                    <col width="110em">
-                    <col width="100%">
-                </colgroup>
-                <tr><td class="label">file name</td><td class="value">${obb.file_name}</td></tr>
-                <tr><td class="label">size</td><td class="value">${obb.sizeString}</td></tr>
-                <tr><td class="label">Id</td><td class="value">${obb.id}</td></tr>
-            </table>
-        </div>
-    </div>
-</div>`
+    </div>`
+    }
+    return obbs
 }
 
 function FormatVersion(v, htmlid = "") {
@@ -952,7 +956,7 @@ function FormatVersion(v, htmlid = "") {
         <div id="anchor" style="height: 0;"></div>
         <div class="flex outside">
             <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obb == null ? null : v.obb.id)}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obbList.map(x => x.id).join(","))}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -974,7 +978,7 @@ function FormatVersion(v, htmlid = "") {
                 <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
                 <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
                 <tr><td class="label">Changelog</td><td class="value">${GetChangelog(v)}</td></tr>
-                <tr><td class="label">Obb</td><td class="value">${GetObb(downloadable, v.obb, v)}</td></tr>
+                <tr><td class="label">Obbs</td><td class="value">${GetObbs(downloadable, v.obbList, v)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
             </table>
         </div>
@@ -1104,7 +1108,8 @@ function RealDownload(id, openObb) {
     if(openObb) ObbDownloadPopUp();
 }
 
-function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false, obbId = "") {
+function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false, obbs = "") {
+    if(obbs) obbs = obbs.split(",")
     data = {
         type: "Download",
         binaryId: id,
@@ -1112,14 +1117,14 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
         parentName: parentApplicationName,
         version: version,
         isObb: isObb,
-        obbId: obbId,
+        obbList: obbs,
         downloadLink: GetDownloadLink(id)
     }
     if(sendToParent) {
         fetch(`/api/v1/id/${parentApplicationId}`).then(res => res.json().then(res => {
             data.packageName = res.packageName
             SendDataToParent(JSON.stringify(data))
-            if(obbId){
+            if(obbs && obbs.length > 0){
                 ObbDownloadPopUp()
             }
         }))
@@ -1129,7 +1134,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     // Not in iframe which supports downloads
     if(localStorage.fuckpopups && !jokeconfig.dialupdownload) {
         DownloadID(id)
-        if(obbId){
+        if(obbs && obbs.length > 0){
             ObbDownloadPopUp()
         }
     } else {
@@ -1141,37 +1146,48 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
             <div class="textbox" id="downloadTextBox"></div>
             <div>
                 <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbId == true}); }">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbs && obbs.length > 0}); }">
             </div>
         </div>
     `)
     }
     if(isObb) {
-        fetch(`/api/v1/id/${data.parentId}`).then(res => res.json().then(res => {
-            data.packageName = res.packageName
-            PopUp(`
-                <div>
-                    For the obb to work you have to copy it to the following directory on your quest. Use SideQuest or another file manager: <code>/Android/obb/${data.packageName}/</code>
-                    <br>
-                    Need help? Join <a href="{OculusDBDC}">The OculusDB Discord server</a>
-                    <br>
-                    <div>
-                        <input type="button" value="OK" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
-                    </div>
-                </div>
-            `)
-        }))
+        ObbInfoPopup()
     }
    
+}
+
+function ObbInfoPopup() {
+    fetch(`/api/v1/id/${data.parentId}`).then(res => res.json().then(res => {
+        data.packageName = res.packageName
+        PopUp(`
+            <div>
+                For the obb to work you have to copy it to the following directory on your quest. Use SideQuest or another file manager: <code>/Android/obb/${data.packageName}/</code>
+                <br>
+                Need help? Join <a href="{OculusDBDC}">The OculusDB Discord server</a>
+                <br>
+                <div>
+                    <input type="button" value="OK" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
+                </div>
+            </div>
+        `)
+    }))
+}
+
+function DownloadObbs(ids, parentApplicationId, parentApplicationName, version, isObb = false, obbId = "") {
+    for(const id of ids.split(",")) {
+        DownloadIDList(id)
+    }
+    ObbInfoPopup()
 }
 
 function ObbDownloadPopUp() {
     fetch(`/api/v1/id/${data.parentId}`).then(res => res.json().then(res => {
         PopUp(`
                 <div>
-                    This game requires an obb file (extra files that are required for the game to work). Do you want to download the obb file?
+                    This game requires obb files (extra files that are required for the game to work). Do you want to download them?
                     <div>
-                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { AndroidDownload('${data.obbId}', '${data.parentId}', '${data.parentName.replace("'", "\\'")}', '${data.version}', true, null); ClosePopUp(); }">
+                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { DownloadObbs('${data.obbList.join(",")}', '${data.parentId}', '${data.parentName.replace("'", "\\'")}', '${data.version}', true, null); ClosePopUp(); }">
                         <input type="button" value="No" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
                     </div>
                 </div>
@@ -1179,9 +1195,9 @@ function ObbDownloadPopUp() {
     }))
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbId = null) {
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbIds = "") {
     if(IsHeadsetAndroid(hmd)) {
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbId == null ? "null" : `'${obbId}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbIds == null ? "null" : `'${obbIds}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }

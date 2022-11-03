@@ -471,7 +471,6 @@ namespace OculusDB
                 if(!priority && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
                 {
                     bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
-                    bin.obb_binary = ObjectConverter.ConvertCopy<AssetFile, OBBBinary>(connected.versions.FirstOrDefault(x => x.id == bin.id).obb);
                 }
 
                 MongoDBInteractor.AddVersion(bin, a, headset);
