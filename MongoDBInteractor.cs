@@ -316,10 +316,15 @@ namespace OculusDB
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
             dba.parentApplication.canonicalName = app.canonicalName;
+            if(a.obb_binary != null)
+            {
+                if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
+                dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary));
+            }
             foreach(AssetFile f in a.asset_files.nodes)
             {
                 if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
-                if(f.is_required) dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
+                if (f.is_required) dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
             }
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
