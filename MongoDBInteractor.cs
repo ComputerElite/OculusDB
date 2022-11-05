@@ -309,23 +309,31 @@ namespace OculusDB
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
-        public static void AddVersion(AndroidBinary a, Application app, Headset h)
+        public static void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry = null)
         {
             DBVersion dba = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
             dba.parentApplication.id = app.id;
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
             dba.parentApplication.canonicalName = app.canonicalName;
-            if(a.obb_binary != null)
+            
+            if(oldEntry == null)
             {
-                if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
-                dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary));
-            }
-            foreach(AssetFile f in a.asset_files.nodes)
+                if (a.obb_binary != null)
+                {
+                    if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
+                    dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary));
+                }
+                foreach (AssetFile f in a.asset_files.nodes)
+                {
+                    if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
+                    if (f.is_required) dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
+                }
+            } else
             {
-                if (dba.obbList == null) dba.obbList = new List<OBBBinary>();
-                if (f.is_required) dba.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
+                dba.obbList = oldEntry.obbList;
             }
+
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 

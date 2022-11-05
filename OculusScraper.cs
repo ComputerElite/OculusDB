@@ -462,6 +462,7 @@ namespace OculusDB
                     packageName = info.data.app_binary_info.info[0].binary.package_name;
                 }
                 AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                if (bin == null) continue;
                 if(priority) {
                     Logger.Log("Scraping v " + bin.version, LoggingType.Important);
                 }
@@ -473,7 +474,7 @@ namespace OculusDB
                     bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
                 }
 
-                MongoDBInteractor.AddVersion(bin, a, headset);
+                MongoDBInteractor.AddVersion(bin, a, headset, priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
                     
                 DBActivityNewVersion newVersion = new DBActivityNewVersion();
