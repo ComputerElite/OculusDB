@@ -263,12 +263,15 @@ namespace OculusDB
             return deleted;
         }
 
-        public static long DeleteOldVersions(DateTime before, string appId)
+        public static long DeleteOldVersions(DateTime before, string appId, List<string> versions)
         {
             long deleted = 0;
             try
             {
-                deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["__OculusDBType"] == DBDataTypes.Version && x["parentApplication"]["id"] == appId).DeletedCount;
+                while(versions.Count > 0)
+                {
+                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["id"] == versions[0]).DeletedCount;
+                }
             }
             catch
             {

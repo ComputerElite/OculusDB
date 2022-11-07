@@ -454,6 +454,7 @@ namespace OculusDB
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             string packageName = "";
             ConnectedList connected = MongoDBInteractor.GetConnected(a.id);
+            List<string> updatedVersions = new List<string>();
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
                 if(packageName == "")
@@ -461,11 +462,12 @@ namespace OculusDB
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
                     packageName = info.data.app_binary_info.info[0].binary.package_name;
                 }
-                AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
-                if (bin == null) continue;
-                if(priority) {
-                    Logger.Log("Scraping v " + bin.version, LoggingType.Important);
+                if(b != null && priority)
+                {
+                    Logger.Log("Scraping v " + b.version, LoggingType.Important);
                 }
+                AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                if (bin == null) continue; // skip if version was unable to be fetched
                 // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
                 // - If not priority scrape enter changelog and obb of most recent versions
@@ -475,6 +477,7 @@ namespace OculusDB
                 }
 
                 MongoDBInteractor.AddVersion(bin, a, headset, priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
+                updatedVersions.Add(bin.id);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
                     
                 DBActivityNewVersion newVersion = new DBActivityNewVersion();
@@ -508,7 +511,7 @@ namespace OculusDB
             }
 
             MongoDBInteractor.AddApplication(a, headset, id.image, packageName);
-            MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id);
+            MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id, updatedVersions);
             if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
             {
                 foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
