@@ -605,9 +605,17 @@ namespace OculusDB
             server.AddRoute("GET", "/api/v1/updates", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                request.SendString(JsonSerializer.Serialize(config.updates.Take(200)));
+                WebClient c = new WebClient();
+                c.Headers.Add("User-Agent", "OculusDB/1.0");
+                List<GithubCommit> commits = JsonSerializer.Deserialize<List<GithubCommit>>(c.DownloadString("https://api.github.com/repos/ComputerElite/OculusDB/commits?per_page=100"));
+                List<Update> updates = new List<Update>();
+                foreach(GithubCommit co in commits)
+                {
+                    updates.Add(new Update { changelog = co.commit.message + "\\n\\nFull changes: " + co.html_url, time = co.commit.committer.date });
+                }
+                request.SendString(JsonSerializer.Serialize(updates));
                 return true;
-            }));
+            }), false, true, true, true, 3600); // 1 hour
             server.AddRoute("GET", "/api/v1/database", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
