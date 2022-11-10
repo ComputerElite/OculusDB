@@ -246,9 +246,16 @@ function GetValuesOFCheckboxes(options) {
 function PopUp(html) {
     var popup = document.getElementById("popup")
     if(popup) popup.remove();
-    document.body.innerHTML+= `
-        <div class="centerIt popUp" id="popup" onclick="ClosePopUp(event)"><div class="popUpContent">${html}</div></div>
+    var p = document.createElement("div")
+    p.className = "centerIt popUp"
+    p.id = "popup"
+    p.onclick = event => {
+        ClosePopUp(event)
+    }
+    p.innerHTML+= `
+        <div class="popUpContent">${html}</div>
     `
+    document.body.appendChild(p)
 }
 
 function ClosePopUp(e = {target: {id: "popup"}}) {
@@ -530,7 +537,7 @@ function DownloadVersionPopUp(version, id) {
     })
 }
 
-function GetVersion(version, id) {
+function GetVersion(version, id, showWorking = true) {
     return new Promise((resolve, reject) => {
         try {
             var res;
@@ -539,7 +546,7 @@ function GetVersion(version, id) {
             });
             resolve(res)
         } catch{
-            PopUp(`<div>Working... ${loader}</div>`)
+            if(showWorking) PopUp(`<div>Working... ${loader}</div>`)
             fetch(`/api/v1/connected/${id}`).then(res => res.json().then(connected => {
                 var res;
                 connected.versions.forEach(v => {
