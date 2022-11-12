@@ -92,7 +92,7 @@
             <div>
                 <h1>An unknown error occurred (<span id="errorCode">5xx</span>)</h2>
                 <h2>What does that mean</h2>
-                OculusDB is unavailable right now. We'll try to get it operational as fast as possible. This usually takes less than half an hour. We're sorry for the inconvenience.
+                OculusDB is unavailable right now. We'll try to get it operational as fast as possible. This usually takes less than 2 minutes. We're sorry for the inconvenience.
                 <h2>What can I do?</h2>
                 Join the <a href="https://discord.gg/zwRfHQN2UY">OculusDB Discord server</a> and report the problem in the <code>#report-bugs</code> channel there.
                 <h1 onclick="GoBack()" style="text-decoration: underline; color: var(--highlightedColor);">Click here to try and go back to OculusDB</h1>
@@ -101,6 +101,14 @@
         <script>
             const params = new URLSearchParams(window.location.search);
             document.getElementById("errorCode").innerText = params.get("code");
+            
+            setInterval(() => {
+                fetch(params.get("origin")).then(res => {
+                    if (res.status == 200) {
+                        window.location.href = params.get("origin");
+                    }
+                })
+            }, 2000);
 
             function GoBack() {
                 location = params.get("origin");
