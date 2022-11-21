@@ -26,6 +26,76 @@ namespace OculusDB
         public static IMongoCollection<BsonDocument> activityCollection = null;
         public static IMongoCollection<ActivityWebhook> webhookCollection = null;
         public static IMongoCollection<Analytic> analyticsCollection = null;
+        public static IMongoCollection<AppToScrape> appsToScrape = null;
+        public static IMongoCollection<AppToScrape> appsScraping = null;
+        public static IMongoCollection<AppToScrape> scrapedApps = null;
+
+        public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
+        {
+            if(appToScrape.priority)
+            {
+                if (appsToScrape.Count(x => x.appId == appToScrape.appId && !x.priority) > 0)
+                {
+                    appsToScrape.DeleteMany(x => x.appId == appToScrape.appId && !x.priority);
+                }
+
+                if (appsToScrape.Count(x => x.appId == appToScrape.appId && x.priority) <= 0 && appsScraping.Count(x => x.appId == appToScrape.appId) <= 0)
+                {
+                    appsToScrape.InsertOne(appToScrape);
+                }
+            } else
+            {
+                if (!IsAppScrapingOrQueuedToScrape(appToScrape))
+                {
+                    appsToScrape.InsertOne(appToScrape);
+                }
+            }
+        }
+
+        public static void RemoveScrapingAndToScrapeNonPriorityApps()
+        {
+            appsToScrape.DeleteMany(x => !x.priority);
+            appsScraping.DeleteMany(x => !x.priority);
+            scrapedApps.DeleteMany(x => true);
+        }
+
+        public static AppToScrape GetNextScrapeApp(bool priority)
+        {
+            return appsToScrape.Find(x => x.priority == priority).SortBy(x => x.addedTime).FirstOrDefault();
+        }
+
+        public static void MarkAppAsScraping(AppToScrape app)
+        {
+            //app._id = ObjectId.GenerateNewId();
+            appsToScrape.DeleteMany(x => x.appId == app.appId);
+            appsScraping.DeleteMany(x => x.appId == app.appId);
+            appsScraping.InsertOne(app);
+        }
+
+        public static bool AreAppsToScrapePresent(bool priority)
+        {
+            return GetAppsToScrapeCount(priority) > 0;
+        }
+
+        public static long GetAppsToScrapeCount(bool priority)
+        {
+            return appsToScrape.Count(x => x.priority == priority);
+        }
+        public static long GetScrapedAppsCount(bool priority)
+        {
+            return scrapedApps.Count(x => x.priority == priority);
+        }
+
+        public static void MarkAppAsScrapedOrFailed(AppToScrape app)
+        {
+            appsScraping.DeleteMany(x => x.appId == app.appId);
+            if(!app.priority) scrapedApps.InsertOne(app);
+        }
+
+        public static bool IsAppScrapingOrQueuedToScrape(AppToScrape app)
+        {
+            return appsToScrape.Count(x => x.appId == app.appId) + appsScraping.Count(x => x.appId == app.appId) > 0;
+        }
 
         public static void Initialize()
         {
@@ -35,6 +105,10 @@ namespace OculusDB
             webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
             activityCollection = oculusDBDatabase.GetCollection<BsonDocument>("activity");
             analyticsCollection = oculusDBDatabase.GetCollection<Analytic>("analytics");
+
+            appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
+            appsToScrape = oculusDBDatabase.GetCollection<AppToScrape>("appsToScrape");
+            scrapedApps = oculusDBDatabase.GetCollection<AppToScrape>("scrapedApps");
 
             ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
@@ -244,14 +318,15 @@ namespace OculusDB
             return deleted;
         }
 
-        public static long DeleteOldDataExceptVersions(DateTime before, List<string> ids)
+        public static long DeleteOldDataExceptVersions(DateTime before)
         {
+            List<AppToScrape> toDelete = scrapedApps.Find(x => !x.priority).ToList();
             long deleted = 0;
-            for (int i = 0; i < ids.Count; i++)
+            for (int i = 0; i < toDelete.Count; i++)
             {
                 try
                 {
-                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == ids[i]) || (x["__OculusDBType"] != DBDataTypes.Application && x["__OculusDBType"] != DBDataTypes.Version && x["parentApplication"]["id"] == ids[i]))).DeletedCount;
+                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == toDelete[i].appId) || (x["__OculusDBType"] != DBDataTypes.Application && x["__OculusDBType"] != DBDataTypes.Version && x["parentApplication"]["id"] == toDelete[i].appId))).DeletedCount;
                 }
                 catch
                 {
@@ -271,6 +346,7 @@ namespace OculusDB
                 while(versions.Count > 0)
                 {
                     deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["id"] == versions[0]).DeletedCount;
+                    versions.RemoveAt(0);
                 }
             }
             catch

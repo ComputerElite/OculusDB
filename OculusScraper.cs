@@ -16,6 +16,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace OculusDB
 {
@@ -29,9 +31,9 @@ namespace OculusDB
         public static int failedApps = 0;
         public static int doneScrapeThreads = 0;
         public static DateTime lastUpdate = DateTime.Now;
-        public static List<PriorityScrape> priorityScrapeApps = new List<PriorityScrape>();
         public static bool priorityScrapeRunning = false;
         public static DateTime scrapeResumeTime = DateTime.MinValue;
+        public static List<string> appsScrapingRN = new List<string>();
 
         public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
@@ -41,63 +43,8 @@ namespace OculusDB
 
         public static void AddApp(string id, Headset headset)
         {
-            for(int i = 0; i< priorityScrapeApps.Count; i++)
-            {
-                // Doesn't seem to work. Look into it dumb CE
-                // Edit: It does work without changes. Tired me forgot about caching of ComputerUtils
-                if(priorityScrapeApps[i].minNextScrape <= DateTime.Now)
-                {
-                    priorityScrapeApps.RemoveAt(i);
-                    i--;
-                }
-            }
-            //Logger.Log("Length of priority scrape queue: " + priorityScrapeApps.Count, LoggingType.Important);
-            if(priorityScrapeApps.FirstOrDefault(x => x.id == id) == null)
-            {
-                priorityScrapeApps.Add(new PriorityScrape { id = id, headset = headset, minNextScrape = DateTime.Now + new TimeSpan(0, 10, 0)});
-                Logger.Log("added " + id + ", priority scrape length: " + priorityScrapeApps.Count, LoggingType.Important);
-                ScrapeNext();
-            }
-        }
-
-        public static void ScrapeNext()
-        {
-            for(int i = 0; i < priorityScrapeApps.Count; i++)
-            {
-                if(!priorityScrapeApps[i].scraped)
-                {
-                    priorityScrapeApps[i].scraped = true;
-                    ScrapePriority(priorityScrapeApps[i]);
-                    return;
-                }
-            }
-        }
-
-        public static void ScrapePriority(PriorityScrape s)
-        {
-            if (priorityScrapeRunning || scrapeResumeTime > DateTime.Now) return;
-            priorityScrapeRunning = true;
-            Logger.Log("Starting priority scrape of: " + s.id, LoggingType.Important);
-            bool success = false;
-            for (int i = 1; i <= 3 && !success; i++)
-            {
-                try
-                {
-                    Scrape(new ToScrapeApp(s.id, ""), s.headset, true);
-                    success = true;
-                }
-                catch (Exception ex)
-                {
-                    if (i == 3)
-                    {
-                        Logger.Log("Scraping of id " + s.id + " failed. No retiries remaining. Next attempt to scrape in next scrape: " + ex.ToString(), LoggingType.Error);
-                        priorityScrapeRunning = false;
-                        if (Stop()) return;
-                    }
-                }
-            }
-            priorityScrapeRunning = false;
-            ScrapeNext();
+            Logger.Log("Adding priority scrape for " + id + " if not existing already");
+            MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { priority = true, appId = id, headset = headset });
         }
 
         public static void StartScrapingThread()
@@ -137,13 +84,23 @@ namespace OculusDB
             failedApps = 0;
             SwitchToken();
             OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be started now", 0x00FF00);
-            config.ScrapingResumeData.appsToScrape = 0;
-            SetupLimitedScrape(Headset.RIFT);
-            SetupLimitedScrape(Headset.HOLLYWOOD);
-            SetupLimitedScrape(Headset.GEARVR);
-            SetupLimitedScrape(Headset.PACIFIC);
-            SetupLimitedScrape(Headset.SEACLIFF);
-            SetupLimitedScrapeAppLab();
+            if(!MongoDBInteractor.AreAppsToScrapePresent(false))
+            {
+                OculusDBServer.SendMasterWebhookMessage("Info", "Adding apps to scrape", 0x00FF00);
+                config.ScrapingResumeData.appsToScrape = 0;
+                SetupLimitedScrape(Headset.RIFT);
+                SetupLimitedScrape(Headset.HOLLYWOOD);
+                SetupLimitedScrape(Headset.GEARVR);
+                SetupLimitedScrape(Headset.PACIFIC);
+                SetupLimitedScrape(Headset.SEACLIFF);
+                SetupLimitedScrapeAppLab();
+            }
+
+            for(int i = 0; i < 5; i++)
+            {
+                // start 5 scraping threads; 1 priority, 4 normal
+                StartGeneralPurposeScrapingThread(i == 0);
+            }
         }
 
         public static bool IsTokenValidUserToken()
@@ -198,11 +155,10 @@ namespace OculusDB
             if(config.deleteOldData)
             {
                 Logger.Log("Deleting old data");
-                Logger.Log("Deleted " + (MongoDBInteractor.DeleteOldDataExceptVersions(config.ScrapingResumeData.currentScrapeStart, config.ScrapingResumeData.updated)) + " documents from data collection which are before " + config.ScrapingResumeData.currentScrapeStart, LoggingType.Important);
+                Logger.Log("Deleted " + MongoDBInteractor.DeleteOldDataExceptVersions(config.ScrapingResumeData.currentScrapeStart) + " documents from data collection which are before " + config.ScrapingResumeData.currentScrapeStart, LoggingType.Important);
             }
 
-            config.ScrapingResumeData.updated = new List<string>();
-            config.Save();
+            MongoDBInteractor.RemoveScrapingAndToScrapeNonPriorityApps();
             // Has been replaced by application specific activity sending
             //DiscordWebhookSender.SendActivity(config.ScrapingResumeData.currentScrapeStart);
             config.lastDBUpdate = config.ScrapingResumeData.currentScrapeStart;
@@ -219,52 +175,14 @@ namespace OculusDB
             {
                 WebClient c = new WebClient();
                 List<SidequestApplabGame> s = JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true"));
-                List<ToScrapeApp> ids = new List<ToScrapeApp>();
                 foreach (SidequestApplabGame a in s)
                 {
                     string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
                     if (id.Length <= 16)
                     {
                         config.ScrapingResumeData.appsToScrape++;
-                        ids.Add(new ToScrapeApp(id, a.image_url));
+                        MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { appId = id, imageUrl = a.image_url, priority = false, headset = Headset.HOLLYWOOD });
                     }
-                }
-                int current = 0;
-                while (current < ids.Count)
-                {
-                    Thread t = new Thread((ids) =>
-                    {
-                        List<ToScrapeApp> idds = (List<ToScrapeApp>)ids;
-                        Logger.Log("Started Scraping thread for " + idds.Count + " apps of AppLab");
-                        foreach (ToScrapeApp id in idds)
-                        {
-                            bool success = false;
-                            for (int i = 1; i <= 3 && !success; i++)
-                            {
-                                try
-                                {
-                                    Scrape(id, Headset.HOLLYWOOD);
-                                    success = true;
-                                }
-                                catch (Exception ex)
-                                {
-                                    if (i == 3)
-                                    {
-                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape: " + ex.ToString(), LoggingType.Error);
-                                        failedApps++;
-                                        if (Stop()) return;
-                                    }
-                                    //else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
-                                }
-                            }
-                        }
-                        doneScrapeThreads++;
-                        Logger.Log("Scraping thread for " + idds.Count + " apps of AppLab has finished. Threads to finish: " + (totalScrapeThreads - doneScrapeThreads));
-                        if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
-                    });
-                    t.Start(ids.Skip(current).Take(maxAppsToDo).ToList());
-                    current += maxAppsToDo;
-                    totalScrapeThreads++;
                 }
             });
             t.Start();
@@ -290,18 +208,86 @@ namespace OculusDB
             return false;
         }
 
+        public static void StartGeneralPurposeScrapingThread(bool forPriority)
+        {
+            
+            Thread t = new Thread(() =>
+            {
+                while(forPriority ? false : !MongoDBInteractor.AreAppsToScrapePresent(false))
+                {
+                    Thread.Sleep(5000); // wait 5 sec till apps are present
+                }
+                Logger.Log("Started scraping thread #" + totalScrapeThreads);
+                totalScrapeThreads++;
+                while(forPriority ? true : MongoDBInteractor.AreAppsToScrapePresent(false))
+                {
+                    AppToScrape app = MongoDBInteractor.GetNextScrapeApp(forPriority);
+                    if(app == null)
+                    {
+                        // No app present
+                        if(forPriority)
+                        {
+                            Thread.Sleep(20000); // wait 20 seconds till checking again for apps
+                        } else
+                        {
+                            doneScrapeThreads++;
+                            if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
+                            return;
+                        }
+                        continue;
+                    }
+                    if (appsScrapingRN.Contains(app.appId)) continue;
+                    appsScrapingRN.Add(app.appId);
+                    if(forPriority)
+                    {
+                        Logger.Log("Starting priority scrape of " + app.appId);
+                    }
+                    try
+                    {
+                        MongoDBInteractor.MarkAppAsScraping(app);
+                    } catch
+                    {
+                        // App probably gets scraped rn
+                        continue;
+                    }
+                    bool success = false;
+                    for (int i = 1; i <= 3 && !success; i++)
+                    {
+                        try
+                        {
+                            Scrape(app);
+                            success = true;
+                        }
+                        catch (Exception e)
+                        {
+                            if (i == 3)
+                            {
+                                Logger.Log("Scraping of id " + app.appId + " failed. No retiries remaining. Next attempt to scrape in next scrape:\n" + e.ToString(), LoggingType.Error);
+                                failedApps++;
+                                MongoDBInteractor.MarkAppAsScrapedOrFailed(app);
+                                if (appsScrapingRN.Contains(app.appId)) appsScrapingRN.Remove(app.appId);
+                                if (Stop()) return;
+                            }
+                        }
+                    }
+                    if (appsScrapingRN.Contains(app.appId)) appsScrapingRN.Remove(app.appId);
+                }
+            });
+            t.Start();
+        }
+
         public static void SetupLimitedScrape(Headset h)
         {
             Thread t = new Thread(() =>
             {
-                int current = 0;
-                Logger.Log("Settings up scraping threads for " + HeadsetTools.GetHeadsetCodeName(h));
-                List<ToScrapeApp> ids = new List<ToScrapeApp>();
+                int apps = 0;
+                Logger.Log("Adding apps to scrape for " + HeadsetTools.GetHeadsetCodeName(h));
                 try
                 {
                     foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
                     {
-                        ids.Add(new ToScrapeApp(a.id, a.cover_square_image.uri));
+                        apps++;
+                        MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { headset = h, appId = a.id, priority = false, imageUrl = a.cover_square_image.uri });
                         config.ScrapingResumeData.appsToScrape++;
                     }
                 } catch(Exception e)
@@ -309,44 +295,7 @@ namespace OculusDB
                     Logger.Log(e.ToString(), LoggingType.Warning);
                     //OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
                 }
-                Logger.Log("Queued " + ids.Count + " apps for scraping for " + HeadsetTools.GetHeadsetCodeName(h));
-                while (current < ids.Count)
-                {
-                    Thread t = new Thread((ids) =>
-                    {
-                        List<ToScrapeApp> idds = (List<ToScrapeApp>)ids;
-                        Logger.Log("Started Scraping thread for " + idds.Count + " apps of " + HeadsetTools.GetHeadsetCodeName(h));
-                        foreach (ToScrapeApp id in idds)
-                        {
-                            bool success = false;
-                            for(int i = 1; i <= 3 && !success; i++)
-                            {
-                                try
-                                {
-                                    Scrape(id, h);
-                                    success = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    if (i == 3)
-                                    {
-                                        Logger.Log("Scraping of id " + id.id + " failed. No retiries remaining. Next attempt to scrape in next scrape:\n" + e.ToString(), LoggingType.Error);
-                                        failedApps++;
-                                        if (Stop()) return;
-                                    }
-                                    //else Logger.Log("Scraping of id " + id + " failed. Retrying. Remaining attempts: " + (3 - i), LoggingType.Warning);
-                                }
-                                config.ScrapingResumeData.scrapedApps++;
-                            }
-                        }
-                        doneScrapeThreads++;
-                        Logger.Log("Scraping thread for " + idds.Count + " apps of " + HeadsetTools.GetHeadsetCodeName(h) + " has finished. Threads to finish: " + (totalScrapeThreads - doneScrapeThreads));
-                        if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
-                    });
-                    t.Start(ids.Skip(current).Take(maxAppsToDo).ToList());
-                    current += maxAppsToDo;
-                    totalScrapeThreads++;
-                }
+                Logger.Log("Queued " + apps + " apps for scraping for " + HeadsetTools.GetHeadsetCodeName(h));
             });
             t.Start();
         }
@@ -422,25 +371,27 @@ namespace OculusDB
             }
         }
 
-
-        public static void Scrape(ToScrapeApp id, Headset headset, bool priority = false)
+        
+        public static void Scrape(AppToScrape app)
         {
             lastUpdate = DateTime.Now;
-            if (MongoDBInteractor.DoesIdExistInCurrentScrape(id.id) && !priority)
+            // This should be save to remove as I transitioned to MongoDB for managing queued scrapes
+            /*
+            if (MongoDBInteractor.DoesIdExistInCurrentScrape(app.id) && !app.priority)
             {
                 //Logger.Log(id + " exists in current scrape. Skipping");
                 return;
             }
-            List<BsonDocument> activitiesToSend = new List<BsonDocument>();
-            Logger.Log("Scraping " + id.id, LoggingType.Important);
+            */
+            Logger.Log("Scraping " + app.appId, LoggingType.Important);
             DateTime priorityScrapeStart = DateTime.Now;
-            Application a = GraphQLClient.GetAppDetail(id.id, headset).data.node;
+            Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
             if (a == null) throw new Exception("Application is null");
             if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
             {
                 DBActivityNewApplication e = new DBActivityNewApplication();
                 e.id = a.id;
-                e.hmd = headset;
+                e.hmd = app.headset;
                 e.publisherName = a.publisher_name;
                 e.displayName = a.displayName;
                 if(a.baseline_offer != null) e.priceOffset = a.baseline_offer.price.offset_amount;
@@ -448,7 +399,7 @@ namespace OculusDB
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
-                activitiesToSend.Add(e.ToBsonDocument());
+                DiscordWebhookSender.SendActivity(e.ToBsonDocument());
                 MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument());
             }
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
@@ -462,21 +413,21 @@ namespace OculusDB
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
                     packageName = info.data.app_binary_info.info[0].binary.package_name;
                 }
-                if(b != null && priority)
+                if(b != null && app.priority)
                 {
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
                 }
-                AndroidBinary bin = priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                AndroidBinary bin = app.priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
                 if (bin == null) continue; // skip if version was unable to be fetched
                 // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
                 // - If not priority scrape enter changelog and obb of most recent versions
-                if(!priority && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
+                if(!app.priority && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
                 {
                     bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
                 }
 
-                MongoDBInteractor.AddVersion(bin, a, headset, priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
+                MongoDBInteractor.AddVersion(bin, a, app.headset, app.priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
                 updatedVersions.Add(bin.id);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
                     
@@ -484,7 +435,7 @@ namespace OculusDB
                 newVersion.id = bin.id;
                 newVersion.changeLog = bin.changeLog;
                 newVersion.parentApplication.id = a.id;
-                newVersion.parentApplication.hmd = headset;
+                newVersion.parentApplication.hmd = app.headset;
                 newVersion.parentApplication.canonicalName = a.canonicalName;
                 newVersion.parentApplication.displayName = a.displayName;
                 newVersion.releaseChannels = bin.binary_release_channels.nodes;
@@ -493,7 +444,7 @@ namespace OculusDB
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
                 if (lastActivity == null)
                 {
-                    activitiesToSend.Add(newVersion.ToBsonDocument());
+                    DiscordWebhookSender.SendActivity(newVersion.ToBsonDocument());
                     MongoDBInteractor.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument());
                 }
                 else
@@ -504,13 +455,12 @@ namespace OculusDB
                         DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
                         toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
                         toAdd.__lastEntry = lastActivity["_id"].ToString();
-                        activitiesToSend.Add(toAdd.ToBsonDocument());
+                        DiscordWebhookSender.SendActivity(toAdd.ToBsonDocument());
                         MongoDBInteractor.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument());
                     }
                 }
             }
-
-            MongoDBInteractor.AddApplication(a, headset, id.image, packageName);
+            MongoDBInteractor.AddApplication(a, app.headset, app.imageUrl, packageName);
             MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id, updatedVersions);
             if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
             {
@@ -522,7 +472,7 @@ namespace OculusDB
                     DBActivityNewDLC newDLC = new DBActivityNewDLC();
                     newDLC.id = dlc.node.id;
                     newDLC.parentApplication.id = a.id;
-                    newDLC.parentApplication.hmd = headset;
+                    newDLC.parentApplication.hmd = app.headset;
                     newDLC.parentApplication.canonicalName = a.canonicalName;
                     newDLC.parentApplication.displayName = a.displayName;
                     newDLC.displayName = dlc.node.display_name;
@@ -539,10 +489,10 @@ namespace OculusDB
                     BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(dlc.node.id);
                     if (dlc.node.IsIAPItem())
                     {
-                        MongoDBInteractor.AddDLC(dlc.node, headset);
+                        MongoDBInteractor.AddDLC(dlc.node, app.headset);
                         if (oldDLC == null)
                         {
-                            activitiesToSend.Add(newDLC.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(newDLC.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument());
                         }
                         else if (oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
@@ -550,14 +500,14 @@ namespace OculusDB
                             DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                             updated.__lastEntry = oldDLC["_id"].ToString();
                             updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
-                            activitiesToSend.Add(updated.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(updated.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument());
                         }
 
                     }
                     else
                     {
-                        MongoDBInteractor.AddDLCPack(dlc.node, headset, a);
+                        MongoDBInteractor.AddDLCPack(dlc.node, app.headset, a);
                         DBActivityNewDLCPack newDLCPack = ObjectConverter.ConvertCopy<DBActivityNewDLCPack, DBActivityNewDLC>(newDLC);
                         newDLCPack.__OculusDBType = DBDataTypes.ActivityNewDLCPack;
                         foreach (Node<IAPItem> item in dlc.node.bundle_items.edges)
@@ -572,7 +522,7 @@ namespace OculusDB
                         }
                         if (oldDLC == null)
                         {
-                            activitiesToSend.Add(newDLCPack.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(newDLCPack.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument());
                         }
                         else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToList()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToList()))
@@ -580,7 +530,7 @@ namespace OculusDB
                             DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
                             updated.__lastEntry = oldDLC["_id"].ToString();
                             updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
-                            activitiesToSend.Add(updated.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(updated.ToBsonDocument());
                             MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument());
                         }
                     }
@@ -589,7 +539,7 @@ namespace OculusDB
             DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
             DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
             priceChange.parentApplication.id = a.id;
-            priceChange.parentApplication.hmd = headset;
+            priceChange.parentApplication.hmd = app.headset;
             priceChange.parentApplication.canonicalName = a.canonicalName;
             priceChange.parentApplication.displayName = a.displayName;
 
@@ -626,22 +576,20 @@ namespace OculusDB
                     priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
                     priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
                     priceChange.__lastEntry = lastPriceChange.__id;
-                    activitiesToSend.Add(priceChange.ToBsonDocument());
+                    DiscordWebhookSender.SendActivity(priceChange.ToBsonDocument());
                     MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
                 }
             }
             else
             {
-                activitiesToSend.Add(priceChange.ToBsonDocument());
+                DiscordWebhookSender.SendActivity(priceChange.ToBsonDocument());
                 MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
             }
-            if(priority)
+            if(app.priority)
             {
                 MongoDBInteractor.DeleteOldData(priorityScrapeStart, new List<string> { a.id });
             }
-            if(!priority) config.ScrapingResumeData.updated.Add(a.id);
-            DiscordWebhookSender.SendActivity(activitiesToSend);
-            Logger.Log("Scraped " + id.id);
+            Logger.Log("Scraped " + app.appId);
             config.Save();
         }
 
@@ -656,12 +604,17 @@ namespace OculusDB
         }
     }
 
-    public class PriorityScrape
+    public class AppToScrape
     {
-        public bool scraped = false;
-        public string id { get; set; } = "";
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string _id { get; set; }
+        
+        public string appId { get; set; } = "";
+        public bool priority { get; set; } = false;
         public Headset headset { get; set; } = Headset.HOLLYWOOD;
-        public DateTime minNextScrape { get; set; } = DateTime.Now;
+        public DateTime addedTime { get; set; } = DateTime.Now;
+        public string imageUrl { get; set; } = "";
     }
 
     public class SidequestApplabGame

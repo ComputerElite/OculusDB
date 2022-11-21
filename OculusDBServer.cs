@@ -150,7 +150,7 @@ namespace OculusDB
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -624,8 +624,8 @@ namespace OculusDB
                     DBInfo info = new DBInfo();
                     info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
                     info.lastUpdated = config.lastDBUpdate;
-                    info.appsToScrape = config.ScrapingResumeData.appsToScrape;
-                    info.scrapedApps = config.ScrapingResumeData.updated.Count;
+                    info.appsToScrape = MongoDBInteractor.GetAppsToScrapeCount(false);
+                    info.scrapedApps = MongoDBInteractor.GetScrapedAppsCount(false);
                     info.dataDocuments = MongoDBInteractor.CountDataDocuments();
                     info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
                     request.SendString(JsonSerializer.Serialize(info));
