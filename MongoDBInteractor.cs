@@ -55,7 +55,7 @@ namespace OculusDB
         public static void RemoveScrapingAndToScrapeNonPriorityApps()
         {
             appsToScrape.DeleteMany(x => !x.priority);
-            appsScraping.DeleteMany(x => !x.priority);
+            appsScraping.DeleteMany(x => true);
             scrapedApps.DeleteMany(x => true);
         }
 

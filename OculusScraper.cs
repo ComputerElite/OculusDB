@@ -87,6 +87,7 @@ namespace OculusDB
             if(!MongoDBInteractor.AreAppsToScrapePresent(false))
             {
                 OculusDBServer.SendMasterWebhookMessage("Info", "Adding apps to scrape", 0x00FF00);
+                MongoDBInteractor.RemoveScrapingAndToScrapeNonPriorityApps();
                 config.ScrapingResumeData.appsToScrape = 0;
                 SetupLimitedScrape(Headset.RIFT);
                 SetupLimitedScrape(Headset.HOLLYWOOD);
