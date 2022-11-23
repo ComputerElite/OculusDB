@@ -88,6 +88,7 @@ namespace OculusDB
 
         public static void MarkAppAsScrapedOrFailed(AppToScrape app)
         {
+            Logger.Log("Marking " + app.appId + " as scraped");
             appsScraping.DeleteMany(x => x.appId == app.appId);
             if(!app.priority) scrapedApps.InsertOne(app);
         }
@@ -545,7 +546,6 @@ namespace OculusDB
                 }),
                     new BsonDocument("$or", a)
                 })};
-                Logger.Log(q.ToString());
                 return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
             } else
             {
@@ -556,7 +556,6 @@ namespace OculusDB
                     new BsonDocument("displayName", regex),
                     new BsonDocument("$or", a)
                 })};
-                Logger.Log(q.ToJson(), LoggingType.Important);
                 return GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
             }
             
