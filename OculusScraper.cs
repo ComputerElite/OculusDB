@@ -229,11 +229,6 @@ namespace OculusDB
                         if(forPriority)
                         {
                             Thread.Sleep(20000); // wait 20 seconds till checking again for apps
-                        } else
-                        {
-                            doneScrapeThreads++;
-                            if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
-                            return;
                         }
                         continue;
                     }
@@ -274,6 +269,8 @@ namespace OculusDB
                     }
                     if (appsScrapingRN.Contains(app.appId)) appsScrapingRN.Remove(app.appId);
                 }
+                doneScrapeThreads++;
+                if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
             });
             t.Start();
         }
