@@ -257,6 +257,7 @@ namespace OculusDB
                         try
                         {
                             Scrape(app);
+                            MongoDBInteractor.MarkAppAsScrapedOrFailed(app);
                             success = true;
                         }
                         catch (Exception e)
