@@ -806,7 +806,7 @@ function FormatParentApplication(a, activityId) {
 }
 
 function FormatApplication(application, htmlId = "") {
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))">
+    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))" cmon-1="Copy Oculus link" cmov-1="Copy('${GetOculusLink(application.id, application.hmd)}')">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
