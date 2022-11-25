@@ -342,11 +342,13 @@ namespace OculusDB
         public static long DeleteOldVersions(DateTime before, string appId, List<string> versions)
         {
             long deleted = 0;
+            
             try
             {
                 while(versions.Count > 0)
                 {
-                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["id"] == versions[0]).DeletedCount;
+                    Logger.Log(dataCollection.Count(x => x["__lastUpdated"] < before && x["id"] == versions[0]) + " versions of " + versions[0] + " to delete before " + before);
+                    //deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["id"] == versions[0]).DeletedCount;
                     versions.RemoveAt(0);
                 }
             }

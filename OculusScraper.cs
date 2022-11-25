@@ -38,6 +38,7 @@ namespace OculusDB
         public const int maxAppsToDo = 2000;
         public const int maxAppsToFail = 25;
         public const int minutesPause = 120;
+        public static bool priorityThreadStarted = false;
 
         public static List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
 
@@ -96,11 +97,17 @@ namespace OculusDB
                 SetupLimitedScrape(Headset.SEACLIFF);
                 SetupLimitedScrapeAppLab();
             }
-
-            for(int i = 0; i < 5; i++)
+            
+            if (!priorityThreadStarted)
             {
-                // start 5 scraping threads; 1 priority, 4 normal
-                StartGeneralPurposeScrapingThread(i == 0);
+                priorityThreadStarted = true;
+                StartGeneralPurposeScrapingThread(true);
+            }
+            
+            for (int i = 0; i < 4; i++)
+            {
+                // start 4 normal scraping threads
+                StartGeneralPurposeScrapingThread(false);
             }
         }
 
@@ -211,15 +218,16 @@ namespace OculusDB
 
         public static void StartGeneralPurposeScrapingThread(bool forPriority)
         {
-            
+            int threadId = totalScrapeThreads + 0;
+            totalScrapeThreads++;
             Thread t = new Thread(() =>
             {
-                while(forPriority ? false : !MongoDBInteractor.AreAppsToScrapePresent(false))
+                Logger.Log("Started scraping thread #" + threadId);
+                while (forPriority ? false : !MongoDBInteractor.AreAppsToScrapePresent(false))
                 {
+                    Logger.Log("Scraping thread #" + threadId + " delayed by 5 seconds due to no non priority apps being present");
                     Thread.Sleep(5000); // wait 5 sec till apps are present
                 }
-                Logger.Log("Started scraping thread #" + totalScrapeThreads);
-                totalScrapeThreads++;
                 while(forPriority ? true : MongoDBInteractor.AreAppsToScrapePresent(false))
                 {
                     AppToScrape app = MongoDBInteractor.GetNextScrapeApp(forPriority);
@@ -263,14 +271,17 @@ namespace OculusDB
                                 failedApps++;
                                 MongoDBInteractor.MarkAppAsScrapedOrFailed(app);
                                 if (appsScrapingRN.Contains(app.appId)) appsScrapingRN.Remove(app.appId);
-                                if (Stop()) return;
+                                if (Stop())
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
                     if (appsScrapingRN.Contains(app.appId)) appsScrapingRN.Remove(app.appId);
+                    doneScrapeThreads++;
+                    if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
                 }
-                doneScrapeThreads++;
-                if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
             });
             t.Start();
         }
