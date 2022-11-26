@@ -29,6 +29,8 @@ namespace OculusDB
         public HttpServer server = null;
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public static bool isBlocked = false;
+        // Set to false if not in dev mode
+        public static bool debugging = false;
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2771261574362850\" crossorigin=\"anonymous\"></script>" },
@@ -142,9 +144,6 @@ namespace OculusDB
             server.StartServer(config.port);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
-            // Comment if not in dev env
-            //server.DefaultCacheValidityInSeconds = 0;
-
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
 
@@ -152,8 +151,28 @@ namespace OculusDB
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
             OculusScraper.StartScrapingThread();
-
+            
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
+
+            if(debugging)
+            {
+                server.DefaultCacheValidityInSeconds = 0;
+                server.AddRoute("GET", "/debug/startscrapingthread", new Func<ServerRequest, bool>(request =>
+                {
+                    OculusScraper.StartGeneralPurposeScrapingThread(false);
+                    return true;
+                }));
+                server.AddRoute("GET", "/debug/addpriority/", new Func<ServerRequest, bool>(request =>
+                {
+                    OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD, true);
+                    return true;
+                }), true);
+                server.AddRoute("GET", "/debug/addnormal/", new Func<ServerRequest, bool>(request =>
+                {
+                    OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD, false);
+                    return true;
+                }), true);
+            }
 
             ////////////////// LOGIN AND ADMIN STUFF
             server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>

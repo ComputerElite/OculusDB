@@ -398,6 +398,7 @@ namespace OculusDB
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
             dba.parentApplication.canonicalName = app.canonicalName;
+            dba.__lastUpdated = DateTime.Now;
             
             if(oldEntry == null)
             {

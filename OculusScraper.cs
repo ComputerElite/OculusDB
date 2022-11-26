@@ -42,10 +42,10 @@ namespace OculusDB
 
         public static List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
 
-        public static void AddApp(string id, Headset headset)
+        public static void AddApp(string id, Headset headset, bool priority = true)
         {
             Logger.Log("Adding priority scrape for " + id + " if not existing already");
-            MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { priority = true, appId = id, headset = headset });
+            MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { priority = priority, appId = id, headset = headset });
         }
 
         public static void StartScrapingThread()
@@ -90,12 +90,15 @@ namespace OculusDB
                 OculusDBServer.SendMasterWebhookMessage("Info", "Adding apps to scrape", 0x00FF00);
                 MongoDBInteractor.RemoveScrapingAndToScrapeNonPriorityApps();
                 config.ScrapingResumeData.appsToScrape = 0;
-                SetupLimitedScrape(Headset.RIFT);
-                SetupLimitedScrape(Headset.HOLLYWOOD);
-                SetupLimitedScrape(Headset.GEARVR);
-                SetupLimitedScrape(Headset.PACIFIC);
-                SetupLimitedScrape(Headset.SEACLIFF);
-                SetupLimitedScrapeAppLab();
+                if(!OculusDBServer.debugging)
+                {
+                    SetupLimitedScrape(Headset.RIFT);
+                    SetupLimitedScrape(Headset.HOLLYWOOD);
+                    SetupLimitedScrape(Headset.GEARVR);
+                    SetupLimitedScrape(Headset.PACIFIC);
+                    SetupLimitedScrape(Headset.SEACLIFF);
+                    SetupLimitedScrapeAppLab();
+                }
             }
             
             if (!priorityThreadStarted)
