@@ -307,7 +307,7 @@ namespace OculusDB
             {
                 try
                 {
-                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == ids[i]) || (x["__OculusDBType"] != DBDataTypes.Application && x["parentApplication"]["id"] == ids[i]))).DeletedCount;
+                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && ((x["__OculusDBType"] == DBDataTypes.Application && x["id"] == ids[i]) || (x["__OculusDBType"] != DBDataTypes.Application && x["__OculusDBType"] != DBDataTypes.Version && x["parentApplication"]["id"] == ids[i]))).DeletedCount;
                 }
                 catch
                 {
@@ -348,7 +348,7 @@ namespace OculusDB
                 while(versions.Count > 0)
                 {
                     Logger.Log(dataCollection.Count(x => x["__lastUpdated"] < before && x["id"] == versions[0]) + " versions of " + versions[0] + " to delete before " + before);
-                    //deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["id"] == versions[0]).DeletedCount;
+                    deleted += dataCollection.DeleteMany(x => x["__lastUpdated"] < before && x["id"] == versions[0]).DeletedCount;
                     versions.RemoveAt(0);
                 }
             }
