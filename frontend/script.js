@@ -59,7 +59,7 @@ const contextMenu = `
 <div class="contextMenu" id="contextMenu">
 
 </div>`
-PopUp("OculusDB is currently running some live tests. During these tests, the site may crash or not work as expected. We are sorry for the inconvenience")
+//PopUp("OculusDB is currently running some live tests. During these tests, the site may crash or not work as expected. We are sorry for the inconvenience")
 
 function HighlightElement(id, smooth = true) {
     document.getElementById(id).scrollIntoView({
