@@ -140,7 +140,6 @@ namespace OculusDB
                     }
                 }
             });
-            t.Start();
 			return;
 			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
