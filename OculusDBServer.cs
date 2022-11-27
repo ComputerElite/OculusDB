@@ -124,16 +124,16 @@ namespace OculusDB
 
             OculusInteractor.Init();
 			MongoDBInteractor.Initialize();
-			return;
 
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
 			/////////////////////////////////////////////
 			OculusScraper.StartScrapingThread();
+			return;
 
-            //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
+			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
-            if(debugging)
+			if (debugging)
             {
                 server.DefaultCacheValidityInSeconds = 0;
                 server.AddRoute("GET", "/debug/startscrapingthread", new Func<ServerRequest, bool>(request =>
