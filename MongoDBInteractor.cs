@@ -32,6 +32,7 @@ namespace OculusDB
 
         public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
         {
+            return;
             if(appToScrape.priority)
             {
                 if (appsToScrape.Count(x => x.appId == appToScrape.appId && !x.priority) > 0)
