@@ -114,14 +114,13 @@ namespace OculusDB
         {
             server = httpServer;
 			server.StartServer(config.port);
-            return;
 			server.logRequests = false;
             //server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
-            Thread t = new Thread(() =>
+			Thread t = new Thread(() =>
             {
                 Logger.Log("Converting old images", LoggingType.Important);
                 foreach (string loc in Directory.EnumerateFiles(OculusDBEnvironment.dataDir + "images"))
@@ -142,9 +141,8 @@ namespace OculusDB
                 }
             });
             t.Start();
-
+			return;
 			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
-            server.StartServer(config.port);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             OculusInteractor.Init();
