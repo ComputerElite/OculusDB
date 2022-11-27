@@ -120,16 +120,16 @@ namespace OculusDB
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
-			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
+			//AppDomain.CurrentDomain.UnhandledException += HandleExeption;
 
             OculusInteractor.Init();
-            MongoDBInteractor.Initialize();
+			return;
+			MongoDBInteractor.Initialize();
 
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
             OculusScraper.StartScrapingThread();
-            return;
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
