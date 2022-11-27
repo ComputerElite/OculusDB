@@ -39,6 +39,15 @@
             <div class="SearchResults" id="searchResults">
 
             </div>
+            <div>
+                Are we missing an app? Enter a valid app id
+                <br>
+                or url and we will add it to the database.
+                <br>
+                <input type="text" placeholder="App id or URL" id="addApp">
+                <input type="button" value="Submit" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AddApp()">
+                <div class="textbox" style="width: clamp(600px, 50vw, 1800px);" id="reportmissingbox"></div>
+            </div>
         </div>
         <script src="/script.js"></script>
         <script>
@@ -53,6 +62,22 @@
                 if(e.code == "Enter") {
                     Search("query2")
                 }
+            }
+
+            function AddApp() {
+                var appId = document.getElementById("addApp").value
+                TextBoxText("Waiting for repsponse")
+                fetch(`/api/v1/reportmissing/${appId}`).then(res => {
+                    res.text().then(text => {
+                        if(res.status == 200) {
+                            TextBoxGood("reportmissingbox", text)
+                        } else if (res.status == 400) {
+                            TextBoxError("reportmissingbox", text)
+                        } else {
+                            TextBoxError("reportmissingbox", "An unknown error occurred")
+                        }
+                    })
+                })
             }
 
             var options = {

@@ -412,7 +412,30 @@ namespace OculusDB
                 request.SendString(JsonSerializer.Serialize(apps), "application/json");
                 return true;
             }), false, true, true, true);
-            server.AddRoute("GET", "/api/v1/packagename/", new Func<ServerRequest, bool>(request =>
+			
+			server.AddRoute("GET", "/api/v1/reportmissing/", new Func<ServerRequest, bool>(request =>
+			{
+				if (!DoesUserHaveAccess(request)) return true;
+                string appId = request.pathDiff.Split('?')[0];
+                if (appId.EndsWith("/")) appId = appId.TrimEnd('/');
+                if(appId.LastIndexOf("/") >= 0) appId = appId.Substring(appId.LastIndexOf("/") + 1);
+				Logger.Log(appId);
+
+				Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
+				OculusScraper.AddApp(appId, h);
+                Data<Application> app = GraphQLClient.GetAppDetail(appId, h);
+
+                if(app.data.node == null)
+                {
+                    request.SendString("This app does not exist", "text/plain", 400);
+                    return true;
+                }
+
+				request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
+				return true;
+			}), true, true, true, true);
+			
+			server.AddRoute("GET", "/api/v1/packagename/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
                 try
