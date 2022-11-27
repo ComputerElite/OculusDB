@@ -123,13 +123,13 @@ namespace OculusDB
 			//AppDomain.CurrentDomain.UnhandledException += HandleExeption;
 
             OculusInteractor.Init();
-			return;
 			MongoDBInteractor.Initialize();
+			return;
 
-            /////////////////////////////////////////////
-            // DON'T FORGET TO ADD IT BACK EVERY TIME. //
-            /////////////////////////////////////////////
-            OculusScraper.StartScrapingThread();
+			/////////////////////////////////////////////
+			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
+			/////////////////////////////////////////////
+			OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
