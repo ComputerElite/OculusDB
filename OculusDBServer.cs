@@ -146,7 +146,7 @@ namespace OculusDB
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             OculusInteractor.Init();
-            //MongoDBInteractor.Initialize();
+            MongoDBInteractor.Initialize();
 
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //

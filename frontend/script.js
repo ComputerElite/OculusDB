@@ -5,6 +5,7 @@
     supportUs: false
 }
 
+
 document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
 
 document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
@@ -58,6 +59,7 @@ const contextMenu = `
 <div class="contextMenu" id="contextMenu">
 
 </div>`
+PopUp("OculusDB is currently running some live tests. During these tests, the site may crash or not work as expected. We are sorry for the inconvenience")
 
 function HighlightElement(id, smooth = true) {
     document.getElementById(id).scrollIntoView({
