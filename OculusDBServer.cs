@@ -120,37 +120,16 @@ namespace OculusDB
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
-			Thread t = new Thread(() =>
-            {
-                Logger.Log("Converting old images", LoggingType.Important);
-                foreach (string loc in Directory.EnumerateFiles(OculusDBEnvironment.dataDir + "images"))
-                {
-                    if (loc.EndsWith(".webp")) continue;
-                    try
-                    {
-                        Logger.Log("Converting " + loc, LoggingType.Important);
-                        using (var img = Image.Load(loc))
-                        {
-                            img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(loc) + ".webp");
-                        }
-                        File.Delete(loc);
-                    } catch
-                    {
-                        
-                    }
-                }
-            });
-			return;
 			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             OculusInteractor.Init();
-            //MongoDBInteractor.Initialize();
+            MongoDBInteractor.Initialize();
 
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 

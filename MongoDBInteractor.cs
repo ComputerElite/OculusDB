@@ -32,7 +32,6 @@ namespace OculusDB
 
         public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
         {
-            return;
             if(appToScrape.priority)
             {
                 if (appsToScrape.Count(x => x.appId == appToScrape.appId && !x.priority) > 0)
@@ -55,48 +54,40 @@ namespace OculusDB
 
         public static void RemoveScrapingAndToScrapeNonPriorityApps()
         {
-            return;
             appsToScrape.DeleteMany(x => !x.priority);
             appsScraping.DeleteMany(x => true);
             scrapedApps.DeleteMany(x => true);
         }
 
         public static AppToScrape GetNextScrapeApp(bool priority)
-		{
-			return null;
-			return appsToScrape.Find(x => x.priority == priority).SortBy(x => x.addedTime).FirstOrDefault();
+        {
+            return appsToScrape.Find(x => x.priority == priority).SortBy(x => x.addedTime).FirstOrDefault();
         }
 
         public static void MarkAppAsScraping(AppToScrape app)
         {
-
-			return;
-			//app._id = ObjectId.GenerateNewId();
-			appsToScrape.DeleteMany(x => x.appId == app.appId);
+            //app._id = ObjectId.GenerateNewId();
+            appsToScrape.DeleteMany(x => x.appId == app.appId);
             appsScraping.DeleteMany(x => x.appId == app.appId);
             appsScraping.InsertOne(app);
         }
 
         public static bool AreAppsToScrapePresent(bool priority)
         {
-            return false;
             return GetAppsToScrapeCount(priority) > 0;
         }
 
         public static long GetAppsToScrapeCount(bool priority)
         {
-            return 0;
             return appsToScrape.Count(x => x.priority == priority);
         }
         public static long GetScrapedAppsCount(bool priority)
         {
-            return 0;
             return scrapedApps.Count(x => x.priority == priority);
         }
 
         public static void MarkAppAsScrapedOrFailed(AppToScrape app)
         {
-            return;
             Logger.Log("Marking " + app.appId + " as scraped");
             appsScraping.DeleteMany(x => x.appId == app.appId);
             if(!app.priority) scrapedApps.InsertOne(app);
@@ -104,7 +95,6 @@ namespace OculusDB
 
         public static bool IsAppScrapingOrQueuedToScrape(AppToScrape app)
         {
-            return false;
             return appsToScrape.Count(x => x.appId == app.appId) + appsScraping.Count(x => x.appId == app.appId) > 0;
         }
 
@@ -193,13 +183,11 @@ namespace OculusDB
 
         public static void AddAnalytic(Analytic a)
         {
-            return;
             analyticsCollection.InsertOne(a);
         }
 
         public static List<Analytic> GetAllAnalyticsForApplication(string parentApplicationId, DateTime after)
         {
-            return null;
             return analyticsCollection.Aggregate<Analytic>(new BsonDocument[]
 {
     new BsonDocument("$match",
@@ -227,7 +215,6 @@ namespace OculusDB
 
         public static List<Analytic> GetApplicationAnalytics(DateTime after, int skip = 0, int take = 50)
         {
-            return null;
             return analyticsCollection.Aggregate<Analytic>(new BsonDocument[]
 {
     new BsonDocument("$match",
@@ -254,50 +241,42 @@ namespace OculusDB
 
         public static long CountDataDocuments()
         {
-            return 0;
             return dataCollection.CountDocuments(new BsonDocument());
         }
 
         public static long CountActivityDocuments()
-		{
-			return 0;
-			return activityCollection.CountDocuments(new BsonDocument());
+        {
+            return activityCollection.CountDocuments(new BsonDocument());
         }
 
         public static List<BsonDocument> GetApplicationByPackageName(string packageName)
         {
-            return null;
             return dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application && x["packageName"] == packageName).ToList();
         }
 
         public static List<BsonDocument> GetBestReviews(int skip, int take)
         {
-            return null;
             return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["quality_rating_aggregate"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetName(int skip, int take)
         {
-            return null;
             return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["display_name"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetPub(int skip, int take)
-		{
-			return null;
-			return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["publisher_name"]).Skip(skip).Limit(take).ToList());
+        {
+            return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["publisher_name"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetRelease(int skip, int take)
-		{
-			return null;
-			return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["release_date"]).Skip(skip).Limit(take).ToList());
+        {
+            return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["release_date"]).Skip(skip).Limit(take).ToList());
         }
 
         public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
-		{
-			return null;
-			string[] stuff = typeConstraint.Split(',');
+        {
+            string[] stuff = typeConstraint.Split(',');
             BsonArray a = new BsonArray();
             foreach (string s in stuff) a.Add(new BsonDocument("__OculusDBType", s));
             BsonDocument q = new BsonDocument();
@@ -307,27 +286,23 @@ namespace OculusDB
             return activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
         }
         public static List<BsonDocument> GetActivityById(string id)
-		{
-			return null;
-			return activityCollection.Find(x => x["_id"] == new ObjectId(id)).ToList();
+        {
+            return activityCollection.Find(x => x["_id"] == new ObjectId(id)).ToList();
         }
 
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
-		{
-			return null;
-			return activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+        {
+            return activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
         }
 
         public static List<BsonDocument> GetLatestActivities(DateTime after)
-		{
-			return null;
-			return activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList();
+        {
+            return activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList();
         }
 
         public static long DeleteOldData(DateTime before, List<string> ids)
-		{
-			return 0;
-			long deleted = 0;
+        {
+            long deleted = 0;
             for(int i = 0; i < ids.Count; i++)
             {
                 try
@@ -345,9 +320,8 @@ namespace OculusDB
         }
 
         public static long DeleteOldDataExceptVersions(DateTime before)
-		{
-			return 0;
-			List<AppToScrape> toDelete = scrapedApps.Find(x => !x.priority).ToList();
+        {
+            List<AppToScrape> toDelete = scrapedApps.Find(x => !x.priority).ToList();
             long deleted = 0;
             for (int i = 0; i < toDelete.Count; i++)
             {
@@ -366,9 +340,8 @@ namespace OculusDB
         }
 
         public static long DeleteOldVersions(DateTime before, string appId, List<string> versions)
-		{
-			return 0;
-			long deleted = 0;
+        {
+            long deleted = 0;
             
             try
             {
@@ -388,34 +361,29 @@ namespace OculusDB
         }
 
         public static List<ActivityWebhook> GetWebhooks()
-		{
-			return null;
-			return webhookCollection.Find(new BsonDocument()).ToList();
+        {
+            return webhookCollection.Find(new BsonDocument()).ToList();
         }
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId)
-		{
-			return null;
-			return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+        {
+            return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
         }
 
         public static List<BsonDocument> GetPriceChanges(string id)
-		{
-			return null;
-			return activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList();
+        {
+            return activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList();
         }
 
         public static void AddBsonDocumentToActivityCollection(BsonDocument d)
-		{
-			return;
-			d["_id"] = ObjectId.GenerateNewId();
+        {
+            d["_id"] = ObjectId.GenerateNewId();
             activityCollection.InsertOne(d);
         }
 
         public static void AddApplication(Application a, Headset h, string image, string packageName)
-		{
-			return;
-			DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
+        {
+            DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
             dba.hmd = h;
             dba.img = image;
             dba.packageName = packageName;
@@ -424,9 +392,8 @@ namespace OculusDB
         }
 
         public static void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry = null)
-		{
-			return;
-			DBVersion dba = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
+        {
+            DBVersion dba = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
             dba.parentApplication.id = app.id;
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
@@ -454,9 +421,8 @@ namespace OculusDB
         }
 
         public static void AddDLCPack(AppItemBundle a, Headset h, Application app)
-		{
-			return;
-			DBIAPItemPack dba = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
+        {
+            DBIAPItemPack dba = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
             dba.parentApplication.hmd = h;
             dba.parentApplication.displayName = app.displayName;
             foreach(Node<IAPItem> i in a.bundle_items.edges)
@@ -469,24 +435,21 @@ namespace OculusDB
         }
 
         public static void AddDLC(IAPItem a, Headset h)
-		{
-			return;
-			DBIAPItem dba = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
+        {
+            DBIAPItem dba = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
             dba.parentApplication.hmd = h;
             dba.latestAssetFileId = a.latest_supported_asset_file != null ? a.latest_supported_asset_file.id : "";
             dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
         public static List<BsonDocument> GetByID(string id, int history = 1)
-		{
-			return null;
-			return dataCollection.Find(new BsonDocument("id", id)).SortByDescending(x => x["__lastUpdated"]).Limit(history).ToList();
+        {
+            return dataCollection.Find(new BsonDocument("id", id)).SortByDescending(x => x["__lastUpdated"]).Limit(history).ToList();
         }
 
         public static ConnectedList GetConnected(string id)
-		{
-			return null;
-			ConnectedList l = new ConnectedList();
+        {
+            ConnectedList l = new ConnectedList();
             List<BsonDocument> docs = GetByID(id);
             if(docs.Count() <= 0)
             {
@@ -514,15 +477,13 @@ namespace OculusDB
         }
 
         public static bool DoesIdExistInCurrentScrape(string id)
-		{
-			return false;
-			return dataCollection.Find(x => x["id"] == id && x["__lastUpdated"] >= OculusDBEnvironment.config.ScrapingResumeData.currentScrapeStart).CountDocuments() > 0;
+        {
+            return dataCollection.Find(x => x["id"] == id && x["__lastUpdated"] >= OculusDBEnvironment.config.ScrapingResumeData.currentScrapeStart).CountDocuments() > 0;
         }
 
         public static DLCLists GetDLCs(string parentAppId)
-		{
-			return null;
-			BsonDocument q = new BsonDocument
+        {
+            BsonDocument q = new BsonDocument
             {
                 new BsonDocument("$or", new BsonArray
                 {
@@ -543,9 +504,8 @@ namespace OculusDB
         }
 
         public static List<BsonDocument> GetDistinct(IEnumerable<BsonDocument> data)
-		{
-			return null;
-			List<BsonDocument> distinct = new List<BsonDocument>();
+        {
+            List<BsonDocument> distinct = new List<BsonDocument>();
             foreach (BsonDocument d in data)
             {
                 if (distinct.FirstOrDefault(x => x["id"] == d["id"]) == null) distinct.Add(d);
@@ -554,15 +514,13 @@ namespace OculusDB
         }
 
         public static List<BsonDocument> GetAllApplications()
-		{
-			return null;
-			return GetDistinct(dataCollection.Find(new BsonDocument("__OculusDBType", DBDataTypes.Application)).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
+        {
+            return GetDistinct(dataCollection.Find(new BsonDocument("__OculusDBType", DBDataTypes.Application)).SortByDescending(x => x["__lastUpdated"]).ToEnumerable());
         }
 
         public static List<BsonDocument> SearchApplication(string query, List<Headset> headsets, bool quick)
-		{
-			return null;
-			if (query == "") return new List<BsonDocument>();
+        {
+            if (query == "") return new List<BsonDocument>();
             if (headsets.Count <= 0) return new List<BsonDocument>();
             BsonDocument regex = new BsonDocument("$regex", new BsonRegularExpression("/.*" + query.Replace(" ", ".*") + ".*/i"));
             BsonArray a = new BsonArray();
