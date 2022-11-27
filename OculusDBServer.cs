@@ -140,23 +140,13 @@ namespace OculusDB
                 }
             });
             t.Start();
-            Thread GCHero = new Thread(() =>
-            {
-                while(true)
-                {
-                    Thread.Sleep(10000);
-                    Logger.Log("Collecting garbage - yes, even a server needs that", LoggingType.Info);
-                    GC.Collect();
-                }
-            });
-            GCHero.Start();
 
 			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
             server.StartServer(config.port);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             OculusInteractor.Init();
-            MongoDBInteractor.Initialize();
+            //MongoDBInteractor.Initialize();
 
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
