@@ -112,6 +112,7 @@ namespace OculusDB
 
         public void StartServer(HttpServer httpServer)
         {
+            return;
             server = httpServer;
             server.logRequests = false;
             //server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
@@ -154,7 +155,6 @@ namespace OculusDB
             //OculusScraper.StartScrapingThread();
 
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
-            return;
 
             if(debugging)
             {
