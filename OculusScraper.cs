@@ -40,6 +40,8 @@ namespace OculusDB
         public const int minutesPause = 120;
         public static bool priorityThreadStarted = false;
 
+        Thread getAppsThread = null;
+
         public static List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
 
         public static void AddApp(string id, Headset headset, bool priority = true)
@@ -92,12 +94,16 @@ namespace OculusDB
                 config.ScrapingResumeData.appsToScrape = 0;
                 if(!OculusDBServer.debugging)
                 {
-                    SetupLimitedScrape(Headset.RIFT);
-                    SetupLimitedScrape(Headset.HOLLYWOOD);
-                    SetupLimitedScrape(Headset.GEARVR);
-                    SetupLimitedScrape(Headset.PACIFIC);
-                    SetupLimitedScrape(Headset.SEACLIFF);
-                    SetupLimitedScrapeAppLab();
+                    Thread getAppsThread = new Thread(() =>
+					{
+						SetupLimitedScrape(Headset.RIFT);
+						SetupLimitedScrape(Headset.HOLLYWOOD);
+						SetupLimitedScrape(Headset.GEARVR);
+						SetupLimitedScrape(Headset.PACIFIC);
+						SetupLimitedScrape(Headset.SEACLIFF);
+						SetupLimitedScrapeAppLab();
+					});
+                    getAppsThread.Start();
                 }
             }
             
@@ -184,21 +190,17 @@ namespace OculusDB
 
         public static void SetupLimitedScrapeAppLab()
         {
-            Thread t = new Thread(() =>
+            WebClient c = new WebClient();
+            List<SidequestApplabGame> s = JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true"));
+            foreach (SidequestApplabGame a in s)
             {
-                WebClient c = new WebClient();
-                List<SidequestApplabGame> s = JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true"));
-                foreach (SidequestApplabGame a in s)
+                string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
+                if (id.Length <= 16)
                 {
-                    string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
-                    if (id.Length <= 16)
-                    {
-                        config.ScrapingResumeData.appsToScrape++;
-                        MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { appId = id, imageUrl = a.image_url, priority = false, headset = Headset.HOLLYWOOD });
-                    }
+                    config.ScrapingResumeData.appsToScrape++;
+                    MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { appId = id, imageUrl = a.image_url, priority = false, headset = Headset.HOLLYWOOD });
                 }
-            });
-            t.Start();
+            }
         }
         
         public static bool Stop()
@@ -293,26 +295,22 @@ namespace OculusDB
 
         public static void SetupLimitedScrape(Headset h)
         {
-            Thread t = new Thread(() =>
+            int apps = 0;
+            Logger.Log("Adding apps to scrape for " + HeadsetTools.GetHeadsetCodeName(h));
+            try
             {
-                int apps = 0;
-                Logger.Log("Adding apps to scrape for " + HeadsetTools.GetHeadsetCodeName(h));
-                try
+                foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
                 {
-                    foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
-                    {
-                        apps++;
-                        MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { headset = h, appId = a.id, priority = false, imageUrl = a.cover_square_image.uri });
-                        config.ScrapingResumeData.appsToScrape++;
-                    }
-                } catch(Exception e)
-                {
-                    Logger.Log(e.ToString(), LoggingType.Warning);
-                    //OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
+                    apps++;
+                    MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { headset = h, appId = a.id, priority = false, imageUrl = a.cover_square_image.uri });
+                    config.ScrapingResumeData.appsToScrape++;
                 }
-                Logger.Log("Queued " + apps + " apps for scraping for " + HeadsetTools.GetHeadsetCodeName(h));
-            });
-            t.Start();
+            } catch(Exception e)
+            {
+                Logger.Log(e.ToString(), LoggingType.Warning);
+                //OculusDBServer.SendMasterWebhookMessage(e.Message, OculusDBServer.FormatException(e), 0xFF0000);
+            }
+            Logger.Log("Queued " + apps + " apps for scraping for " + HeadsetTools.GetHeadsetCodeName(h));
         }
 
         public static UserEntitlement GetEntitlementStatusOfAppOrDLC(string appId, string dlcId = null, string dlcName = "")
