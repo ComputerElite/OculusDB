@@ -142,11 +142,11 @@ namespace OculusDB
             t.Start();
 
 			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
-            server.StartServer(config.port);
+            //server.StartServer(config.port);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             OculusInteractor.Init();
-            MongoDBInteractor.Initialize();
+            //MongoDBInteractor.Initialize();
 
             /////////////////////////////////////////////
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
