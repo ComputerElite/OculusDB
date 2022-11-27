@@ -152,8 +152,9 @@ namespace OculusDB
             // DON'T FORGET TO ADD IT BACK EVERY TIME. //
             /////////////////////////////////////////////
             //OculusScraper.StartScrapingThread();
-            
+
             //DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
+            return;
 
             if(debugging)
             {
