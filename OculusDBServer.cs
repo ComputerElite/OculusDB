@@ -120,9 +120,9 @@ namespace OculusDB
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             Logger.Log("Starting HttpServer");
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
-            return;
 			AppDomain.CurrentDomain.UnhandledException += HandleExeption;
-            FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
+			return;
+			FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 
             OculusInteractor.Init();
             MongoDBInteractor.Initialize();
