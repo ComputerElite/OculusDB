@@ -96,18 +96,18 @@ namespace OculusDB
                 {
                     Thread getAppsThread = new Thread(() =>
 					{
-						SetupLimitedScrape(Headset.RIFT);
+						SetupLimitedScrapeAppLab();
 						SetupLimitedScrape(Headset.HOLLYWOOD);
+						SetupLimitedScrape(Headset.RIFT);
 						SetupLimitedScrape(Headset.GEARVR);
 						SetupLimitedScrape(Headset.PACIFIC);
 						SetupLimitedScrape(Headset.SEACLIFF);
-						SetupLimitedScrapeAppLab();
 					});
                     getAppsThread.Start();
                 }
-            }
-            
-            if (!priorityThreadStarted)
+			}
+
+			if (!priorityThreadStarted)
             {
                 priorityThreadStarted = true;
                 StartGeneralPurposeScrapingThread(true);
@@ -191,7 +191,16 @@ namespace OculusDB
         public static void SetupLimitedScrapeAppLab()
         {
             WebClient c = new WebClient();
-            List<SidequestApplabGame> s = JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true"));
+            int lastCount = -1;
+            bool didIncrease = true;
+            List<SidequestApplabGame> s = new List<SidequestApplabGame>();
+			while(didIncrease)
+            {
+                s.AddRange(JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&skip=" + s.Count + "&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true")));
+                didIncrease = lastCount != s.Count;
+                lastCount = s.Count;
+            }
+            Logger.Log("queued " + lastCount + " applab apps");
             foreach (SidequestApplabGame a in s)
             {
                 string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
