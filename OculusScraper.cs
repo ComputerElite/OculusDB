@@ -408,6 +408,7 @@ namespace OculusDB
             Logger.Log("Scraping " + app.appId, LoggingType.Important);
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
+            if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
             if (a == null) throw new Exception("Application is null");
             if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
             {
