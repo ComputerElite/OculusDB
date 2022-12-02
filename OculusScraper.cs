@@ -441,11 +441,17 @@ namespace OculusDB
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
                 }
                 AndroidBinary bin = app.priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
-                if (bin == null) continue; // skip if version was unable to be fetched
+                bool wasNull = false;
+                if (bin == null)
+                {
+                    if (!app.priority || b == null) continue; // skip if version was unable to be fetched
+                    wasNull = true;
+                    bin = b;
+				}
                 // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
                 // - If not priority scrape enter changelog and obb of most recent versions
-                if(!app.priority && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
+                if((!app.priority || wasNull) && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
                 {
                     bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
                 }
