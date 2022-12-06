@@ -274,16 +274,26 @@ namespace OculusDB
             return GetDistinct(dataCollection.Find(x => x["__OculusDBType"] == DBDataTypes.Application).SortByDescending(x => x["release_date"]).Skip(skip).Limit(take).ToList());
         }
 
-        public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "")
+        public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "", string applicationId = "")
         {
             string[] stuff = typeConstraint.Split(',');
             BsonArray a = new BsonArray();
-            foreach (string s in stuff) a.Add(new BsonDocument("__OculusDBType", s));
+			foreach (string s in stuff) a.Add(new BsonDocument("__OculusDBType", s));
             BsonDocument q = new BsonDocument();
-            if (typeConstraint != "") q.Add(new BsonDocument("$or", a));
-            
-            
-            return activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
+			BsonArray and = new BsonArray();
+			if (typeConstraint != "") and.Add(new BsonDocument("$or", a));
+
+
+			if (applicationId != "")
+            {
+				BsonArray orContitionsForApplication = new BsonArray();
+				orContitionsForApplication.Add(new BsonDocument("id", applicationId));
+				orContitionsForApplication.Add(new BsonDocument("parentApplication.id", applicationId));
+				and.Add(new BsonDocument("$or", orContitionsForApplication));
+			}
+            q.Add(new BsonDocument("$and", and));
+
+			return activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
         }
         public static List<BsonDocument> GetActivityById(string id)
         {

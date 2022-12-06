@@ -33,6 +33,7 @@
             <input id="dlcs" type='checkbox' onclick='Update()'>
             <span class="checkmark"></span>
         </label>
+        <h2 id="filter"></h2>
         <div id="activity">
             <div class="loader"></div>
         </div>
@@ -71,6 +72,15 @@
 
 
             var constraints = params.get("typeconstraint")
+            var applicationId = params.get("application")
+
+            if(applicationId) {
+                GetObjectById(applicationId).then(res => {
+                    if(res.__OculusDBType == "Application") {
+                        document.getElementById("filter").innerText = "Showing activity for " + res.displayName
+                    }
+                })
+            }
 
 
             SetCheckboxesBasedOnValue(options, constraints)
@@ -94,7 +104,7 @@
             if(constraints == "") constraints = "none"
 
 
-            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip).then(res => {
+            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip + (applicationId ? "&application=" + applicationId : "")).then(res => {
                 if(res.status != 200) {
                     res.text().then(text => {
                         PopUp(text)

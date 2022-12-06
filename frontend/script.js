@@ -364,6 +364,10 @@ function OpenActivity(id) {
     OpenLocation(GetActivityLink(id))
 }
 
+function OpenRecentActivity(id) {
+    OpenLocation(location.origin + '/recentactivity?application=' + id)
+}
+
 function GetOculusLink(id, hmd) {
     var link = "https://www.oculus.com/experiences/"
     if(hmd == 0 || hmd == 5) link += "rift"
@@ -813,6 +817,7 @@ function FormatApplication(application, htmlId = "") {
         <div class="flex outside">
             <div class="buttons">
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${application.id}')">
+                <input type="button" value="View Activity" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenRecentActivity('${application.id}')">
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
