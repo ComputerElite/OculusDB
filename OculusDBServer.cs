@@ -229,6 +229,7 @@ namespace OculusDB
 			}));
 			server.AddRoute("GET", "/api/v1/qavsreport/", new Func<ServerRequest, bool>(request =>
 			{
+                Logger.Log(JsonSerializer.Serialize(MongoDBInteractor.GetQAVSReport(request.pathDiff.ToUpper())));
 				request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetQAVSReport(request.pathDiff.ToUpper())), "application/json");
 				return true;
 			}), true);
