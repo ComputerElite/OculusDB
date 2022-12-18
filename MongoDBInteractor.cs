@@ -5,6 +5,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using OculusDB.Analytics;
 using OculusDB.Database;
+using OculusDB.QAVS;
 using OculusDB.Users;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
@@ -30,7 +31,9 @@ namespace OculusDB
         public static IMongoCollection<AppToScrape> appsScraping = null;
         public static IMongoCollection<AppToScrape> scrapedApps = null;
 
-        public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
+		public static IMongoCollection<QAVSReport> qAVSReports = null;
+
+		public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
         {
             if(appToScrape.priority)
             {
@@ -110,8 +113,9 @@ namespace OculusDB
             appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
             appsToScrape = oculusDBDatabase.GetCollection<AppToScrape>("appsToScrape");
             scrapedApps = oculusDBDatabase.GetCollection<AppToScrape>("scrapedApps");
+            qAVSReports = oculusDBDatabase.GetCollection<QAVSReport>("QAVSReports");
 
-            ConventionPack pack = new ConventionPack();
+			ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
             ConventionRegistry.Register("Ignore extra elements cause it's annoying", pack, t => true);
 
@@ -153,6 +157,19 @@ namespace OculusDB
             });
         }
 
+        public static string AddQAVSReport(QAVSReport report)
+        {
+            string id = Random.Shared.Next(0, 0xFFFFFF).ToString("X");
+            report.reportId = id;
+            qAVSReports.DeleteMany(x => x.reportId == id);
+            qAVSReports.InsertOne(report);
+            return id;
+		}
+
+        public static QAVSReport GetQAVSReport(string id)
+        {
+			return qAVSReports.Find(x => x.reportId == id).FirstOrDefault();
+		}
 
         public static void RemoveIdRemap<T>()
         {

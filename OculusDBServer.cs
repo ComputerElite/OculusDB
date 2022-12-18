@@ -21,6 +21,7 @@ using SizeConverter = ComputerUtils.VarUtils.SizeConverter;
 using System.Drawing.Imaging;
 using OculusDB.Analytics;
 using SixLabors.ImageSharp;
+using OculusDB.QAVS;
 
 namespace OculusDB
 {
@@ -220,7 +221,18 @@ namespace OculusDB
                 request.SendString((config.accesscode == request.bodyString).ToString().ToLower());
                 return true;
             }));
-            server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
+			server.AddRoute("POST", "/api/v1/qavsreport", new Func<ServerRequest, bool>(request =>
+			{
+                QAVSReport report = JsonSerializer.Deserialize<QAVSReport>(request.bodyString);
+                request.SendString(MongoDBInteractor.AddQAVSReport(report));
+				return true;
+			}));
+			server.AddRoute("GET", "/api/v1/qavsreport/", new Func<ServerRequest, bool>(request =>
+			{
+				request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetQAVSReport(request.pathDiff)));
+				return true;
+			}), true);
+			server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
