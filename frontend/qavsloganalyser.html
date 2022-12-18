@@ -44,6 +44,10 @@
         </div>
         <script src="/script.js"></script>
         <script>
+            if(params.get("id")) {
+                document.getElementsByTagName("input")[0].value = params.get("id")
+                Analyse()
+            }
             var log = {}
             var entitlements = []
             const entitlementsContainer = document.getElementById("entitlementsContainer")
