@@ -590,6 +590,19 @@ input {
     border: 1px solid var(--brightHoverColor);
 }
 
+textarea {
+    color: var(--textColor);
+    transition: ease-in-out 0.2s;
+    border-radius: 5px;
+    border: 1px solid var(--textColor);
+    background-color: var(--bgColor);
+    padding: 5px;
+    outline-width: 0;
+    border: 1px solid var(--brightHoverColor);
+    width: 100%;
+    height: 80vh;
+}
+
 
 input:hover {
     border: 1px solid var(--highlightedColor);

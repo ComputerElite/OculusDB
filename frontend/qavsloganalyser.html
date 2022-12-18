@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>QAVS Log Analyser - OculusDB</title>
+        <meta name="title" content="QAVS Log Analyser - OculusDB">
+        <meta name="description" content="Analyse uploaded QuestAppVersionSwitcher logs">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <h2>Input</h2>
+            <input type="text" placeholder="Log id">
+            <input type="button" value="Analyse" onclick="Analyse()">
+            <div class="textbox" id="text"></div>
+
+            <h2>Various</h2>
+            <div>Login status: <b id="login">not logged in</b></div>
+            <div><b id="space">0 Bytes</b> of space available on their device</div>
+            <div>Reported: <b id="time">Today</b></div>
+            <div>QAVS version: <b id="version">1.8.0.0</b></div>
+
+            <h2>Log</h2>
+            <div class="application">
+                <div class="info">
+                    <div class="flex outside">
+                        <div class="flex header" onclick="RevealDescription('log')">
+                            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="log_trigger" class="anim noselect">&gt;</div>
+                            <div stlye="font-size: 1.25em;">Log</div>
+                        </div>
+                    </div>
+            
+                    <div class="hidden" id="log">
+                        <textarea id="logText"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Entitlements</h2>
+            <div id="entitlementsContainer">
+
+            </div>
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            var log = {}
+            var entitlements = []
+            const entitlementsContainer = document.getElementById("entitlementsContainer")
+            function Analyse() {
+                TextBoxText("text", "Fetching log...")
+                var logid = document.getElementsByTagName("input")[0].value
+                fetch("/api/v1/qavsreport/" + logid).then(response => response.json()).then(data => {
+                    TextBoxText("text", "Fetching entitlement names...")
+                    log = data
+                    document.getElementById("login").innerText = log.userIsLoggedIn ? "logged in" : "not logged in"
+                    document.getElementById("space").innerText = log.availableSpaceString
+                    document.getElementById("time").innerText = GetTimeString(log.reportTime)
+                    document.getElementById("version").innerText = log.version
+                    document.getElementById("logText").innerHTML = log.log.replace(/\n/, "<br>")
+                    FetchApplicationNames()
+                }).catch(err => {
+                    TextBoxError("text", "Log does not exist")
+                })
+            }
+
+            var fetchedEntitlements = 0
+            var entitlementsHtml = ""
+            function FetchApplicationNames() {
+                entitlements = []
+                entitlementsContainer.innerHTML = ""
+                fetchedEntitlements = 0
+                for(const id of log.userEntitlements) {
+                    fetch(`/api/v1/id/` + id.split(":")[1] + "?noscrape=true").then(res => res.json().then(res => {
+                        entitlements.push(res)
+                        entitlementsHtml += AutoFormat(res, null, "entitlement_" + res.id)
+                        
+                        EntitlementFetched()
+                    })).catch(err => {
+                        EntitlementFetched()
+                    })
+                }
+            }
+
+            function EntitlementFetched() {
+                fetchedEntitlements++
+                if(fetchedEntitlements == log.userEntitlements.length) {
+                    TextBoxText("text", "Analysed Log")
+                    entitlementsContainer.innerHTML = entitlementsHtml
+                }
+            }
+        </script>
+    </body>
+</html>

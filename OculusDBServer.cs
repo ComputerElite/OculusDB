@@ -129,7 +129,7 @@ namespace OculusDB
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
 			/////////////////////////////////////////////
-			OculusScraper.StartScrapingThread();
+			//OculusScraper.StartScrapingThread();
 
 			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -229,7 +229,6 @@ namespace OculusDB
 			}));
 			server.AddRoute("GET", "/api/v1/qavsreport/", new Func<ServerRequest, bool>(request =>
 			{
-                Logger.Log(JsonSerializer.Serialize(MongoDBInteractor.GetQAVSReport(request.pathDiff.ToUpper())));
 				request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetQAVSReport(request.pathDiff.ToUpper())), "application/json");
 				return true;
 			}), true);
@@ -453,15 +452,18 @@ namespace OculusDB
                 {
                     List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff);
                     if (d.Count <= 0)
-                    {
-                        request.SendString("{}", "application/json", 404);
-                        OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD);
-                        OculusScraper.AddApp(request.pathDiff, Headset.RIFT);
-                        OculusScraper.AddApp(request.pathDiff, Headset.GEARVR);
-                        OculusScraper.AddApp(request.pathDiff, Headset.PACIFIC);
+					{
+						request.SendString("{}", "application/json", 404);
+                        if(request.queryString.Get("noscrape") == null)
+						{
+							OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD);
+							OculusScraper.AddApp(request.pathDiff, Headset.RIFT);
+							OculusScraper.AddApp(request.pathDiff, Headset.GEARVR);
+							OculusScraper.AddApp(request.pathDiff, Headset.PACIFIC);
+						}
                         return true;
-                    }
-                    request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+					}
+					request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
                 }
                 catch (Exception e)
                 {
@@ -738,9 +740,10 @@ namespace OculusDB
             server.AddRouteFile("/jsonview.js", "frontend" + Path.DirectorySeparatorChar + "jsonview.js", replace, true, true, true, accessCheck);
             server.AddRouteFile("/guide", "frontend" + Path.DirectorySeparatorChar + "guide.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/supportus", "frontend" + Path.DirectorySeparatorChar + "supportus.html", replace, true, true, true, accessCheck);
+			server.AddRouteFile("/qavslogs", "frontend" + Path.DirectorySeparatorChar + "qavsloganalyser.html", replace, true, true, true, accessCheck);
 
-            // for all the annoying people out there4
-            server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
+			// for all the annoying people out there4
+			server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
 
             server.AddRouteFile("/guide/quest", "frontend" + Path.DirectorySeparatorChar + "guidequest.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/guide/quest/pc", "frontend" + Path.DirectorySeparatorChar + "guidequest_PC.html", replace, true, true, true, accessCheck);

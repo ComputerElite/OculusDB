@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using ComputerUtils.VarUtils;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,10 @@ namespace OculusDB.QAVS
 		public string reportId { get; set; }
 		public bool userIsLoggedIn { get; set; }
 		public List<string> userEntitlements { get; set; }
+		public long availableSpace { get; set; }
+		public string availableSpaceString { get
+			{
+				return SizeConverter.ByteSizeToString(availableSpace);
+			} }
 	}
 }
