@@ -16,7 +16,7 @@ namespace OculusDB.QAVS
 		public DateTime reportTime { get; set; }
 		public string reportId { get; set; }
 		public bool userIsLoggedIn { get; set; }
-		public List<string> userEntitlements { get; set; }
+		public List<string> userEntitlements { get; set; } = new List<string>();
 		public long availableSpace { get; set; }
 		public string availableSpaceString { get
 			{
