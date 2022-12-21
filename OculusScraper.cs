@@ -471,7 +471,7 @@ namespace OculusDB
                 newVersion.versionCode = bin.versionCode;
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
 
-				if (connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != bin.changeLog)
+				if (connected.versions.FirstOrDefault(x => x.id == bin.id) != null && connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != bin.changeLog)
 				{
                     // Changelog updated
                     DBActivityVersionChangelogAvailable e = ObjectConverter.ConvertCopy<DBActivityVersionChangelogAvailable, DBActivityNewVersion>(newVersion);
