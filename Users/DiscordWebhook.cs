@@ -163,7 +163,39 @@ namespace OculusDB.Users
                 meta.Add("Application", v.parentApplication.displayName);
                 meta.Add("Application id", v.parentApplication.id);
             }
-            foreach (KeyValuePair<string, string> item in meta)
+			else if (type == DBDataTypes.ActivityVersionChangelogAvailable)
+			{
+				DBActivityVersionUpdated v = ObjectConverter.ConvertToDBType(activity);
+				embed.title = "Version changelog available";
+				meta.Add("Version", v.version);
+				meta.Add("Version code", v.versionCode.ToString());
+				meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
+				List<string> releaseChannels = new List<string>();
+				foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
+				meta.Add("Release channels", String.Join(", ", releaseChannels));
+				meta.Add("Id", v.id);
+				meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
+				meta.Add("Application", v.parentApplication.displayName);
+				meta.Add("Application id", v.parentApplication.id);
+                meta.Add("Changelog", v.changeLog);
+			}
+			else if (type == DBDataTypes.ActivityVersionChangelogUpdated)
+			{
+				DBActivityVersionUpdated v = ObjectConverter.ConvertToDBType(activity);
+				embed.title = "Version changelog updated";
+				meta.Add("Version", v.version);
+				meta.Add("Version code", v.versionCode.ToString());
+				meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
+				List<string> releaseChannels = new List<string>();
+				foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
+				meta.Add("Release channels", String.Join(", ", releaseChannels));
+				meta.Add("Id", v.id);
+				meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
+				meta.Add("Application", v.parentApplication.displayName);
+				meta.Add("Application id", v.parentApplication.id);
+				meta.Add("Changelog", v.changeLog);
+			}
+			foreach (KeyValuePair<string, string> item in meta)
             {
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
             }

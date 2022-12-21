@@ -20,8 +20,10 @@ namespace OculusDB.Database
         public const string ActivityPriceChanged = "ActivityPriceChanged";
         public const string ActivityNewVersion = "ActivityNewVersion";
         public const string ActivityVersionUpdated = "ActivityVersionUpdated";
+		public const string ActivityVersionChangelogAvailable = "ActivityVersionChangelogAvailable";
+		public const string ActivityVersionChangelogUpdated = "ActivityVersionChangelogUpdated";
 
-        public const string ActivityNewDLC = "ActivityNewDLC";
+		public const string ActivityNewDLC = "ActivityNewDLC";
         public const string ActivityDLCUpdated = "ActivityDLCUpdated";
         public const string ActivityNewDLCPack = "ActivityNewDLCPack";
         public const string ActivityDLCPackUpdated = "ActivityDLCPackUpdated";

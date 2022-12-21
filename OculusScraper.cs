@@ -422,8 +422,7 @@ namespace OculusDB
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
-                DiscordWebhookSender.SendActivity(e.ToBsonDocument());
-                MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument());
+                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument()));
             }
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             string packageName = "";
@@ -471,10 +470,25 @@ namespace OculusDB
                 newVersion.version = bin.version;
                 newVersion.versionCode = bin.versionCode;
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
-                if (lastActivity == null)
+
+				if (connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != bin.changeLog)
+				{
+                    // Changelog updated
+                    DBActivityVersionChangelogAvailable e = ObjectConverter.ConvertCopy<DBActivityVersionChangelogAvailable, DBActivityNewVersion>(newVersion);
+                    if(connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != "")
+                    {
+                        // Changelog got most likely updated
+                        DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument()));
+                    } else
+                    {
+						// Changelog is most likely new
+						DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument()));
+					}
+				}
+
+				if (lastActivity == null)
                 {
-                    DiscordWebhookSender.SendActivity(newVersion.ToBsonDocument());
-                    MongoDBInteractor.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument());
+                    DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument()));
                 }
                 else
                 {
@@ -484,8 +498,7 @@ namespace OculusDB
                         DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
                         toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
                         toAdd.__lastEntry = lastActivity["_id"].ToString();
-                        DiscordWebhookSender.SendActivity(toAdd.ToBsonDocument());
-                        MongoDBInteractor.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument());
+                        DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument()));
                     }
                 }
             }
@@ -521,16 +534,14 @@ namespace OculusDB
                         MongoDBInteractor.AddDLC(dlc.node, app.headset);
                         if (oldDLC == null)
                         {
-                            DiscordWebhookSender.SendActivity(newDLC.ToBsonDocument());
-                            MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument()));
                         }
                         else if (oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
                         {
                             DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                             updated.__lastEntry = oldDLC["_id"].ToString();
                             updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
-                            DiscordWebhookSender.SendActivity(updated.ToBsonDocument());
-                            MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument()));
                         }
 
                     }
@@ -552,15 +563,13 @@ namespace OculusDB
                         if (oldDLC == null)
                         {
                             DiscordWebhookSender.SendActivity(newDLCPack.ToBsonDocument());
-                            MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument());
                         }
                         else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToList()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToList()))
                         {
                             DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
                             updated.__lastEntry = oldDLC["_id"].ToString();
                             updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
-                            DiscordWebhookSender.SendActivity(updated.ToBsonDocument());
-                            MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument()));
                         }
                     }
                 }
@@ -605,14 +614,12 @@ namespace OculusDB
                     priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
                     priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
                     priceChange.__lastEntry = lastPriceChange.__id;
-                    DiscordWebhookSender.SendActivity(priceChange.ToBsonDocument());
-                    MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+                    DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument()));
                 }
             }
             else
             {
-                DiscordWebhookSender.SendActivity(priceChange.ToBsonDocument());
-                MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument());
+                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument()));
             }
             if(app.priority)
             {

@@ -134,7 +134,9 @@ namespace OculusDB
             RemoveIdRemap<DBActivityNewDLCPackDLC>();
             RemoveIdRemap<DBActivityDLCUpdated>();
             RemoveIdRemap<DBActivityDLCPackUpdated>();
-            RemoveIdRemap<DBReleaseChannel>();
+			RemoveIdRemap<DBActivityVersionChangelogAvailable>();
+			RemoveIdRemap<DBActivityVersionChangelogUpdated>();
+			RemoveIdRemap<DBReleaseChannel>();
             RemoveIdRemap<DBApplication>();
             RemoveIdRemap<DBIAPItem>();
 
@@ -402,11 +404,12 @@ namespace OculusDB
             return activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList();
         }
 
-        public static void AddBsonDocumentToActivityCollection(BsonDocument d)
+        public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d)
         {
             d["_id"] = ObjectId.GenerateNewId();
             activityCollection.InsertOne(d);
-        }
+			return activityCollection.Find<BsonDocument>(x => x["_id"] == d["_id"]).FirstOrDefault();
+		}
 
         public static void AddApplication(Application a, Headset h, string image, string packageName)
         {
