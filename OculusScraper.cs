@@ -567,7 +567,7 @@ namespace OculusDB
                         }
                         if (oldDLC == null)
                         {
-                            DiscordWebhookSender.SendActivity(newDLCPack.ToBsonDocument());
+                            DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument()));
                         }
                         else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToList()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToList()))
                         {
