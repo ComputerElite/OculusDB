@@ -481,18 +481,19 @@ namespace OculusDB
         {
             ConnectedList l = new ConnectedList();
             List<BsonDocument> docs = GetByID(id);
-            if(docs.Count() <= 0)
-            {
-                return new ConnectedList();
-            }
-            BsonDocument org = docs.First();
+            string applicationId = id;
+            if(docs.Count() > 0)
+			{
+				BsonDocument org = docs.First();
+                applicationId = org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"].AsString : id;
+			}
             BsonDocument q = new BsonDocument
             {
                 new BsonDocument("$or", new BsonArray
                 {
                     new BsonDocument("id", id),
-                    new BsonDocument("id", org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"] : "yourMom"),
-                    new BsonDocument("parentApplication.id", org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"] : id)
+                    new BsonDocument("id", applicationId),
+                    new BsonDocument("parentApplication.id", applicationId)
                 })
             };
             foreach(BsonDocument d in GetDistinct(dataCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).ToEnumerable()))

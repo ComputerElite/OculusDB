@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using System.Diagnostics;
 
 namespace OculusDB
 {
@@ -438,8 +439,9 @@ namespace OculusDB
                 if(b != null && app.priority)
                 {
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
-                }
-                AndroidBinary bin = app.priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+				}
+                if (b.binary_release_channels.nodes.Count <= 0) continue;
+				AndroidBinary bin = app.priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
                 bool wasNull = false;
                 if (bin == null)
                 {
@@ -470,19 +472,22 @@ namespace OculusDB
                 newVersion.version = bin.version;
                 newVersion.versionCode = bin.versionCode;
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
-
-				if (connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != bin.changeLog)
-				{
-                    // Changelog updated
-                    DBActivityVersionChangelogAvailable e = ObjectConverter.ConvertCopy<DBActivityVersionChangelogAvailable, DBActivityNewVersion>(newVersion);
-                    if(connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != "")
-                    {
-                        // Changelog got most likely updated
-                        DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument()));
-                    } else
-                    {
+                
+                // Changelog updated
+                if(bin.changeLog != "")
+                {
+					DBActivityVersionChangelogAvailable e = ObjectConverter.ConvertCopy<DBActivityVersionChangelogAvailable, DBActivityNewVersion>(newVersion);
+                    if (connected.versions.FirstOrDefault(x => x.id == bin.id) == null || connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog == "")
+					{
 						// Changelog is most likely new
+						e.__OculusDBType = DBDataTypes.ActivityVersionChangelogAvailable;
 						DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument()));
+					}
+					else if(connected.versions.FirstOrDefault(x => x.id == bin.id) != null && connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != bin.changeLog)
+					{
+						// Changelog got most likely updated
+						e.__OculusDBType = DBDataTypes.ActivityVersionChangelogUpdated;
+						DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument()));
 					}
 				}
 

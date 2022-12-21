@@ -141,7 +141,12 @@ namespace OculusDB
                     OculusScraper.StartGeneralPurposeScrapingThread(false);
                     return true;
                 }));
-                server.AddRoute("GET", "/debug/addpriority/", new Func<ServerRequest, bool>(request =>
+				server.AddRoute("GET", "/debug/startprioritythread", new Func<ServerRequest, bool>(request =>
+				{
+					OculusScraper.StartGeneralPurposeScrapingThread(true);
+					return true;
+				}));
+				server.AddRoute("GET", "/debug/addpriority/", new Func<ServerRequest, bool>(request =>
                 {
                     OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD, true);
                     return true;
@@ -456,10 +461,8 @@ namespace OculusDB
 						request.SendString("{}", "application/json", 404);
                         if(request.queryString.Get("noscrape") == null)
 						{
-							OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD);
-							OculusScraper.AddApp(request.pathDiff, Headset.RIFT);
-							OculusScraper.AddApp(request.pathDiff, Headset.GEARVR);
-							OculusScraper.AddApp(request.pathDiff, Headset.PACIFIC);
+							Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
+							OculusScraper.AddApp(request.pathDiff, h);
 						}
                         return true;
 					}
