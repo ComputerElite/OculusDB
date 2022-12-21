@@ -51,53 +51,63 @@
             "usedOn": [
                 "__OculusDBType"
             ],
-            "values": [
-                {
-                    "value": "ActivityNewApplication",
-                    "enumName": "ActivityNewApplication",
-                    "description": "New Application released"
-                },
-                {
-                    "value": "ActivityPriceChanged",
-                    "enumName": "ActivityPriceChanged",
-                    "description": "Price of application changed"
-                },
-                {
-                    "value": "ActivityNewVersion",
-                    "enumName": "ActivityNewVersion",
-                    "description": "New Version Uploaded"
-                },
-                {
-                    "value": "ActivityVersionUpdated",
-                    "enumName": "ActivityVersionUpdated",
-                    "description": "Version details updated (e. g. downloadable)"
-                },
-                {
-                    "value": "ActivityNewDLC",
-                    "enumName": "ActivityNewDLC",
-                    "description": "New dlc released"
-                },
-                {
-                    "value": "ActivityDLCUpdated",
-                    "enumName": "ActivityDLCUpdated",
-                    "description": "Dlc details updated (e. g. price, name)"
-                },
-                {
-                    "value": "ActivityNewDLCPack",
-                    "enumName": "ActivityNewDLCPack",
-                    "description": "New dlc pack released"
-                },
-                {
-                    "value": "ActivityDLCPackUpdated",
-                    "enumName": "ActivityDLCPackUpdated",
-                    "description": "Dlc pack details updated (e. g. price, name, included dlcs)"
-                },
-                {
-                    "value": "ActivityVersionDownloadable",
-                    "enumName": "ActivityVersionDownloadable",
-                    "description": "Webhook only: Version is now downloadable"
-                }
-            ]
+          "values": [
+            {
+              "value": "ActivityNewApplication",
+              "enumName": "ActivityNewApplication",
+              "description": "New Application released"
+            },
+            {
+              "value": "ActivityPriceChanged",
+              "enumName": "ActivityPriceChanged",
+              "description": "Price of application changed"
+            },
+            {
+              "value": "ActivityNewVersion",
+              "enumName": "ActivityNewVersion",
+              "description": "New Version Uploaded"
+            },
+            {
+              "value": "ActivityVersionChangelogAvailable",
+              "enumName": "ActivityVersionChangelogAvailable",
+              "description": "A versions changelog is now available on OculusDB"
+            },
+            {
+              "value": "ActivityVersionChangelogUpdated",
+              "enumName": "ActivityVersionChangelogUpdated",
+              "description": "A versions changelog has been updated"
+            },
+            {
+              "value": "ActivityVersionUpdated",
+              "enumName": "ActivityVersionUpdated",
+              "description": "Version details updated (e. g. downloadable)"
+            },
+            {
+              "value": "ActivityNewDLC",
+              "enumName": "ActivityNewDLC",
+              "description": "New dlc released"
+            },
+            {
+              "value": "ActivityDLCUpdated",
+              "enumName": "ActivityDLCUpdated",
+              "description": "Dlc details updated (e. g. price, name)"
+            },
+            {
+              "value": "ActivityNewDLCPack",
+              "enumName": "ActivityNewDLCPack",
+              "description": "New dlc pack released"
+            },
+            {
+              "value": "ActivityDLCPackUpdated",
+              "enumName": "ActivityDLCPackUpdated",
+              "description": "Dlc pack details updated (e. g. price, name, included dlcs)"
+            },
+            {
+              "value": "ActivityVersionDownloadable",
+              "enumName": "ActivityVersionDownloadable",
+              "description": "Webhook only: Version is now downloadable"
+            }
+          ]
         },
         {
             "name": "Database types",
