@@ -236,7 +236,7 @@ namespace OculusDB
         public static void StartGeneralPurposeScrapingThread(bool forPriority)
         {
             int threadId = totalScrapeThreads + 0;
-            totalScrapeThreads++;
+            if(!forPriority) totalScrapeThreads++;
             Thread t = new Thread(() =>
             {
                 Logger.Log("Started scraping thread #" + threadId);
@@ -296,8 +296,11 @@ namespace OculusDB
                         }
                     }
                     if (appsScrapingRN.Contains(app.appId)) appsScrapingRN.Remove(app.appId);
-                    doneScrapeThreads++;
-                    if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
+					if (!forPriority)
+                    {
+						doneScrapeThreads++;
+						if (doneScrapeThreads == totalScrapeThreads) FinishCurrentScrape();
+					}
                 }
             });
             t.Start();
@@ -406,7 +409,6 @@ namespace OculusDB
                 return;
             }
             */
-            Logger.Log("Scraping " + app.appId, LoggingType.Important);
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
             if (a == null) throw new Exception("Application is null");

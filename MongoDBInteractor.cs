@@ -91,7 +91,6 @@ namespace OculusDB
 
         public static void MarkAppAsScrapedOrFailed(AppToScrape app)
         {
-            Logger.Log("Marking " + app.appId + " as scraped");
             appsScraping.DeleteMany(x => x.appId == app.appId);
             if(!app.priority) scrapedApps.InsertOne(app);
         }
