@@ -17,7 +17,7 @@
 
             <h2>Various</h2>
             <div>Login status: <b id="login">not logged in</b></div>
-            <div><b id="space">0 Bytes</b> of space available on their device</div>
+            <div><b id="space">0 Bytes</b> of space available on their device (may not work on Quest)</div>
             <div>Reported: <b id="time">Today</b></div>
             <div>QAVS version: <b id="version">1.8.0.0</b></div>
 
@@ -83,6 +83,10 @@
                     })).catch(err => {
                         EntitlementFetched()
                     })
+                }
+                if(log.userEntitlements.length == 0) {
+                    entitlementsContainer.innerHTML = "<b>No entitlements</b> in log"
+                    TextBoxText("text", "Analysed Log")
                 }
             }
 
