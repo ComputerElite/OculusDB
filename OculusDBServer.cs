@@ -203,8 +203,10 @@ namespace OculusDB
                     ZipArchive a = new ZipArchive(stream, ZipArchiveMode.Create, true);
                     StreamWriter writer = new StreamWriter(a.CreateEntry("mod.json").Open());
                     writer.Write(JsonSerializer.Serialize(mod));
+                    writer.Flush();
                     writer.Close();
                     writer.Dispose();
+                    a.Dispose();
                     request.SendData(stream.ToArray(), "application/zip", 200, true, new Dictionary<string, string> { { "Content-Disposition", "inline; filename=\"OculusDB_CoreMods.qmod\"" } });
 				} else
                 {
