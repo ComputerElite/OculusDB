@@ -12,6 +12,11 @@ namespace OculusDB.Database
         public long activityDocuments { get; set; } = 0;
         public long appsToScrape { get; set; } = 0;
         public long scrapedApps { get; set; } = 0;
+        public ScrapingStatus scrapingStatus { get; set; } = ScrapingStatus.Paused;
+        public string scrapingStatusString { get
+            {
+                return Enum.GetName(scrapingStatus);
+            } }
         public DateTime lastUpdated { get; set; } = DateTime.MinValue;
         public DateTime currentUpdateStart { get; set; } = DateTime.MinValue;
     }

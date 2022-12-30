@@ -28,8 +28,9 @@ namespace OculusDB
         public DateTime lastDBUpdate { get; set; } = DateTime.MinValue;
         public ScrapingResumeData ScrapingResumeData { get; set; } = new ScrapingResumeData();
         public List<Update> updates { get; set; } = new List<Update>();
+		public ScrapingStatus scrapingStatus { get; set; } = ScrapingStatus.NotStarted;
 
-        public static Config LoadConfig()
+		public static Config LoadConfig()
         {
             string configLocation = OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json";
             if (!File.Exists(configLocation)) File.WriteAllText(configLocation, JsonSerializer.Serialize(new Config()));
@@ -46,6 +47,14 @@ namespace OculusDB
                 Logger.Log("couldn't save config: " + e.ToString(), LoggingType.Warning);
             }
         }
+    }
+
+    public enum ScrapingStatus
+    {
+        NotStarted,
+        Starting,
+        Running,
+        Paused
     }
 
     public class ScrapingResumeData

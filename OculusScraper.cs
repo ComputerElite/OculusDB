@@ -73,8 +73,9 @@ namespace OculusDB
 
         public static void ScrapeAll()
         {
-            //GraphQLClient.log = true;
-            if(config.ScrapingResumeData.currentScrapeStart == DateTime.MinValue)
+			//GraphQLClient.log = true;
+			config.scrapingStatus = ScrapingStatus.Starting;
+			if (config.ScrapingResumeData.currentScrapeStart == DateTime.MinValue)
             {
                 config.ScrapingResumeData.currentScrapeStart = DateTime.Now;
                 config.Save();
@@ -119,7 +120,8 @@ namespace OculusDB
                 // start 4 normal scraping threads
                 StartGeneralPurposeScrapingThread(false);
             }
-        }
+			config.scrapingStatus = ScrapingStatus.Running;
+		}
 
         public static bool IsTokenValidUserToken()
         {
@@ -185,6 +187,7 @@ namespace OculusDB
             config.ScrapingResumeData.currentScrapeStart = DateTime.MinValue;
             config.Save();
             OculusDBServer.SendMasterWebhookMessage("Info", "Scrape which has been started on " + config.lastDBUpdate + " has finished. The next scrape will start " + (config.pauseAfterScrape ? "in " + minutesPause + " minutes" : "now"), 0x00FF00);
+            config.scrapingStatus = ScrapingStatus.Paused;
             if (config.pauseAfterScrape) Task.Delay(minutesPause * 60 * 1000).Wait();
             StartScrapingThread();
         }
@@ -248,9 +251,9 @@ namespace OculusDB
                 while(forPriority ? true : MongoDBInteractor.AreAppsToScrapePresent(false))
                 {
                     AppToScrape app = MongoDBInteractor.GetNextScrapeApp(forPriority);
-                    if(app == null)
+                    if(app == null || config.scrapingStatus != ScrapingStatus.Running)
                     {
-                        // No app present
+                        // No apps present or scraping not running
                         if(forPriority)
                         {
                             Thread.Sleep(20000); // wait 20 seconds till checking again for apps
