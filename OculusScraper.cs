@@ -439,13 +439,12 @@ namespace OculusDB
                 if(packageName == "")
                 {
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
-                    packageName = info.data.app_binary_info.info[0].binary.package_name;
-                }
+                    if(info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
+				}
                 if(b != null && app.priority)
                 {
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
 				}
-                if (b.binary_release_channels.nodes.Count <= 0) continue;
 				AndroidBinary bin = app.priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
                 bool wasNull = false;
                 if (bin == null)
