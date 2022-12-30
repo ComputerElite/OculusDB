@@ -22,6 +22,8 @@ using System.Drawing.Imaging;
 using OculusDB.Analytics;
 using SixLabors.ImageSharp;
 using OculusDB.QAVS;
+using Ionic.Zip;
+using System.IO.Compression;
 
 namespace OculusDB
 {
@@ -183,6 +185,33 @@ namespace OculusDB
                 }
                 return true;
             }));
+            server.AddRoute("GET", "/api/coremodsdownload/", new Func<ServerRequest, bool>(request =>
+            {
+				Dictionary<string, CoreMods> mods = JsonSerializer.Deserialize<Dictionary<string, CoreMods>>(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"));
+                if(mods.ContainsKey(request.pathDiff))
+                {
+                    CoreMods used = mods[request.pathDiff];
+                    QMod mod = new QMod();
+					mod.name = "Core mods for " + request.pathDiff;
+                    mod.id = "OculusDB_CoreMods_" + request.pathDiff;
+                    mod.packageVersion = request.pathDiff;
+                    foreach(CoreMod m in used.mods)
+                    {
+                        mod.dependencies.Add(new QModDependency { downloadIfMissing = m.downloadLink, id = m.id, version = "^" + m.version });
+                    }
+                    MemoryStream stream = new MemoryStream();
+                    ZipArchive a = new ZipArchive(stream, ZipArchiveMode.Create, true);
+                    StreamWriter writer = new StreamWriter(a.CreateEntry("mod.json").Open());
+                    writer.Write(JsonSerializer.Serialize(mod));
+                    writer.Close();
+                    writer.Dispose();
+                    request.SendData(stream.ToArray(), "application/zip", 200, true, new Dictionary<string, string> { { "Content-Disposition", "inline; filename=\"OculusDB_CoreMods.qmod\"" } });
+				} else
+                {
+                    request.SendString("", "text/plain", 404);
+                }
+				return true;
+            }), true, true, true, true, 300); // 5 mins
             server.AddRoute("GET", "/api/coremodsproxy", new Func<ServerRequest, bool>(request =>
             {
                 WebClient webClient = new WebClient();
