@@ -636,7 +636,6 @@ namespace OculusDB
                 MongoDBInteractor.DeleteOldData(priorityScrapeStart, new List<string> { a.id });
             }
             Logger.Log("Scraped " + app.appId);
-            config.Save();
         }
 
         public static string FormatPrice(long offsetAmount, string currency)
