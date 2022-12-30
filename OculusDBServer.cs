@@ -195,7 +195,8 @@ namespace OculusDB
 					mod.name = "Core mods for " + request.pathDiff;
                     mod.id = "OculusDB_CoreMods_" + request.pathDiff;
                     mod.packageVersion = request.pathDiff;
-                    foreach(CoreMod m in used.mods)
+                    mod.description = "Downloads all Core mods for Beat Saber version " + request.pathDiff;
+					foreach (CoreMod m in used.mods)
                     {
                         mod.dependencies.Add(new QModDependency { downloadIfMissing = m.downloadLink, id = m.id, version = "^" + m.version });
                     }

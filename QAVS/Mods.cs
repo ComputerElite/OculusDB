@@ -12,6 +12,7 @@ namespace OculusDB.QAVS
 		public string name { get; set; } = "mod";
 		public string id { get; set; } = "mod_id";
 		public string author { get; set; } = "OculusDB";
+		public string description { get; set; } = "Downloads all Core mods for Beat Saber version 1.27.0";
 		public string version { get; set; } = "1.0.0";
 		public string packageId { get; set; } = "com.beatgames.beatsaber";
 		public string packageVersion { get; set; } = "1.27.0";
