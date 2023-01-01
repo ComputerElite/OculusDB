@@ -326,7 +326,7 @@ namespace OculusDB
 
 		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
 		{
-			return activityCollection.Find(x => x["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+			return activityCollection.Find(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
 		}
 
 		public static List<BsonDocument> GetLatestActivities(DateTime after)
