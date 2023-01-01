@@ -433,6 +433,7 @@ namespace OculusDB
             Data<Application> d = GraphQLClient.GetDLCs(a.id);
             string packageName = "";
             ConnectedList connected = MongoDBInteractor.GetConnected(a.id);
+            bool addedApplication = false;
             List<string> updatedVersions = new List<string>();
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
@@ -440,6 +441,11 @@ namespace OculusDB
                 {
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
                     if(info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
+				}
+                if(!addedApplication)
+                {
+					MongoDBInteractor.AddApplication(a, app.headset, app.imageUrl, packageName);
+                    addedApplication = true;
 				}
                 if(b != null && app.priority)
                 {
