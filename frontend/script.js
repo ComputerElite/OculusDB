@@ -349,7 +349,7 @@ function OpenLocation(tar) {
 }
 
 function GetIdLink(id) {
-    return location.origin + '/id/' + id + (localStorage.isQAVS ? "?connected=versions" : "")
+    return location.origin + '/id/' + id
 }
 
 function GetActivityLink(id) {
