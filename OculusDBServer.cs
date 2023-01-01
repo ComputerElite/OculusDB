@@ -449,14 +449,14 @@ namespace OculusDB
 				Logger.Log(appId);
 
 				Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
-				OculusScraper.AddApp(appId, h);
                 Data<Application> app = GraphQLClient.GetAppDetail(appId, h);
 
                 if(app.data.node == null)
                 {
-                    request.SendString("This app does not exist", "text/plain", 400);
+                    request.SendString("This app couldn't be found on oculus. Make sure you typed an app ID and NOT an app name", "text/plain", 400);
                     return true;
-                }
+				}
+				OculusScraper.AddApp(appId, h);
 
 				request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
 				return true;
