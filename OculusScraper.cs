@@ -463,7 +463,7 @@ namespace OculusDB
 
                 MongoDBInteractor.AddVersion(bin, a, app.headset, app.priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
                 updatedVersions.Add(bin.id);
-                BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabase(b.id);
+                BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabaseVersion(b.id);
                     
                 DBActivityNewVersion newVersion = new DBActivityNewVersion();
                 newVersion.id = bin.id;
@@ -511,7 +511,6 @@ namespace OculusDB
                     }
                 }
             }
-            MongoDBInteractor.AddApplication(a, app.headset, app.imageUrl, packageName);
             MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id, updatedVersions);
             if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
             {
