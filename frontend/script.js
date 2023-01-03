@@ -508,6 +508,7 @@ function GetChangelog(version) {
 }
 
 function FormatChangelog(c) {
+    if(c == null) return "Mo changelog available"
     return c.replace(/\</, "&lt;").replace(/\>/, "&gt;").replace(/\n/, "<br>")
 }
 
