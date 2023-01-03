@@ -177,7 +177,7 @@ namespace OculusDB.Users
 				meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
 				meta.Add("Application", v.parentApplication.displayName);
 				meta.Add("Application id", v.parentApplication.id);
-                meta.Add("Changelog", v.changeLog);
+                meta.Add("Changelog", v.changeLog.Substring(0, 1800));
 			}
 			else if (type == DBDataTypes.ActivityVersionChangelogUpdated)
 			{
@@ -193,7 +193,7 @@ namespace OculusDB.Users
 				meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
 				meta.Add("Application", v.parentApplication.displayName);
 				meta.Add("Application id", v.parentApplication.id);
-				meta.Add("Changelog", v.changeLog);
+				meta.Add("Changelog", v.changeLog.Substring(0, 1800));
 			}
 			foreach (KeyValuePair<string, string> item in meta)
             {

@@ -501,10 +501,14 @@ function GetChangelog(version) {
     if(version.changeLog == null) {
         return "We are working on getting the changelog for you. Please check again in a few minutes. This may take longer depending on what's to do. Thanks!"
     } else if(version.changeLog) {
-        return version.changeLog.replace(/\</, "&lt;").replace(/\>/, "&gt;").replace(/\n/, "<br>")
+        return FormatChangelog(version.changeLog)
     } else {
         return "No changes documented"
     }
+}
+
+function FormatChangelog(c) {
+    return c.replace(/\</, "&lt;").replace(/\>/, "&gt;").replace(/\n/, "<br>")
 }
 
 function AddApplicationSpecific(id) {
@@ -1044,6 +1048,47 @@ function FormatVersionActivity(v, htmlid) {
 </div>`
 }
 
+function FormatChangelogActivity(v, htmlid) {
+    var releaseChannels = ""
+    v.releaseChannels.forEach(x => {
+        releaseChannels += `${x.channel_name}, `
+    })
+    if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
+    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy activity link" cmov-0="Copy(GetActivityLink('${v.__id}'))">
+    <div class="info">
+        <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+            </div>
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(v.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">Version <b>${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode})</b>s Changelog of <b>${v.parentApplication.displayName}</b> ${v.__OculusDBType == "ActivityVersionChangelogUpdated" ? `has been updated` : `is now available`}</div>
+            </div>
+        </div>
+        
+        <div class="hidden" id="${htmlid}">
+            <table>
+                <colgroup>
+                    <col width="200em">
+                    <col width="100%">
+                </colgroup>
+                <tr><td class="label">Uploaded</td><td class="value">${new Date(v.uploadedTime).toLocaleString()}</td></tr>
+                <tr><td class="label">Release Channels</td><td class="value">${v.downloadable ? releaseChannels : "none"}</td></tr>
+                <tr><td class="label">Downloadable</td><td class="value">${v.downloadable}</td></tr>
+                <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
+                <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
+                <tr><td class="label">Changelog</td><td class="value">${FormatChangelog(v.changeLog)}</td></tr>
+                <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
+                <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
+                <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>`
+}
+
 function AutoFormat(e, connected, htmlid = "") {
     if(e.__OculusDBType == "Application") return FormatApplication(e, htmlid)
     if(e.__OculusDBType == "IAPItem") return FormatDLC(e, htmlid)
@@ -1054,6 +1099,7 @@ function AutoFormat(e, connected, htmlid = "") {
     if(e.__OculusDBType == "ActivityNewVersion" || e.__OculusDBType == "ActivityVersionUpdated") return FormatVersionActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityNewApplication") return FormatApplicationActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityPriceChanged") return FormatPriceChanged(e, htmlid)
+    if(e.__OculusDBType == "ActivityVersionChangelogAvailable" || e.__OculusDBType == "ActivityVersionChangelogUpdated") return FormatChangelogActivity(e, htmlid)
     return ""
 }
 
