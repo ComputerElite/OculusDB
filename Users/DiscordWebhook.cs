@@ -165,7 +165,7 @@ namespace OculusDB.Users
             }
 			else if (type == DBDataTypes.ActivityVersionChangelogAvailable)
 			{
-				DBActivityVersionUpdated v = ObjectConverter.ConvertToDBType(activity);
+				DBActivityVersionChangelogAvailable v = ObjectConverter.ConvertToDBType(activity);
 				embed.title = "Version changelog available";
 				meta.Add("Version", v.version);
 				meta.Add("Version code", v.versionCode.ToString());
@@ -181,7 +181,7 @@ namespace OculusDB.Users
 			}
 			else if (type == DBDataTypes.ActivityVersionChangelogUpdated)
 			{
-				DBActivityVersionUpdated v = ObjectConverter.ConvertToDBType(activity);
+				DBActivityVersionChangelogUpdated v = ObjectConverter.ConvertToDBType(activity);
 				embed.title = "Version changelog updated";
 				meta.Add("Version", v.version);
 				meta.Add("Version code", v.versionCode.ToString());
