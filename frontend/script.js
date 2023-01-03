@@ -976,7 +976,7 @@ function FormatVersion(v, htmlid = "") {
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${v.versionCode + (v.downloads ? `; ${v.downloads}` : ``)})</div>
+                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${(v.alias ? v.alias + "; " : "") + v.versionCode + (v.downloads ? `; ${v.downloads}` : ``)})</div>
             </div>
             
         </div>
@@ -1326,5 +1326,5 @@ function SetCookie(name, value, expiration) {
     var d = new Date();
     d.setTime(d.getTime() + (expiration * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
-    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    document.cookie = name + "=" + value + ";" + expires + ";";
 }

@@ -141,6 +141,19 @@
     ],
     "endpoints": [
         {
+            "url": "/api/v1/aliases/applications",
+            "method": "GET",
+            "description": "Gets all applications with aliases",
+            "parameters": [],
+            "exampleResponse": [
+                {
+                    "appId": "2448060205267927",
+                    "appName": "Beat Saber"
+                }
+            ]
+        },
+
+        {
             "url": "/api/v1/database",
             "method": "GET",
             "description": "Gets details about the database",

@@ -19,6 +19,7 @@
             <div style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
                 <input type="button" value="Update server" onclick="Update()">
                 <input type="button" value="Restart server" onclick="Restart()">
+                <input type="button" value="Add Aliases" onclick="Alias()">
                 <div style="width: 90%; background-color: var(--hightlightColor); height: 10px;"><div style="background-color: var(--highlightedColor); height: 100%; width: 0%;" id="progress"></div></div>
                 <input type="button" value="View Console" onclick="location.href = '/console'">
                 <a href="/api/config" download="OculusDBConfig.json">Download config</a>
@@ -38,6 +39,15 @@
         
         <script src="/script.js"></script>
         <script>
+            function Alias() {
+                var json = prompt("Enter JSON")
+                fetch(`/api/v1/aliases/`, {
+                    method: "POST",
+                    body: json
+                }).then(res => res.text().then(res => {
+                    alert(res)
+                }))
+            }
             fetch("/api/servermetrics").then(res => res.json().then(res => {
                 document.getElementById("ram").innerHTML = res.ramUsageString
                 document.getElementById("working").innerHTML = res.workingDirectory

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Aliases - OculusDB</title>
+        <meta name="title" content="Aliases - OculusDB">
+        <meta name="description" content="Page to create aliases for game version names">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <h2>Applications</h2>
+            <div id="apps">
+
+            </div>
+
+            <b>After you're done, send the contents of the <code>Json</code> box at the bottom of the page to ComputerElite so he can review and add the aliases</b>
+
+            <h2>Versions</h2>
+            <div id="versions">
+
+            </div>
+            <h2>Json</h2>
+            <textarea id="json">[]</textarea>
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            const appsContainer = document.getElementById("apps")
+            const jsonContainer = document.getElementById("json")
+            const versionsContainer = document.getElementById("versions")
+            var applications = []
+
+            var editedAliases = []
+
+            var selectedApp = ""
+            var versions = []
+
+            function Edit(appId) {
+                selectedApp = appId
+                fetch(`/api/v1/connected/${appId}`).then(res => {
+                    if(res.status != 200) {
+                        res.text().then(text => {
+                            PopUp(text)
+                        })
+                    } else {
+                        res.json().then(res => {
+                            versions = res.versions
+                            UpdateVersions()
+                        })
+                    }
+                })
+            }
+
+            function EditAlias(appId, versionId) {
+                var alias = document.getElementById(`${versionId}_alias`).value
+                editedAliases = editedAliases.filter(x => x.versionId != versionId)
+                editedAliases.unshift({
+                    versionId: versionId,
+                    alias: alias,
+                    appId: appId
+                })
+                versions.find(x => x.id == versionId).alias = alias
+                UpdateVersions()
+
+            }
+
+            function UpdateVersions() {
+                // set json
+                jsonContainer.innerHTML = JSON.stringify(editedAliases, null, 4)
+                var html = ``;
+                for(const v of versions) {
+                    if(!v.downloadable) continue
+                    var htmlid = v.id 
+                    html += `<div class="application">
+                        <div class="info">
+                            <div class="flex outside">
+                                <div class="buttons">
+                                    <input id="${v.id}_alias" type="text" placeholder="alias" value="${v.alias ? v.alias : ""}">
+                                    <input type="button" value="Save" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) EditAlias('${selectedApp}', '${v.id}')">
+                                </div>
+                                <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                                    <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                                    <div stlye="font-size: 1.25em;">${v.version} (${v.versionCode})</div>
+                                </div>
+                                
+                            </div>
+                            <div class="hidden" id="${htmlid}">
+                                <table>
+                                    <colgroup>
+                                        <col width="180em">
+                                        <col width="100%">
+                                    </colgroup>
+                                    <tr><td class="label">Uploaded</td><td class="value">${new Date(v.created_date * 1000).toLocaleString()}</td></tr>
+                                    <tr><td class="label">Downloadable</td><td class="value">${v.downloadable}</td></tr>
+                                    <tr><td class="label">Version</td><td class="value">${v.version}</td></tr>
+                                    <tr><td class="label">Version code</td><td class="value">${v.versionCode}</td></tr>
+                                    <tr><td class="label">Changelog</td><td class="value">${GetChangelog(v)}</td></tr>
+                                    <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>`
+                }
+                versionsContainer.innerHTML = html;
+            }
+
+            FetchApplications()
+            function FetchApplications() {
+                fetch("/api/v1/aliases/applications").then(res => {
+                    res.json().then(res => {
+                        applications = res
+                        FormatApplications();
+                    })
+                })
+            }
+
+            function FormatApplications() {
+                var html = ``;
+                for(const app of applications) {
+                    html += `<div class="application">
+                        <div class="info">
+                            <div class="flex outside">
+                                <div class="buttons">
+                                    <input type="button" value="Edit" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) Edit('${app.appId}')">
+                                </div>
+                                <div class="flex header">
+                                    <div stlye="font-size: 1.25em;">${app.appName} (${GetLogicalHeadsetNameEnum(app.appHeadset).replace(" and ", ", ")})</div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                    </div>`
+                }
+                appsContainer.innerHTML = html;
+            }
+        </script>
+    </body>
+</html>

@@ -49,7 +49,7 @@
                     res.json().then(res => {
                         if(res.authorized) {
                             SetCookie("token", res.token, 7)
-                            window.location.href = res.redirect
+                            //window.location.href = res.redirect
                         } else {
                             TextBoxError("status", res.status)
                         }
