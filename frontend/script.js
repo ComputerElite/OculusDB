@@ -981,7 +981,7 @@ function FormatVersion(v, htmlid = "") {
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${(v.alias ? v.alias + "; " : "") + v.versionCode + (v.downloads ? `; ${v.downloads}` : ``)})</div>
+                <div stlye="font-size: 1.25em;">${v.version} &nbsp;&nbsp;&nbsp;&nbsp;(${(v.alias ? `<b>${v.alias}</b>; ` : "") + v.versionCode + (v.downloads ? `; ${v.downloads}` : ``)})</div>
             </div>
             
         </div>
