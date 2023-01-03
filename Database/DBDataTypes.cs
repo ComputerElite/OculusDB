@@ -13,10 +13,11 @@ namespace OculusDB.Database
         public const string IAPItem = "IAPItem";
         public const string IAPItemPack = "IAPItemPack";
         public const string OBBBinary = "OBBBinary";
+		public const string VersionAlias = "VersionAlias";
 
 
-        //Activities
-        public const string ActivityNewApplication = "ActivityNewApplication";
+		//Activities
+		public const string ActivityNewApplication = "ActivityNewApplication";
         public const string ActivityPriceChanged = "ActivityPriceChanged";
         public const string ActivityNewVersion = "ActivityNewVersion";
         public const string ActivityVersionUpdated = "ActivityVersionUpdated";

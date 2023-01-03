@@ -160,8 +160,26 @@ namespace OculusDB
                 }), true);
             }
 
-            ////////////////// LOGIN AND ADMIN STUFF
-            server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>
+            ////////////////// Aliases
+            server.AddRoute("GET", "/api/v1/aliases/applications", new Func<ServerRequest, bool>(request =>
+            {
+                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetApplicationsWithAliases()));
+                return true;
+            }));
+			server.AddRoute("POST", "/api/v1/aliases/", new Func<ServerRequest, bool>(request =>
+			{
+                if (!IsUserAdmin(request)) return true;
+                List<VersionAlias> aliases = JsonSerializer.Deserialize<List<VersionAlias>>(request.bodyString);
+                foreach(VersionAlias a in aliases)
+                {
+                    MongoDBInteractor.AddVersionAlias(a);
+                }
+                request.SendString("Added aliases");
+				return true;
+			}));
+
+			////////////////// LOGIN AND ADMIN STUFF
+			server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>
             {
                 try
                 {
@@ -741,7 +759,8 @@ namespace OculusDB
             */
 
             server.AddRouteFile("/", "frontend" + Path.DirectorySeparatorChar + "home.html", replace, true, true, true, accessCheck);
-            server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true, accessCheck);
+			server.AddRouteFile("/alias", "frontend" + Path.DirectorySeparatorChar + "alias.html", replace, true, true, true, accessCheck);
+			server.AddRouteFile("/recentactivity", "frontend" + Path.DirectorySeparatorChar + "recentactivity.html", replace, true, true, true, accessCheck);
             server.AddRouteFile("/server", "frontend" + Path.DirectorySeparatorChar + "server.html", replace, true, true, true, accessCheck);
             
             server.AddRouteFile("/downloadstats", "frontend" + Path.DirectorySeparatorChar + "downloadstats.html", replace, true, true, true, accessCheck);

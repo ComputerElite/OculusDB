@@ -18,7 +18,8 @@ namespace OculusDB.Database
         // AndroidBinary
         public string id { get; set; } = "";
         public string version { get; set; } = "";
-        public string changeLog { get; set; } = null;
+		public string alias { get; set; } = null;
+		public string changeLog { get; set; } = null;
         public string platform { get; set; } = "";
         public string file_name { get; set; } = "";
         public long versionCode { get; set; } = 0;

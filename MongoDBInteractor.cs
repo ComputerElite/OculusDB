@@ -31,6 +31,7 @@ namespace OculusDB
         public static IMongoCollection<AppToScrape> appsToScrape = null;
         public static IMongoCollection<AppToScrape> appsScraping = null;
         public static IMongoCollection<AppToScrape> scrapedApps = null;
+		public static IMongoCollection<VersionAlias> versionAliases = null;
 
 		public static IMongoCollection<QAVSReport> qAVSReports = null;
 
@@ -101,7 +102,41 @@ namespace OculusDB
             return appsToScrape.Count(x => x.appId == app.appId) + appsScraping.Count(x => x.appId == app.appId) > 0;
         }
 
-        public static void Initialize()
+        public static List<VersionAlias> GetVersionAliases(string appId)
+        {
+			return versionAliases.Find(x => x.appId == appId).ToList();
+		}
+
+		public static List<VersionAlias> GetApplicationsWithAliases()
+		{
+            List<string> apps = versionAliases.Distinct(x => x.appId, new BsonDocument()).ToList();
+            List<VersionAlias> aliases = new List<VersionAlias>();
+            for (int i = 0; i < apps.Count; i++)
+            {
+                BsonDocument d = GetByID(apps[i]).FirstOrDefault();
+                if (d == null) continue;
+				aliases.Add(new VersionAlias { appId = apps[i], appName = d["display_name"].AsString, appHeadset = (Headset)d["hmd"].AsInt32 });
+			}
+            return aliases;
+		}
+
+		public static VersionAlias GetVersionAlias(string versionId)
+		{
+			return versionAliases.Find(x => x.versionId == versionId).FirstOrDefault();
+		}
+
+		public static void AddVersionAlias(VersionAlias alias)
+		{
+			versionAliases.DeleteMany(x => x.versionId == alias.versionId);
+            versionAliases.InsertOne(alias);
+		}
+
+		public static void RemoveVersionAlias(VersionAlias alias)
+		{
+			versionAliases.DeleteMany(x => x.versionId == alias.versionId);
+		}
+
+		public static void Initialize()
         {
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
@@ -114,6 +149,7 @@ namespace OculusDB
             appsToScrape = oculusDBDatabase.GetCollection<AppToScrape>("appsToScrape");
             scrapedApps = oculusDBDatabase.GetCollection<AppToScrape>("scrapedApps");
             qAVSReports = oculusDBDatabase.GetCollection<QAVSReport>("QAVSReports");
+			versionAliases = oculusDBDatabase.GetCollection<VersionAlias>("versionAliases");
 
 			ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
@@ -479,7 +515,16 @@ namespace OculusDB
 
         public static List<BsonDocument> GetByID(string id, int history = 1)
         {
-            return dataCollection.Find(new BsonDocument("id", id)).SortByDescending(x => x["__lastUpdated"]).Limit(history).ToList();
+            List<BsonDocument> d = dataCollection.Find(new BsonDocument("id", id)).SortByDescending(x => x["__lastUpdated"]).Limit(history).ToList();
+            for(int i = 0; i < d.Count; i++)
+            {
+				if (d[i]["__OculusDBType"] == DBDataTypes.Version)
+				{
+                    VersionAlias a = GetVersionAlias(d[i]["id"].AsString);
+					d[i]["alias"] = a == null ? null : a.alias;
+				}
+			}
+			return d;
         }
 
         public static ConnectedList GetConnected(string id)
@@ -509,6 +554,17 @@ namespace OculusDB
                 else if (d["__OculusDBType"] == DBDataTypes.IAPItem) l.dlcs.Add(ObjectConverter.ConvertToDBType(d));
             }
             l.versions = l.versions.OrderByDescending(x => x.versionCode).ToList();
+
+            List<VersionAlias> aliases = GetVersionAliases(applicationId);
+            Logger.Log(applicationId);
+            Logger.Log(aliases.Count.ToString());
+            for(int i = 0; i < l.versions.Count; i++)
+            {
+				VersionAlias a = aliases.Find(x => x.versionId == l.versions[i].id);
+                if (a != null) l.versions[i].alias = a.alias;
+                else l.versions[i].alias = null;
+			}
+
             return l;
         }
 
