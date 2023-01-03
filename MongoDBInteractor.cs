@@ -57,7 +57,12 @@ namespace OculusDB
             }
         }
 
-        public static void RemoveScrapingAndToScrapeNonPriorityApps()
+		public static void ClearScrapingApps()
+		{
+			appsScraping.DeleteMany(x => true);
+		}
+
+		public static void RemoveScrapingAndToScrapeNonPriorityApps()
         {
             appsToScrape.DeleteMany(x => !x.priority);
             appsScraping.DeleteMany(x => true);
