@@ -1059,7 +1059,7 @@ function FormatChangelogActivity(v, htmlid) {
         <div class="flex outside">
             <div class="buttons">
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+                ${GetDownloadButtonVersion(v.downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(v.__lastUpdated)}</div>
