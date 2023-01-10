@@ -526,7 +526,13 @@ namespace OculusDB
 				if (d[i]["__OculusDBType"] == DBDataTypes.Version)
 				{
                     VersionAlias a = GetVersionAlias(d[i]["id"].AsString);
-					d[i]["alias"] = a == null ? null : a.alias;
+					if(a == null)
+                    {
+                        if (d[i].Contains("alias")) d[i]["alias"] = null;
+					} else
+                    {
+						d[i]["alias"] = a.alias;
+					}
 				}
 			}
 			return d;
