@@ -478,7 +478,7 @@ namespace OculusDB
                 */
 				if (!Regex.IsMatch(appId, "[0-9]+"))
 				{
-					request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id", "text/plain", 400);
+					request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id. App names will NOT work", "text/plain", 400);
 					return true;
 				}
 				OculusScraper.AddApp(appId, h);
