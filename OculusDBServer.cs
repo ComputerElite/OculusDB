@@ -467,12 +467,19 @@ namespace OculusDB
 				Logger.Log(appId);
 
 				Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
+				/*
                 Data<Application> app = GraphQLClient.GetAppDetail(appId, h);
 
                 if(app.data.node == null)
                 {
                     request.SendString("This app couldn't be found on oculus. Make sure you typed an app ID and NOT an app name", "text/plain", 400);
                     return true;
+				}
+                */
+				if (!Regex.IsMatch(appId, "[0-9]+"))
+				{
+					request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id", "text/plain", 400);
+					return true;
 				}
 				OculusScraper.AddApp(appId, h);
 
