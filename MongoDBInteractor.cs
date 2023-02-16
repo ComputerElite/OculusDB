@@ -464,7 +464,8 @@ namespace OculusDB
             dba.img = image;
             dba.packageName = packageName;
             OculusScraper.DownloadImage(dba);
-            dataCollection.InsertOne(dba.ToBsonDocument());
+			dataCollection.DeleteMany(x => x["__OculusDBType"] == DBDataTypes.Application && x["id"] == dba.id); // Delete old entries of the app
+			dataCollection.InsertOne(dba.ToBsonDocument());
         }
 
         public static void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry = null)
