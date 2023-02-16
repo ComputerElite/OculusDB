@@ -127,11 +127,16 @@ namespace OculusDB
 
             OculusInteractor.Init();
 			MongoDBInteractor.Initialize();
+            Thread cleanThread = new Thread(() =>
+			{
+				MongoDBInteractor.CleanDB();
+			});
+            cleanThread.Start();
 
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
 			/////////////////////////////////////////////
-			//OculusScraper.StartScrapingThread();
+			OculusScraper.StartScrapingThread();
 
 			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 

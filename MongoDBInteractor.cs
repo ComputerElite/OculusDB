@@ -661,5 +661,22 @@ namespace OculusDB
             }
             
         }
-    }
+
+		internal static void CleanDB()
+		{
+            //Remove all duplicate apps
+            BsonDocument filter = new BsonDocument("__OculusDBType", "Application");
+            List<string> ids = dataCollection.Distinct<string>("id", filter, null).ToList();
+            Logger.Log("Cleaning " + ids.Count + " applications");
+            int i = 0;
+            foreach(string id in ids)
+            {
+                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + ")");
+                BsonDocument newest = dataCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).First();
+                dataCollection.DeleteMany(x => x["id"] == id);
+                dataCollection.InsertOne(newest);
+				i++;
+			}
+		}
+	}
 }
