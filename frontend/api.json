@@ -5,7 +5,8 @@
             "description": "Headset",
             "usedOn": [
                 "hmd",
-                "supported_hmd_types"
+                "supported_hmd_types",
+                "?headsets="
             ],
             "values": [
                 {
@@ -3829,7 +3830,7 @@
             }
         },
         {
-            "url": "/api/v1/search/<query>",
+            "url": "/api/v1/search/<query>?headsets=<headsets>",
             "method": "GET",
             "description": "Performs an query on the database",
             "parameters": [
@@ -3837,6 +3838,11 @@
                     "name": "query",
                     "description": "The term to search",
                     "required": true
+                },
+                {
+                    "name": "headsets",
+                    "description": "Headsets to search for, seperated by commas. If not specified, all headsets will be searched",
+                    "required": false
                 }
             ],
             "exampleResponse": [
