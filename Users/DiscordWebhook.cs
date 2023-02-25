@@ -123,6 +123,7 @@ namespace OculusDB.Users
                 embed.title = "New DLC released";
                 meta.Add("DLC name", v.displayName);
                 meta.Add("Price", v.priceFormatted);
+                meta.Add("Latest Asset file id", v.latestAssetFileId);
                 meta.Add("Id", v.id);
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
@@ -134,6 +135,7 @@ namespace OculusDB.Users
                 embed.title = "DLC updated";
                 meta.Add("DLC name", v.displayName);
                 meta.Add("Price", v.priceFormatted);
+                meta.Add("Latest Asset file id", v.latestAssetFileId);
                 meta.Add("Id", v.id);
                 meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
                 meta.Add("Application", v.parentApplication.displayName);
