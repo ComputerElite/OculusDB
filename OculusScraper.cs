@@ -551,7 +551,7 @@ namespace OculusDB
                         {
                             DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument()));
                         }
-                        else if (oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
+                        else if (oldDLC["latestAssetFileId"] != newDLC.latestAssetFileId || oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
                         {
                             DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                             updated.__lastEntry = oldDLC["_id"].ToString();
