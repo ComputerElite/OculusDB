@@ -132,7 +132,7 @@ namespace OculusDB
                 //MongoDBInteractor.MigrateFromDataCollectionToOtherCollections();
 				MongoDBInteractor.CleanDB();
 			});
-            cleanThread.Start();
+            //cleanThread.Start();
 
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
