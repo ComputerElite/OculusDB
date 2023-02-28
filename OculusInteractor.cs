@@ -69,7 +69,7 @@ namespace OculusDB
         {
             foreach (Application a in EnumerateAllApplications(headset))
             {
-                if (MongoDBInteractor.DoesIdExistInCurrentScrape(a.id))
+                if (MongoDBInteractor.DoesAppIdExistInCurrentScrape(a.id))
                 {
                     Logger.Log(a.displayName + "(" + a.id + ") exists in current scrape. Skipping");
                     continue;

@@ -128,7 +128,8 @@ namespace OculusDB
             OculusInteractor.Init();
 			MongoDBInteractor.Initialize();
             Thread cleanThread = new Thread(() =>
-			{
+            {
+                MongoDBInteractor.MigrateFromDataCollectionToOtherCollections();
 				MongoDBInteractor.CleanDB();
 			});
             cleanThread.Start();
@@ -403,7 +404,7 @@ namespace OculusDB
                 }
                 try
                 {
-                    List<BsonDocument> results = new List<BsonDocument>();
+                    List<DBApplication> results = new ();
                     switch (sorting)
                     {
                         case "reviews":
@@ -419,12 +420,7 @@ namespace OculusDB
                             results = MongoDBInteractor.GetRelease(skip, count);
                             break;
                     }
-                    List<dynamic> asObjects = new List<dynamic>();
-                    foreach (BsonDocument res in results)
-                    {
-                        asObjects.Add(ObjectConverter.ConvertToDBType(res));
-                    }
-                    request.SendString(JsonSerializer.Serialize(asObjects), "application/json");
+                    request.SendString(JsonSerializer.Serialize(results), "application/json");
                 }
                 catch (Exception e)
                 {
@@ -454,11 +450,7 @@ namespace OculusDB
             server.AddRoute("GET", "/api/v1/allapps", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<DBApplication> apps = new List<DBApplication>();
-                foreach(BsonDocument d in MongoDBInteractor.GetAllApplications())
-                {
-                    apps.Add(ObjectConverter.ConvertToDBType(d));
-                }
+                List<DBApplication> apps = MongoDBInteractor.GetAllApplications();
                 request.SendString(JsonSerializer.Serialize(apps), "application/json");
                 return true;
             }), false, true, true, true);
@@ -497,13 +489,13 @@ namespace OculusDB
                 if (!DoesUserHaveAccess(request)) return true;
                 try
                 {
-                    List<BsonDocument> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff);
+                    List<DBApplication> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff);
                     if (d.Count <= 0)
                     {
                         request.SendString("{}", "application/json", 404);
                         return true;
                     }
-                    request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+                    request.SendString(JsonSerializer.Serialize(d.First()), "application/json");
                 } catch(Exception e)
                 {
                     request.SendString(apiError, "text/plain", 500);
@@ -574,18 +566,13 @@ namespace OculusDB
                         Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
                         if (conv != Headset.INVALID) headsets.Add(conv);
                     }
-                    List<BsonDocument> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets, request.queryString.Get("quick") == null ? false : true);
+                    List<DBApplication> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets, request.queryString.Get("quick") == null ? false : true);
                     if (d.Count <= 0)
                     {
                         request.SendString("[]", "application/json", 200);
                         return true;
                     }
-                    List<DBApplication> apps = new List<DBApplication>();
-                    foreach (BsonDocument doc in d)
-                    {
-                        apps.Add(ObjectConverter.ConvertToDBType(doc));
-                    }
-                    request.SendString(JsonSerializer.Serialize(apps), "application/json");
+                    request.SendString(JsonSerializer.Serialize(d), "application/json");
                 }
                 catch (Exception e)
                 {
@@ -727,7 +714,7 @@ namespace OculusDB
                     DBInfo info = new DBInfo();
                     info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
                     info.lastUpdated = config.lastDBUpdate;
-                    info.appsToScrape = MongoDBInteractor.GetAppsToScrapeCount(false);
+                    info.appsToScrape = MongoDBInteractor.GetAppCount();
                     info.scrapedApps = MongoDBInteractor.GetScrapedAppsCount(false);
                     info.dataDocuments = MongoDBInteractor.CountDataDocuments();
                     info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
