@@ -54,22 +54,22 @@ namespace OculusDB
                 {
                     case DBDataTypes.Version:
                         DBVersion v = ObjectConverter.ConvertToDBType(d);
-                        versionsCollection.DeleteMany(x => x.id == v.id);
+                        //versionsCollection.DeleteMany(x => x.id == v.id);
                         versionsCollection.InsertOne(v);
                         continue;
                     case DBDataTypes.Application:
                         DBApplication a = ObjectConverter.ConvertToDBType(d);
-                        versionsCollection.DeleteMany(x => x.id == a.id);
+                        //versionsCollection.DeleteMany(x => x.id == a.id);
                         applicationCollection.InsertOne(a);
                         continue;
                     case DBDataTypes.IAPItem:
                         DBIAPItem dlc = ObjectConverter.ConvertToDBType(d);
-                        versionsCollection.DeleteMany(x => x.id == dlc.id);
+                        //versionsCollection.DeleteMany(x => x.id == dlc.id);
                         dlcCollection.InsertOne(dlc);
                         continue;
                     case DBDataTypes.IAPItemPack:
                         DBIAPItemPack dlcPack = ObjectConverter.ConvertToDBType(d);
-                        versionsCollection.DeleteMany(x => x.id == dlcPack.id);
+                        //versionsCollection.DeleteMany(x => x.id == dlcPack.id);
                         dlcPackCollection.InsertOne(dlcPack);
                         continue;
                     
