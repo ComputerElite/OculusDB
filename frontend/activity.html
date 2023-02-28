@@ -12,6 +12,8 @@
         <div class="content">
             <div>
                 <h2>Selected Activity</h2>
+                <input type="button" value="Go to last entry" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenLastActivity()">
+                <br>
                 <div id="this"><div class="loader"></div></div>
             </div>
             <h2>OculusDB Info</h2>
@@ -27,6 +29,11 @@
             const id = "{0}"
 
             var activity = {}
+
+            function OpenLastActivity() {
+                if(!activity.__lastEntry) alert("No preceeding entry found")
+                window.location.href = GetActivityLink(activity.__lastEntry)
+            }
 
 
             GetActivityById(id).then(res => {
