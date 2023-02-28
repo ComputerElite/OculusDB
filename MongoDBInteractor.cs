@@ -44,36 +44,44 @@ namespace OculusDB
 
         public static void MigrateFromDataCollectionToOtherCollections()
         {
-            long count = dataCollection.CountDocuments(x => true);
+            long total = dataCollection.CountDocuments(x => true);
             int i = 0;
-            foreach (BsonDocument d in dataCollection.Find(x => true).ToEnumerable())
+            const int count = 1000;
+            List<BsonDocument> docs = dataCollection.Find(x => true).Skip(i).Limit(count).ToList();
+            while ((docs = dataCollection.Find(x => true).Skip(i).Limit(count).ToList()).Count > 0)
             {
-                Logger.Log("Migrating " + i + " / " + count);
-                i++;
-                switch (d["__OculusDBType"].AsString)
+                i += count;
+                List<DBApplication> apps = new();
+                List<DBVersion> versions = new();
+                List<DBIAPItem> dlcs = new();
+                List<DBIAPItemPack> packs = new();
+                Logger.Log("Migrating " + i + " / " + total);
+                foreach (BsonDocument d in docs)
                 {
-                    case DBDataTypes.Version:
-                        DBVersion v = ObjectConverter.ConvertToDBType(d);
-                        //versionsCollection.DeleteMany(x => x.id == v.id);
-                        versionsCollection.InsertOne(v);
-                        continue;
-                    case DBDataTypes.Application:
-                        DBApplication a = ObjectConverter.ConvertToDBType(d);
-                        //versionsCollection.DeleteMany(x => x.id == a.id);
-                        applicationCollection.InsertOne(a);
-                        continue;
-                    case DBDataTypes.IAPItem:
-                        DBIAPItem dlc = ObjectConverter.ConvertToDBType(d);
-                        //versionsCollection.DeleteMany(x => x.id == dlc.id);
-                        dlcCollection.InsertOne(dlc);
-                        continue;
-                    case DBDataTypes.IAPItemPack:
-                        DBIAPItemPack dlcPack = ObjectConverter.ConvertToDBType(d);
-                        //versionsCollection.DeleteMany(x => x.id == dlcPack.id);
-                        dlcPackCollection.InsertOne(dlcPack);
-                        continue;
-                    
+                    switch (d["__OculusDBType"].AsString)
+                    {
+                        case DBDataTypes.Version:
+                            DBVersion v = ObjectConverter.ConvertToDBType(d);
+                            versions.Add(v);
+                            continue;
+                        case DBDataTypes.Application:
+                            DBApplication a = ObjectConverter.ConvertToDBType(d);
+                            apps.Add(a);
+                            continue;
+                        case DBDataTypes.IAPItem:
+                            DBIAPItem dlc = ObjectConverter.ConvertToDBType(d);
+                            dlcs.Add(dlc);
+                            continue;
+                        case DBDataTypes.IAPItemPack:
+                            DBIAPItemPack dlcPack = ObjectConverter.ConvertToDBType(d);
+                            packs.Add(dlcPack);
+                            continue;
+                    }
                 }
+                if(apps.Count > 0) applicationCollection.InsertMany(apps);
+                if(versions.Count > 0) versionsCollection.InsertMany(versions);
+                if(dlcs.Count > 0) dlcCollection.InsertMany(dlcs);
+                if(packs.Count > 0) dlcPackCollection.InsertMany(packs);
             }
         }
         
