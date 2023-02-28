@@ -46,7 +46,7 @@ namespace OculusDB
         {
             long total = dataCollection.CountDocuments(x => true);
             int i = 0;
-            const int count = 1000;
+            const int count = 10000;
             List<BsonDocument> docs = dataCollection.Find(x => true).Skip(i).Limit(count).ToList();
             while ((docs = dataCollection.Find(x => true).Skip(i).Limit(count).ToList()).Count > 0)
             {
