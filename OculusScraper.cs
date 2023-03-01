@@ -435,7 +435,6 @@ namespace OculusDB
             string packageName = "";
             ConnectedList connected = MongoDBInteractor.GetConnected(a.id);
             bool addedApplication = false;
-            List<string> updatedVersions = new List<string>();
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
                 if(packageName == "")
@@ -469,7 +468,6 @@ namespace OculusDB
                 }
 
                 MongoDBInteractor.AddVersion(bin, a, app.headset, app.priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
-                updatedVersions.Add(bin.id);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabaseVersion(b.id);
                     
                 DBActivityNewVersion newVersion = new DBActivityNewVersion();
@@ -518,7 +516,6 @@ namespace OculusDB
                     }
                 }
             }
-            MongoDBInteractor.DeleteOldVersions(priorityScrapeStart, a.id, updatedVersions);
             if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
             {
                 foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)

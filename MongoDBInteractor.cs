@@ -530,6 +530,8 @@ namespace OculusDB
                 dbv.obbList = oldEntry.obbList;
             }
 
+            // delete all old version entries
+            versionsCollection.DeleteMany(x => x.id == dbv.id);
             versionsCollection.InsertOne(dbv);
         }
 
