@@ -572,9 +572,9 @@ namespace OculusDB
                 return ToBsonDocumentList(versions);
             }
             List<DBIAPItem> dlcs = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
-            if (apps.Count > 0) return ToBsonDocumentList(dlcs);
+            if (dlcs.Count > 0) return ToBsonDocumentList(dlcs);
             List<DBIAPItemPack> dlcPacks = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
-            if (apps.Count > 0) return ToBsonDocumentList(dlcPacks);
+            if (dlcPacks.Count > 0) return ToBsonDocumentList(dlcPacks);
             return new();
         }
 
