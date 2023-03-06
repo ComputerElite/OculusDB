@@ -121,12 +121,14 @@ namespace OculusDB
             //server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
-            Logger.Log("Starting HttpServer");
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
 			//AppDomain.CurrentDomain.UnhandledException += HandleExeption;
 
-            OculusInteractor.Init();
+            
+            Logger.Log("Initializing MongoDB");
 			MongoDBInteractor.Initialize();
+            Logger.Log("Initializing Oculus Interactor");
+            OculusInteractor.Init();
             Thread cleanThread = new Thread(() =>
             {
                 //MongoDBInteractor.MigrateFromDataCollectionToOtherCollections();
@@ -134,10 +136,12 @@ namespace OculusDB
 			});
             //cleanThread.Start();
 
+            Logger.Log("Starting scraping threads");
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
 			/////////////////////////////////////////////
-			OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
+            Logger.Log("Setting up routes");
 
 			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
@@ -246,13 +250,13 @@ namespace OculusDB
                 {
                     string res = webClient.DownloadString("https://git.bmbf.dev/unicorns/resources/-/raw/master/com.beatgames.beatsaber/core-mods.json");
                     if (res.Length <= 2) throw new Exception("lol fuck you idiot");
-                    File.WriteAllText(OculusDBEnvironment.dataDir + "coremods.json", res);
                     request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
                     {
                         {
                             "access-control-allow-origin", request.context.Request.Headers.Get("origin")
                         }
                     });
+                    File.WriteAllText(OculusDBEnvironment.dataDir + "coremods.json", res);
                 }
                 catch (Exception e)
                 {
