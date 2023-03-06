@@ -16,7 +16,6 @@ namespace OculusDB.QAVS
 		public string version { get; set; } = "1.0.0";
 		public string packageId { get; set; } = "com.beatgames.beatsaber";
 		public string packageVersion { get; set; } = "1.27.0";
-		public string coverImage { get; set; } = "";
 		public object[] modFiles { get; set; } = new object[0];
 		public object[] libraryFiles { get; set; } = new object[0];
 		public object[] fileCopies { get; set; } = new object[0];
