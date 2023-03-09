@@ -34,7 +34,16 @@ namespace OculusDB
         {
             string configLocation = OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json";
             if (!File.Exists(configLocation)) File.WriteAllText(configLocation, JsonSerializer.Serialize(new Config()));
-            return JsonSerializer.Deserialize<Config>(File.ReadAllText(configLocation));
+            try
+            {
+                return JsonSerializer.Deserialize<Config>(File.ReadAllText(configLocation));
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Couldn't load config. Using fallback config if existing.", LoggingType.Error);
+                File.Copy(File.ReadAllText("fallbacklocation.txt"), configLocation, true);
+                return JsonSerializer.Deserialize<Config>(File.ReadAllText(configLocation));
+            }
         }
 
         public void Save()
