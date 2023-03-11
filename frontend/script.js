@@ -593,7 +593,8 @@ function FormatDLC(dlc, htmlid = "") {
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.latestAssetFileId}')">
+            ${dlc.latestAssetFileId ? `<input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) DownloadID('${dlc.latestAssetFileId}')">` : ``}
+                
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -611,7 +612,7 @@ function FormatDLC(dlc, htmlid = "") {
                 ${dlc.downloads ? `<tr><td class="label">Downloads</td><td class="value">${dlc.downloads}</td></tr>` : ""}
                 <tr><td class="label">Description</td><td class="value">${dlc.display_short_description ? dlc.display_short_description.replace("\n", "<br>") : "no description"}</td></tr>
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
-                <tr><td class="label">latest asset file id</td><td class="value">${dlc.latestAssetFileId}</td></tr>
+                <tr><td class="label">latest asset file id</td><td class="value">${dlc.latestAssetFileId ? dlc.latestAssetFileId : "No asset file"}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
             </table>
         </div>
