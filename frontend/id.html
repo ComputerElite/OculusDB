@@ -215,8 +215,8 @@
                 showAll = showAll ? showAll : (document.getElementById("showallcheckbox") ? document.getElementById("showallcheckbox").checked : false)
                 var showBetas = document.getElementById("showbetascheckbox") ? document.getElementById("showbetascheckbox").checked : false
                 var vers = `
-                <label class="checkmarkContainer">Show all versions<input type='checkbox' id="showallcheckbox" onclick='UpdateVersions()' ${showAll ? " checked" : ""}><span class="checkmark"></span></label>
-                <label class="checkmarkContainer">Show Betas<input type='checkbox' id="showbetascheckbox" onclick='UpdateVersions()' ${showBetas ? " checked" : ""}><span class="checkmark"></span></label>`
+                <label class="checkmarkContainer"><div>Show all versions</div><input type='checkbox' id="showallcheckbox" onclick='UpdateVersions()' ${showAll ? " checked" : ""}><span class="checkmark"></span></label>
+                <label class="checkmarkContainer"><div>Show Betas</div><input type='checkbox' id="showbetascheckbox" onclick='UpdateVersions()' ${showBetas ? " checked" : ""}><span class="checkmark"></span></label>`
                 var hmd = -1
                 
                 connected.versions.forEach(v => {
@@ -225,7 +225,7 @@
                     if(downloadVersion && downloadVersion == v.version) {
                         DownloadVersionPopUp(v.version)
                     }
-                    if(v.downloadable || showAll)
+                    if(v.downloadable && (v.binary_release_channels.nodes.map(x => x.channel_name).includes("LIVE") || showBetas) || showAll)
                         vers += FormatVersion(v, v.id)
                 })
                 if(hmd != -1) {

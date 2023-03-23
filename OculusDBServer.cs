@@ -33,13 +33,13 @@ namespace OculusDB
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public static bool isBlocked = false;
         // Set to false if not in dev mode
-        public static bool debugging = false;
+        public static bool debugging = true;
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2771261574362850\" crossorigin=\"anonymous\"></script>" },
             {"{oculusloginlink}", "https://oculus.com/experiences/quest" },
             {"{BSLGDC}", "https://discord.gg/MrwMx5e" },
-            {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" }
+            {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" },
         };
         public static string apiError = "An internal server error occurred. If possible report the issue on the <a href=\"https://discord.gg/zwRfHQN2UY\">OculusDB Discord server</a>. We are sorry for the inconvenience.";
 
