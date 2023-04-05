@@ -1198,9 +1198,6 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
         fetch(`/api/v1/id/${parentApplicationId}`).then(res => res.json().then(res => {
             data.packageName = res.packageName
             SendDataToParent(JSON.stringify(data))
-            if(obbs && obbs.length > 0){
-                ObbDownloadPopUp()
-            }
         }))
         return
     }
