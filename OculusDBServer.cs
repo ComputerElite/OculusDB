@@ -215,15 +215,16 @@ namespace OculusDB
             }));
             server.AddRoute("GET", "/api/coremodsdownload/", new Func<ServerRequest, bool>(request =>
             {
+	    string v = request.pathDiff.Replace(".qmod", "");
 				Dictionary<string, CoreMods> mods = JsonSerializer.Deserialize<Dictionary<string, CoreMods>>(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"));
-                if(mods.ContainsKey(request.pathDiff))
+                if(mods.ContainsKey(v))
                 {
-                    CoreMods used = mods[request.pathDiff];
+                    CoreMods used = mods[v];
                     QMod mod = new QMod();
-					mod.name = "Core mods for " + request.pathDiff;
-                    mod.id = "OculusDB_CoreMods_" + request.pathDiff;
+					mod.name = "Core mods for " + v;
+                    mod.id = "OculusDB_CoreMods_" + v;
                     mod.packageVersion = request.pathDiff;
-                    mod.description = "Downloads all Core mods for Beat Saber version " + request.pathDiff;
+                    mod.description = "Downloads all Core mods for Beat Saber version " + v;
 					foreach (CoreMod m in used.mods)
                     {
                         mod.dependencies.Add(new QModDependency { downloadIfMissing = m.downloadLink, id = m.id, version = "^" + m.version });
