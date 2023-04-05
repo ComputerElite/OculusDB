@@ -723,6 +723,7 @@ namespace OculusDB
                     info.dataDocuments = MongoDBInteractor.CountDataDocuments();
                     info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
 					info.scrapingStatus = config.scrapingStatus;
+                    info.lastScrapeUpdate = OculusScraper.lastUpdate;
 					request.SendString(JsonSerializer.Serialize(info));
                 }
                 catch (Exception e)

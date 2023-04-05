@@ -20,6 +20,7 @@
             <div><b id="space">0 Bytes</b> of space available on their device</div>
             <div>Reported: <b id="time">Today</b></div>
             <div>QAVS version: <b id="version">1.8.0.0</b></div>
+            <div>Android Version: <b id="aversion">Android 10</b></div>
 
             <h2>Log</h2>
             <div class="application">
@@ -61,11 +62,28 @@
                     document.getElementById("space").innerText = log.availableSpaceString
                     document.getElementById("time").innerText = GetTimeString(log.reportTime)
                     document.getElementById("version").innerText = log.version
+                    document.getElementById("aversion").innerText = GetAndroidVersion(log.androidVersion)
                     document.getElementById("logText").innerHTML = log.log.replace(/\n/, "<br>")
                     FetchApplicationNames()
                 }).catch(err => {
                     TextBoxError("text", "Log does not exist")
                 })
+            }
+
+            function GetAndroidVersion(v) {
+                if(!v) return "Unknown"
+                switch(v) {
+                    case 29:
+                        return "Android 10"
+                    case 30:
+                        return "Android 11"
+                    case 31:
+                        return "Android 12"
+                    case 32:
+                        return "Android 12L"
+                    case 33:
+                        return "Android 13"
+                }
             }
 
             var fetchedEntitlements = 0

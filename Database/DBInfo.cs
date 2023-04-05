@@ -8,6 +8,7 @@ namespace OculusDB.Database
 {
     public class DBInfo
     {
+        public DateTime lastScrapeUpdate { get; set; } = DateTime.MinValue;
         public long dataDocuments { get; set; } = 0;
         public long activityDocuments { get; set; } = 0;
         public long appsToScrape { get; set; } = 0;

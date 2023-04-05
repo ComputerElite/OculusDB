@@ -12,6 +12,7 @@ namespace OculusDB.QAVS
 	public class QAVSReport
 	{
 		public string log { get; set; }
+		public int androidVersion { get; set; } = 29; // Android 10
 		public string version { get; set; }
 		public DateTime reportTime { get; set; }
 		public string reportId { get; set; }

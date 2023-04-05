@@ -66,8 +66,8 @@ namespace OculusDB
         {
             if(DateTime.Now - new TimeSpan(0, minutesPause + 10, 0) > lastUpdate)
             {
-                // Time to restart scraping threads
-                OculusDBServer.SendMasterWebhookMessage("Server restarting", "Scraping thread hasn't updated in the last 30 min. Restarting the server", 0xFFFF00);
+                // Time to restart OculusDB
+                OculusDBServer.SendMasterWebhookMessage("Server restarting", "Scraping thread hasn't updated in the last " + (minutesPause + 10) + " min. Restarting the server", 0xFFFF00);
                 Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
             }
         }
