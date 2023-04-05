@@ -978,7 +978,7 @@ function FormatVersion(v, htmlid = "") {
         <div id="anchor" style="height: 0;"></div>
         <div class="flex outside">
             <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obbList ? v.obbList.map(x => x.id).join(",") : "")}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obbList ? v.obbList.map(x => x.id).join(",") : "", v.obbList ? v.obbList.map(x => x.file_name).join("/") : "")}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -1172,8 +1172,18 @@ function RealDownload(id, openObb) {
     if(openObb) ObbDownloadPopUp();
 }
 
-function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false, obbs = "") {
-    if(obbs) obbs = obbs.split(",")
+function AndroidDownload(id, parentApplicationId,parentApplicationName, version, isObb = false, obbIds = "", obbNames = "") {
+    var obbs = []
+    if(obbIds) {
+        var obbIdsSplit = obbIds.split(",")
+        var obbNamesSplit = obbNames.split("/")
+        for(let i = 0; i < obbIds.length; i++) {
+            obbs.push({
+                id: obbIdsSplit[i],
+                name: obbNamesSplit[i]
+            })
+        }
+    }
     data = {
         type: "Download",
         binaryId: id,
@@ -1215,7 +1225,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
         </div>
     `)
     }
-    if(isObb) {
+    if(isObb && !sendToParent) {
         ObbInfoPopup()
     }
    
@@ -1259,12 +1269,12 @@ function ObbDownloadPopUp() {
     }))
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbIds = "") {
+function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbIds = "", obbNames = "") {
     if(IsHeadsetAndroid(hmd)) {
         if(localStorage.isOculusDowngrader) {
             return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')" oncontextmenu="ContextMenuEnabled(event, this)">`
         }
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbIds == null ? "null" : `'${obbIds}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbIds == null ? "null" : `'${obbIds}'`}, ${obbNames == null ? "null" : `'${obbNames}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
