@@ -225,7 +225,7 @@ function SetCheckboxesBasedOnValue(options, value) {
         }
     } else {
         for (const [key, value] of Object.entries(options)) {
-            document.getElementById(key).checked = true
+            document.getElementById(key).checked = localStorage.isQAVS ? key == "monterey" : true
         }
         Update(false)
     }
