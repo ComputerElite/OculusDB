@@ -224,6 +224,8 @@ namespace OculusDB
                 Logger.Log(maxAppsToFail + " apps failed to get scraped", LoggingType.Error);
                 OculusDBServer.SendMasterWebhookMessage("Warning", "More than " + maxAppsToFail + " apps have failed to get scraped. Token will be switched and retry will be in " + minutesPause + " minutes", 0xFF0000);
                 scrapeResumeTime = DateTime.Now + TimeSpan.FromMinutes(minutesPause);
+                config.scrapingStatus = ScrapingStatus.Paused;
+                config.Save();
                 Task.Delay(minutesPause * 60 * 1000).Wait();
                 OculusDBServer.SendMasterWebhookMessage("Info", "Scrape will be restarted now", 0x00FF00);
                 Logger.Log("Scrape will be started now", LoggingType.Important);
