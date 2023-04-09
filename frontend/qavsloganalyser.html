@@ -69,6 +69,7 @@
             const entitlementsContainer = document.getElementById("entitlementsContainer")
             
             function FormatMods(m) {
+                if(!m) return ""
                 var allMods = m.mods
                 allMods.concat(m.libs)
                 allMods.sort(x => x.Name)
