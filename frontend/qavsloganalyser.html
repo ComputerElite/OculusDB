@@ -37,6 +37,21 @@
                     </div>
                 </div>
             </div>
+            <h2>Installed mods</h2>
+            <div class="application">
+                <div class="info">
+                    <div class="flex outside">
+                        <div class="flex header" onclick="RevealDescription('mods')">
+                            <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="mods_trigger" class="anim noselect">&gt;</div>
+                            <div style="font-size: 1.25em;">Mods</div>
+                        </div>
+                    </div>
+
+                    <div class="hidden" id="mods">
+                        
+                    </div>
+                </div>
+            </div>
 
             <h2>Entitlements</h2>
             <div id="entitlementsContainer">
@@ -52,6 +67,47 @@
             var log = {}
             var entitlements = []
             const entitlementsContainer = document.getElementById("entitlementsContainer")
+            
+            function FormatMods(m) {
+                var allMods = m.mods
+                allMods.concat(m.libs)
+                allMods.sort(x => x.Name)
+                allMods.sort((x, y) => {
+                    if(x.IsInstalled && !y.IsInstalled) return -1
+                    if(!x.IsInstalled && y.IsInstalled) return 1
+                    return 0
+                })
+                var html = ""
+                for(const mod of allMods) {
+                    html += ` <div class="application">
+                        <div class="info">
+                            <div class="flex outside">
+                                <div class="flex header" onclick="RevealDescription('mod_${mod.Id}')">
+                                    <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="mod_${mod.Id}_trigger" class="anim noselect">&gt;</div>
+                                    <div style="font-size: 1.25em;${mod.IsInstalled ? "" : " color: var(--red);"}">${mod.Name} - ${mod.VersionString}</div>
+                                </div>
+                            </div>
+        
+                            <div class="hidden" id="mod_${mod.Id}">
+                                <table>
+                                    <colgroup>
+                                        <col width="230em">
+                                        <col width="100%">
+                                    </colgroup>
+                                    <tr><td class="label">Is Installed</td><td class="value">${mod.IsInstalled}</td></tr>
+                                    <tr><td class="label">Description</td><td class="value">${mod.Description}</td></tr>
+                                    <tr><td class="label">Version</td><td class="value">${mod.VersionString}</td></tr>
+                                    <tr><td class="label">Made for game version</td><td class="value">${mod.PackageVersion}</td></tr>
+                                    <tr><td class="label">Author</td><td class="value">${mod.Author}</td></tr>
+                                    <tr><td class="label">Porter</td><td class="value">${mod.Porter}</td></tr>
+                                    <tr><td class="label">Is Library</td><td class="value">${mod.IsLibrary}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`
+                }
+                return html
+            }
             function Analyse() {
                 TextBoxText("text", "Fetching log...")
                 var logid = document.getElementsByTagName("input")[0].value
@@ -64,6 +120,7 @@
                     document.getElementById("version").innerText = log.version
                     document.getElementById("aversion").innerText = GetAndroidVersion(log.androidVersion)
                     document.getElementById("logText").innerHTML = log.log.replace(/\n/, "<br>")
+                    document.getElementById("mods").innerHTML = FormatMods(log.modsAndLibs)
                     FetchApplicationNames()
                 }).catch(err => {
                     TextBoxError("text", "Log does not exist")
