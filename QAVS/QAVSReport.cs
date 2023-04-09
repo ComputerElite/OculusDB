@@ -65,11 +65,6 @@ namespace OculusDB.QAVS
         /// <summary>
         /// Version of the mod
         /// </summary>
-        public SemanticVersioning.Version Version { get; set; }
-
-        /// <summary>
-        /// Version of the mod
-        /// </summary>
         public string VersionString { get; set; }
 
         /// <summary>

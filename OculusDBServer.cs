@@ -117,7 +117,7 @@ namespace OculusDB
         {
             server = httpServer;
 			server.StartServer(config.port);
-			server.logRequests = false;
+			server.logRequests = true;
             //server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
