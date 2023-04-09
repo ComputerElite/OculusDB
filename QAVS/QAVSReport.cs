@@ -43,58 +43,58 @@ namespace OculusDB.QAVS
 		/// <summary>
         /// Provider that loaded this mod
         /// </summary>
-        IModProvider Provider { get; }
+		public IModProvider Provider { get; set; }
 
         /// <summary>
         /// Unique ID of the mod, must not contain spaces
         /// </summary>
-        string Id { get; }
+        public string Id { get; set; }
         
-        bool hasCover { get; set; }
+        public bool hasCover { get; set; }
 
         /// <summary>
         /// Human readable name of the mod
         /// </summary>
-        string Name { get; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Description of the mod
         /// </summary>
-        string? Description { get; }
+        public string? Description { get; set; }
 
         /// <summary>
         /// Version of the mod
         /// </summary>
-        SemanticVersioning.Version Version { get; }
+        public SemanticVersioning.Version Version { get; set; }
 
         /// <summary>
         /// Version of the mod
         /// </summary>
-        string VersionString { get; }
+        public string VersionString { get; set; }
 
         /// <summary>
         /// Version of the package that the mod is intended for
         /// </summary>
-        string? PackageVersion { get; }
+        public string? PackageVersion { get; set; }
 
         /// <summary>
         /// Author of the mod
         /// </summary>
-        string Author { get; }
+        public string Author { get; set; }
 
         /// <summary>
         /// Individual who ported this mod from another platform
         /// </summary>
-        string? Porter { get; }
+        public string? Porter { get; set; }
 
         /// <summary>
         /// Whether or not the mod is currently installed
         /// </summary>
-        bool IsInstalled { get; }
+        public bool IsInstalled { get; set; }
 
         /// <summary>
         /// Whether or not the mod is a library
         /// </summary>
-        bool IsLibrary { get; }
+        public bool IsLibrary { get; set; }
 	}
 }
