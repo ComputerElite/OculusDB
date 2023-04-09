@@ -256,7 +256,7 @@ namespace OculusDB
 
         public static string AddQAVSReport(QAVSReport report)
         {
-            string id = Random.Shared.Next(0, 0xFFFFFF).ToString("X");
+            string id = Random.Shared.Next(0x111111, 0xFFFFFF).ToString("X");
             report.reportId = id;
             qAVSReports.DeleteMany(x => x.reportId == id);
             qAVSReports.InsertOne(report);
