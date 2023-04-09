@@ -290,12 +290,7 @@ namespace OculusDB
 			server.AddRoute("POST", "/api/v1/qavsreport", new Func<ServerRequest, bool>(request =>
 			{
                 QAVSReport report = JsonSerializer.Deserialize<QAVSReport>(request.bodyString);
-                request.SendString(MongoDBInteractor.AddQAVSReport(report), "text/plain", 200, true, new Dictionary<string, string>
-                {
-                    {
-                        "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                    }
-                });
+                request.SendString(MongoDBInteractor.AddQAVSReport(report));
 				return true;
 			}));
 			server.AddRoute("GET", "/api/v1/qavsreport/", new Func<ServerRequest, bool>(request =>
