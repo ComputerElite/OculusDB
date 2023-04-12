@@ -19,6 +19,7 @@ using SixLabors.ImageSharp;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace OculusDB
 {
@@ -657,12 +658,14 @@ namespace OculusDB
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonRepresentation(BsonType.ObjectId)]
+        [JsonIgnore]
         public string _id { get; set; }
         
         public string appId { get; set; } = "";
         public bool priority { get; set; } = false;
         public Headset headset { get; set; } = Headset.HOLLYWOOD;
         public DateTime addedTime { get; set; } = DateTime.Now;
+        [JsonIgnore]
         public string imageUrl { get; set; } = "";
     }
 
