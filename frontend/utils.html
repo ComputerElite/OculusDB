@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    {meta}
+    <link rel="stylesheet" href="/style.css" >
+    <title>Utils - OculusDB</title>
+    <meta name="title" content="Utils - OculusDB">
+    <meta name="description" content="Various admin utils for OculusDB">
+</head>
+<body>
+<noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+<div class="content">
+    <div>
+        <h2>Utils</h2>
+        <i>Mostly for admins</i>
+        <input type="text" placeholder="app id" id="app-id">
+
+        <label class="checkmarkContainer">
+            <div>Priority scrape</div>
+            <input id="priority" type='checkbox'>
+            <span class="checkmark"></span>
+        </label>
+        <input type="button" value="Scrape now" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) ScrapeNow()">
+        <div class="textbox" id="scrape-status"></div>
+        <h3>Scrape status</h3>
+        <input type="button" value="Update status" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) UpdateScrapeStatus()">
+        <div style="display: flex; flex-direction: row; justify-content: space-between;">
+            <div class="application" style="flex-direction: column; justify-content: start">
+                <h3>Queued</h3>
+                <table id="appsToScrape">
+                    <tr>
+                        <th>App id</th>
+                        <th>Priority</th>
+                        <th>Queued at</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="application" style="flex-direction: column; justify-content: start">
+                <h3>Scraping</h3>
+                <table id="appsScraping">
+                    <tr>
+                        <th>App id</th>
+                        <th>Priority</th>
+                        <th>Queued at</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/script.js"></script>
+<script>
+    var id = params.get("id")
+    if(id) {
+        document.getElementById("app-id").value = id
+    }
+    
+    const header = `<tr>
+                        <th>App id</th>
+                        <th>Priority</th>
+                        <th>Queued at</th>
+                    </tr>`
+    UpdateScrapeStatus();
+    function UpdateScrapeStatus() {
+        fetch("/api/v1/scrapes/status").then(res => {
+            res.json().then(j => {
+                var appsScraping = header
+                for(const a of j.appsScraping) {
+                    appsScraping += `<tr><td>${a.appId}</td><td>${a.priority}</td><td> ${GetTimeString(a.addedTime)}</td></tr>`
+                }
+                
+                var appsToScrape = header
+                for(const a of j.appsToScrape) {
+                    appsToScrape += `<tr><td>${a.appId}</td><td>${a.priority}</td><td> ${GetTimeString(a.addedTime)}</td></tr>`
+                }
+                
+                document.getElementById("appsScraping").innerHTML = appsScraping
+                document.getElementById("appsToScrape").innerHTML = appsToScrape
+            })
+        })
+    }
+    
+    setInterval(UpdateScrapeStatus, 2000)
+    
+    function ScrapeNow() {
+        TextBoxText("scrape-status", "Scraping... Waiting for response")
+        fetch("/api/v1/admin/scrape?token=" + localStorage.token, {
+            method: "POST",
+            body: JSON.stringify({
+                appId: document.getElementById("app-id").value,
+                priority: document.getElementById("priority").checked
+            })
+        }).then(res => {
+            res.text().then(t => {
+                if(res.status == 200) {
+                    TextBoxGood("scrape-status", t)
+                } else {
+                    TextBoxError("scrape-status", t.replace(/\n/g, "<br>"))
+                }
+            })
+        })
+    }
+</script>
+</body>
+</html>

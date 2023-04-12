@@ -20,6 +20,7 @@ namespace OculusDB
         public string masterToken { get; set; } = "";
         public string mongoDBName { get; set; } = "OculusDB";
         public string masterWebhookUrl { get; set; } = "";
+        public List<Token> tokens { get; set; } = new List<Token>();
         public List<string> oculusTokens { get; set; } = new List<string> { "OC|1317831034909742|" };
         public int lastOculusToken { get; set; } = 0;
         public int lastValidToken { get; set; } = 0;
@@ -56,6 +57,19 @@ namespace OculusDB
                 Logger.Log("couldn't save config: " + e.ToString(), LoggingType.Warning);
             }
         }
+    }
+
+    public class Token
+    {
+        public string token { get; set; } = "";
+        public DateTime expiry { get; set; } = DateTime.Now;
+        public List<Permission> permissions { get; set; } = new();
+    }
+
+    public enum Permission
+    {
+        StartScrapes,
+        StartPriorityScrapes
     }
 
     public enum ScrapingStatus

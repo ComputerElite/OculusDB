@@ -673,5 +673,20 @@ namespace OculusDB
         {
             return applicationCollection.CountDocuments(x => true);
         }
+
+        public static ScrapeStatus GetScrapeStatus()
+        {
+            return new ScrapeStatus
+            {
+                appsScraping = appsScraping.Find(x => true).ToList(),
+                appsToScrape = appsToScrape.Find(x => true).ToList()
+            };
+        }
+    }
+
+    public class ScrapeStatus
+    {
+        public List<AppToScrape> appsScraping { get; set; } = new();
+        public List<AppToScrape> appsToScrape { get; set; } = new();
     }
 }

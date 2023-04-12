@@ -36,7 +36,7 @@
                     window.location.href = currentUser.redirect
                 }
                 var pwd = password.value
-                if(pwd.length < 100 || pwd.includes("@") || pwd.includes(" ") || pwd.startsWith("OC")) {
+                if(pwd.includes("@") || pwd.includes(" ") || pwd.startsWith("OC")) {
                     TextBoxError("status", `Whoops, seems like you wanted to log in with your Oculus/Facebook/Meta Account.<br>To do that, visit <a href="{oculusloginlink}">{oculusloginlink}</a> and log in there.`)
                     return
                 }
@@ -46,12 +46,13 @@
                         password: document.getElementById("password").value
                     })
                 }).then(res => {
-                    res.json().then(res => {
-                        if(res.authorized) {
-                            SetCookie("token", res.token, 7)
-                            //window.location.href = res.redirect
+                    res.json().then(j => {
+                        if(j.authorized) {
+                            if(j.isAdmin) SetCookie("token", j.token, 14)
+                            else localStorage.token = j.token
+                            window.location.href = j.redirect
                         } else {
-                            TextBoxError("status", res.status)
+                            TextBoxError("status", j.status)
                         }
                     })
                 })

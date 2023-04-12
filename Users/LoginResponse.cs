@@ -13,5 +13,6 @@ namespace OculusDB.Users
         public string token { get; set; } = "";
         public string status { get; set; } = "This User does not exist";
         public bool authorized { get; set; } = false;
+        public bool isAdmin { get; set; } = false;
     }
 }
