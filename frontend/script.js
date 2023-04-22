@@ -1218,7 +1218,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
             <div class="textbox" id="downloadTextBox"></div>
             <div>
                 <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbs && obbs.length > 0}); ${isObb && !sendToParent ? `ObbInfoPopup();` : ``}">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbs && obbs.length > 0}); ${isObb && !sendToParent ? `ObbInfoPopup();` : ``}}">
             </div>
         </div>
     `)
