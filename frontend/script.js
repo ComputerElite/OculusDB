@@ -1258,7 +1258,7 @@ function ObbDownloadPopUp() {
                 <div>
                     This game requires obb files (extra files that are required for the game to work). Do you want to download them?
                     <div>
-                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { DownloadObbs('${data.obbList.join(",")}', '${data.parentId}', '${data.parentName.replace("'", "\\'")}', '${data.version}', true, null); ClosePopUp(); }">
+                        <input type="button" value="Yes" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { DownloadObbs('${data.obbList.map(x => x.id).join(",")}', '${data.parentId}', '${data.parentName.replace("'", "\\'")}', '${data.version}', true, null); ClosePopUp(); }">
                         <input type="button" value="No" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
                     </div>
                 </div>
