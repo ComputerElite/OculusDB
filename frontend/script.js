@@ -1208,6 +1208,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
         if(obbs && obbs.length > 0){
             ObbDownloadPopUp()
         }
+        if(isObb && !sendToParent) ObbInfoPopup()
     } else {
         PopUp(`
         <div>
@@ -1217,13 +1218,10 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
             <div class="textbox" id="downloadTextBox"></div>
             <div>
                 <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbs && obbs.length > 0}); }">
+                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbs && obbs.length > 0}); ${isObb && !sendToParent ? `ObbInfoPopup();` : ``}">
             </div>
         </div>
     `)
-    }
-    if(isObb && !sendToParent) {
-        ObbInfoPopup()
     }
    
 }
