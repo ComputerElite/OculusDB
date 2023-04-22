@@ -407,7 +407,6 @@ namespace OculusDB
         
         public static void Scrape(AppToScrape app)
         {
-            lastUpdate = DateTime.Now;
             // This should be save to remove as I transitioned to MongoDB for managing queued scrapes
             /*
             if (MongoDBInteractor.DoesIdExistInCurrentScrape(app.id) && !app.priority)
@@ -419,6 +418,7 @@ namespace OculusDB
             DateTime priorityScrapeStart = DateTime.Now;
             Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
             if (a == null) throw new Exception("Application is null");
+            lastUpdate = DateTime.Now;
 			if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
 			if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
             {
