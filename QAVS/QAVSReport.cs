@@ -19,12 +19,30 @@ namespace OculusDB.QAVS
 		public bool userIsLoggedIn { get; set; }
 		public List<string> userEntitlements { get; set; } = new List<string>();
 		public long availableSpace { get; set; }
+        public PatchingStatus appStatus { get; set; }
 		public string availableSpaceString { get
 			{
 				return SizeConverter.ByteSizeToString(availableSpace);
 			} }
 
 		public ModsAndLibs modsAndLibs { get; set; } = null;
+	}
+	public class PatchingStatus
+	{
+		public bool isPatched { get; set; } = false;
+		public bool isInstalled { get; set; } = true;
+		public bool canBePatched { get; set; } = true; // Not implemented yet.
+		public string version { get; set; } = "";
+		public string versionCode { get; set; } = "";
+		public ModdedJson moddedJson { get; set; } = null;
+	}
+	public class ModdedJson
+	{
+		public string patcherName { get; set; } = "";
+		public string patcherVersion { get; set; } = "0.0.0";
+		public string modloaderName { get; set; } = "";
+		public string modloaderVersion { get; set; } = "";
+		public List<string> modifiedFiles { get; set; } = new List<string>();
 	}
 
 	public class ModsAndLibs

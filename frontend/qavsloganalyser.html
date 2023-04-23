@@ -22,6 +22,15 @@
             <div>QAVS version: <b id="version">1.8.0.0</b></div>
             <div>Android Version: <b id="aversion">Android 10</b></div>
 
+            <h2>Installed app</h2>
+            <div>Installed: <b id="appInstalled">N/A</b></div>
+            <div>Patched: <b id="appPatched">N/A</b></div>
+            <div>version: <b id="appVersion">N/A</b></div>
+            <div>Patcher: <b id="appPatcher">N/A</b></div>
+            <div>Patcher version: <b id="appPatcherVersion">N/A</b></div>
+            <div>Modloader: <b id="appModloader">N/A</b></div>
+            <div>Modloader version: <b id="appModloaderVersion">N/A</b></div>
+            
             <h2>Log</h2>
             <div class="application">
                 <div class="info">
@@ -122,6 +131,17 @@
                     document.getElementById("aversion").innerText = GetAndroidVersion(log.androidVersion)
                     document.getElementById("logText").innerHTML = log.log.replace(/\n/, "<br>")
                     document.getElementById("mods").innerHTML = FormatMods(log.modsAndLibs)
+                    if(log.appStatus) {
+                        document.getElementById("appInstalled").innerHTML = log.appStatus.isInstalled;
+                        document.getElementById("appPatched").innerHTML = log.appStatus.isPatched;
+                        document.getElementById("appVersion").innerText = log.appStatus.version + ` (${log.appStatus.versionCode})`;
+                        if(log.appStatus.moddedJson) {
+                            document.getElementById("appPatcher").innerText = log.appStatus.moddedJson.patcherName
+                            document.getElementById("appPatcherVersion").innerText = log.appStatus.moddedJson.patcherVersion
+                            document.getElementById("appModloader").innerText = log.appStatus.moddedJson.modloaderName
+                            document.getElementById("appModloaderVersion").innerText = log.appStatus.moddedJson.modloaderVersion
+                        }
+                    }   
                     FetchApplicationNames()
                 }).catch(err => {
                     TextBoxError("text", "Log does not exist")
