@@ -80,7 +80,7 @@
             function FormatMods(m) {
                 if(!m) return ""
                 var allMods = m.mods
-                allMods.concat(m.libs)
+                allMods = allMods.concat(m.libs)
                 allMods.sort(x => x.Name)
                 allMods.sort((x, y) => {
                     if(x.IsInstalled && !y.IsInstalled) return -1
