@@ -382,6 +382,7 @@ namespace OculusDB
                 if (a.img == "") return;
                 WebClient c = new WebClient();
                 c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
+                if(File.Exists(loc)) File.Delete(loc);
                 c.DownloadFile(a.img, loc);
                 if (!loc.EndsWith(".webp"))
                 {
@@ -389,7 +390,10 @@ namespace OculusDB
                     {
                         using (var img = Image.Load(loc))
                         {
-                            img.Save(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + a.id + ".webp");
+                            string newFileName = OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar +
+                                                 a.id + ".webp";
+                            if(File.Exists(newFileName)) File.Delete(newFileName);
+                            img.Save(newFileName);
                         }
                         File.Delete(loc);
                     }
