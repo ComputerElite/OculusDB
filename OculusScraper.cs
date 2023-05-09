@@ -404,7 +404,7 @@ namespace OculusDB
             }
         }
 
-        
+        public static TimeSpan timeBetweenScrapes = new TimeSpan(2, 0, 0, 0);
         public static void Scrape(AppToScrape app)
         {
             // This should be save to remove as I transitioned to MongoDB for managing queued scrapes
@@ -440,6 +440,20 @@ namespace OculusDB
             bool addedApplication = false;
             foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
             {
+                bool doPriorityForThisVersion = app.priority;
+                DBVersion oldEntry = connected.versions.FirstOrDefault(x => x.id == b.id);
+                if (doPriorityForThisVersion)
+                {
+                    if (oldEntry != null)
+                    {
+                        // Only do priority scrape if last scrape is older than 2 days
+                        if (DateTime.Now - oldEntry.lastPriorityScrape < timeBetweenScrapes)
+                        {
+                            doPriorityForThisVersion = false;
+                            Logger.Log("Skipping priority scrape of " + a.id + " v " + b.version + " because last priority scrape was " + (DateTime.Now - oldEntry.lastPriorityScrape).TotalDays + " days ago", LoggingType.Debug);
+                        }
+                    }
+                }
                 if(packageName == "")
                 {
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
@@ -450,27 +464,27 @@ namespace OculusDB
 					MongoDBInteractor.AddApplication(a, app.headset, app.imageUrl, packageName);
                     addedApplication = true;
 				}
-                if(b != null && app.priority)
+                if(b != null && doPriorityForThisVersion)
                 {
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
 				}
-				AndroidBinary bin = app.priority ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+				AndroidBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
                 bool wasNull = false;
                 if (bin == null)
                 {
-                    if (!app.priority || b == null) continue; // skip if version was unable to be fetched
+                    if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
                     wasNull = true;
                     bin = b;
 				}
                 // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
                 // - If not priority scrape enter changelog and obb of most recent versions
-                if((!app.priority || wasNull) && connected.versions.FirstOrDefault(x => x.id == bin.id) != null)
+                if((!doPriorityForThisVersion || wasNull) && oldEntry != null)
                 {
-                    bin.changeLog = connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog;
+                    bin.changeLog = oldEntry.changeLog;
                 }
 
-                MongoDBInteractor.AddVersion(bin, a, app.headset, app.priority ? null : connected.versions.FirstOrDefault(x => x.id == bin.id));
+                MongoDBInteractor.AddVersion(bin, a, app.headset, doPriorityForThisVersion ? null : oldEntry, doPriorityForThisVersion);
                 BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabaseVersion(b.id);
                     
                 DBActivityNewVersion newVersion = new DBActivityNewVersion();
@@ -489,13 +503,13 @@ namespace OculusDB
                 if(bin.changeLog != "" && bin.changeLog != null)
                 {
 					DBActivityVersionChangelogAvailable e = ObjectConverter.ConvertCopy<DBActivityVersionChangelogAvailable, DBActivityNewVersion>(newVersion);
-                    if (connected.versions.FirstOrDefault(x => x.id == bin.id) == null || connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog == "")
+                    if (oldEntry == null || oldEntry.changeLog == "")
 					{
 						// Changelog is most likely new
 						e.__OculusDBType = DBDataTypes.ActivityVersionChangelogAvailable;
 						DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument()));
 					}
-					else if(connected.versions.FirstOrDefault(x => x.id == bin.id) != null && connected.versions.FirstOrDefault(x => x.id == bin.id).changeLog != bin.changeLog)
+					else if(oldEntry != null && oldEntry.changeLog != bin.changeLog)
 					{
 						// Changelog got most likely updated
 						e.__OculusDBType = DBDataTypes.ActivityVersionChangelogUpdated;

@@ -504,7 +504,7 @@ namespace OculusDB
             applicationCollection.InsertOne(dba);
         }
 
-        public static void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry = null)
+        public static void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry = null, bool isPriorityScrape = false)
         {
             DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
             dbv.parentApplication.id = app.id;
@@ -528,7 +528,10 @@ namespace OculusDB
             } else
             {
                 dbv.obbList = oldEntry.obbList;
+                dbv.lastPriorityScrape = oldEntry.lastPriorityScrape;
             }
+            dbv.lastScrape = DateTime.Now;
+            if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.Now;
 
             // delete all old version entries
             versionsCollection.DeleteMany(x => x.id == dbv.id);

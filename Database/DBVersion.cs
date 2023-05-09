@@ -24,6 +24,8 @@ namespace OculusDB.Database
         public string file_name { get; set; } = "";
         public long versionCode { get; set; } = 0;
         public long created_date { get; set; } = 0;
+        public DateTime lastScrape { get; set; } = DateTime.MinValue;
+        public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
         public List<OBBBinary> obbList { get; set; } = null;
         public Nodes<ReleaseChannel> binary_release_channels { get; set; } = null;
         [BsonIgnore]
