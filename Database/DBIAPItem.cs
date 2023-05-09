@@ -19,6 +19,7 @@ namespace OculusDB.Database
         public string display_short_description { get; set; } = "";
         public string id { get; set; } = "";
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
+        public AssetFile latest_supported_asset_file { get; set; } = new AssetFile();
     }
 
     public class DBItemId
