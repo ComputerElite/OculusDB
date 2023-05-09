@@ -990,7 +990,7 @@ function FormatVersion(v, htmlid = "") {
         <div class="hidden" id="${htmlid}">
             <table>
                 <colgroup>
-                    <col width="180em">
+                    <col width="230em">
                     <col width="100%">
                 </colgroup>
                 ${v.downloads ? `<tr><td class="label">Downloads</td><td class="value">${v.downloads}</td></tr>` : ""}
@@ -1002,6 +1002,8 @@ function FormatVersion(v, htmlid = "") {
                 <tr><td class="label">Changelog</td><td class="value">${GetChangelog(v)}</td></tr>
                 <tr><td class="label">Obbs</td><td class="value">${GetObbs(downloadable, v.obbList, v)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
+                <tr><td class="label">Last scraped</td><td class="value">${GetTimeString(v.lastScrape)}</td></tr>
+                <tr><td class="label">Last priority scraped</td><td class="value">${GetTimeString(v.lastPriorityScrape)}</td></tr>
             </table>
         </div>
     </div>
