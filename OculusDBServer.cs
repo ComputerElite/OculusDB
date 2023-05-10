@@ -330,7 +330,7 @@ namespace OculusDB
                 }
 
                 return true;
-            })); // 5 mins
+            }));
             server.AddRoute("POST", "/api/v1/checkaccess", new Func<ServerRequest, bool>(request =>
             {
                 request.SendString((config.accesscode == request.bodyString).ToString().ToLower());
