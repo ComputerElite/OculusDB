@@ -152,10 +152,7 @@ namespace OculusDB
         {
             if(appToScrape.priority)
             {
-                if (appsToScrape.Count(x => x.appId == appToScrape.appId && !x.priority) > 0)
-                {
-                    appsToScrape.DeleteMany(x => x.appId == appToScrape.appId && !x.priority);
-                }
+                appsToScrape.DeleteMany(x => x.appId == appToScrape.appId && !x.priority);
 
                 if (appsToScrape.Count(x => x.appId == appToScrape.appId && x.priority) <= 0 && appsScraping.Count(x => x.appId == appToScrape.appId) <= 0)
                 {
@@ -429,7 +426,7 @@ namespace OculusDB
             return activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList();
         }
         
-        public static long DeleteOldApplicationsAndVersionsOfIds(DateTime before, List<string> ids)
+        public static long DeleteOldApplications(DateTime before, List<string> ids)
         {
             long deleted = 0;
             for(int i = 0; i < ids.Count; i++)
@@ -438,8 +435,6 @@ namespace OculusDB
                 {
                     // Delete applications, dlcs and dlc packs
                     deleted += applicationCollection.DeleteMany(x => x.__lastUpdated < before && x.id == ids[i]).DeletedCount;
-                    deleted += dlcCollection.DeleteMany(x => x.__lastUpdated < before && x.parentApplication.id == ids[i]).DeletedCount;
-                    deleted += dlcPackCollection.DeleteMany(x => x.__lastUpdated < before && x.parentApplication.id == ids[i]).DeletedCount;
                 }
                 catch
                 {
@@ -500,7 +495,7 @@ namespace OculusDB
             dba.img = image;
             dba.packageName = packageName;
             OculusScraper.DownloadImage(dba);
-            applicationCollection.DeleteMany(x => x.id == dba.id);// Delete old entries of the app
+            applicationCollection.DeleteOne(x => x.id == dba.id);// Delete old entries of the app
             applicationCollection.InsertOne(dba);
         }
 
@@ -534,7 +529,7 @@ namespace OculusDB
             if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.Now;
 
             // delete all old version entries
-            versionsCollection.DeleteMany(x => x.id == dbv.id);
+            versionsCollection.DeleteOne(x => x.id == dbv.id);
             versionsCollection.InsertOne(dbv);
         }
 

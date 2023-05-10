@@ -678,7 +678,7 @@ namespace OculusDB
             }
             if(app.priority)
             {
-                MongoDBInteractor.DeleteOldApplicationsAndVersionsOfIds(priorityScrapeStart, new List<string> { a.id });
+                MongoDBInteractor.DeleteOldApplications(priorityScrapeStart, new List<string> { a.id });
             }
             Logger.Log("Scraped " + app.appId);
         }
