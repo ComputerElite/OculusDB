@@ -141,7 +141,7 @@ namespace OculusDB
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
 			/////////////////////////////////////////////
-            //OculusScraper.StartScrapingThread();
+            OculusScraper.StartScrapingThread();
             Logger.Log("Setting up routes");
             string frontend = debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
 
