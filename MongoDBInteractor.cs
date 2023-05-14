@@ -680,6 +680,12 @@ namespace OculusDB
                 appsToScrape = appsToScrape.Find(x => true).ToList()
             };
         }
+
+        public static List<DBVersion> GetVersions(string appId, bool onlyDownloadableVersions)
+        {
+            if (onlyDownloadableVersions) return versionsCollection.Find(x => x.parentApplication.id == appId && x.binary_release_channels.nodes.Count > 0).SortByDescending(x => x.versionCode).ToList();
+            return versionsCollection.Find(x => x.parentApplication.id == appId).SortByDescending(x => x.versionCode).ToList();
+        }
     }
 
     public class ScrapeStatus

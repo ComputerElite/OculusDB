@@ -263,66 +263,7 @@
                     "nodes": [
                         {
                             "id": "2159376657710378",
-                            "channel_name": "LIVE",
-                            "latest_supported_binary": {
-                                "binary_application": null,
-                                "id": "",
-                                "version": "",
-                                "platform": "",
-                                "package_name": null,
-                                "file_name": "",
-                                "uri": "",
-                                "change_log": null,
-                                "changeLog": null,
-                                "richChangeLog": "",
-                                "firewall_exceptions_required": false,
-                                "is_2d_mode_supported": false,
-                                "launch_file": "",
-                                "launch_file_2d": null,
-                                "launch_parameters": "",
-                                "launch_parameters_2d": null,
-                                "Platform": "PC",
-                                "release_notes_plain_text": "",
-                                "required_space": "0",
-                                "required_space_numerical": 0,
-                                "size": "0",
-                                "size_numerical": 0,
-                                "status": "DRAFT",
-                                "supported_hmd_platforms": [],
-                                "supported_hmd_platforms_enum": [],
-                                "__isAppBinary": "",
-                                "__isAppBinaryWithFileAsset": "",
-                                "version_code": 0,
-                                "versionCode": 0,
-                                "created_date": 0,
-                                "binary_release_channels": null,
-                                "lastIapItems": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "firstIapItems": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "asset_files": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "obb_binary": null,
-                                "__typename": ""
-                            }
+                            "channel_name": "LIVE"
                         }
                     ]
                 },
@@ -337,6 +278,229 @@
                 ],
                 "website_url": "http://www.recroom.com/"
             }
+        },
+        {
+            "url": "/api/v1/versions/<id>?<onlydownloadable=true>",
+            "method": "GET",
+            "description": "Retrieves an object by its id",
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "The id of the application",
+                    "required": true
+                },
+
+                {
+                    "name": "onlydownloadable",
+                    "description": "Whether to only return downloadable (public) versions",
+                    "required": false
+                }
+            ],
+            "exampleResponse": [
+                {
+                    "__lastUpdated": "2023-05-12T19:27:25.056Z",
+                    "__OculusDBType": "Version",
+                    "parentApplication": {
+                        "id": "2448060205267927",
+                        "canonicalName": "beat-games-beat-saber-android6d0f",
+                        "displayName": "Beat Saber",
+                        "hmd": 2
+                    },
+                    "id": "9277859962287883",
+                    "version": "1.29.4_4821066007",
+                    "alias": null,
+                    "changeLog": "",
+                    "platform": "",
+                    "file_name": "beat-saber.apk",
+                    "versionCode": 705,
+                    "created_date": 1682608718,
+                    "lastScrape": "2023-05-12T19:27:25.056Z",
+                    "lastPriorityScrape": "2023-05-11T21:43:34.983Z",
+                    "obbList": null,
+                    "binary_release_channels": {
+                        "count": 0,
+                        "nodes": [
+                            {
+                                "id": "703449633385683",
+                                "channel_name": "LIVE"
+                            },
+                            {
+                                "id": "2138352146368342",
+                                "channel_name": "unity_beta"
+                            }
+                        ]
+                    },
+                    "downloadable": true,
+                    "firstIapItems": {
+                        "count": 0,
+                        "edges": [],
+                        "page_info": {
+                            "end_cursor": "",
+                            "start_cursor": ""
+                        }
+                    }
+                },
+                {
+                    "__lastUpdated": "2023-05-12T19:27:32.749Z",
+                    "__OculusDBType": "Version",
+                    "parentApplication": {
+                        "id": "2448060205267927",
+                        "canonicalName": "beat-games-beat-saber-android6d0f",
+                        "displayName": "Beat Saber",
+                        "hmd": 2
+                    },
+                    "id": "9231771993563347",
+                    "version": "1.29.3_4742271532",
+                    "alias": null,
+                    "changeLog": "",
+                    "platform": "",
+                    "file_name": "beat-saber.apk",
+                    "versionCode": 681,
+                    "created_date": 1681903068,
+                    "lastScrape": "2023-05-12T19:27:32.749Z",
+                    "lastPriorityScrape": "2023-05-12T02:17:41.241Z",
+                    "obbList": null,
+                    "binary_release_channels": {
+                        "count": 0,
+                        "nodes": [
+                            {
+                                "id": "2138352146368342",
+                                "channel_name": "unity_beta"
+                            }
+                        ]
+                    },
+                    "downloadable": true,
+                    "firstIapItems": {
+                        "count": 0,
+                        "edges": [],
+                        "page_info": {
+                            "end_cursor": "",
+                            "start_cursor": ""
+                        }
+                    }
+                },
+                {
+                    "__lastUpdated": "2023-05-12T19:27:53.283Z",
+                    "__OculusDBType": "Version",
+                    "parentApplication": {
+                        "id": "2448060205267927",
+                        "canonicalName": "beat-games-beat-saber-android6d0f",
+                        "displayName": "Beat Saber",
+                        "hmd": 2
+                    },
+                    "id": "9071137989626749",
+                    "version": "1.29.0_4466478251",
+                    "alias": null,
+                    "changeLog": "Panic! At The Disco Music Pack is getting supercharged with 6 new singles. The update brings hits like 'Hey Look Ma, I Made It', 'Say Amen (Saturday Night)' and more. The upgraded Music Pack includes advanced in-game environment and lighting, new colors, and revamped original levels, featuring Arc & Chain Notes. The 6 new singles and expanded Music Pack are available now for purchase as additional content for the game.\n",
+                    "platform": "",
+                    "file_name": "beat-saber.apk",
+                    "versionCode": 617,
+                    "created_date": 1679305764,
+                    "lastScrape": "2023-05-12T19:27:53.283Z",
+                    "lastPriorityScrape": "2023-05-12T02:32:27.267Z",
+                    "obbList": null,
+                    "binary_release_channels": {
+                        "count": 0,
+                        "nodes": [
+                            {
+                                "id": "955480635770075",
+                                "channel_name": "legacy1.29.0_unity_ver2019.4.28f1"
+                            },
+                            {
+                                "id": "703449633385683",
+                                "channel_name": "LIVE"
+                            }
+                        ]
+                    },
+                    "downloadable": true,
+                    "firstIapItems": {
+                        "count": 0,
+                        "edges": [],
+                        "page_info": {
+                            "end_cursor": "",
+                            "start_cursor": ""
+                        }
+                    }
+                },
+                {
+                    "__lastUpdated": "2023-05-12T19:28:16.471Z",
+                    "__OculusDBType": "Version",
+                    "parentApplication": {
+                        "id": "2448060205267927",
+                        "canonicalName": "beat-games-beat-saber-android6d0f",
+                        "displayName": "Beat Saber",
+                        "hmd": 2
+                    },
+                    "id": "8838143419592875",
+                    "version": "1.28.0_4124311467",
+                    "alias": null,
+                    "changeLog": "Imagine Dragons Music Pack got an upgrade! Expand your music library with chart-topping hits 'Enemy' and 'Bones' from the award-winning Pop Rock band Imagine Dragons. Don't own the Imagine Dragons Music Pack yet? Get the updated 12-song Imagine Dragons Music Pack together with an advanced in-game environment and lighting, new colors and revamped original levels including Arc & Chain Notes! Imagine Dragons Music Pack and new singles are now available for purchase as additional content for the game.\n",
+                    "platform": "",
+                    "file_name": "beat-saber.apk",
+                    "versionCode": 545,
+                    "created_date": 1675867023,
+                    "lastScrape": "2023-05-12T19:28:16.471Z",
+                    "lastPriorityScrape": "2023-05-12T02:41:32.073Z",
+                    "obbList": null,
+                    "binary_release_channels": {
+                        "count": 0,
+                        "nodes": [
+                            {
+                                "id": "703449633385683",
+                                "channel_name": "LIVE"
+                            }
+                        ]
+                    },
+                    "downloadable": true,
+                    "firstIapItems": {
+                        "count": 0,
+                        "edges": [],
+                        "page_info": {
+                            "end_cursor": "",
+                            "start_cursor": ""
+                        }
+                    }
+                },
+                {
+                    "__lastUpdated": "2023-05-12T19:28:34.332Z",
+                    "__OculusDBType": "Version",
+                    "parentApplication": {
+                        "id": "2448060205267927",
+                        "canonicalName": "beat-games-beat-saber-android6d0f",
+                        "displayName": "Beat Saber",
+                        "hmd": 2
+                    },
+                    "id": "8489744774432743",
+                    "version": "1.27.0_3631150051",
+                    "alias": null,
+                    "changeLog": "Ready to rock? Take the stage with the Rock Mixtape featuring 8 heart-bumping hits from Nirvana, Guns N’ Roses, The White Stripes, KISS and more, \nwith a fresh new environment included! For the first time ever, play nearly nine minutes long track “Free Bird” by Lynyrd Skynyrd - the longest song ever released in Beat Saber. \nLET'S GO! Rock Mixtape is now available for purchase as additional content for the game.",
+                    "platform": "",
+                    "file_name": "beat-saber.apk",
+                    "versionCode": 490,
+                    "created_date": 1670345902,
+                    "lastScrape": "2023-05-12T19:28:34.332Z",
+                    "lastPriorityScrape": "2023-05-12T09:19:09.717Z",
+                    "obbList": null,
+                    "binary_release_channels": {
+                        "count": 0,
+                        "nodes": [
+                            {
+                                "id": "703449633385683",
+                                "channel_name": "LIVE"
+                            }
+                        ]
+                    },
+                    "downloadable": true,
+                    "firstIapItems": {
+                        "count": 0,
+                        "edges": [],
+                        "page_info": {
+                            "end_cursor": "",
+                            "start_cursor": ""
+                        }
+                    }
+                }
+            ]
         },
         {
             "url": "/api/v1/connected/<id>",
@@ -414,66 +578,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -549,66 +654,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -681,66 +727,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -813,66 +800,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -945,66 +873,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1077,66 +946,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1209,66 +1019,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1341,66 +1092,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1473,66 +1165,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1605,66 +1238,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1737,66 +1311,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -1869,66 +1384,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -2001,66 +1457,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -2133,66 +1530,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -2265,66 +1603,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -2397,66 +1676,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -2529,66 +1749,7 @@
                             "nodes": [
                                 {
                                     "id": "428040521599754",
-                                    "channel_name": "LIVE",
-                                    "latest_supported_binary": {
-                                        "binary_application": null,
-                                        "id": "",
-                                        "version": "",
-                                        "platform": "",
-                                        "package_name": null,
-                                        "file_name": "",
-                                        "uri": "",
-                                        "change_log": null,
-                                        "changeLog": null,
-                                        "richChangeLog": "",
-                                        "firewall_exceptions_required": false,
-                                        "is_2d_mode_supported": false,
-                                        "launch_file": "",
-                                        "launch_file_2d": null,
-                                        "launch_parameters": "",
-                                        "launch_parameters_2d": null,
-                                        "Platform": "PC",
-                                        "release_notes_plain_text": "",
-                                        "required_space": "0",
-                                        "required_space_numerical": 0,
-                                        "size": "0",
-                                        "size_numerical": 0,
-                                        "status": "DRAFT",
-                                        "supported_hmd_platforms": [],
-                                        "supported_hmd_platforms_enum": [],
-                                        "__isAppBinary": "",
-                                        "__isAppBinaryWithFileAsset": "",
-                                        "version_code": 0,
-                                        "versionCode": 0,
-                                        "created_date": 0,
-                                        "binary_release_channels": null,
-                                        "lastIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "firstIapItems": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "asset_files": {
-                                            "count": 0,
-                                            "edges": [],
-                                            "page_info": {
-                                                "end_cursor": "",
-                                                "start_cursor": ""
-                                            }
-                                        },
-                                        "obb_binary": null,
-                                        "__typename": ""
-                                    }
+                                    "channel_name": "LIVE"
                                 }
                             ]
                         },
@@ -3907,40 +3068,7 @@
                         "nodes": [
                             {
                                 "id": "2228979937330749",
-                                "channel_name": "LIVE",
-                                "latest_supported_binary": {
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": "",
-                                    "changeLog": "",
-                                    "richChangeLog": "",
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "LIVE"
                             }
                         ]
                     },
@@ -4031,77 +3159,11 @@
                         "nodes": [
                             {
                                 "id": "703449633385683",
-                                "channel_name": "LIVE",
-                                "latest_supported_binary": {
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": "",
-                                    "changeLog": "",
-                                    "richChangeLog": "",
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "LIVE"
                             },
                             {
                                 "id": "270359505200987",
-                                "channel_name": "1.19.1_public_beta",
-                                "latest_supported_binary": {
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": "",
-                                    "changeLog": "",
-                                    "richChangeLog": "",
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "1.19.1_public_beta"
                             }
                         ]
                     },
@@ -4192,77 +3254,11 @@
                         "nodes": [
                             {
                                 "id": "2017290351867153",
-                                "channel_name": "LIVE",
-                                "latest_supported_binary": {
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": "",
-                                    "changeLog": "",
-                                    "richChangeLog": "",
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "LIVE"
                             },
                             {
                                 "id": "3137403669919586",
-                                "channel_name": "1.19.1_public_beta",
-                                "latest_supported_binary": {
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": "",
-                                    "changeLog": "",
-                                    "richChangeLog": "",
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "1.19.1_public_beta"
                             }
                         ]
                     },
@@ -8160,40 +7156,7 @@
                     "releaseChannels": [
                         {
                             "id": "438740100645681",
-                            "channel_name": "LIVE",
-                            "latest_supported_binary": {
-                                "id": "",
-                                "version": "",
-                                "platform": "",
-                                "file_name": "",
-                                "uri": "",
-                                "change_log": "",
-                                "changeLog": "",
-                                "richChangeLog": "",
-                                "__isAppBinary": "",
-                                "__isAppBinaryWithFileAsset": "",
-                                "version_code": 0,
-                                "versionCode": 0,
-                                "created_date": 0,
-                                "binary_release_channels": null,
-                                "lastIapItems": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "firstIapItems": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "__typename": ""
-                            }
+                            "channel_name": "LIVE"
                         }
                     ],
                     "parentApplication": {
@@ -8252,40 +7215,7 @@
                     "releaseChannels": [
                         {
                             "id": "2747307448899577",
-                            "channel_name": "LIVE",
-                            "latest_supported_binary": {
-                                "id": "",
-                                "version": "",
-                                "platform": "",
-                                "file_name": "",
-                                "uri": "",
-                                "change_log": "",
-                                "changeLog": "",
-                                "richChangeLog": "",
-                                "__isAppBinary": "",
-                                "__isAppBinaryWithFileAsset": "",
-                                "version_code": 0,
-                                "versionCode": 0,
-                                "created_date": 0,
-                                "binary_release_channels": null,
-                                "lastIapItems": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "firstIapItems": {
-                                    "count": 0,
-                                    "edges": [],
-                                    "page_info": {
-                                        "end_cursor": "",
-                                        "start_cursor": ""
-                                    }
-                                },
-                                "__typename": ""
-                            }
+                            "channel_name": "LIVE"
                         }
                     ],
                     "parentApplication": {
@@ -8429,65 +7359,7 @@
                         "nodes": [
                             {
                                 "id": "195334711243420",
-                                "channel_name": "LIVE",
-                                "latest_supported_binary": {
-                                    "binary_application": null,
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "package_name": null,
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": null,
-                                    "changeLog": null,
-                                    "richChangeLog": "",
-                                    "firewall_exceptions_required": false,
-                                    "is_2d_mode_supported": false,
-                                    "launch_file": "",
-                                    "launch_file_2d": null,
-                                    "launch_parameters": "",
-                                    "launch_parameters_2d": null,
-                                    "Platform": "PC",
-                                    "release_notes_plain_text": "",
-                                    "required_space": "0",
-                                    "required_space_numerical": 0,
-                                    "size": "0",
-                                    "size_numerical": 0,
-                                    "status": "DRAFT",
-                                    "supported_hmd_platforms": [],
-                                    "supported_hmd_platforms_enum": [],
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "asset_files": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "LIVE"
                             }
                         ]
                     },
@@ -8580,189 +7452,15 @@
                         "nodes": [
                             {
                                 "id": "430449448270240",
-                                "channel_name": "LIVE",
-                                "latest_supported_binary": {
-                                    "binary_application": null,
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "package_name": null,
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": null,
-                                    "changeLog": null,
-                                    "richChangeLog": "",
-                                    "firewall_exceptions_required": false,
-                                    "is_2d_mode_supported": false,
-                                    "launch_file": "",
-                                    "launch_file_2d": null,
-                                    "launch_parameters": "",
-                                    "launch_parameters_2d": null,
-                                    "Platform": "PC",
-                                    "release_notes_plain_text": "",
-                                    "required_space": "0",
-                                    "required_space_numerical": 0,
-                                    "size": "0",
-                                    "size_numerical": 0,
-                                    "status": "DRAFT",
-                                    "supported_hmd_platforms": [],
-                                    "supported_hmd_platforms_enum": [],
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "asset_files": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "LIVE"
                             },
                             {
                                 "id": "324451078977600",
-                                "channel_name": "BETA",
-                                "latest_supported_binary": {
-                                    "binary_application": null,
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "package_name": null,
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": null,
-                                    "changeLog": null,
-                                    "richChangeLog": "",
-                                    "firewall_exceptions_required": false,
-                                    "is_2d_mode_supported": false,
-                                    "launch_file": "",
-                                    "launch_file_2d": null,
-                                    "launch_parameters": "",
-                                    "launch_parameters_2d": null,
-                                    "Platform": "PC",
-                                    "release_notes_plain_text": "",
-                                    "required_space": "0",
-                                    "required_space_numerical": 0,
-                                    "size": "0",
-                                    "size_numerical": 0,
-                                    "status": "DRAFT",
-                                    "supported_hmd_platforms": [],
-                                    "supported_hmd_platforms_enum": [],
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "asset_files": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "BETA"
                             },
                             {
                                 "id": "991382195034167",
-                                "channel_name": "ALPHA",
-                                "latest_supported_binary": {
-                                    "binary_application": null,
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "package_name": null,
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": null,
-                                    "changeLog": null,
-                                    "richChangeLog": "",
-                                    "firewall_exceptions_required": false,
-                                    "is_2d_mode_supported": false,
-                                    "launch_file": "",
-                                    "launch_file_2d": null,
-                                    "launch_parameters": "",
-                                    "launch_parameters_2d": null,
-                                    "Platform": "PC",
-                                    "release_notes_plain_text": "",
-                                    "required_space": "0",
-                                    "required_space_numerical": 0,
-                                    "size": "0",
-                                    "size_numerical": 0,
-                                    "status": "DRAFT",
-                                    "supported_hmd_platforms": [],
-                                    "supported_hmd_platforms_enum": [],
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "asset_files": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "ALPHA"
                             }
                         ]
                     },
@@ -8855,65 +7553,7 @@
                         "nodes": [
                             {
                                 "id": "2593273034047907",
-                                "channel_name": "LIVE",
-                                "latest_supported_binary": {
-                                    "binary_application": null,
-                                    "id": "",
-                                    "version": "",
-                                    "platform": "",
-                                    "package_name": null,
-                                    "file_name": "",
-                                    "uri": "",
-                                    "change_log": null,
-                                    "changeLog": null,
-                                    "richChangeLog": "",
-                                    "firewall_exceptions_required": false,
-                                    "is_2d_mode_supported": false,
-                                    "launch_file": "",
-                                    "launch_file_2d": null,
-                                    "launch_parameters": "",
-                                    "launch_parameters_2d": null,
-                                    "Platform": "PC",
-                                    "release_notes_plain_text": "",
-                                    "required_space": "0",
-                                    "required_space_numerical": 0,
-                                    "size": "0",
-                                    "size_numerical": 0,
-                                    "status": "DRAFT",
-                                    "supported_hmd_platforms": [],
-                                    "supported_hmd_platforms_enum": [],
-                                    "__isAppBinary": "",
-                                    "__isAppBinaryWithFileAsset": "",
-                                    "version_code": 0,
-                                    "versionCode": 0,
-                                    "created_date": 0,
-                                    "binary_release_channels": null,
-                                    "lastIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "firstIapItems": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "asset_files": {
-                                        "count": 0,
-                                        "edges": [],
-                                        "page_info": {
-                                            "end_cursor": "",
-                                            "start_cursor": ""
-                                        }
-                                    },
-                                    "__typename": ""
-                                }
+                                "channel_name": "LIVE"
                             }
                         ]
                     },

@@ -27,7 +27,7 @@ namespace OculusDB.Database
         public DateTime lastScrape { get; set; } = DateTime.MinValue;
         public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
         public List<OBBBinary> obbList { get; set; } = null;
-        public Nodes<ReleaseChannel> binary_release_channels { get; set; } = null;
+        public Nodes<ReleaseChannelWithoutLatestSupportedBinary> binary_release_channels { get; set; } = null;
         [BsonIgnore]
         public bool downloadable { get
             {

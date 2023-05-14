@@ -608,6 +608,29 @@ namespace OculusDB
                 }
                 return true;
             }), true, true, true, true, 360); // 6 mins
+            server.AddRoute("GET", "/api/v1/versions/", new Func<ServerRequest, bool>(request =>
+            {
+                if (!DoesUserHaveAccess(request)) return true;
+                try
+                {
+                    List<DBVersion> versions = MongoDBInteractor.GetVersions(request.pathDiff, request.queryString.Get("onlydownloadable") != null && request.queryString.Get("onlydownloadable").ToLower() != "false");
+                    request.SendString(JsonSerializer.Serialize(versions), "application/json");
+                    // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
+                    OculusScraper.CheckRunning();
+
+                    if (versions.Count > 0)
+                    {
+                        DBApplication a = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(versions[0].parentApplication.id)[0]);
+                        OculusScraper.AddApp(a.id, a.hmd);
+                    }
+                }
+                catch (Exception e)
+                {
+                    request.SendString(apiError, "text/plain", 500);
+                    Logger.Log(e.ToString(), LoggingType.Error);
+                }
+                return true;
+            }), true, true, true, true, 360); // 6 mins
             server.AddRouteRedirect("GET", "/api/search/", "/api/v1/search/", true);
             server.AddRoute("GET", "/api/v1/search/", new Func<ServerRequest, bool>(request =>
             {
