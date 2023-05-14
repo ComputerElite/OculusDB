@@ -119,7 +119,7 @@ namespace OculusDB
             server = httpServer;
 			server.StartServer(config.port);
 			server.logRequests = true;
-            //server.maxRamUsage = 200 * 1024 * 1024; // 200 MB
+            server.maxRamUsage = 700 * 1024 * 1024; // 700 MB
             Logger.Log("Working directory is " + OculusDBEnvironment.workingDir);
             Logger.Log("data directory is " + OculusDBEnvironment.dataDir);
             FileManager.CreateDirectoryIfNotExisting(OculusDBEnvironment.dataDir + "images");
@@ -141,7 +141,7 @@ namespace OculusDB
 			/////////////////////////////////////////////
 			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
 			/////////////////////////////////////////////
-            OculusScraper.StartScrapingThread();
+            //OculusScraper.StartScrapingThread();
             Logger.Log("Setting up routes");
             string frontend = debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
 
@@ -312,7 +312,7 @@ namespace OculusDB
                 {
                     if(File.Exists(OculusDBEnvironment.dataDir + "coremods.json"))
                     {
-                        request.SendString(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"), "application/json", 200, true, new Dictionary<string, string>
+                        if(!request.closed) request.SendString(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"), "application/json", 200, true, new Dictionary<string, string>
                         {
                             {
                                 "access-control-allow-origin", request.context.Request.Headers.Get("origin")
@@ -320,7 +320,7 @@ namespace OculusDB
                         });
                     } else
                     {
-                        request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
+                        if(!request.closed) request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
                         {
                             {
                                 "access-control-allow-origin", request.context.Request.Headers.Get("origin")
