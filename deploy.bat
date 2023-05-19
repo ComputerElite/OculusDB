@@ -36,6 +36,7 @@ cd..
 cd bin\Release\net6.0\
 echo Deleting existing update zip
 del net6.0.zip
+echo %id% > commit.txt
 
 echo Creating new update zip
 7z a net6.0.zip *.dll *.pdb *.exe *.json frontend ref runtimes
