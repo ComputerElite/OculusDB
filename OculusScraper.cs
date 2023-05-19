@@ -68,8 +68,10 @@ namespace OculusDB
             if(DateTime.Now - new TimeSpan(0, minutesPause + 10, 0) > lastUpdate)
             {
                 // Time to restart OculusDB
-                OculusDBServer.SendMasterWebhookMessage("Server restarting", "Scraping thread hasn't updated in the last " + (minutesPause + 10) + " min. Restarting the server", 0xFFFF00);
-                Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+                OculusDBServer.SendMasterWebhookMessage("Changing token", "Scraping thread hasn't updated in the last " + (minutesPause + 10) + " min. Changing token", 0xFFFF00);
+                SwitchToken();
+                // FUCK YOU, This caused the several times a day 3 minute downtime of OculusDB
+                //Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
             }
         }
 
