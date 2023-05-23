@@ -135,7 +135,7 @@ namespace OculusDB
                 //MongoDBInteractor.MigrateFromDataCollectionToOtherCollections();
 				MongoDBInteractor.CleanDB();
 			});
-            cleanThread.Start();
+            //cleanThread.Start();
 
             Logger.Log("Starting scraping threads");
 			/////////////////////////////////////////////
