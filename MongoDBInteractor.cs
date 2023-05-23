@@ -544,6 +544,7 @@ namespace OculusDB
                 id.id = i.node.id;
                 dbdlcp.bundle_items.Add(id);
             }
+            dlcPackCollection.DeleteOne(x => x.id == dbdlcp.id);
             dlcPackCollection.InsertOne(dbdlcp);
         }
 
@@ -552,6 +553,7 @@ namespace OculusDB
             DBIAPItem dbdlc = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
             dbdlc.parentApplication.hmd = h;
             dbdlc.latestAssetFileId = a.latest_supported_asset_file != null ? a.latest_supported_asset_file.id : "";
+            dlcCollection.DeleteOne(x => x.id == dbdlc.id);
             dlcCollection.InsertOne(dbdlc);
         }
 
@@ -659,12 +661,37 @@ namespace OculusDB
             int i = 0;
             foreach(string id in ids)
             {
-                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + ")");
+                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " applications)");
                 DBApplication newest = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).First();
                 applicationCollection.DeleteMany(x => x.id == id);
                 applicationCollection.InsertOne(newest);
 				i++;
 			}
+            //Remove all duplicate dlcs
+            ids = dlcCollection.Distinct(x => x.id, x => true).ToList();
+            Logger.Log("Cleaning " + ids.Count + " dlcs");
+            i = 0;
+            foreach(string id in ids)
+            {
+                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " dlcs)");
+                DBIAPItem newest = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).First();
+                dlcCollection.DeleteMany(x => x.id == id);
+                dlcCollection.InsertOne(newest);
+                i++;
+            }
+            
+            //Remove all duplicate dlcPacks
+            ids = dlcPackCollection.Distinct(x => x.id, x => true).ToList();
+            Logger.Log("Cleaning " + ids.Count + " dlcPacks");
+            i = 0;
+            foreach(string id in ids)
+            {
+                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " dlcPacks)");
+                DBIAPItemPack newest = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).First();
+                dlcPackCollection.DeleteMany(x => x.id == id);
+                dlcPackCollection.InsertOne(newest);
+                i++;
+            }
 		}
 
         public static long GetAppCount()
