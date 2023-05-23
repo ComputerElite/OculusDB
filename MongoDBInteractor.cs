@@ -655,6 +655,7 @@ namespace OculusDB
 
 		internal static void CleanDB()
 		{
+            /*
             //Remove all duplicate apps
             List<string> ids = applicationCollection.Distinct(x => x.id, x => true).ToList();
             Logger.Log("Cleaning " + ids.Count + " applications");
@@ -667,10 +668,11 @@ namespace OculusDB
                 applicationCollection.InsertOne(newest);
 				i++;
 			}
+			*/
             //Remove all duplicate dlcs
-            ids = dlcCollection.Distinct(x => x.id, x => true).ToList();
+            List<string> ids = dlcCollection.Distinct(x => x.id, x => true).ToList();
             Logger.Log("Cleaning " + ids.Count + " dlcs");
-            i = 0;
+            int i = 0;
             foreach(string id in ids)
             {
                 Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " dlcs)");
