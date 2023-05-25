@@ -553,7 +553,7 @@ function GetVersion(version, id, showWorking = true) {
         try {
             var res;
             connected.versions.forEach(v => {
-                if(v.version == version && v.binary_release_channels.nodes.length > 0) res = v
+                if(v.version == version && (!v.binary_release_channels || v.binary_release_channels.nodes.length > 0)) res = v
             });
             resolve(res)
         } catch{
@@ -561,7 +561,7 @@ function GetVersion(version, id, showWorking = true) {
             fetch(`/api/v1/connected/${id}`).then(res => res.json().then(connected => {
                 var res;
                 connected.versions.forEach(v => {
-                    if(v.version == version && v.binary_release_channels.nodes.length > 0) res = v
+                    if(v.version == version && (!v.binary_release_channels || v.binary_release_channels.nodes.length > 0)) res = v
                 });
                 resolve(res)
             }))
@@ -968,9 +968,11 @@ function GetObbs(downloadable, obb, v) {
 
 function FormatVersion(v, htmlid = "") {
     var releaseChannels = ""
-    v.binary_release_channels.nodes.forEach(x => {
-        releaseChannels += `${x.channel_name}, `
-    })
+    if(v.binary_release_channels) {
+        v.binary_release_channels.nodes.forEach(x => {
+            releaseChannels += `${x.channel_name}, `
+        })
+    }
     if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
     var downloadable = releaseChannels != ""
     return `<div class="application" id="anchor_${v.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${v.id}'))">

@@ -503,6 +503,9 @@ namespace OculusDB
         {
             DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
             dbv.parentApplication.id = app.id;
+            dbv.binary_release_channels = new Nodes<ReleaseChannelWithoutLatestSupportedBinary>();
+            dbv.binary_release_channels.nodes =
+                a.binary_release_channels.nodes.ConvertAll(x => (ReleaseChannelWithoutLatestSupportedBinary)x);
             dbv.parentApplication.hmd = h;
             dbv.parentApplication.displayName = app.displayName;
             dbv.parentApplication.canonicalName = app.canonicalName;
