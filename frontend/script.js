@@ -974,7 +974,7 @@ function FormatVersion(v, htmlid = "") {
         })
     }
     if(releaseChannels.length > 0) releaseChannels = releaseChannels.substring(0, releaseChannels.length - 2)
-    var downloadable = releaseChannels != ""
+    var downloadable = releaseChannels != "" || !v.binary_release_channels
     return `<div class="application" id="anchor_${v.id}" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${v.id}'))">
     <div class="info">
         <div id="anchor" style="height: 0;"></div>
