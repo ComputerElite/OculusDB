@@ -168,6 +168,21 @@ namespace OculusDB
             }
             
             ////////////////// Admin
+            server.AddRoute("GET", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>
+            {
+                if (!DoesUserHaveAccess(request)) return true;
+                if (!IsUserAdmin(request)) return true;
+                request.SendString(JsonSerializer.Serialize(config.tokens));
+                return true;
+            }));
+            server.AddRoute("POST", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>
+            {
+                if (!DoesUserHaveAccess(request)) return true;
+                if (!IsUserAdmin(request)) return true;
+                config.tokens = JsonSerializer.Deserialize<List<Token>>(request.bodyString);
+                request.SendString("Set users");
+                return true;
+            }));
             
             server.AddRoute("GET", "/api/v1/blocked/blockedapps", request =>
             {

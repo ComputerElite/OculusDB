@@ -34,11 +34,68 @@
                         <td class="value" id="working"></td>
                     </tr>
                 </table>
+                <br>
+                <input type="button" value="Add User" onclick="AddUser()">
+                <div id="users">
+                    
+                </div>
             </div>
         </div>
         
         <script src="/script.js"></script>
         <script>
+            const users = document.getElementById("users")
+            var userJson = []
+            UpdateUsers()
+            function RemoveUser(i) {
+                userJson.splice(i, 1)
+                SubmitUsers()
+            }
+            function AddUser() {
+                var token = prompt("Enter token")
+                var permissions = prompt("Enter permissions seperated by comma (0 = Start Scrapes, 1 = Start Priority Scrapes, 2 = Un-/block apps)").split(',').map(x => parseInt(x.trim()))
+                var expiry = new Date(prompt("Enter expiry date in format yyyy-mm-dd")).toISOString()
+                userJson.push({
+                    token: token,
+                    permissions: permissions,
+                    expiry: expiry
+                })
+                SubmitUsers()
+            }
+            function SubmitUsers() {
+                fetch(`/api/v1/admin/users`, {
+                    method: "POST",
+                    body: JSON.stringify(userJson)
+                }).then(res => res.text().then(res => {
+                    alert(res)
+                    UpdateUsers()
+                }))
+            }
+            function UpdateUsers() {
+                fetch(`/api/v1/admin/users`).then(res => res.json().then(res => {
+                    userJson = res
+                    var html = ``;
+                    let i = 0
+                    for(const u of res) {
+                        html += `<div class="application">
+                        <div class="info">
+                            <div class="flex outside">
+                                <div class="buttons">
+                                    <input type="button" value="Remove User" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RemoveUser(${i})">
+                                </div>
+                                <div class="flex header">
+                                    <div stlye="font-size: 1.25em;">${u.token} (${u.permissions.join(", ")}) expires ${new Date(u.expiry).toDateString()}</div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                    </div>`
+                        i++
+                    }
+                    users.innerHTML = html;
+                }))
+            }
             /*
             var config = {}
             fetch("/api/config").then(res => res.json().then(res => {
