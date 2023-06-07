@@ -13,39 +13,75 @@
     <div>
         <h2>Utils</h2>
         <i>Mostly for admins</i>
-        <input type="text" placeholder="app id" id="app-id">
+        <div class="application">
+            <div class="info">
+                <div class="flex outside">
+                    <div class="flex header" onclick="RevealDescription('scraping')">
+                        <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="scraping_trigger" class="anim noselect">&gt;</div>
+                        <div stlye="font-size: 1.25em;">Scraping</div>
+                    </div>
+                </div>
 
-        <label class="checkmarkContainer">
-            <div>Priority scrape</div>
-            <input id="priority" type='checkbox'>
-            <span class="checkmark"></span>
-        </label>
-        <input type="button" value="Scrape now" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) ScrapeNow()">
-        <div class="textbox" id="scrape-status"></div>
-        <h3>Scrape status</h3>
-        <input type="button" value="Update status" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) UpdateScrapeStatus()">
-        <div style="display: flex; flex-direction: row; justify-content: space-between;">
-            <div class="application" style="flex-direction: column; justify-content: start">
-                <h3>Queued</h3>
-                <table id="appsToScrape">
-                    <tr>
-                        <th>App id</th>
-                        <th>Priority</th>
-                        <th>Queued at</th>
-                    </tr>
-                </table>
-            </div>
-            <div class="application" style="flex-direction: column; justify-content: start">
-                <h3>Scraping</h3>
-                <table id="appsScraping">
-                    <tr>
-                        <th>App id</th>
-                        <th>Priority</th>
-                        <th>Queued at</th>
-                    </tr>
-                </table>
+                <div class="hidden" id="scraping">
+                    <input type="text" placeholder="app id" id="app-id">
+
+                    <label class="checkmarkContainer">
+                        <div>Priority scrape</div>
+                        <input id="priority" type='checkbox'>
+                        <span class="checkmark"></span>
+                    </label>
+                    <input type="button" value="Scrape now" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) ScrapeNow()">
+                    <div class="textbox" id="scrape-status"></div>
+                    <h3>Scrape status</h3>
+                    <input type="button" value="Update status" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) UpdateScrapeStatus()">
+                    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                        <div class="application" style="flex-direction: column; justify-content: start">
+                            <h3>Queued</h3>
+                            <table id="appsToScrape">
+                                <tr>
+                                    <th>App id</th>
+                                    <th>Priority</th>
+                                    <th>Queued at</th>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="application" style="flex-direction: column; justify-content: start">
+                            <h3>Scraping</h3>
+                            <table id="appsScraping">
+                                <tr>
+                                    <th>App id</th>
+                                    <th>Priority</th>
+                                    <th>Queued at</th>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="application">
+            <div class="info">
+                <div class="flex outside">
+                    <div class="flex header" onclick="RevealDescription('block')">
+                        <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="block_trigger" class="anim noselect">&gt;</div>
+                        <div stlye="font-size: 1.25em;">Blocked Apps</div>
+                    </div>
+                </div>
+
+                <div class="hidden" id="block">
+                    <h3>Block app</h3>
+                    <input type="text" placeholder="app id" id="block-id">
+                    <input type="button" value="Block app" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) Block(document.getElementById('block-id').value)">
+
+                    <h3>Blocked apps</h3>
+                    <div id="blockedApps">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>
 <script src="/script.js"></script>
@@ -53,6 +89,51 @@
     var id = params.get("id")
     if(id) {
         document.getElementById("app-id").value = id
+    }
+    UpdateBlockedApps()
+    
+    function Unblock(id) {
+        fetch(`/api/v1/blocked/unblockapp?id=${id}&token=${localStorage.token}`, {
+            method: "DELETE"
+        }).then(res => {
+            res.text().then(t => {
+                UpdateBlockedApps()
+                alert(t)
+            })
+        })
+    }
+    function Block(id) {
+        fetch(`/api/v1/blocked/blockapp?id=${id}&token=${localStorage.token}`, {
+            method: "POST"
+        }).then(res => {
+            res.text().then(t => {
+                UpdateBlockedApps()
+                alert(t)
+            })
+        })
+    }
+    
+    function UpdateBlockedApps() {
+        fetch(`/api/v1/blocked/blockedapps`).then(res => res.json().then(j => {
+            var html = ``;
+            for(const app of j) {
+                html += `<div class="application">
+                        <div class="info">
+                            <div class="flex outside">
+                                <div class="buttons">
+                                    <input type="button" value="Unblock" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) Unblock('${app.id}')">
+                                </div>
+                                <div class="flex header">
+                                    <div stlye="font-size: 1.25em;">${app.appName} (${GetLogicalHeadsetNameEnum(app.hmd).replace(" and ", ", ")})</div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                    </div>`
+            }
+            document.getElementById('blockedApps').innerHTML = html;
+        }))
     }
     
     const header = `<tr>
