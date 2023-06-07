@@ -173,6 +173,34 @@ namespace OculusDB
             }
             
             ////////////////// Admin
+            
+            server.AddRoute("GET", "/api/v1/blocked/blockedapps", request =>
+            {
+                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetBlockedApps()), "application/json");
+                return true;
+            });
+            server.AddRoute("DELETE", "/api/v1/blocked/unblockapp", request =>
+            {
+                string id = request.queryString.Get("id");
+                if (!DoesTokenHaveAccess(request, Permission.BlockApps))
+                {
+                    return true;
+                }
+                MongoDBInteractor.UnblockApp(id);
+                request.SendString("unblocked " + id, "application/json");
+                return true;
+            });
+            server.AddRoute("POST", "/api/v1/blocked/blockapp", request =>
+            {
+                string id = request.queryString.Get("id");
+                if (!DoesTokenHaveAccess(request, Permission.BlockApps))
+                {
+                    return true;
+                }
+                MongoDBInteractor.BlockApp(id);
+                request.SendString("blocked " + id, "application/json");
+                return true;
+            });
             server.AddRoute("POST", "/api/v1/admin/scrape/", request =>
             {
                 AppToScrape s = JsonSerializer.Deserialize<AppToScrape>(request.bodyString);

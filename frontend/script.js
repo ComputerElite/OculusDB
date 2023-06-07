@@ -825,7 +825,7 @@ function FormatApplication(application, htmlId = "") {
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${application.id}')">
                 <input type="button" value="View Activity" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenRecentActivity('${application.id}')">
             </div>
-            <div class="flex header" onclick="RevealDescription('${htmlId}')">
+            <div class="flex header" style="${application.blocked ? `color: var(--red);` : ``}" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
                 <img alt="Icon of ${application.displayName}" onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
                 <div stlye="font-size: 1.25em;">${application.displayName} (${ GetLogicalHeadsetNameEnum(application.hmd).replace(" and ", ", ")})</div>

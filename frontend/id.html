@@ -81,9 +81,16 @@
 
             GetObjectById(id).then(res => {
                 object = res
-                AddConnected()
                 document.getElementById("type").innerHTML = object.__OculusDBType
                 document.getElementById("lastUpdated").innerHTML = new Date(object.__lastUpdated).toLocaleString()
+                if(res.blocked) {
+                    PopUp(`
+                        <div>This application has been blocked on OculusDB. This means it has been removed from the public. You cannot view any version of this app. If you think this is a mistake join the <a href="{OculusDBDC}">OculusDB Discord Server</a> and ask there in the #support channel</div>
+                        <input type="button" value="Ok" onclick="ClosePopUp()">
+                    `)
+                    return
+                }
+                AddConnected()
             }).catch(err => {
                 if(err == 404) {
                     PopUp(`

@@ -94,7 +94,8 @@ namespace OculusDB
     public enum Permission
     {
         StartScrapes,
-        StartPriorityScrapes
+        StartPriorityScrapes,
+        BlockApps
     }
 
     public enum ScrapingStatus

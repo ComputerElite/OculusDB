@@ -35,12 +35,17 @@ namespace OculusDB
         public static IMongoCollection<AppToScrape>? scrapedApps;
 		public static IMongoCollection<VersionAlias>? versionAliases;
         
+        public static IMongoCollection<DBApplication>? blockedApps;
+        
         public static IMongoCollection<DBApplication>? applicationCollection;
         public static IMongoCollection<DBIAPItem>? dlcCollection;
         public static IMongoCollection<DBIAPItemPack>? dlcPackCollection;
         public static IMongoCollection<DBVersion>? versionsCollection;
 
 		public static IMongoCollection<QAVSReport>? qAVSReports;
+        
+        
+        public static List<string> blockedAppsCache = new List<string>();
 
         public static void MigrateFromDataCollectionToOtherCollections()
         {
@@ -146,9 +151,17 @@ namespace OculusDB
             scrapedApps = oculusDBDatabase.GetCollection<AppToScrape>("scrapedApps");
             qAVSReports = oculusDBDatabase.GetCollection<QAVSReport>("QAVSReports");
             versionAliases = oculusDBDatabase.GetCollection<VersionAlias>("versionAliases");
+            blockedApps = oculusDBDatabase.GetCollection<DBApplication>("blockedApps");
+
+            UpdateBlockedAppsCache();
         }
-        
-		public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
+
+        public static void UpdateBlockedAppsCache()
+        {
+            blockedAppsCache = blockedApps.Distinct<string>("id", new BsonDocument()).ToList();
+        }
+
+        public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
         {
             if(appToScrape.priority)
             {
@@ -385,6 +398,30 @@ namespace OculusDB
             return applicationCollection.Find(x => true).SortByDescending(x => x.release_date).Skip(skip).Limit(take).ToList();
         }
 
+        public static List<BsonDocument> MongoDBFilterMiddleware(List<BsonDocument> toFilter)
+        {
+            List<BsonDocument> toReturn = new List<BsonDocument>();
+            foreach (BsonDocument b in toFilter)
+            {
+                string appId = b.Contains("parentApplication") ? b.GetValue("parentApplication").AsBsonDocument.GetValue("id").AsString : b.GetValue("id").AsString;
+                if (!blockedAppsCache.Contains(appId))
+                {
+                    toReturn.Add(b);
+                }
+            }
+            return toReturn;
+        }
+        
+        public static BsonDocument MongoDBFilterMiddleware(BsonDocument toFilter)
+        {
+            string appId = toFilter.Contains("parentApplication") ? toFilter.GetValue("parentApplication").AsBsonDocument.GetValue("id").AsString : toFilter.GetValue("id").AsString;
+            if (!blockedAppsCache.Contains(appId))
+            {
+                return toFilter;
+            }
+            return null;
+        }
+
         public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "", string applicationId = "")
         {
             string[] stuff = typeConstraint.Split(',');
@@ -404,26 +441,26 @@ namespace OculusDB
 			}
             q.Add(new BsonDocument("$and", and));
 
-			return activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList();
+			return MongoDBFilterMiddleware(activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList());
         }
         public static List<BsonDocument> GetActivityById(string id)
         {
-            return activityCollection.Find(x => x["_id"] == new ObjectId(id)).ToList();
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["_id"] == new ObjectId(id)).ToList());
         }
 
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
         {
-            return activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
 		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
 		{
-			return activityCollection.Find(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+			return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
 		}
 
 		public static List<BsonDocument> GetLatestActivities(DateTime after)
         {
-            return activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList();
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList());
         }
         
         public static long DeleteOldApplications(DateTime before, List<string> ids)
@@ -473,12 +510,12 @@ namespace OculusDB
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId)
         {
-            return activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
         public static List<BsonDocument> GetPriceChanges(string id)
         {
-            return activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList();
+            return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList());
         }
 
         public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d)
@@ -572,12 +609,12 @@ namespace OculusDB
                     VersionAlias a = GetVersionAlias(versions[i].id);
                     versions[i].alias = a == null ? "" : a.alias;
                 }
-                return ToBsonDocumentList(versions);
+                return MongoDBFilterMiddleware(ToBsonDocumentList(versions));
             }
             List<DBIAPItem> dlcs = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
-            if (dlcs.Count > 0) return ToBsonDocumentList(dlcs);
+            if (dlcs.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcs));
             List<DBIAPItemPack> dlcPacks = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
-            if (dlcPacks.Count > 0) return ToBsonDocumentList(dlcPacks);
+            if (dlcPacks.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcPacks));
             return new();
         }
 
@@ -596,6 +633,7 @@ namespace OculusDB
 				BsonDocument org = docs.First();
                 applicationId = org["__OculusDBType"] != DBDataTypes.Application ? org["parentApplication"]["id"].AsString : id;
 			}
+            if (IsApplicationBlocked(applicationId)) return new ConnectedList();
             l.versions = versionsCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.versionCode).ToList();
             l.applications = applicationCollection.Find(x => x.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcs = dlcCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
@@ -612,6 +650,11 @@ namespace OculusDB
             return l;
         }
 
+        private static bool IsApplicationBlocked(string id)
+        {
+            return blockedAppsCache.Contains(id);
+        }
+
         public static bool DoesAppIdExistInCurrentScrape(string id)
         {
             return applicationCollection.Find(x => x.id == id && x.__lastUpdated >= OculusDBEnvironment.config.ScrapingResumeData.currentScrapeStart).CountDocuments() > 0;
@@ -619,6 +662,7 @@ namespace OculusDB
         
         public static DLCLists GetDLCs(string parentAppId)
         {
+            if (IsApplicationBlocked(parentAppId)) return new DLCLists();
             DLCLists l = new();
             l.dlcs = dlcCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcPacks = dlcPackCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
@@ -715,8 +759,33 @@ namespace OculusDB
 
         public static List<DBVersion> GetVersions(string appId, bool onlyDownloadableVersions)
         {
+            if (IsApplicationBlocked(appId)) return new List<DBVersion>();
             if (onlyDownloadableVersions) return versionsCollection.Find(x => x.parentApplication.id == appId && x.binary_release_channels.nodes.Count > 0).SortByDescending(x => x.versionCode).ToList();
             return versionsCollection.Find(x => x.parentApplication.id == appId).SortByDescending(x => x.versionCode).ToList();
+        }
+
+        public static List<DBApplication> GetBlockedApps()
+        {
+            UpdateBlockedAppsCache();
+            return blockedApps.Find(x => true).ToList();
+        }
+
+        public static void BlockApp(string id)
+        {
+            DBApplication app = applicationCollection.Find(x => x.id == id).First();
+            blockedApps.InsertOne(app);
+            UpdateBlockedAppsCache();
+        }
+        
+        public static void UnblockApp(string id)
+        {
+            blockedApps.DeleteOne(x => x.id == id);
+            UpdateBlockedAppsCache();
+        }
+
+        public static bool GetBlockedStatusForApp(string id)
+        {
+            return blockedAppsCache.Contains(id);
         }
     }
 
