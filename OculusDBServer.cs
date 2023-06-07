@@ -137,11 +137,6 @@ namespace OculusDB
 			});
             //cleanThread.Start();
 
-            Logger.Log("Starting scraping threads");
-			/////////////////////////////////////////////
-			// DON'T FORGET TO ADD IT BACK EVERY TIME. //
-			/////////////////////////////////////////////
-            OculusScraper.StartScrapingThread();
             Logger.Log("Setting up routes");
             string frontend = debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
 
@@ -940,6 +935,11 @@ namespace OculusDB
 
             server.AddRouteFile("/cdn/BS2.jpg", frontend + "assets" + Path.DirectorySeparatorChar + "BS2.jpg", true, true, true, accessCheck);
 
+            Logger.Log("Starting scraping threads");
+            /////////////////////////////////////////////
+            // DON'T FORGET TO ADD IT BACK EVERY TIME. //
+            /////////////////////////////////////////////
+            OculusScraper.StartScrapingThread();
         }
 
         private bool DoesTokenHaveAccess(ServerRequest request, Permission p)
