@@ -414,6 +414,7 @@ namespace OculusDB
         
         public static BsonDocument MongoDBFilterMiddleware(BsonDocument toFilter)
         {
+            if (toFilter == null) return null;
             string appId = toFilter.Contains("parentApplication") ? toFilter.GetValue("parentApplication").AsBsonDocument.GetValue("id").AsString : toFilter.GetValue("id").AsString;
             if (!blockedAppsCache.Contains(appId))
             {
