@@ -1,5 +1,5 @@
 echo replacing Release dir with frontend
-cp -R ./ bin/Release/net6.0/frontend 
+cp -R ./frontend bin/Release/net6.0/
 
 read -p "Changelog: " changelog
 echo Pushing to GitHub
