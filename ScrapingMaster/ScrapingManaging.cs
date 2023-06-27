@@ -1,3 +1,6 @@
+using ComputerUtils.Logging;
+using OculusDB.ScrapingNodeCode;
+
 namespace OculusDB.ScrapingMaster;
 
 public class ScrapingManaging
@@ -46,5 +49,37 @@ public class ScrapingManaging
     {
         ScrapingProcessedResult r = new ScrapingProcessedResult();
         return r;
+    }
+
+    public static void ProcessTaskResult(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    {
+        Logger.Log("Results of Scraping node " + scrapingNodeAuthenticationResult.scrapingNode + " received. Processing now...");
+        Logger.Log("Result type: " +
+                   Enum.GetName(typeof(ScrapingNodeTaskResultType), taskResult.scrapingNodeTaskResultType));
+        // Process results of scraping:
+        //   - When apps for scraping have been sent, add them to the DB for scraping
+        //   - On error while requesting apps to scrape, make other scraping nodes able to request apps to scrape
+        //   - When scraping is done, compute the activity entries and write both to the DB (Each scraped app should)
+        switch (taskResult.scrapingNodeTaskResultType)
+        {
+            case ScrapingNodeTaskResultType.ErrorWhileRequestingAppsToScrape:
+                if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+                {
+                    Logger.Log("Node is not responsible for adding apps to scrape. Ignoring error.");
+                    return;
+                }
+                Logger.Log("Error while requesting apps to scrape. Making other scraping nodes able to request apps to scrape.");
+                isAppAddingRunning.Set(false, TimeSpan.FromMinutes(10), "");
+                break;
+            case ScrapingNodeTaskResultType.FoundAppsToScrape:
+                if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+                {
+                    Logger.Log("Node is not responsible for adding apps to scrape. Ignoring.");
+                    return;
+                }
+                Logger.Log("Found apps to scrape. Adding them to the DB.");
+                ScrapingNodeMongoDBManager.AddAppsToScrape(taskResult.appsToScrape, scrapingNodeAuthenticationResult.scrapingNode);
+                break;
+        }
     }
 }

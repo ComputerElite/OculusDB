@@ -721,18 +721,6 @@ namespace OculusDB
         public string image_url { get; set; } = "";
     }
 
-    public class ToScrapeApp
-    {
-        public string id { get; set; } = "";
-        public string image { get; set; } = "";
-
-        public ToScrapeApp(string id, string image)
-        {
-            this.id = id;
-            this.image = image;
-        }
-    }
-
     public enum UserEntitlement
     {
         FAILED,

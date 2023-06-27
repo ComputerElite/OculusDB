@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ComputerUtils.Webserver;
+using OculusDB.ScrapingNodeCode;
 
 namespace OculusDB.ScrapingMaster;
 
@@ -18,6 +19,7 @@ public class ScrapingMasterServer
         server = httpServer;
         server.AddRoute("POST", "/api/v1/gettasks", request =>
         {
+            // Check if the scraping node is authorized to scrape
             ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);
             ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(scrapingNodeIdentification);
             if (!r.tokenAuthorized)
@@ -28,8 +30,17 @@ public class ScrapingMasterServer
             request.SendString(JsonSerializer.Serialize(ScrapingManaging.GetTasks(r)), "application/json");
             return true;
         });
+        server.AddRoute("POST", "/api/v1/authenticate", request =>
+        {
+            // Authenticate the scraping node and send back the scraping node info
+            ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);
+            ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(scrapingNodeIdentification);
+            request.SendString(JsonSerializer.Serialize(r), "application/json");
+            return true;
+        });
         server.AddRoute("POST", "/api/v1/taskresults", request =>
         {
+            // Check if the scraping node is authorized to scrape
             ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);
             ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(scrapingNodeIdentification);
             if (!r.tokenAuthorized)
@@ -37,10 +48,9 @@ public class ScrapingMasterServer
                 request.SendString(JsonSerializer.Serialize(r), "application/json", 403);
                 return true;
             }
-            // Process results of scraping:
-            //   - When apps for scraping have been sent, add them to the DB for scraping
-            //   - When scraping is done, compute the activity entries and write both to the DB (Each scraped app should)
-            
+
+            ScrapingNodeTaskResult taskResult = JsonSerializer.Deserialize<ScrapingNodeTaskResult>(request.bodyString);
+            ScrapingManaging.ProcessTaskResult(taskResult, r);
             return true;
         });
     }

@@ -13,13 +13,10 @@ namespace OculusDB
     public class Config
     {
         public OculusDBServerType serverType { get; set; } = OculusDBServerType.Frontend;
-        public string scrapingNodeToken { get; set; } = "";
-        public string scrapingMasterUrl { get; set; } = "https://scraping.rui2015.me";
-        
+
         public string accesscode { get; set; } = "";
 
         public string publicAddress { get; set; } = "";
-        public string crashPingId { get; set; } = "631189193825058826";
         public int port { get; set; } = 504;
         public string mongoDBUrl { get; set; } = "";
         public string masterToken { get; set; } = "";

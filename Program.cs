@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
+using OculusDB.ScrapingMaster;
+using OculusDB.ScrapingNodeCode;
 
 namespace OculusDB
 {
@@ -37,6 +39,7 @@ namespace OculusDB
                 Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
             }
             OculusDBEnvironment.config = Config.LoadConfig();
+            OculusDBEnvironment.scrapingNodeConfig = ScrapingNodeConfig.LoadConfig();
             if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
             OculusDBEnvironment.config.Save();
             //Logger.SetLogFile(workingDir + "Log.log");
@@ -52,6 +55,16 @@ namespace OculusDB
                 FrontendServer s = new FrontendServer();
                 HttpServer server = new HttpServer();
                 s.StartServer(server);
+            } else if (OculusDBEnvironment.config.serverType == OculusDBServerType.ScrapeMaster)
+            {
+                ScrapingMasterServer s = new ScrapingMasterServer();
+                HttpServer server = new HttpServer();
+                s.StartServer(server);
+            } else if (OculusDBEnvironment.config.serverType == OculusDBServerType.ScrapeNode)
+            {
+                // Load scraping config
+                ScrapingNodeManager node = new ScrapingNodeManager();
+                node.StartNode(OculusDBEnvironment.scrapingNodeConfig);
             }
         }
     }

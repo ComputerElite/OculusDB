@@ -25,4 +25,9 @@ public class TimeDependantBool
     {
         return b.IsTrueAndValid();
     }
+
+    public bool IsThisResponsible(ScrapingNode scrapingNode)
+    {
+        return scrapingNode.scrapingNodeId == responsibleScrapingNodeId;
+    }
 }

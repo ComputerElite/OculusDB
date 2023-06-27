@@ -45,7 +45,7 @@ public class ScrapingNodeMongoDBManager
     
     public static ScrapingNodeAuthenticationResult CheckScrapingNode(ScrapingNodeIdentification scrapingNodeIdentification)
     {
-        DateTime now = DateTime.Now;;
+        DateTime now = DateTime.Now;
         ScrapingNode scrapingNode = scrapingNodes.Find(x => x.scrapingNodeToken == scrapingNodeIdentification.scrapingNodeToken).FirstOrDefault();
         if (scrapingNode == null)
         {
@@ -55,7 +55,8 @@ public class ScrapingNodeMongoDBManager
                 tokenExpired = false,
                 tokenAuthorized = false,
                 tokenValid = false,
-                msg = "Token not found. Contact ComputerElite if you want to help scraping."
+                msg = "Token not found. Contact ComputerElite if you want to help scraping.",
+                scrapingNode = scrapingNode
             };
         }
         if (now > scrapingNode.expires)
@@ -70,8 +71,9 @@ public class ScrapingNodeMongoDBManager
                 scrapingNode = scrapingNode
             };
         }
+        
 
-        return new ScrapingNodeAuthenticationResult
+        ScrapingNodeAuthenticationResult res = new ScrapingNodeAuthenticationResult
         {
             tokenExpired = false,
             tokenAuthorized = true,
@@ -79,5 +81,19 @@ public class ScrapingNodeMongoDBManager
             msg = "Token valid.",
             scrapingNode = scrapingNode
         };
+        if (!res.scrapingNodeVersionCompatible)
+        {
+            // If scraping node version is incompatible scraping node is not allowed to scrape.
+            res.tokenAuthorized = false;
+            res.msg = "Scraping Node version is " + res.scrapingNode.scrapingNodeVersion + " but version " + res.compatibleScrapingVersion + " is needed. Please update your scraping node.";
+        }
+
+        return res;
+    }
+
+    public static void AddAppsToScrape(List<AppToScrape> appsToScrape, ScrapingNode scrapingNode)
+    {
+        // Add apps to be scraped
+        MongoDBInteractor.appsToScrape.InsertMany(appsToScrape);
     }
 }
