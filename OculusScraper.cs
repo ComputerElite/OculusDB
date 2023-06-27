@@ -98,7 +98,7 @@ namespace OculusDB
                 OculusDBServer.SendMasterWebhookMessage("Info", "Adding apps to scrape", 0x00FF00);
                 MongoDBInteractor.RemoveScrapingAndToScrapeNonPriorityApps();
                 config.ScrapingResumeData.appsToScrape = 0;
-                if(!OculusDBServer.debugging)
+                if(!OculusDBEnvironment.debugging)
                 {
                     Thread getAppsThread = new Thread(() =>
 					{
@@ -709,6 +709,9 @@ namespace OculusDB
         public DateTime addedTime { get; set; } = DateTime.Now;
         [JsonIgnore]
         public string imageUrl { get; set; } = "";
+        public DateTime sentToScrapeTime { get; set; } = DateTime.MinValue;
+
+        public string responsibleScrapingNodeId { get; set; } = "";
     }
 
     public class SidequestApplabGame

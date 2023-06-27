@@ -6,11 +6,16 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OculusDB.ScrapingMaster;
 
 namespace OculusDB
 {
     public class Config
     {
+        public OculusDBServerType serverType { get; set; } = OculusDBServerType.Frontend;
+        public string scrapingNodeToken { get; set; } = "";
+        public string scrapingMasterUrl { get; set; } = "https://scraping.rui2015.me";
+        
         public string accesscode { get; set; } = "";
 
         public string publicAddress { get; set; } = "";
@@ -82,6 +87,13 @@ namespace OculusDB
                 locker.ReleaseWriterLock();
             }
         }
+    }
+
+    public enum OculusDBServerType
+    {
+        Frontend,
+        ScrapeMaster,
+        ScrapeNode
     }
 
     public class Token

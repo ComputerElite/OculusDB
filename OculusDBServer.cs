@@ -33,8 +33,6 @@ namespace OculusDB
         public HttpServer server = null;
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public static bool isBlocked = false;
-        // Set to false if not in dev mode
-        public static bool debugging = false;
         public Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
@@ -138,11 +136,11 @@ namespace OculusDB
             //cleanThread.Start();
 
             Logger.Log("Setting up routes");
-            string frontend = debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
+            string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
 
 			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
-			if (debugging)
+			if (OculusDBEnvironment.debugging)
             {
                 server.DefaultCacheValidityInSeconds = 0;
                 server.AddRoute("GET", "/debug/startscrapingthread", new Func<ServerRequest, bool>(request =>
