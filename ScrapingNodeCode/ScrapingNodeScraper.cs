@@ -1,7 +1,12 @@
 using System.Net;
 using System.Text.Json;
 using ComputerUtils.Logging;
+using ComputerUtils.VarUtils;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using OculusDB.Database;
 using OculusDB.ScrapingMaster;
+using OculusDB.Users;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 
@@ -12,10 +17,32 @@ public class ScrapingNodeScraper
     public List<ScrapingTask> scrapingTasks { get; set; } = new List<ScrapingTask>();
     public ScrapingNodeTaskResult taskResult { get; set; } = new ScrapingNodeTaskResult();
     public ScrapingNodeManager scrapingNodeManager { get; set; } = new ScrapingNodeManager();
+    public List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
+    public int currentToken = 0;
+
 
     public ScrapingNodeScraper(ScrapingNodeManager manager)
     {
         scrapingNodeManager = manager;
+    }
+
+    public void ChangeToken()
+    {
+        // This will set the token globally, all Scraping Nodes running via this process will use the same token. Might lead to problems down the line.
+        currentToken++;
+        currentToken %= scrapingNodeManager.config.oculusTokens.Count;
+        GraphQLClient.oculusStoreToken = scrapingNodeManager.config.oculusTokens[currentToken];
+    }
+
+    public void GetEntitlements()
+    {
+        Logger.Log("Getting entitlements of token at " + currentToken);
+        ViewerData<OculusUserWrapper> user = GraphQLClient.GetActiveEntitelments();
+        if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null ||user.data.viewer.user.active_entitlements.nodes == null)
+        {
+            throw new Exception("Fetching of active entitlements failed");
+        }
+        userEntitlements = user.data.viewer.user.active_entitlements.nodes;
     }
 
     public void DoTasks()
@@ -46,6 +73,9 @@ public class ScrapingNodeScraper
                     }
                     
                     break;
+                case ScrapingTaskType.ScrapeApp:
+                    Scrape(scrapingTasks[0].appToScrape);
+                    break;
             }
             // After task is done remove it from the scrapingTasks list
             scrapingTasks.RemoveAt(0);
@@ -54,11 +84,238 @@ public class ScrapingNodeScraper
         // After doing all tasks Transmit results if there are any
         TransmitAndClearResultsIfPresent();
     }
+    public TimeSpan timeBetweenScrapes = new TimeSpan(2, 0, 0, 0);
+
+    public void Scrape(AppToScrape app)
+    {
+        Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
+        if (a == null) throw new Exception("Application is null");
+		if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
+        Data<Application> d = GraphQLClient.GetDLCs(a.id);
+        string packageName = "";
+        List<DBVersion> connected = GetVersionsOfApp(a.id);
+        bool addedApplication = false;
+        foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
+        {
+            bool doPriorityForThisVersion = app.priority;
+            DBVersion oldEntry = connected.FirstOrDefault(x => x.id == b.id);
+            if (doPriorityForThisVersion)
+            {
+                if (oldEntry != null)
+                {
+                    // Only do priority scrape if last scrape is older than 2 days
+                    if (DateTime.Now - oldEntry.lastPriorityScrape < timeBetweenScrapes)
+                    {
+                        doPriorityForThisVersion = false;
+                        Logger.Log("Skipping priority scrape of " + a.id + " v " + b.version + " because last priority scrape was " + (DateTime.Now - oldEntry.lastPriorityScrape).TotalDays + " days ago", LoggingType.Debug);
+                    }
+                }
+            }
+            if(packageName == "")
+            {
+                PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
+                if(info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
+			}
+            if(!addedApplication)
+            {
+				AddApplication(a, app.headset, app.imageUrl, packageName);
+                addedApplication = true;
+			}
+            if(b != null && doPriorityForThisVersion)
+            {
+                Logger.Log("Scraping v " + b.version, LoggingType.Important);
+			}
+			AndroidBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+            bool wasNull = false;
+            if (bin == null)
+            {
+                if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
+                wasNull = true;
+                bin = b;
+			}
+            // Preserve changelogs and obbs across scrapes by:
+            // - Don't delete versions after scrape
+            // - If not priority scrape enter changelog and obb of most recent versions
+            if((!doPriorityForThisVersion || wasNull) && oldEntry != null)
+            {
+                bin.changeLog = oldEntry.changeLog;
+            }
+
+            AddVersion(bin, a, app.headset, doPriorityForThisVersion ? null : oldEntry,
+                doPriorityForThisVersion);
+        }
+        if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
+        {
+            foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
+            {
+                // For whatever reason Oculus sets parentApplication wrong. e. g. Beat Saber for Rift: it sets Beat Saber for quest
+                dlc.node.parentApplication.canonicalName = a.canonicalName;
+                dlc.node.parentApplication.id = a.id;
+                
+                // DBActivityNewDLC is needed as I use it for the price offset
+                DBActivityNewDLC newDLC = new DBActivityNewDLC();
+                newDLC.id = dlc.node.id;
+                newDLC.parentApplication.id = a.id;
+                newDLC.parentApplication.hmd = app.headset;
+                newDLC.parentApplication.canonicalName = a.canonicalName;
+                newDLC.parentApplication.displayName = a.displayName;
+                newDLC.displayName = dlc.node.display_name;
+                newDLC.displayShortDescription = dlc.node.display_short_description;
+                newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
+                newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
+                
+                if (dlc.node.IsIAPItem())
+                {
+                    // Handle DLC entitlement check 
+                    UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id, dlc.node.display_name);
+
+                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0 || ownsDlc == UserEntitlement.OWNED && newDLC.priceOffsetNumerical <= 0) continue;
+                }
+                else
+                {
+                    // Handle DLC Pack entitlement check
+                    bool ownsAll = true;
+                    foreach (Node<IAPItem> includedDlc in dlc.node.bundle_items.edges)
+                    {
+                        UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, includedDlc.node.id, includedDlc.node.display_name);
+                        if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0 ||
+                            ownsDlc == UserEntitlement.OWNED && newDLC.priceOffsetNumerical <= 0)
+                        {
+                            ownsAll = false;
+                            break;
+                        }
+                    }
+
+                    // If not all DLCs in the pack are owned, skip the dlc pack to avoid price changing
+                    if (!ownsAll) continue;
+                }
+                
+
+                newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);
+                if (dlc.node.IsIAPItem())
+                {
+                    AddDLC(dlc.node, app.headset);
+                }
+                else
+                {
+                    AddDLCPack(dlc.node, app.headset, a);
+                }
+            }
+        }
+        Logger.Log("Scraped " + app.appId);
+    }
+
+    public void AddDLCPack(AppItemBundle a, Headset h, Application app)
+    {
+        DBIAPItemPack dbdlcp = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
+        dbdlcp.parentApplication.hmd = h;
+        dbdlcp.parentApplication.displayName = app.displayName;
+        foreach(Node<IAPItem> i in a.bundle_items.edges)
+        {
+            DBItemId id = new DBItemId();
+            id.id = i.node.id;
+            dbdlcp.bundle_items.Add(id);
+        }
+        
+        taskResult.scraped.dlcPacks.Add(dbdlcp);
+    }
+
+    public void AddDLC(AppItemBundle a, Headset h)
+    {
+        DBIAPItem dbdlc = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
+        dbdlc.parentApplication.hmd = h;
+        dbdlc.latestAssetFileId = a.latest_supported_asset_file != null ? a.latest_supported_asset_file.id : "";
+        taskResult.scraped.dlcs.Add(dbdlc);
+    }
+
+    public void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry, bool isPriorityScrape)
+    {
+        DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
+        dbv.parentApplication.id = app.id;
+        dbv.binary_release_channels = new Nodes<ReleaseChannelWithoutLatestSupportedBinary>();
+        dbv.binary_release_channels.nodes =
+            a.binary_release_channels.nodes.ConvertAll(x => (ReleaseChannelWithoutLatestSupportedBinary)x);
+        dbv.parentApplication.hmd = h;
+        dbv.parentApplication.displayName = app.displayName;
+        dbv.parentApplication.canonicalName = app.canonicalName;
+        dbv.__lastUpdated = DateTime.Now;
+            
+        if(oldEntry == null)
+        {
+            if (a.obb_binary != null)
+            {
+                if (dbv.obbList == null) dbv.obbList = new List<OBBBinary>();
+                dbv.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary));
+            }
+            foreach (AssetFile f in a.asset_files.nodes)
+            {
+                if (dbv.obbList == null) dbv.obbList = new List<OBBBinary>();
+                if (f.is_required) dbv.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
+            }
+        } else
+        {
+            dbv.obbList = oldEntry.obbList;
+            dbv.lastPriorityScrape = oldEntry.lastPriorityScrape;
+        }
+        dbv.lastScrape = DateTime.Now;
+        if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.Now;
+        
+        taskResult.scraped.versions.Add(dbv);
+    }
+
+    public void AddApplication(Application a, Headset h, string image, string packageName)
+    {
+        DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
+        dba.hmd = h;
+        dba.img = image;
+        dba.packageName = packageName;
+        OculusScraper.DownloadImage(dba);
+        taskResult.scraped.applications.Add(dba);
+    }
+
+    public List<DBVersion> GetVersionsOfApp(string appId)
+    {
+        string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/versions/" + appId,
+            JsonSerializer.Serialize(scrapingNodeManager.GetIdentification()));
+        return JsonSerializer.Deserialize<List<DBVersion>>(json);
+    }
+
+    public UserEntitlement GetEntitlementStatusOfAppOrDLC(string appId, string dlcId = null, string dlcName = "")
+    {
+        if (userEntitlements.Count <= 0) return UserEntitlement.FAILED;
+        foreach(Entitlement entitlement in userEntitlements)
+        {
+            if(entitlement.item.id == appId)
+            {
+                if(dlcId == null) return UserEntitlement.OWNED;
+                foreach(IAPEntitlement dlc in entitlement.item.active_dlc_entitlements)
+                {
+                    if(dlc.item.id == dlcId ||dlc.item.display_name == dlcName)
+                    {
+                        return UserEntitlement.OWNED;
+                    }
+                }
+                return UserEntitlement.NOTOWNED;
+            }
+        }
+        return UserEntitlement.NOTOWNED;
+    }
+
+    public string FormatPrice(long offsetAmount, string currency)
+        {
+            string symbol = "";
+            if (currency == "USD") symbol = "$";
+            if (currency == "EUR") symbol = "€";
+            string price = symbol + String.Format("{0:0.00}", offsetAmount / 100.0);
+            
+            return price;
+        }
 
     public void TransmitAndClearResultsIfPresent()
     {
         if (!taskResult.altered) return;
         Logger.Log("Transmitting results");
+        taskResult.identification = scrapingNodeManager.GetIdentification();
         scrapingNodeManager.GetResponseOfPostRequest("scrapingNode/submitTaskResult", JsonSerializer.Serialize(taskResult));
         taskResult = new ScrapingNodeTaskResult();
     }

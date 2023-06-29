@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using OculusDB.Database;
 
 namespace OculusDB.ScrapingMaster;
 
@@ -7,14 +8,14 @@ public class ScrapingNodeMongoDBManager
     public static IMongoClient mongoClient;
     public static IMongoDatabase oculusDBDatabase;
     public static IMongoCollection<ScrapingNode> scrapingNodes;
-    public static IMongoCollection<ScrapingContribution> scrapingContributions;
+    public static IMongoCollection<ScrapingNodeStats> scrapingNodeStats;
 
     public static void Init()
     {
         mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
         oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
         scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
-        scrapingContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
+        scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
         
         MongoDBInteractor.RemoveIdRemap<ScrapingNode>();
     }
@@ -95,5 +96,45 @@ public class ScrapingNodeMongoDBManager
     {
         // Add apps to be scraped
         MongoDBInteractor.appsToScrape.InsertMany(appsToScrape);
+        // Update scraping node stats
+        ScrapingNodeStats s = GetScrapingNodeStats(scrapingNode);
+        s.contribution.appsQueuedForScraping += appsToScrape.Count;
+        UpdateScrapingNodeStats(s);
+    }
+
+    public static ScrapingNodeStats GetScrapingNodeStats(ScrapingNode scrapingNode)
+    {
+        ScrapingNodeStats s = scrapingNodeStats.Find(x => x.scrapingNode.scrapingNodeId == scrapingNode.scrapingNodeId).FirstOrDefault();
+        if (s == null) s = new ScrapingNodeStats();
+        s.scrapingNode = scrapingNode;
+        return s;
+    }
+
+    public static void UpdateScrapingNodeStats(ScrapingNodeStats s)
+    {
+        s.lastContribution = DateTime.Now;
+        if(DateTime.Now < s.firstSight) s.firstSight = DateTime.Now;
+        scrapingNodeStats.ReplaceOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId, s);
+    }
+
+    public static void AddVersion(DBVersion v, ref ScrapingNodeStats scrapingContribution)
+    {
+        scrapingContribution.contribution.contributionPerOculusDBType[v.__OculusDBType] += 1;
+        MongoDBInteractor.versionsCollection.DeleteOne(x => x.id == v.id);
+        MongoDBInteractor.versionsCollection.InsertOne(v);
+    }
+
+    public static void AddDLC(DBIAPItem d, ref ScrapingNodeStats scrapingContribution)
+    {
+        scrapingContribution.contribution.contributionPerOculusDBType[d.__OculusDBType] += 1;
+        MongoDBInteractor.dlcCollection.DeleteOne(x => x.id == d.id);
+        MongoDBInteractor.dlcCollection.InsertOne(d);
+    }
+
+    public static void AddDLCPack(DBIAPItemPack d, ref ScrapingNodeStats scrapingContribution)
+    {
+        scrapingContribution.contribution.contributionPerOculusDBType[d.__OculusDBType] += 1;
+        MongoDBInteractor.dlcPackCollection.DeleteOne(x => x.id == d.id);
+        MongoDBInteractor.dlcPackCollection.InsertOne(d);
     }
 }

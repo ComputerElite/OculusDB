@@ -11,6 +11,10 @@ namespace OculusDB.Database
     {
         public DateTime __lastUpdated { get; set; } = DateTime.Now;
         public string __OculusDBType { get; set; } = DBDataTypes.IAPItem;
+        /// <summary>
+        /// Scraping node ID
+        /// </summary>
+        public string __sn { get; set; } = "";
         public string latestAssetFileId { get; set; } = "";
 
         // IAPItem

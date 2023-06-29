@@ -69,7 +69,8 @@ public class ScrapingNodeManager
         return new ScrapingNodeIdentification
         {
             scrapingNodeToken = config.scrapingNodeToken,
-            scrapingNodeVersion = OculusDBEnvironment.updater.version
+            scrapingNodeVersion = OculusDBEnvironment.updater.version,
+            tokenCount = config.oculusTokens.Count
         };
     }
 

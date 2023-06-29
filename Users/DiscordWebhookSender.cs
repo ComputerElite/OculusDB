@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OculusDB.ScrapingMaster;
 
 namespace OculusDB.Users
 {
@@ -81,8 +82,41 @@ namespace OculusDB.Users
             t.Start();
         }
 
+        [Obsolete("Legacy Scraping code")]
         public static void SendActivity(BsonDocument activity)
         {
+            Thread t = new Thread(() =>
+            {
+                List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
+                if (activityWebhooks.Count <= 0) return;
+                foreach (ActivityWebhook activityWebhook in activityWebhooks)
+                {
+                    try
+                    {
+                        switch (activityWebhook.type)
+                        {
+                            case ActivityWebhookType.Discord:
+                                activityWebhook.SendDiscordWebhook(activity);
+                                break;
+                            case ActivityWebhookType.OculusDB:
+                                activityWebhook.SendOculusDBWebhook(activity);
+                                break;
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
+                        break;
+                    }
+                }
+            });
+            t.Start();
+        }
+        
+        public static void SendActivity(BsonDocument activity, ref ScrapingNodeStats s)
+        {
+            s.contribution.contributionPerOculusDBType[activity["__OculusDBType"].AsString] += 1;
             Thread t = new Thread(() =>
             {
                 List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
