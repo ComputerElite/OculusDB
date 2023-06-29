@@ -839,7 +839,7 @@ function FormatApplication(application, htmlId = "") {
                     <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Current price</td><td class="value">${application.current_offer != null ? application.current_offer.price.formatted : "No price available"}</td></tr>
+                <tr><td class="label">Current price</td><td class="value">${application.priceFormatted != null ? application.priceFormatted : (application.current_offer != null ? application.current_offer.price.formatted : "No price available")}</td></tr>
                 <tr><td class="label">Baseline price</td><td class="value">${application.current_offer != null ? (application.baseline_offer.price.offset_amount != 0 && application.baseline_offer.price.offset_amount < application.current_offer.price.offset_amount ? application.baseline_offer.price.formatted : application.current_offer.price.formatted) : "No price available"}</td></tr>
                 <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate.toFixed(2)}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>

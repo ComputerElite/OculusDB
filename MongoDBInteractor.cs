@@ -519,6 +519,7 @@ namespace OculusDB
             return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList());
         }
 
+        [Obsolete("Use ScrapingNodeMongoDBManager")]
         public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d)
         {
             d["_id"] = ObjectId.GenerateNewId();

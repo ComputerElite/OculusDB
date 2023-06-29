@@ -500,7 +500,7 @@ namespace OculusDB
                 newVersion.parentApplication.hmd = app.headset;
                 newVersion.parentApplication.canonicalName = a.canonicalName;
                 newVersion.parentApplication.displayName = a.displayName;
-                newVersion.releaseChannels = bin.binary_release_channels.nodes;
+                newVersion.releaseChannels = bin.binary_release_channels.nodes.ConvertAll(x => (ReleaseChannelWithoutLatestSupportedBinary)x);
                 newVersion.version = bin.version;
                 newVersion.versionCode = bin.versionCode;
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);

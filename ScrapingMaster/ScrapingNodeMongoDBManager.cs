@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using OculusDB.Database;
 
@@ -120,6 +121,7 @@ public class ScrapingNodeMongoDBManager
     public static void AddVersion(DBVersion v, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.contributionPerOculusDBType[v.__OculusDBType] += 1;
+        v.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
         MongoDBInteractor.versionsCollection.DeleteOne(x => x.id == v.id);
         MongoDBInteractor.versionsCollection.InsertOne(v);
     }
@@ -127,6 +129,7 @@ public class ScrapingNodeMongoDBManager
     public static void AddDLC(DBIAPItem d, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.contributionPerOculusDBType[d.__OculusDBType] += 1;
+        d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
         MongoDBInteractor.dlcCollection.DeleteOne(x => x.id == d.id);
         MongoDBInteractor.dlcCollection.InsertOne(d);
     }
@@ -134,7 +137,24 @@ public class ScrapingNodeMongoDBManager
     public static void AddDLCPack(DBIAPItemPack d, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.contributionPerOculusDBType[d.__OculusDBType] += 1;
+        d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
         MongoDBInteractor.dlcPackCollection.DeleteOne(x => x.id == d.id);
         MongoDBInteractor.dlcPackCollection.InsertOne(d);
+    }
+    
+    public static void AddApplication(DBApplication a, ref ScrapingNodeStats scrapingContribution)
+    {
+        scrapingContribution.contribution.contributionPerOculusDBType[a.__OculusDBType] += 1;
+        a.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        MongoDBInteractor.applicationCollection.DeleteOne(x => x.id == a.id);
+        MongoDBInteractor.applicationCollection.InsertOne(a);
+    }
+    
+    public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d, ScrapingNode scrapingNode)
+    {
+        d["_id"] = ObjectId.GenerateNewId();
+        d["__sn"] = scrapingNode.scrapingNodeId;
+        MongoDBInteractor.activityCollection.InsertOne(d);
+        return MongoDBInteractor.activityCollection.Find(x => x["_id"] == d["_id"]).FirstOrDefault();
     }
 }

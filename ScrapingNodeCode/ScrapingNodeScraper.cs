@@ -91,6 +91,31 @@ public class ScrapingNodeScraper
         Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
         if (a == null) throw new Exception("Application is null");
 		if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
+        long priceNumerical = 0;
+        // Get price
+        if (a.current_offer != null) priceNumerical = Convert.ToInt64(a.current_offer.price.offset_amount);
+
+        UserEntitlement ownsApp = GetEntitlementStatusOfAppOrDLC(a.id);
+        if (ownsApp == UserEntitlement.FAILED)
+        {
+            if (a.current_offer != null && a.baseline_offer != null)
+            {
+                // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
+                // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
+                // So if the user owns the app use the baseline price. If not use the current_price
+                // That way discounts for the apps the user owns can't be tracked. I love oculus
+                if (a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
+                {
+                    priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
+                }
+            }
+        }
+        else if (ownsApp == UserEntitlement.OWNED)
+        {
+            if (a.baseline_offer != null) priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
+        }
+        
+        
         Data<Application> d = GraphQLClient.GetDLCs(a.id);
         string packageName = "";
         List<DBVersion> connected = GetVersionsOfApp(a.id);
@@ -118,7 +143,7 @@ public class ScrapingNodeScraper
 			}
             if(!addedApplication)
             {
-				AddApplication(a, app.headset, app.imageUrl, packageName);
+				AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, a.current_offer.price.currency);
                 addedApplication = true;
 			}
             if(b != null && doPriorityForThisVersion)
@@ -263,11 +288,13 @@ public class ScrapingNodeScraper
         taskResult.scraped.versions.Add(dbv);
     }
 
-    public void AddApplication(Application a, Headset h, string image, string packageName)
+    public void AddApplication(Application a, Headset h, string image, string packageName, long correctPrice, string currency)
     {
         DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
         dba.hmd = h;
         dba.img = image;
+        dba.priceOffsetNumerical = correctPrice;
+        dba.priceFormatted = FormatPrice(correctPrice, currency);
         dba.packageName = packageName;
         OculusScraper.DownloadImage(dba);
         taskResult.scraped.applications.Add(dba);

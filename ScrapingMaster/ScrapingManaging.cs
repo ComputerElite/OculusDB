@@ -1,6 +1,7 @@
 using ComputerUtils.Logging;
 using ComputerUtils.VarUtils;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using OculusDB.Database;
 using OculusDB.ScrapingNodeCode;
 using OculusDB.Users;
@@ -92,12 +93,18 @@ public class ScrapingManaging
 
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
+        Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs and " + taskResult.scraped.versions.Count + " version from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingNodeStats scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         // Process Versions
         foreach (DBVersion v in taskResult.scraped.versions)
         {
             DBApplication parentApplication =
                 taskResult.scraped.applications.FirstOrDefault(x => x.id == v.parentApplication.id);
+            if (parentApplication == null)
+            {
+                Logger.Log("Skipping " + v + " because the parent application isn't in the scraping results");
+                continue;
+            }
             BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabaseVersion(v.id);
             DBVersion oldEntry = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(v.id).FirstOrDefault());
             
@@ -122,19 +129,19 @@ public class ScrapingManaging
 				{
 					// Changelog is most likely new
 					e.__OculusDBType = DBDataTypes.ActivityVersionChangelogAvailable;
-					DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(e.ToBsonDocument()), ref scrapingContribution);
+					DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
 				}
 				else if(oldEntry != null && oldEntry.changeLog != v.changeLog)
 				{
 					// Changelog got most likely updated
 					e.__OculusDBType = DBDataTypes.ActivityVersionChangelogUpdated;
-					DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument()), ref scrapingContribution);
+					DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
 				}
 			}
 
 			if (lastActivity == null)
             {
-                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument()), ref scrapingContribution);
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
             else
             {
@@ -144,7 +151,7 @@ public class ScrapingManaging
                     DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
                     toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
                     toAdd.__lastEntry = lastActivity["_id"].ToString();
-                    DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument()), ref scrapingContribution);
+                    DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
                 }
             }
             // Update contributions
@@ -156,6 +163,11 @@ public class ScrapingManaging
         {
             DBApplication parentApplication =
                 taskResult.scraped.applications.FirstOrDefault(x => x.id == d.parentApplication.id);
+            if (parentApplication == null)
+            {
+                Logger.Log("Skipping " + d + " because the parent application isn't in the scraping results");
+                continue;
+            }
             DBActivityNewDLC newDLC = new DBActivityNewDLC();
             newDLC.id = d.id;
             newDLC.parentApplication.id = parentApplication.id;
@@ -171,14 +183,14 @@ public class ScrapingManaging
             ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
             if (oldDLC == null)
             {
-                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument()), ref scrapingContribution);
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
             else if (oldDLC["latestAssetFileId"] != newDLC.latestAssetFileId || oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
             {
                 DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                 updated.__lastEntry = oldDLC["_id"].ToString();
                 updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
-                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument()), ref scrapingContribution);
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
         }
         
@@ -187,6 +199,11 @@ public class ScrapingManaging
         {
             DBApplication parentApplication =
                 taskResult.scraped.applications.FirstOrDefault(x => x.id == d.parentApplication.id);
+            if (parentApplication == null)
+            {
+                Logger.Log("Skipping " + d + " because the parent application isn't in the scraping results");
+                continue;
+            }
             DBActivityNewDLCPack newDLCPack = new DBActivityNewDLCPack();
             newDLCPack.id = d.id;
             newDLCPack.parentApplication.id = parentApplication.id;
@@ -213,15 +230,62 @@ public class ScrapingManaging
             }
             if (oldDLC == null)
             {
-                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument()));
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
-            else if (FoldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToList()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToList()))
+            else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLCPack.displayName || oldDLC["displayShortDescription"] != newDLCPack.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToList()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToList()))
             {
                 DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
                 updated.__lastEntry = oldDLC["_id"].ToString();
                 updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
-                DiscordWebhookSender.SendActivity(MongoDBInteractor.AddBsonDocumentToActivityCollection(updated.ToBsonDocument()));
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
+        }
+        
+        // Process Applications
+        foreach (DBApplication a in taskResult.scraped.applications)
+        {
+            // New Application activity
+            if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
+            {
+                DBActivityNewApplication e = new DBActivityNewApplication();
+                e.id = a.id;
+                e.hmd = a.hmd;
+                e.publisherName = a.publisher_name;
+                e.displayName = a.displayName;
+                e.priceOffsetNumerical = a.priceOffsetNumerical;
+                e.priceFormatted = a.priceFormatted;
+                e.displayLongDescription = a.display_long_description;
+                e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
+                e.supportedHmdPlatforms = a.supported_hmd_platforms;
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+            }
+            
+            
+            // Price Change activity
+            DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
+            DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
+            priceChange.parentApplication.id = a.id;
+            priceChange.parentApplication.hmd = a.hmd;
+            priceChange.parentApplication.canonicalName = a.canonicalName;
+            priceChange.parentApplication.displayName = a.displayName;
+            priceChange.newPriceOffsetNumerical = a.priceOffsetNumerical;
+            priceChange.newPriceFormatted = a.priceFormatted;
+            if (lastPriceChange != null)
+            {
+                if (lastPriceChange.newPriceOffset != priceChange.newPriceOffset)
+                {
+                    priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
+                    priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
+                    priceChange.__lastEntry = lastPriceChange.__id;
+                    DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                }
+            }
+            else
+            {
+                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+            }
+            
+            ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
         }
     }
     
