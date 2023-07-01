@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace OculusDB.ScrapingMaster;
 
+[BsonIgnoreExtraElements]
 public class ScrapingNode
 {
     public string scrapingNodeId { get; set; } = "";

@@ -569,7 +569,7 @@ public class FrontendServer
                         if(request.queryString.Get("noscrape") == null)
 						{
 							Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
-							OculusScraper.AddApp(request.pathDiff, h);
+							OculusScraper.AddApp(request.pathDiff, h, true);
 						}
                         return true;
 					}
@@ -796,6 +796,7 @@ public class FrontendServer
                     info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
 					info.scrapingStatus = config.scrapingStatus;
                     info.lastScrapeUpdate = OculusScraper.lastUpdate;
+                    info.scrapingStatusPageUrl = config.scrapingMasterUrl;
 					request.SendString(JsonSerializer.Serialize(info));
                 }
                 catch (Exception e)

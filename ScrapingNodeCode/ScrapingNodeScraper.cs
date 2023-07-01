@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using ComputerUtils.Logging;
@@ -18,7 +19,10 @@ public class ScrapingNodeScraper
     public ScrapingNodeTaskResult taskResult { get; set; } = new ScrapingNodeTaskResult();
     public ScrapingNodeManager scrapingNodeManager { get; set; } = new ScrapingNodeManager();
     public List<Entitlement> userEntitlements { get; set; } = new List<Entitlement>();
+    public bool transmittingResults { get; set; } = false;
     public int currentToken = 0;
+    public int totalTasks = 0;
+    public int tasksDone = 0;
 
 
     public ScrapingNodeScraper(ScrapingNodeManager manager)
@@ -32,6 +36,7 @@ public class ScrapingNodeScraper
         currentToken++;
         currentToken %= scrapingNodeManager.config.oculusTokens.Count;
         GraphQLClient.oculusStoreToken = scrapingNodeManager.config.oculusTokens[currentToken];
+        GetEntitlements();
     }
 
     public void GetEntitlements()
@@ -43,17 +48,22 @@ public class ScrapingNodeScraper
             throw new Exception("Fetching of active entitlements failed");
         }
         userEntitlements = user.data.viewer.user.active_entitlements.nodes;
+        Logger.Log("Got " + userEntitlements.Count + " entitlements for " + user.data.viewer.user.alias);
     }
 
     public void DoTasks()
     {
+        totalTasks = scrapingTasks.Count;
+        tasksDone = 0;
         taskResult = new ScrapingNodeTaskResult();
         while (scrapingTasks.Count > 0)
         {
+            scrapingNodeManager.status = ScrapingNodeStatus.Scraping;
             switch (scrapingTasks[0].scrapingTask)
             {
                 case ScrapingTaskType.GetAllAppsToScrape:
                     TransmitAndClearResultsIfPresent();
+                    taskResult.altered = true;
                     taskResult.scrapingNodeTaskResultType = ScrapingNodeTaskResultType.FoundAppsToScrape;
                     try
                     {
@@ -74,11 +84,20 @@ public class ScrapingNodeScraper
                     
                     break;
                 case ScrapingTaskType.ScrapeApp:
-                    Scrape(scrapingTasks[0].appToScrape);
+                    taskResult.scrapingNodeTaskResultType = ScrapingNodeTaskResultType.AppsScraped;
+                    try
+                    {
+                        Scrape(scrapingTasks[0].appToScrape);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log("Failed to scrape " + scrapingTasks[0].appToScrape.appId + ": " + e, LoggingType.Error);
+                    }
                     break;
             }
             // After task is done remove it from the scrapingTasks list
             scrapingTasks.RemoveAt(0);
+            tasksDone++;
         }
         
         // After doing all tasks Transmit results if there are any
@@ -88,6 +107,7 @@ public class ScrapingNodeScraper
 
     public void Scrape(AppToScrape app)
     {
+        taskResult.altered = true;
         Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
         if (a == null) throw new Exception("Application is null");
 		if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
@@ -341,10 +361,25 @@ public class ScrapingNodeScraper
     public void TransmitAndClearResultsIfPresent()
     {
         if (!taskResult.altered) return;
+        scrapingNodeManager.status = ScrapingNodeStatus.TransmittingResults;
+        SendHeartBeat();
+        transmittingResults = true;
         Logger.Log("Transmitting results");
         taskResult.identification = scrapingNodeManager.GetIdentification();
-        scrapingNodeManager.GetResponseOfPostRequest("scrapingNode/submitTaskResult", JsonSerializer.Serialize(taskResult));
+        ScrapingProcessedResult r;
+        Stopwatch sw = Stopwatch.StartNew();
+        try
+        {
+            string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/taskresults", JsonSerializer.Serialize(taskResult));
+            r = JsonSerializer.Deserialize<ScrapingProcessedResult>(json);
+            Logger.Log("Got response from scraping master after " + sw.ElapsedMilliseconds + "ms: " + r.msg);
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Error while transmitting results: " + e, LoggingType.Error);
+        }
         taskResult = new ScrapingNodeTaskResult();
+        transmittingResults = false;
     }
     
     public List<AppToScrape> CollectAppsToScrapeForHeadset(Headset h)
@@ -391,5 +426,28 @@ public class ScrapingNodeScraper
         }
 
         return appsToScrape;
+    }
+
+    public void HeartBeatLoop()
+    {
+        while (true)
+        {
+            SendHeartBeat();
+            Task.Delay(30 * 1000).Wait();
+        }
+    }
+
+    private void SendHeartBeat()
+    {
+        // Do not send heartbeats while transmitting results
+        if(transmittingResults) return;
+        Logger.Log("Sending heartbeat");
+        ScrapingNodeHeartBeat beat = new ScrapingNodeHeartBeat();
+        beat.identification = scrapingNodeManager.GetIdentification();
+        beat.snapshot.scrapingStatus = scrapingNodeManager.status;
+        beat.snapshot.totalTasks = totalTasks;
+        beat.snapshot.doneTasks = tasksDone;
+        beat.SetQueuedDocuments(taskResult);
+        string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
     }
 }

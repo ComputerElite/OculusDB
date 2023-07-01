@@ -1,5 +1,9 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace OculusDB.ScrapingMaster;
 
+
+[BsonIgnoreExtraElements]
 public class ScrapingTask
 {
     public ScrapingTaskType scrapingTask { get; set; } = ScrapingTaskType.GetAllAppsToScrape;

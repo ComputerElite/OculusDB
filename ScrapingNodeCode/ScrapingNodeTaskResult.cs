@@ -1,8 +1,11 @@
+using MongoDB.Bson.Serialization.Attributes;
 using OculusDB.Database;
 using OculusDB.ScrapingMaster;
 
 namespace OculusDB.ScrapingNodeCode;
 
+
+[BsonIgnoreExtraElements]
 public class ScrapingNodeTaskResult
 {
     public ScrapingNodeTaskResultType scrapingNodeTaskResultType { get; set; } = ScrapingNodeTaskResultType.Unknown;

@@ -1,5 +1,9 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace OculusDB.ScrapingMaster;
 
+
+[BsonIgnoreExtraElements]
 public class ScrapingProgress
 {
     public int totalTasks { get; set; } = 0;

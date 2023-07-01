@@ -28,6 +28,7 @@ using System.IO.Compression;
 
 namespace OculusDB
 {
+    [Obsolete("OculusDB server is the all in one OculusDB instance. OculusDB has been split into 3 parts: ScrapingMaster, ScrapingNode and Backend. Use config to adjust the server type.")]
     public class OculusDBServer
     {
         public HttpServer server = null;

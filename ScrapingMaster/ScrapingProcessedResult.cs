@@ -1,5 +1,9 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace OculusDB.ScrapingMaster;
 
+
+[BsonIgnoreExtraElements]
 public class ScrapingProcessedResult
 {
     public bool processed { get; set; } = true;

@@ -22,7 +22,12 @@ namespace OculusDB
             CommandLineCommandContainer cla = new CommandLineCommandContainer(args);
             cla.AddCommandLineArgument(new List<string> { "--workingdir" }, false, "Sets the working Directory for OculusDB", "directory", "");
             cla.AddCommandLineArgument(new List<string> { "update", "--update", "-U" }, true, "Starts in update mode (use with caution. It's best to let it do on it's own)");
-            cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "-dmt" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "--dmt" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "help", "--help" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "--type" }, false, "Sets the OculusDB Server type to 'frontend', 'node' (Scraping Node) or 'master' (Master Scraping node). frontend and master should only be used for hosting an own OculusDB instance.", "Server Type", "node");
+            cla.AddCommandLineArgument(new List<string> { "--set-token", "--st" }, false, "Sets the token for the scraping node", "Scraping node token", "");
+
+            
             if (cla.HasArgument("help"))
             {
                 cla.ShowHelp();
@@ -48,6 +53,29 @@ namespace OculusDB
             {
                 QRCodeGeneratorWrapper.Display(OculusDBEnvironment.config.masterToken);
                 return;
+            }
+
+            if (cla.HasArgument("--st"))
+            {
+                OculusDBEnvironment.scrapingNodeConfig.scrapingNodeToken = cla.GetValue("--st");
+                OculusDBEnvironment.scrapingNodeConfig.Save();
+            }
+
+            if (cla.HasArgument("--type"))
+            {
+                switch (cla.GetValue("--type"))
+                {
+                    case "node":
+                        OculusDBEnvironment.config.serverType = OculusDBServerType.ScrapeNode;
+                        break;
+                    case "frontend":
+                        OculusDBEnvironment.config.serverType = OculusDBServerType.Frontend;
+                        break;
+                    case "master":
+                        OculusDBEnvironment.config.serverType = OculusDBServerType.ScrapeMaster;
+                        break;
+                }
+                OculusDBEnvironment.config.Save();
             }
 
             if (OculusDBEnvironment.config.serverType == OculusDBServerType.Frontend)

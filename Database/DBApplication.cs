@@ -49,7 +49,9 @@ namespace OculusDB.Database
         public Organization organization { get; set; } = new Organization();
         public string platform { get; set; } = "";
         public string publisher_name { get; set; } = "";
-        public double quality_rating_aggregate { get; set; } = 0.0;
+
+        public double? quality_rating_aggregate { get; set; } = 0.0;
+
         public string img { get; set; } = "";
         public string packageName { get; set; } = "";
 

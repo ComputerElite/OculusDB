@@ -16,8 +16,10 @@ public class ScrapingNodeManager
     
     public void StartNode(ScrapingNodeConfig c)
     {
+        config = c;
         scraper = new ScrapingNodeScraper(this);
         client = new HttpClient();
+        client.Timeout = TimeSpan.FromMinutes(20);
         client.DefaultRequestHeaders.UserAgent.Clear();
         client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OculusDB", OculusDBEnvironment.updater.version));
         if (!CheckOutServer())
@@ -27,9 +29,16 @@ public class ScrapingNodeManager
         }
         Logger.Log("Initializing Oculus Interactor");
         OculusInteractor.Init();
-        config = c;
-        GetScrapingTasks();
-        scraper.DoTasks();
+        scraper.ChangeToken();
+        
+        // Start heartbeat loop
+        Thread heartBeat = new Thread(() => scraper.HeartBeatLoop());
+        heartBeat.Start();
+        while (true)
+        {
+            GetScrapingTasks();
+            scraper.DoTasks();
+        }
     }
 
     /// <summary>
@@ -38,9 +47,24 @@ public class ScrapingNodeManager
     /// <returns>Successful authentication with server and version cross check</returns>
     private bool CheckOutServer()
     {
-        Logger.Log("Checking out master server");
-        string json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/authenticate", JsonSerializer.Serialize(GetIdentification()));
-        ScrapingNodeAuthenticationResult res = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(json);
+        Logger.Log("Checking out master server via " + config.masterAddress + "/api/v1/authenticate");
+        string json;
+        ScrapingNodeAuthenticationResult res;
+        try
+        {
+            json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/authenticate", JsonSerializer.Serialize(GetIdentification()));
+            res = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(json);
+        }
+        catch (Exception e)
+        {
+            res = new ScrapingNodeAuthenticationResult
+            {
+                msg = "Server sent invalid response",
+                tokenAuthorized = false,
+                tokenExpired = false,
+                tokenValid = false,
+            };
+        }
         Logger.Log("Response from master server: " + res.msg, res.tokenAuthorized ? LoggingType.Info : LoggingType.Error);
         return res.tokenAuthorized;
     }

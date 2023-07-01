@@ -18,7 +18,6 @@ public class ScrapingNodeMongoDBManager
         scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
         scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
         
-        MongoDBInteractor.RemoveIdRemap<ScrapingNode>();
     }
 
     public static long GetNonPriorityAppsToScrapeCount()
@@ -33,15 +32,18 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.appsToScrape.Find(x => x.priority == priority).Limit(count).ToList();
         // Set responsible scraping node, sent time and remove from apps to scrape
         DateTime now = DateTime.Now;
-        appsToScrape.ForEach(x =>
-        {
-            x.responsibleScrapingNodeId = responsibleForApps.scrapingNodeId;
-            x.sentToScrapeTime = now;
-            MongoDBInteractor.appsToScrape.DeleteOne(y => y.appId == x.appId && y.priority == x.priority);
-        });
         
-        // Add apps to Scraping apps
-        MongoDBInteractor.appsScraping.InsertMany(appsToScrape);
+        // Add apps to Scraping apps and remove them from apps to scrape
+        if (appsToScrape.Count > 0)
+        {
+            appsToScrape.ForEach(x =>
+            {
+                x.responsibleScrapingNodeId = responsibleForApps.scrapingNodeId;
+                x.sentToScrapeTime = now;
+                MongoDBInteractor.appsToScrape.DeleteOne(y => y.appId == x.appId && y.priority == x.priority);
+            });
+            MongoDBInteractor.appsScraping.InsertMany(appsToScrape);
+        }
         return appsToScrape;
     }
     
@@ -58,9 +60,16 @@ public class ScrapingNodeMongoDBManager
                 tokenAuthorized = false,
                 tokenValid = false,
                 msg = "Token not found. Contact ComputerElite if you want to help scraping.",
-                scrapingNode = scrapingNode
+                scrapingNode = new ScrapingNode
+                {
+                    scrapingNodeToken = scrapingNodeIdentification.scrapingNodeToken,
+                    scrapingNodeVersion = scrapingNodeIdentification.scrapingNodeVersion
+                }
             };
         }
+
+        scrapingNode.scrapingNodeVersion = scrapingNodeIdentification.scrapingNodeVersion;
+        scrapingNodes.ReplaceOne(x => x.scrapingNodeToken == scrapingNodeIdentification.scrapingNodeToken, scrapingNode);
         if (now > scrapingNode.expires)
         {
             // Token expired
@@ -100,6 +109,7 @@ public class ScrapingNodeMongoDBManager
         // Update scraping node stats
         ScrapingNodeStats s = GetScrapingNodeStats(scrapingNode);
         s.contribution.appsQueuedForScraping += appsToScrape.Count;
+        s.lastContribution = DateTime.Now;
         UpdateScrapingNodeStats(s);
     }
 
@@ -113,14 +123,14 @@ public class ScrapingNodeMongoDBManager
 
     public static void UpdateScrapingNodeStats(ScrapingNodeStats s)
     {
-        s.lastContribution = DateTime.Now;
         if(DateTime.Now < s.firstSight) s.firstSight = DateTime.Now;
-        scrapingNodeStats.ReplaceOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId, s);
+        scrapingNodeStats.DeleteOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId);
+        scrapingNodeStats.InsertOne(s);
     }
 
     public static void AddVersion(DBVersion v, ref ScrapingNodeStats scrapingContribution)
     {
-        scrapingContribution.contribution.contributionPerOculusDBType[v.__OculusDBType] += 1;
+        scrapingContribution.contribution.AddContribution(v.__OculusDBType, 1);
         v.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
         MongoDBInteractor.versionsCollection.DeleteOne(x => x.id == v.id);
         MongoDBInteractor.versionsCollection.InsertOne(v);
@@ -128,7 +138,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void AddDLC(DBIAPItem d, ref ScrapingNodeStats scrapingContribution)
     {
-        scrapingContribution.contribution.contributionPerOculusDBType[d.__OculusDBType] += 1;
+        scrapingContribution.contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
         MongoDBInteractor.dlcCollection.DeleteOne(x => x.id == d.id);
         MongoDBInteractor.dlcCollection.InsertOne(d);
@@ -136,7 +146,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void AddDLCPack(DBIAPItemPack d, ref ScrapingNodeStats scrapingContribution)
     {
-        scrapingContribution.contribution.contributionPerOculusDBType[d.__OculusDBType] += 1;
+        scrapingContribution.contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
         MongoDBInteractor.dlcPackCollection.DeleteOne(x => x.id == d.id);
         MongoDBInteractor.dlcPackCollection.InsertOne(d);
@@ -144,8 +154,13 @@ public class ScrapingNodeMongoDBManager
     
     public static void AddApplication(DBApplication a, ref ScrapingNodeStats scrapingContribution)
     {
-        scrapingContribution.contribution.contributionPerOculusDBType[a.__OculusDBType] += 1;
+        scrapingContribution.contribution.AddContribution(a.__OculusDBType, 1);
         a.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        AppToScrape t = MongoDBInteractor.appsScraping.FindOneAndDelete(x => x.appId == a.id);
+        if (t != null)
+        {
+            MongoDBInteractor.scrapedApps.InsertOne(t);
+        }
         MongoDBInteractor.applicationCollection.DeleteOne(x => x.id == a.id);
         MongoDBInteractor.applicationCollection.InsertOne(a);
     }
@@ -156,5 +171,10 @@ public class ScrapingNodeMongoDBManager
         d["__sn"] = scrapingNode.scrapingNodeId;
         MongoDBInteractor.activityCollection.InsertOne(d);
         return MongoDBInteractor.activityCollection.Find(x => x["_id"] == d["_id"]).FirstOrDefault();
+    }
+
+    public static List<ScrapingNodeStats> GetScrapingNodes()
+    {
+        return scrapingNodeStats.Find(x => true).ToList();
     }
 }

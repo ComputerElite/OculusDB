@@ -27,8 +27,19 @@ public class ScrapingManaging
                         scrapingTask = ScrapingTaskType.GetAllAppsToScrape
                     }
                 };
+            } else if (isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+            {
+                // Why tf are you requesting tasks. You should be getting all apps to scrape rn you idiot
+                return new List<ScrapingTask>
+                {
+                    new()
+                    {
+                        scrapingTask = ScrapingTaskType.GetAllAppsToScrape
+                    }
+                };
             }
         }
+        
         // There are enough apps to scrape or app adding is running. Send scraping tasks.
         List<ScrapingTask> scrapingTasks = new();
         // Add 20 non-priority apps to scrape and 3 priority apps to scrape
@@ -56,8 +67,9 @@ public class ScrapingManaging
         return r;
     }
 
-    public static void ProcessTaskResult(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    public static ScrapingProcessedResult ProcessTaskResult(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
+        ScrapingProcessedResult r = new ScrapingProcessedResult();
         Logger.Log("Results of Scraping node " + scrapingNodeAuthenticationResult.scrapingNode + " received. Processing now...");
         Logger.Log("Result type: " +
                    Enum.GetName(typeof(ScrapingNodeTaskResultType), taskResult.scrapingNodeTaskResultType));
@@ -67,11 +79,18 @@ public class ScrapingManaging
         //   - When scraping is done, compute the activity entries and write both to the DB (Each scraped app should)
         switch (taskResult.scrapingNodeTaskResultType)
         {
+            case ScrapingNodeTaskResultType.Unknown:
+                r.processed = false;
+                r.msg = "Cannot process unknown task result type.";
+                return r;
             case ScrapingNodeTaskResultType.ErrorWhileRequestingAppsToScrape:
                 if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
                 {
                     Logger.Log("Node is not responsible for adding apps to scrape. Ignoring error.");
-                    return;
+                    r.processed = false;
+                    r.msg = "You are not responsible for adding apps to scrape. Your submission has been ignored.";
+                    r.failedCount = 1;
+                    return r;
                 }
                 Logger.Log("Error while requesting apps to scrape. Making other scraping nodes able to request apps to scrape.");
                 isAppAddingRunning.Set(false, TimeSpan.FromMinutes(10), "");
@@ -80,18 +99,27 @@ public class ScrapingManaging
                 if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
                 {
                     Logger.Log("Node is not responsible for adding apps to scrape. Ignoring.");
-                    return;
+                    r.processed = false;
+                    r.msg = "You are not responsible for adding apps to scrape. Your submission has been ignored.";
+                    r.failedCount = 1;
+                    return r;
                 }
                 Logger.Log("Found apps to scrape. Adding them to the DB.");
                 ScrapingNodeMongoDBManager.AddAppsToScrape(taskResult.appsToScrape, scrapingNodeAuthenticationResult.scrapingNode);
+                r.processed = true;
+                r.processedCount = taskResult.appsToScrape.Count;
+                r.msg = "Added " + taskResult.appsToScrape.Count + " apps to scrape. Thanks for the cooperation.";
                 break;
             case ScrapingNodeTaskResultType.AppsScraped:
-                ProcessScrapedResults(taskResult, scrapingNodeAuthenticationResult);
+                ProcessScrapedResults(taskResult, scrapingNodeAuthenticationResult, ref r);
+                r.msg = "Processed " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs and " + taskResult.scraped.versions.Count + " version from scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". Thanks for your contribution.";
                 break;
         }
+
+        return r;
     }
 
-    private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)
     {
         Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs and " + taskResult.scraped.versions.Count + " version from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingNodeStats scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
@@ -156,6 +184,7 @@ public class ScrapingManaging
             }
             // Update contributions
             ScrapingNodeMongoDBManager.AddVersion(v, ref scrapingContribution);
+            r.processedCount++;
         }
         
         // Process DLCs
@@ -192,6 +221,7 @@ public class ScrapingManaging
                 updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
                 DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
+            r.processedCount++;
         }
         
         // Process DLC Packs
@@ -239,6 +269,7 @@ public class ScrapingManaging
                 updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
                 DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
+            r.processedCount++;
         }
         
         // Process Applications
@@ -255,7 +286,7 @@ public class ScrapingManaging
                 e.priceOffsetNumerical = a.priceOffsetNumerical;
                 e.priceFormatted = a.priceFormatted;
                 e.displayLongDescription = a.display_long_description;
-                e.releaseDate = TimeConverter.UnixTimeStampToDateTime((long)a.release_date);
+                e.releaseDate = TimeConverter.UnixTimeStampToDateTime(a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
                 DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
             }
@@ -286,16 +317,46 @@ public class ScrapingManaging
             }
             
             ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
+            r.processedCount++;
         }
+
+        r.processed = true;
+        scrapingContribution.lastContribution = DateTime.Now;
+        ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(scrapingContribution);
     }
-    
-    public string FormatPrice(long offsetAmount, string currency)
+
+    /// <summary>
+    /// Process heartbeats from scraping nodes
+    /// </summary>
+    /// <param name="heartBeat"></param>
+    /// <param name="scrapingNodeAuthenticationResult"></param>
+    public static void ProcessHeartBeat(ScrapingNodeHeartBeat heartBeat, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
-        string symbol = "";
-        if (currency == "USD") symbol = "$";
-        if (currency == "EUR") symbol = "€";
-        string price = symbol + String.Format("{0:0.00}", offsetAmount / 100.0);
-            
-        return price;
+        ScrapingNodeStats stats = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
+        stats.snapshot = heartBeat.snapshot;
+        // If online, add time since last heartbeat to runtime
+        DateTime now = DateTime.Now;
+        if (stats.online)
+        {
+            stats.runtime += stats.lastHeartBeat - now;
+            stats.totalRuntime += stats.lastHeartBeat - now;
+        }
+        stats.lastHeartBeat = now;
+        
+        ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
+        
+    }
+
+    public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    {
+        // If node was responsible for something that locks other nodes from doing it, unlock it
+        isAppAddingRunning.Unlock(scrapingNodeAuthenticationResult.scrapingNode);
+        ScrapingNodeStats s =
+            ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
+        // reset runtime as node has just restarted
+        s.runtime = TimeSpan.Zero;
+        s.lastRestart = DateTime.Now;
+        s.lastHeartBeat = DateTime.Now;
+        ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(s);
     }
 }

@@ -23,6 +23,7 @@ using System.Text.Json.Serialization;
 
 namespace OculusDB
 {
+    [Obsolete("Oculus Scraper is a all in one solution for scraping and saving to DB. This has been replaced by seperated scraping and DB modification code. See ScrapingNodeManager, ScrapingNodeScraper, ScrapingManaging, ScrapingNodeMongoDBManager and ")]
     public class OculusScraper
     {
         public static Config config { get
