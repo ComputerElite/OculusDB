@@ -21,6 +21,10 @@ namespace OculusDB.Database
                 return _id;
             }
         }
+        /// <summary>
+        /// Scraping node ID
+        /// </summary>
+        public string __sn { get; set; } = "";
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonRepresentation(BsonType.ObjectId)]
         [JsonIgnore]

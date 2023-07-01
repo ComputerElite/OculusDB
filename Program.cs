@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
+using OculusDB.ScrapingMaster;
+using OculusDB.ScrapingNodeCode;
 
 namespace OculusDB
 {
@@ -20,7 +22,14 @@ namespace OculusDB
             CommandLineCommandContainer cla = new CommandLineCommandContainer(args);
             cla.AddCommandLineArgument(new List<string> { "--workingdir" }, false, "Sets the working Directory for OculusDB", "directory", "");
             cla.AddCommandLineArgument(new List<string> { "update", "--update", "-U" }, true, "Starts in update mode (use with caution. It's best to let it do on it's own)");
-            cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "-dmt" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "--dmt" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "help", "--help" }, true, "Outputs the master token without starting the server");
+            cla.AddCommandLineArgument(new List<string> { "--type" }, false, "Sets the OculusDB Server type to 'frontend', 'node' (Scraping Node) or 'master' (Master Scraping node). frontend and master should only be used for hosting an own OculusDB instance.", "Server Type", "node");
+            cla.AddCommandLineArgument(new List<string> { "--set-token", "--st" }, false, "Sets the token for the scraping node", "Scraping node token", "");
+            cla.AddCommandLineArgument(new List<string> { "--set-ms", "--sm" }, false, "Set the master scraping server url", "Scraping Master URL", "https://scraping.rui2015.me");
+            cla.AddCommandLineArgument(new List<string> { "--set-oculus-token", "--so" }, false, "Sets the Oculus token for the scraping node", "Oculus Token", "");
+
+            
             if (cla.HasArgument("help"))
             {
                 cla.ShowHelp();
@@ -37,6 +46,7 @@ namespace OculusDB
                 Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
             }
             OculusDBEnvironment.config = Config.LoadConfig();
+            OculusDBEnvironment.scrapingNodeConfig = ScrapingNodeConfig.LoadConfig();
             if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
             OculusDBEnvironment.config.Save();
             //Logger.SetLogFile(workingDir + "Log.log");
@@ -46,9 +56,65 @@ namespace OculusDB
                 QRCodeGeneratorWrapper.Display(OculusDBEnvironment.config.masterToken);
                 return;
             }
-            OculusDBServer s = new OculusDBServer();
-            HttpServer server = new HttpServer();
-            s.StartServer(server);
+
+            if (cla.HasArgument("--st"))
+            {
+                OculusDBEnvironment.scrapingNodeConfig.scrapingNodeToken = cla.GetValue("--st");
+                OculusDBEnvironment.scrapingNodeConfig.Save();
+                Logger.Log("Set scraping node token to " + cla.GetValue("--st"));
+                return;
+            }
+            if (cla.HasArgument("--so"))
+            {
+                OculusDBEnvironment.scrapingNodeConfig.oculusTokens.Clear();
+                OculusDBEnvironment.scrapingNodeConfig.oculusTokens.Add(cla.GetValue("--so"));
+                OculusDBEnvironment.scrapingNodeConfig.Save();
+                Logger.Log("Set Oculus token to " + cla.GetValue("--so"));
+                return;
+            }
+            if (cla.HasArgument("--sm"))
+            {
+                OculusDBEnvironment.scrapingNodeConfig.masterAddress = cla.GetValue("--sm");
+                OculusDBEnvironment.scrapingNodeConfig.Save();
+                Logger.Log("Set master address to " + cla.GetValue("--sm"));
+                return;
+            }
+
+            if (cla.HasArgument("--type"))
+            {
+                switch (cla.GetValue("--type"))
+                {
+                    case "node":
+                        OculusDBEnvironment.config.serverType = OculusDBServerType.ScrapeNode;
+                        break;
+                    case "frontend":
+                        OculusDBEnvironment.config.serverType = OculusDBServerType.Frontend;
+                        break;
+                    case "master":
+                        OculusDBEnvironment.config.serverType = OculusDBServerType.ScrapeMaster;
+                        break;
+                }
+                OculusDBEnvironment.config.Save();
+                Logger.Log("Set server type to " + cla.GetValue("--type"));
+                return;
+            }
+
+            if (OculusDBEnvironment.config.serverType == OculusDBServerType.Frontend)
+            {
+                FrontendServer s = new FrontendServer();
+                HttpServer server = new HttpServer();
+                s.StartServer(server);
+            } else if (OculusDBEnvironment.config.serverType == OculusDBServerType.ScrapeMaster)
+            {
+                ScrapingMasterServer s = new ScrapingMasterServer();
+                HttpServer server = new HttpServer();
+                s.StartServer(server);
+            } else if (OculusDBEnvironment.config.serverType == OculusDBServerType.ScrapeNode)
+            {
+                // Load scraping config
+                ScrapingNodeManager node = new ScrapingNodeManager();
+                node.StartNode(OculusDBEnvironment.scrapingNodeConfig);
+            }
         }
     }
 }

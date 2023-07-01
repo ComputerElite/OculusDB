@@ -6,33 +6,28 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OculusDB.ScrapingMaster;
 
 namespace OculusDB
 {
     public class Config
     {
+        public OculusDBServerType serverType { get; set; } = OculusDBServerType.Frontend;
+        public string scrapingMasterUrl { get; set; } = "";
+
         public string accesscode { get; set; } = "";
 
         public string publicAddress { get; set; } = "";
-        public string crashPingId { get; set; } = "631189193825058826";
         public int port { get; set; } = 504;
         public string mongoDBUrl { get; set; } = "";
         public string masterToken { get; set; } = "";
         public string mongoDBName { get; set; } = "OculusDB";
         public string masterWebhookUrl { get; set; } = "";
         public List<Token> tokens { get; set; } = new List<Token>();
-        public List<string> oculusTokens { get; set; } = new List<string> { "OC|1317831034909742|" };
-        public int lastOculusToken { get; set; } = 0;
-        public int lastValidToken { get; set; } = 0;
-        public bool deleteOldData { get; set; } = true;
-        public bool pauseAfterScrape { get; set; } = false;
-        public DateTime lastDBUpdate { get; set; } = DateTime.MinValue;
-        public ScrapingResumeData ScrapingResumeData { get; set; } = new ScrapingResumeData();
-        public List<Update> updates { get; set; } = new List<Update>();
-		public ScrapingStatus scrapingStatus { get; set; } = ScrapingStatus.NotStarted;
 
         public static ReaderWriterLock locker = new ReaderWriterLock();
-		public static Config LoadConfig()
+
+        public static Config LoadConfig()
         {
             string configLocation = OculusDBEnvironment.workingDir + "data" + Path.DirectorySeparatorChar + "config.json";
             // make sure fallbacklocation.txt exists
@@ -84,10 +79,17 @@ namespace OculusDB
         }
     }
 
+    public enum OculusDBServerType
+    {
+        Frontend,
+        ScrapeMaster,
+        ScrapeNode
+    }
+
     public class Token
     {
         public string token { get; set; } = "";
-        public DateTime expiry { get; set; } = DateTime.Now;
+        public DateTime expiry { get; set; } = DateTime.UtcNow;
         public List<Permission> permissions { get; set; } = new();
     }
 
@@ -95,7 +97,8 @@ namespace OculusDB
     {
         StartScrapes,
         StartPriorityScrapes,
-        BlockApps
+        BlockApps,
+        CreateScrapingNode
     }
 
     public enum ScrapingStatus

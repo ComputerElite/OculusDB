@@ -21,6 +21,10 @@ namespace OculusDB.Database
                 return _id;
             }
         }
+        /// <summary>
+        /// Scraping node ID
+        /// </summary>
+        public string __sn { get; set; } = "";
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         [BsonRepresentation(BsonType.ObjectId)]
         [JsonIgnore]
@@ -40,7 +44,7 @@ namespace OculusDB.Database
                 return releaseChannels != null && releaseChannels.Count > 0;
             }
         }
-        public List<ReleaseChannel> releaseChannels { get; set; } = new List<ReleaseChannel>();
+        public List<ReleaseChannelWithoutLatestSupportedBinary> releaseChannels { get; set; } = new List<ReleaseChannelWithoutLatestSupportedBinary>();
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
     }
 }

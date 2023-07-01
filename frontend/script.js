@@ -6,7 +6,7 @@
 }
 
 
-document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">^`
+document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">`
 
 document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 <div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
@@ -614,6 +614,7 @@ function FormatDLC(dlc, htmlid = "") {
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
                 <tr><td class="label">latest asset file id</td><td class="value">${dlc.latestAssetFileId ? dlc.latestAssetFileId : "No asset file"}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${dlc.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -664,6 +665,7 @@ function FormatDLCPack(dlc, dlcs, htmlid = "") {
                 <tr><td class="label">Price</td><td class="value">${dlc.current_offer.price.formatted}</td></tr>
                 <tr><td class="label">Included DLCs</td><td class="value">${included}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${dlc.id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${dlc.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -713,6 +715,7 @@ function FormatDLCActivity(a, htmlid) {
                 <tr><td class="label">DLC id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${a.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -784,6 +787,7 @@ function FormatDLCPackActivity(a, htmlid) {
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">DLC pack id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${a.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -839,15 +843,16 @@ function FormatApplication(application, htmlId = "") {
                     <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Current price</td><td class="value">${application.current_offer != null ? application.current_offer.price.formatted : "No price available"}</td></tr>
+                <tr><td class="label">Current price</td><td class="value">${application.priceFormatted != null ? application.priceFormatted : (application.current_offer != null ? application.current_offer.price.formatted : "No price available")}</td></tr>
                 <tr><td class="label">Baseline price</td><td class="value">${application.current_offer != null ? (application.baseline_offer.price.offset_amount != 0 && application.baseline_offer.price.offset_amount < application.current_offer.price.offset_amount ? application.baseline_offer.price.formatted : application.current_offer.price.formatted) : "No price available"}</td></tr>
-                <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate.toFixed(2)}</td></tr>
+                <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate ? application.quality_rating_aggregate.toFixed(2) : "Not available"}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
                 <tr><td class="label">Package name</td><td class="value">${application.packageName ? application.packageName : "Not available"}</td></tr>
                 <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
                 <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
                 <tr><td class="label">Id</td><td class="value">${application.id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${application.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -884,6 +889,7 @@ function FormatApplicationActivity(a, htmlid) {
                 <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(a.id, a.hmd)}">${GetOculusLink(a.id, a.hmd)}</a></td></tr>
                 <tr><td class="label">Application id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${a.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -915,6 +921,7 @@ function FormatPriceChanged(a, htmlid) {
                 <tr><td class="label">Old Price</td><td class="value">${a.oldPriceFormatted}</td></tr>
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(a.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${a.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -1006,6 +1013,7 @@ function FormatVersion(v, htmlid = "") {
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
                 <tr><td class="label">Last scraped</td><td class="value">${GetTimeString(v.lastScrape)}</td></tr>
                 <tr><td class="label">Last priority scraped</td><td class="value">${GetTimeString(v.lastPriorityScrape)}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${v.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -1048,6 +1056,7 @@ function FormatVersionActivity(v, htmlid) {
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${v.__sn}</td></tr>
             </table>
         </div>
     </div>
@@ -1089,6 +1098,7 @@ function FormatChangelogActivity(v, htmlid) {
                 <tr><td class="label">Parent Application</td><td class="value">${FormatParentApplication(v.parentApplication, htmlid)}</td></tr>
                 <tr><td class="label">Id</td><td class="value">${v.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${v.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${v.__sn}</td></tr>
             </table>
         </div>
     </div>

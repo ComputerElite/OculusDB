@@ -8,7 +8,8 @@ namespace OculusDB.Database
 {
     public class DBDataTypes
     {
-        public const string Application = "Application";
+	    public static string AppImage = "AppImage";
+	    public const string Application = "Application";
         public const string Version = "Version";
         public const string IAPItem = "IAPItem";
         public const string IAPItemPack = "IAPItemPack";

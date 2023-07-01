@@ -14,6 +14,10 @@ namespace OculusDB.Database
         public DateTime __lastUpdated { get; set; } = DateTime.Now;
         public string __OculusDBType { get; set; } = DBDataTypes.Application;
         public Headset hmd { get; set; } = Headset.RIFT;
+        /// <summary>
+        /// Scraping node ID
+        /// </summary>
+        public string __sn { get; set; } = "";
         [BsonIgnore]
 
         public bool blocked
@@ -27,6 +31,8 @@ namespace OculusDB.Database
         // Application
         public string appName { get; set; } = "";
         public AppStoreOffer baseline_offer { get; set; } = new AppStoreOffer();
+        public string priceFormatted { get; set; } = "$0.00";
+        public long priceOffsetNumerical { get; set; } = 0;
         public string canonicalName { get; set; } = "";
         public AppStoreOffer current_gift_offer { get; set; } = new AppStoreOffer();
         public AppStoreOffer current_offer { get; set; } = new AppStoreOffer();
@@ -43,7 +49,9 @@ namespace OculusDB.Database
         public Organization organization { get; set; } = new Organization();
         public string platform { get; set; } = "";
         public string publisher_name { get; set; } = "";
-        public double quality_rating_aggregate { get; set; } = 0.0;
+
+        public double? quality_rating_aggregate { get; set; } = 0.0;
+
         public string img { get; set; } = "";
         public string packageName { get; set; } = "";
 

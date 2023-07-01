@@ -23,6 +23,7 @@ using System.Text.Json.Serialization;
 
 namespace OculusDB
 {
+    [Obsolete("Oculus Scraper is a all in one solution for scraping and saving to DB. This has been replaced by seperated scraping and DB modification code. See ScrapingNodeManager, ScrapingNodeScraper, ScrapingManaging, ScrapingNodeMongoDBManager and ")]
     public class OculusScraper
     {
         public static Config config { get
@@ -98,7 +99,7 @@ namespace OculusDB
                 OculusDBServer.SendMasterWebhookMessage("Info", "Adding apps to scrape", 0x00FF00);
                 MongoDBInteractor.RemoveScrapingAndToScrapeNonPriorityApps();
                 config.ScrapingResumeData.appsToScrape = 0;
-                if(!OculusDBServer.debugging)
+                if(!OculusDBEnvironment.debugging)
                 {
                     Thread getAppsThread = new Thread(() =>
 					{
@@ -500,7 +501,7 @@ namespace OculusDB
                 newVersion.parentApplication.hmd = app.headset;
                 newVersion.parentApplication.canonicalName = a.canonicalName;
                 newVersion.parentApplication.displayName = a.displayName;
-                newVersion.releaseChannels = bin.binary_release_channels.nodes;
+                newVersion.releaseChannels = bin.binary_release_channels.nodes.ConvertAll(x => (ReleaseChannelWithoutLatestSupportedBinary)x);
                 newVersion.version = bin.version;
                 newVersion.versionCode = bin.versionCode;
                 newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(bin.created_date);
@@ -709,6 +710,9 @@ namespace OculusDB
         public DateTime addedTime { get; set; } = DateTime.Now;
         [JsonIgnore]
         public string imageUrl { get; set; } = "";
+        public DateTime sentToScrapeTime { get; set; } = DateTime.MinValue;
+
+        public string responsibleScrapingNodeId { get; set; } = "";
     }
 
     public class SidequestApplabGame
@@ -716,18 +720,6 @@ namespace OculusDB
         public string oculus_url { get; set; } = "";
         public string name { get; set; } = "";
         public string image_url { get; set; } = "";
-    }
-
-    public class ToScrapeApp
-    {
-        public string id { get; set; } = "";
-        public string image { get; set; } = "";
-
-        public ToScrapeApp(string id, string image)
-        {
-            this.id = id;
-            this.image = image;
-        }
     }
 
     public enum UserEntitlement

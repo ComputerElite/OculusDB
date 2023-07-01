@@ -11,6 +11,10 @@ namespace OculusDB.Database
     {
         public DateTime __lastUpdated { get; set; } = DateTime.Now;
         public string __OculusDBType { get; set; } = DBDataTypes.IAPItemPack;
+        /// <summary>
+        /// Scraping node ID
+        /// </summary>
+        public string __sn { get; set; } = "";
 
         // AppItemBundle
         [ObjectConverterIgnore]
@@ -19,5 +23,10 @@ namespace OculusDB.Database
         public bool is_guardian_required { get; set; } = false;
         public bool is_roomscale_required { get; set; } = false;
         public bool is_touch_required { get; set; } = false;
+
+        public override string ToString()
+        {
+            return "DLC Pack '" + display_name + "' (" + id + ") of " + parentApplication.id + "(" + bundle_items.Count + " bundle items)";
+        }
     }
 }
