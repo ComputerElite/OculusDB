@@ -50,11 +50,8 @@ public class ScrapingNodeManager
         client.Timeout = TimeSpan.FromMinutes(20);
         client.DefaultRequestHeaders.UserAgent.Clear();
         client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OculusDB", OculusDBEnvironment.updater.version));
+        // Check out server to let it know the node is stared. If errors occur during the checkout, the node will do the appropriate action automatically
         ScrapingNodeAuthenticationResult r = CheckOutServer();
-        if (!r.tokenAuthorized)
-        {
-            CheckAuthorizationResponse(r);
-        }
         Logger.Log("Initializing Oculus Interactor");
         OculusInteractor.Init();
         scraper.ChangeToken();
@@ -76,8 +73,19 @@ public class ScrapingNodeManager
             Logger.Log("Version of scraping node is outdated. This version: " + OculusDBEnvironment.updater.version + ", Server version: " + r.compatibleScrapingVersion, LoggingType.Error);
             UpdateScrapingNode();
         }
-        Logger.Log("Master server reports something invalid about the scraping node. Refer to above message for more info. Scraping node will NOT start.", LoggingType.Error);
-        Environment.Exit(1);
+
+        if (r.tokenExpired)
+        {
+            Logger.Log("Your token expired. Contact ComputerElite to get it renewed.", LoggingType.Error);
+            Environment.Exit(1);
+        }
+
+        if (!r.tokenValid)
+        {
+            Logger.Log("Your token is not valid. Contact ComputerElite to get a token", LoggingType.Error);
+            Environment.Exit(1);
+        }
+        Logger.Log("An unknown error occured, however it's most likely temporary and thus we'll continue as normal", LoggingType.Warning);
     }
 
     public void UpdateScrapingNode()

@@ -43,11 +43,12 @@ public class ScrapingMasterServer
             // Authenticate the scraping node and send back the scraping node info
             ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);
             ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(scrapingNodeIdentification);
-            if (r.tokenAuthorized)
+            if (!r.tokenAuthorized)
             {
-                ScrapingManaging.OnNodeStarted(r);
+                request.SendString(JsonSerializer.Serialize(r), "application/json", 403);
+                return true;
             }
-            request.SendString(JsonSerializer.Serialize(r), "application/json");
+            ScrapingManaging.OnNodeStarted(r);
             return true;
         });
         server.AddRoute("POST", "/api/v1/taskresults", request =>
