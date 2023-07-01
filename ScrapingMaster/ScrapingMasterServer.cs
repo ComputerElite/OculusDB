@@ -19,11 +19,12 @@ public class ScrapingMasterServer
 
     public void StartServer(HttpServer httpServer)
     {
+        bool createdNodeZip = false;
+        bool creatingNodeZip = false;
         string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         ScrapingNodeMongoDBManager.Init();
         MongoDBInteractor.Initialize();
         server = httpServer;
-        CreateNodeZip();
         server.AddRoute("POST", "/api/v1/gettasks", request =>
         {
             // Check if the scraping node is authorized to scrape
@@ -110,6 +111,23 @@ public class ScrapingMasterServer
         }), true, true, true, true, 360); // 6 mins
         server.AddRoute("GET", "/cdn/node.zip", request =>
         {
+            if (!createdNodeZip)
+            {
+                if (!creatingNodeZip)
+                {
+                    creatingNodeZip = true;
+                    CreateNodeZip();
+                    createdNodeZip = true;
+                    createdNodeZip = false;
+                }
+                else
+                {
+                    while (creatingNodeZip)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+            }
             request.SendFile(OculusDBEnvironment.dataDir + "node.zip");
             return true;
         });
@@ -126,7 +144,6 @@ public class ScrapingMasterServer
         string nodeLoc = OculusDBEnvironment.dataDir + "node.zip";
         Logger.Log("Creating Node zip file");
         if(File.Exists(nodeLoc)) File.Delete(nodeLoc);
-        Logger.Log(AppDomain.CurrentDomain.BaseDirectory);
         CreateZipArchive(AppDomain.CurrentDomain.BaseDirectory, nodeLoc);
     }
     
