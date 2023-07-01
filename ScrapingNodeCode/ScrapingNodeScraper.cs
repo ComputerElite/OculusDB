@@ -316,8 +316,17 @@ public class ScrapingNodeScraper
         dba.priceOffsetNumerical = correctPrice;
         dba.priceFormatted = FormatPrice(correctPrice, currency);
         dba.packageName = packageName;
-        OculusScraper.DownloadImage(dba);
         taskResult.scraped.applications.Add(dba);
+        DBAppImage dbi = DownloadImage(dba);
+        if (dbi != null)
+        {
+            taskResult.scraped.imgs.Add(dbi);
+        }
+    }
+
+    private DBAppImage DownloadImage(DBApplication dba)
+    {
+        throw new NotImplementedException();
     }
 
     public List<DBVersion> GetVersionsOfApp(string appId)

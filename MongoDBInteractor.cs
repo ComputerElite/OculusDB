@@ -38,6 +38,7 @@ namespace OculusDB
         public static IMongoCollection<DBApplication>? blockedApps;
         
         public static IMongoCollection<DBApplication>? applicationCollection;
+        public static IMongoCollection<DBAppImage>? appImages;
         public static IMongoCollection<DBIAPItem>? dlcCollection;
         public static IMongoCollection<DBIAPItemPack>? dlcPackCollection;
         public static IMongoCollection<DBVersion>? versionsCollection;
@@ -145,6 +146,7 @@ namespace OculusDB
             applicationCollection = oculusDBDatabase.GetCollection<DBApplication>("apps");
             dlcCollection = oculusDBDatabase.GetCollection<DBIAPItem>("dlcs");
             dlcPackCollection = oculusDBDatabase.GetCollection<DBIAPItemPack>("dlcPacks");
+            appImages = oculusDBDatabase.GetCollection<DBAppImage>("appImages");
 
             appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
             appsToScrape = oculusDBDatabase.GetCollection<AppToScrape>("appsToScrape");
@@ -533,7 +535,7 @@ namespace OculusDB
             dba.hmd = h;
             dba.img = image;
             dba.packageName = packageName;
-            OculusScraper.DownloadImage(dba);
+            //OculusScraper.DownloadImage(dba);
             applicationCollection.DeleteOne(x => x.id == dba.id);// Delete old entries of the app
             applicationCollection.InsertOne(dba);
         }
@@ -657,11 +659,6 @@ namespace OculusDB
             return blockedAppsCache.Contains(id);
         }
 
-        public static bool DoesAppIdExistInCurrentScrape(string id)
-        {
-            return applicationCollection.Find(x => x.id == id && x.__lastUpdated >= OculusDBEnvironment.config.ScrapingResumeData.currentScrapeStart).CountDocuments() > 0;
-        }
-        
         public static DLCLists GetDLCs(string parentAppId)
         {
             if (IsApplicationBlocked(parentAppId)) return new DLCLists();
@@ -788,6 +785,17 @@ namespace OculusDB
         public static bool GetBlockedStatusForApp(string id)
         {
             return blockedAppsCache.Contains(id);
+        }
+
+        public static void AddApp(string id, Headset headset, bool priority = true)
+        {
+            Logger.Log("Adding priority scrape for " + id + " if not existing already");
+            MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { priority = priority, appId = id, headset = headset });
+        }
+
+        public static DBAppImage GetAppImage(string appId)
+        {
+            return appImages.Find(x => x.appId == appId).FirstOrDefault();
         }
     }
 

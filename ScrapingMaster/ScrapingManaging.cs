@@ -1,3 +1,4 @@
+using System.Net;
 using ComputerUtils.Logging;
 using ComputerUtils.VarUtils;
 using MongoDB.Bson;
@@ -5,6 +6,9 @@ using MongoDB.Bson.Serialization;
 using OculusDB.Database;
 using OculusDB.ScrapingNodeCode;
 using OculusDB.Users;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Memory;
 
 namespace OculusDB.ScrapingMaster;
 
@@ -318,6 +322,11 @@ public class ScrapingManaging
             
             ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
             r.processedCount++;
+        }
+
+        foreach (DBAppImage img in taskResult.scraped.imgs)
+        {
+            ScrapingNodeMongoDBManager.AddImage(img, ref scrapingContribution);
         }
 
         r.processed = true;

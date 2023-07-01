@@ -1,3 +1,4 @@
+using ComputerUtils.RandomExtensions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OculusDB.Database;
@@ -29,7 +30,7 @@ public class ScrapingNodeMongoDBManager
     {
         // Get apps to scrape
         List<AppToScrape> appsToScrape =
-            MongoDBInteractor.appsToScrape.Find(x => x.priority == priority).Limit(count).ToList();
+            MongoDBInteractor.appsToScrape.Find(x => x.priority == priority).SortByDescending(x => x.scrapePriority).Limit(count).ToList();
         // Set responsible scraping node, sent time and remove from apps to scrape
         DateTime now = DateTime.Now;
         
@@ -176,5 +177,19 @@ public class ScrapingNodeMongoDBManager
     public static List<ScrapingNodeStats> GetScrapingNodes()
     {
         return scrapingNodeStats.Find(x => true).ToList();
+    }
+
+
+    public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
+    {
+        appToScrape.scrapePriority = s;
+    }
+
+    public static void AddImage(DBAppImage img, ref ScrapingNodeStats scrapingContribution)
+    {
+        scrapingContribution.contribution.AddContribution(img.__OculusDBType, 1);
+        img.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        MongoDBInteractor.appImages.DeleteOne(x => x.appId == img.appId);
+        MongoDBInteractor.appImages.InsertOne(img);
     }
 }

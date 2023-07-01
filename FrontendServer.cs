@@ -11,9 +11,12 @@ using ComputerUtils.Updating;
 using ComputerUtils.VarUtils;
 using ComputerUtils.Webserver;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.WireProtocol.Messages;
 using OculusDB.Analytics;
 using OculusDB.Database;
 using OculusDB.QAVS;
+using OculusDB.ScrapingMaster;
+using OculusDB.ScrapingNodeCode;
 using OculusDB.Users;
 using OculusGraphQLApiLib;
 
@@ -102,31 +105,6 @@ public class FrontendServer
 
 			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
 
-			if (OculusDBEnvironment.debugging)
-            {
-                server.DefaultCacheValidityInSeconds = 0;
-                server.AddRoute("GET", "/debug/startscrapingthread", new Func<ServerRequest, bool>(request =>
-                {
-                    OculusScraper.StartGeneralPurposeScrapingThread(false);
-                    return true;
-                }));
-				server.AddRoute("GET", "/debug/startprioritythread", new Func<ServerRequest, bool>(request =>
-				{
-					OculusScraper.StartGeneralPurposeScrapingThread(true);
-					return true;
-				}));
-				server.AddRoute("GET", "/debug/addpriority/", new Func<ServerRequest, bool>(request =>
-                {
-                    OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD, true);
-                    return true;
-                }), true);
-                server.AddRoute("GET", "/debug/addnormal/", new Func<ServerRequest, bool>(request =>
-                {
-                    OculusScraper.AddApp(request.pathDiff, Headset.HOLLYWOOD, false);
-                    return true;
-                }), true);
-            }
-            
             ////////////////// Admin
             server.AddRoute("GET", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>
             {
@@ -180,10 +158,9 @@ public class FrontendServer
                 }
                 try
                 {
-                    MongoDBInteractor.MarkAppAsScraping(s);
-                    OculusScraper.Scrape(s);
-                    MongoDBInteractor.MarkAppAsScrapedOrFailed(s);
-                    request.SendString("Scraped");
+                    // Create scraping node for scraping, start that node and supply one task to it
+                    ScrapingNodeMongoDBManager.AddApp(s, AppScrapePriority.High);
+                    request.SendString("Added scrape to queue as first to be scraped. No idea if it'll scrape or not but a scraping node will defo try.");
                 }
                 catch (Exception e)
                 {
@@ -379,12 +356,7 @@ public class FrontendServer
             server.AddRoute("POST", "/api/updateserver/", new Func<ServerRequest, bool>(request =>
             {
                 if (!IsUserAdmin(request)) return true;
-                Update u = new Update();
-                u.changelog = request.queryString.Get("changelog");
-                config.updates.Insert(0, u);
-                config.Save();
-                request.SendString("Starting update");
-                Updater.StartUpdateNetApp(request.bodyBytes, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+                request.SendString("This endpoint has been deprecated. Please use MasterServer for deploying updates.");
                 return true;
             }));
             server.AddRoute("POST", "/api/restartserver/", new Func<ServerRequest, bool>(request =>
@@ -531,7 +503,7 @@ public class FrontendServer
 					request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id. App names will NOT work", "text/plain", 400);
 					return true;
 				}
-				OculusScraper.AddApp(appId, h);
+				MongoDBInteractor.AddApp(appId, h);
 
 				request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
 				return true;
@@ -569,8 +541,14 @@ public class FrontendServer
                         if(request.queryString.Get("noscrape") == null)
 						{
 							Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
-							OculusScraper.AddApp(request.pathDiff, h, true);
-						}
+                            AppToScrape s = new AppToScrape
+                            {
+                                appId = request.pathDiff,
+                                headset = h,
+                                priority = true
+                            };
+                            ScrapingNodeMongoDBManager.AddApp(s);
+                        }
                         return true;
 					}
 					request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
@@ -591,13 +569,17 @@ public class FrontendServer
                 {
                     ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
                     request.SendString(JsonSerializer.Serialize(connected), "application/json");
-                    // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
-                    OculusScraper.CheckRunning();
 
                     // Requests a priority scrape for every app
                     foreach (DBApplication a in connected.applications)
                     {
-                        OculusScraper.AddApp(a.id, a.hmd);
+                        AppToScrape s = new AppToScrape
+                        {
+                            appId = a.id,
+                            headset = a.hmd,
+                            priority = true
+                        };
+                        ScrapingNodeMongoDBManager.AddApp(s);
                     }
                 }
                 catch (Exception e)
@@ -614,13 +596,17 @@ public class FrontendServer
                 {
                     List<DBVersion> versions = MongoDBInteractor.GetVersions(request.pathDiff, request.queryString.Get("onlydownloadable") != null && request.queryString.Get("onlydownloadable").ToLower() != "false");
                     request.SendString(JsonSerializer.Serialize(versions), "application/json");
-                    // Restarts the scraping thread if it's not running. Putting it here as that's a method often being called while being invoked via the main thread
-                    OculusScraper.CheckRunning();
 
                     if (versions.Count > 0)
                     {
                         DBApplication a = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(versions[0].parentApplication.id)[0]);
-                        OculusScraper.AddApp(a.id, a.hmd);
+                        AppToScrape s = new AppToScrape
+                        {
+                            appId = a.id,
+                            headset = a.hmd,
+                            priority = true
+                        };
+                        ScrapingNodeMongoDBManager.AddApp(s);
                     }
                 }
                 catch (Exception e)
@@ -788,14 +774,8 @@ public class FrontendServer
                 try
                 {
                     DBInfo info = new DBInfo();
-                    info.currentUpdateStart = config.ScrapingResumeData.currentScrapeStart;
-                    info.lastUpdated = config.lastDBUpdate;
-                    info.appsToScrape = MongoDBInteractor.GetAppCount();
-                    info.scrapedApps = MongoDBInteractor.GetScrapedAppsCount(false);
                     info.dataDocuments = MongoDBInteractor.CountDataDocuments();
                     info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
-					info.scrapingStatus = config.scrapingStatus;
-                    info.lastScrapeUpdate = OculusScraper.lastUpdate;
                     info.scrapingStatusPageUrl = config.scrapingMasterUrl;
 					request.SendString(JsonSerializer.Serialize(info));
                 }
@@ -823,7 +803,10 @@ public class FrontendServer
                     request.SendString("Only application ids are allowed", "text/plain", 400);
                     return true;
                 }
-                request.SendFile(OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar + request.pathDiff + ".webp");
+
+                DBAppImage img = MongoDBInteractor.GetAppImage(request.pathDiff);
+                if(img == null) request.Send404();
+                else request.SendData(img.data, "image/webp");
                 return true;
             }), true, true, true, true, 1800, true); // 30 mins
             ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
