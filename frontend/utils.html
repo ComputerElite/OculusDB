@@ -81,7 +81,8 @@
                 </div>
             </div>
         </div>
-        
+        <input type="button" value="Create Scraping node" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) CreateNode()">
+
     </div>
 </div>
 <script src="/script.js"></script>
@@ -91,6 +92,20 @@
         document.getElementById("app-id").value = id
     }
     UpdateBlockedApps()
+    
+    function CreateNode() {
+        var id = prompt("Enter node id")
+        var name = prompt("Enter node name")
+        if(id && name) {
+            fetch(`/api/v1/createscrapingnode?id=${id}&name=${name}&token=${localStorage.token}`, {
+                method: "POST"
+            }).then(res => {
+                res.text().then(t => {
+                    alert(t)
+                })
+            })
+        }
+    }
     
     function Unblock(id) {
         fetch(`/api/v1/blocked/unblockapp?id=${id}&token=${localStorage.token}`, {

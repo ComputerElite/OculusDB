@@ -99,6 +99,7 @@ public class FrontendServer
             
             Logger.Log("Initializing MongoDB");
 			MongoDBInteractor.Initialize();
+            ScrapingNodeMongoDBManager.Init();
 
             Logger.Log("Setting up routes");
             string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
@@ -134,6 +135,17 @@ public class FrontendServer
                 }
                 MongoDBInteractor.UnblockApp(id);
                 request.SendString("unblocked " + id, "application/json");
+                return true;
+            });
+            server.AddRoute("POST", "/api/v1/createscrapingnode", request =>
+            {
+                string id = request.queryString.Get("id");
+                string name = request.queryString.Get("name");
+                if (!DoesTokenHaveAccess(request, Permission.CreateScrapingNode))
+                {
+                    return true;
+                }
+                request.SendString(ScrapingNodeMongoDBManager.CreateScrapingNode(id, name), "application/json");
                 return true;
             });
             server.AddRoute("POST", "/api/v1/blocked/blockapp", request =>

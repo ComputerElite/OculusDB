@@ -196,4 +196,15 @@ public class ScrapingNodeMongoDBManager
         MongoDBInteractor.appImages.DeleteOne(x => x.appId == img.appId);
         MongoDBInteractor.appImages.InsertOne(img);
     }
+
+    public static string CreateScrapingNode(string id, string? name)
+    {
+        ScrapingNode n = new ScrapingNode();
+        n.scrapingNodeToken = RandomExtension.CreateToken();
+        n.scrapingNodeId = id;
+        n.scrapingNodeName = name;
+        n.expires = DateTime.UtcNow.AddYears(10);
+        scrapingNodes.InsertOne(n);
+        return n.scrapingNodeToken;
+    }
 }
