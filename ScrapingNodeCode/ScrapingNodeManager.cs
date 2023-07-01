@@ -109,7 +109,11 @@ public class ScrapingNodeManager
                 tokenAuthorized = false,
                 tokenExpired = false,
                 tokenValid = false,
-                compatibleScrapingVersion = OculusDBEnvironment.updater.version
+                compatibleScrapingVersion = OculusDBEnvironment.updater.version,
+                scrapingNode = new ScrapingNode
+                {
+                    scrapingNodeVersion = OculusDBEnvironment.updater.version
+                }
             };
         }
         Logger.Log("Response from master server: " + res.msg, res.tokenAuthorized ? LoggingType.Info : LoggingType.Error);
@@ -146,6 +150,8 @@ public class ScrapingNodeManager
             {
                 Logger.Log("Status code is 403, checking response", LoggingType.Warning);
                 ScrapingNodeAuthenticationResult a = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(r.json);
+                a.scrapingNode.scrapingNodeVersion = OculusDBEnvironment.updater.version;
+                a.compatibleScrapingVersion = OculusDBEnvironment.updater.version;
                 CheckAuthorizationResponse(a);
             }
         }
