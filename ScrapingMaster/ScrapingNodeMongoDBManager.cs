@@ -1,3 +1,4 @@
+using ComputerUtils.Logging;
 using ComputerUtils.RandomExtensions;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -18,7 +19,6 @@ public class ScrapingNodeMongoDBManager
         oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
         scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
         scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
-        
     }
 
     public static long GetNonPriorityAppsToScrapeCount()
@@ -137,30 +137,31 @@ public class ScrapingNodeMongoDBManager
         scrapingNodeStats.ReplaceOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId, s);
     }
 
+    public static List<DBVersion> versions = new ();
     public static void AddVersion(DBVersion v, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.AddContribution(v.__OculusDBType, 1);
         v.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
-        MongoDBInteractor.versionsCollection.DeleteOne(x => x.id == v.id);
-        MongoDBInteractor.versionsCollection.InsertOne(v);
+        versions.Add(v);
     }
 
+    public static List<DBIAPItem> iapItems = new ();
     public static void AddDLC(DBIAPItem d, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
-        MongoDBInteractor.dlcCollection.DeleteOne(x => x.id == d.id);
-        MongoDBInteractor.dlcCollection.InsertOne(d);
+        iapItems.Add(d);
     }
 
+    public static List<DBIAPItemPack> dlcPacks = new ();
     public static void AddDLCPack(DBIAPItemPack d, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
-        MongoDBInteractor.dlcPackCollection.DeleteOne(x => x.id == d.id);
-        MongoDBInteractor.dlcPackCollection.InsertOne(d);
+        dlcPacks.Add(d);
     }
     
+    public static List<DBApplication> apps = new ();
     public static void AddApplication(DBApplication a, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.AddContribution(a.__OculusDBType, 1);
@@ -170,8 +171,7 @@ public class ScrapingNodeMongoDBManager
         {
             MongoDBInteractor.scrapedApps.InsertOne(t);
         }
-        MongoDBInteractor.applicationCollection.DeleteOne(x => x.id == a.id);
-        MongoDBInteractor.applicationCollection.InsertOne(a);
+        apps.Add(a);
     }
     
     public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d, ScrapingNode scrapingNode)
@@ -193,12 +193,61 @@ public class ScrapingNodeMongoDBManager
         appToScrape.scrapePriority = s;
     }
 
+    public static List<DBAppImage> images = new ();
     public static void AddImage(DBAppImage img, ref ScrapingNodeStats scrapingContribution)
     {
         scrapingContribution.contribution.AddContribution(img.__OculusDBType, 1);
         img.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
-        MongoDBInteractor.appImages.DeleteOne(x => x.appId == img.appId);
-        MongoDBInteractor.appImages.InsertOne(img);
+        images.Add(img);
+    }
+
+    public static void Flush()
+    {
+        Logger.Log("Adding " + versions.Count + " versions to database.");
+        List<string> ids;
+        if (versions.Count > 0)
+        {
+            ids = versions.Select(x => x.id).ToList();
+            MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
+            MongoDBInteractor.versionsCollection.InsertMany(versions);
+            versions.Clear();
+        }
+        
+        Logger.Log("Adding " + iapItems.Count + " dlcs to database.");
+        if (iapItems.Count > 0)
+        {
+            ids = iapItems.Select(x => x.id).ToList();
+            MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
+            MongoDBInteractor.dlcCollection.InsertMany(iapItems);
+            iapItems.Clear();
+        }
+        
+        Logger.Log("Adding " + dlcPacks.Count + " dlc packs to database.");
+        if (dlcPacks.Count > 0)
+        {
+            ids = dlcPacks.Select(x => x.id).ToList();
+            MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
+            MongoDBInteractor.dlcPackCollection.InsertMany(dlcPacks);
+            dlcPacks.Clear();
+        }
+        
+        Logger.Log("Adding " + apps.Count + " apps to database.");
+        if (apps.Count > 0)
+        {
+            ids = apps.Select(x => x.id).ToList();
+            MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
+            MongoDBInteractor.applicationCollection.InsertMany(apps);
+            apps.Clear();
+        }
+        
+        Logger.Log("Adding " + images.Count + " images to database.");
+        if (images.Count > 0)
+        {
+            ids = images.Select(x => x.appId).ToList();
+            MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
+            MongoDBInteractor.appImages.InsertMany(images);
+            images.Clear();
+        }
     }
 
     public static string CreateScrapingNode(string id, string? name)

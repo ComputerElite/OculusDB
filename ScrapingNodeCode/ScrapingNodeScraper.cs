@@ -116,7 +116,12 @@ public class ScrapingNodeScraper
 		if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = 0;
         // Get price
-        if (a.current_offer != null) priceNumerical = Convert.ToInt64(a.current_offer.price.offset_amount);
+        string currency = "";
+        if (a.current_offer != null)
+        {
+            priceNumerical = Convert.ToInt64(a.current_offer.price.offset_amount);
+            currency = a.current_offer.price.currency;
+        }
 
         UserEntitlement ownsApp = GetEntitlementStatusOfAppOrDLC(a.id);
         if (ownsApp == UserEntitlement.FAILED)
@@ -130,6 +135,7 @@ public class ScrapingNodeScraper
                 if (a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
                 {
                     priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
+                    currency = a.baseline_offer.price.currency;
                 }
             }
         }
@@ -166,7 +172,7 @@ public class ScrapingNodeScraper
 			}
             if(!addedApplication)
             {
-				AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, a.current_offer.price.currency);
+				AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, currency);
                 addedApplication = true;
 			}
             if(b != null && doPriorityForThisVersion)
@@ -250,7 +256,7 @@ public class ScrapingNodeScraper
                 }
             }
         }
-        Logger.Log("Scraped " + app.appId);
+        Logger.Log("Scraped " + app.appId + (app.priority ? " (priority)" : ""));
     }
 
     public void AddDLCPack(AppItemBundle a, Headset h, Application app)

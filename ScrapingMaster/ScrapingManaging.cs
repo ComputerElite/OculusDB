@@ -336,6 +336,7 @@ public class ScrapingManaging
         r.processed = true;
         scrapingContribution.lastContribution = DateTime.UtcNow;
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(scrapingContribution);
+        ScrapingNodeMongoDBManager.Flush();
     }
 
     /// <summary>
