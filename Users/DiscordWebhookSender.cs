@@ -118,10 +118,10 @@ namespace OculusDB.Users
         public static DateTime lastUpdatedWebhooks = DateTime.MinValue;
         public static List<ActivityWebhook> GetWebhooks()
         {
-            if(DateTime.Now - lastUpdatedWebhooks > TimeSpan.FromMinutes(5))
+            if(DateTime.UtcNow - lastUpdatedWebhooks > TimeSpan.FromMinutes(5))
             {
                 webhooks = MongoDBInteractor.GetWebhooks();
-                lastUpdatedWebhooks = DateTime.Now;
+                lastUpdatedWebhooks = DateTime.UtcNow;
             }
 
             return webhooks;

@@ -6,5 +6,6 @@ public enum ScrapingNodeStatus
     Scraping,
     Idling,
     TransmittingResults,
-    StartingUp
+    StartingUp,
+    Offline
 }

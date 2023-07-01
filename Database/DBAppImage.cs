@@ -14,5 +14,6 @@ public class DBAppImage
     /// </summary>
     public string __sn { get; set; } = "";
     public string appId { get; set; } = "";
+    public string mimeType { get; set; } = "image/webp";
     public byte[] data { get; set; } = new byte[0];
 }

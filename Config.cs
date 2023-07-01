@@ -89,7 +89,7 @@ namespace OculusDB
     public class Token
     {
         public string token { get; set; } = "";
-        public DateTime expiry { get; set; } = DateTime.Now;
+        public DateTime expiry { get; set; } = DateTime.UtcNow;
         public List<Permission> permissions { get; set; } = new();
     }
 

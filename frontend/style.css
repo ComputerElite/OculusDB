@@ -248,6 +248,23 @@ button {
     padding: 6px 12px;
 }
 
+.chip {
+    background-color: #397e66;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 32px;
+    border-radius: 16px;
+}
+.chipRed {
+    background-color: #ab0d0e;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 32px;
+    border-radius: 16px;
+}
+.tableBorderRight {
+    border-right: 1px solid var(--textColor);
+}
 
 .content {
     position: relative;
@@ -532,6 +549,23 @@ table {
 tr {
     border-bottom: 2px solid var(--textColor);
     max-width: 100%;
+}
+
+.noTrBorderBottom {
+    border-bottom: none;
+}
+
+.noPadding {
+    padding: 0;
+}
+
+.thLeft {
+    text-align: left;
+}
+
+.tdPadding {
+    padding: 0;
+    padding-right: 10px;
 }
 
 td {

@@ -16,6 +16,7 @@ public class ScrapingMasterServer
 
     public void StartServer(HttpServer httpServer)
     {
+        string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         ScrapingNodeMongoDBManager.Init();
         MongoDBInteractor.Initialize();
         server = httpServer;
@@ -37,7 +38,10 @@ public class ScrapingMasterServer
             // Authenticate the scraping node and send back the scraping node info
             ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);
             ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(scrapingNodeIdentification);
-            ScrapingManaging.OnNodeStarted(r);
+            if (r.tokenAuthorized)
+            {
+                ScrapingManaging.OnNodeStarted(r);
+            }
             request.SendString(JsonSerializer.Serialize(r), "application/json");
             return true;
         });
@@ -96,6 +100,9 @@ public class ScrapingMasterServer
             }
             return true;
         }), true, true, true, true, 360); // 6 mins
+        server.AddRouteFile("/style.css", frontend + "style.css", FrontendServer.replace, true, true, true, 0, true);
+        server.AddRouteFile("/", frontend + "scrapingMaster.html", FrontendServer.replace, true, true, true, 0, true);
+
         server.StartServer(config.port);
     }
 }

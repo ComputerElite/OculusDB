@@ -9,7 +9,18 @@ namespace OculusDB.ScrapingNodeCode;
 public class ScrapingNodeManager
 {
     public ScrapingNodeScraper scraper;
-    public ScrapingNodeStatus status { get; set; } = ScrapingNodeStatus.StartingUp;
+    private ScrapingNodeStatus _status = ScrapingNodeStatus.StartingUp;
+
+    public ScrapingNodeStatus status
+    {
+        get => _status;
+        set
+        {
+            if(_status != status) scraper.SendHeartBeat();
+            _status = value;
+        }
+    }
+
     public ScrapingNodeConfig config = new ScrapingNodeConfig();
     public ScrapingNode scrapingNode = new ScrapingNode();
     HttpClient client = new HttpClient();
@@ -73,9 +84,17 @@ public class ScrapingNodeManager
     {
         Logger.Log("Requesting scraping tasks");
         status = ScrapingNodeStatus.RequestingToDo;
-        string json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/gettasks",
-            JsonSerializer.Serialize(GetIdentification()));
-        scraper.scrapingTasks.AddRange(JsonSerializer.Deserialize<List<ScrapingTask>>(json));
+        try
+        {
+            string json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/gettasks",
+                JsonSerializer.Serialize(GetIdentification()));
+            scraper.scrapingTasks.AddRange(JsonSerializer.Deserialize<List<ScrapingTask>>(json));
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Error while requesting scraping tasks. Server might not be reachable. Retrying in 1 minute: " + e.Message, LoggingType.Error);
+            Thread.Sleep(1000 * 60);
+        }
     }
 
     public string GetResponseOfPostRequest(string url, string body)

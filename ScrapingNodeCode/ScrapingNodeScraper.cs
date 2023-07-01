@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using ComputerUtils.Logging;
 using ComputerUtils.VarUtils;
+using ComputerUtils.Webserver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using OculusDB.Database;
@@ -10,6 +11,8 @@ using OculusDB.ScrapingMaster;
 using OculusDB.Users;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace OculusDB.ScrapingNodeCode;
 
@@ -149,10 +152,10 @@ public class ScrapingNodeScraper
                 if (oldEntry != null)
                 {
                     // Only do priority scrape if last scrape is older than 2 days
-                    if (DateTime.Now - oldEntry.lastPriorityScrape < timeBetweenScrapes)
+                    if (DateTime.UtcNow - oldEntry.lastPriorityScrape < timeBetweenScrapes)
                     {
                         doPriorityForThisVersion = false;
-                        Logger.Log("Skipping priority scrape of " + a.id + " v " + b.version + " because last priority scrape was " + (DateTime.Now - oldEntry.lastPriorityScrape).TotalDays + " days ago", LoggingType.Debug);
+                        Logger.Log("Skipping priority scrape of " + a.id + " v " + b.version + " because last priority scrape was " + (DateTime.UtcNow - oldEntry.lastPriorityScrape).TotalDays + " days ago", LoggingType.Debug);
                     }
                 }
             }
@@ -283,7 +286,7 @@ public class ScrapingNodeScraper
         dbv.parentApplication.hmd = h;
         dbv.parentApplication.displayName = app.displayName;
         dbv.parentApplication.canonicalName = app.canonicalName;
-        dbv.__lastUpdated = DateTime.Now;
+        dbv.__lastUpdated = DateTime.UtcNow;
             
         if(oldEntry == null)
         {
@@ -302,8 +305,8 @@ public class ScrapingNodeScraper
             dbv.obbList = oldEntry.obbList;
             dbv.lastPriorityScrape = oldEntry.lastPriorityScrape;
         }
-        dbv.lastScrape = DateTime.Now;
-        if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.Now;
+        dbv.lastScrape = DateTime.UtcNow;
+        if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.UtcNow;
         
         taskResult.scraped.versions.Add(dbv);
     }
@@ -324,9 +327,49 @@ public class ScrapingNodeScraper
         }
     }
 
-    private DBAppImage DownloadImage(DBApplication dba)
+    public DBAppImage DownloadImage(DBApplication a)
     {
-        throw new NotImplementedException();
+        //Logger.Log("Downloading image of " + a.id + " from " + a.img);
+        try
+        {
+            string ext = Path.GetExtension(a.img.Split('?')[0]);
+            if (a.img == "") return null;
+            WebClient c = new WebClient();
+            c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
+            byte[] data = c.DownloadData(a.img);
+            if (!ext.EndsWith(".webp"))
+            {
+                // Try converting image to webp format
+                try
+                {
+                    using (var img = Image.Load(data))
+                    {
+                        string newFileName = OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar +
+                                             a.id + ".webp";
+                        if(File.Exists(newFileName)) File.Delete(newFileName);
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            img.Save(ms, new WebpEncoder());
+                            data = ms.ToArray();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Log("Couldn't convert image to webp:\n" + e.ToString(), LoggingType.Warning);
+                }
+            }
+            DBAppImage dbi = new DBAppImage();
+            dbi.data = data;
+            dbi.mimeType = HttpServer.GetContentTpe("image" + ext);
+            dbi.appId = a.id;
+            return dbi;
+        } catch(Exception e)
+        {
+            Logger.Log("Couldn't download image of " + a.id + ":\n" + e.ToString, LoggingType.Warning);
+        }
+
+        return null;
     }
 
     public List<DBVersion> GetVersionsOfApp(string appId)
@@ -446,7 +489,7 @@ public class ScrapingNodeScraper
         }
     }
 
-    private void SendHeartBeat()
+    public void SendHeartBeat()
     {
         // Do not send heartbeats while transmitting results
         if(transmittingResults) return;

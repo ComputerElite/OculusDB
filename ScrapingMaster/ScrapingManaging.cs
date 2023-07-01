@@ -15,6 +15,7 @@ namespace OculusDB.ScrapingMaster;
 public class ScrapingManaging
 {
     public static TimeDependantBool isAppAddingRunning { get; set; } = new TimeDependantBool();
+    public static Dictionary<string, ScrapingNodeTaskResultProcessing> processingRn = new ();
     public static List<ScrapingTask> GetTasks(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
         if (ScrapingNodeMongoDBManager.GetNonPriorityAppsToScrapeCount() <= 20)
@@ -31,7 +32,8 @@ public class ScrapingManaging
                         scrapingTask = ScrapingTaskType.GetAllAppsToScrape
                     }
                 };
-            } else if (isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+            }
+            if (isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
             {
                 // Why tf are you requesting tasks. You should be getting all apps to scrape rn you idiot
                 return new List<ScrapingTask>
@@ -65,14 +67,13 @@ public class ScrapingManaging
             });
     }
 
-    public static ScrapingProcessedResult ProcessScrapingResults()
-    {
-        ScrapingProcessedResult r = new ScrapingProcessedResult();
-        return r;
-    }
-
     public static ScrapingProcessedResult ProcessTaskResult(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
+        if (!processingRn.ContainsKey(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId))
+            processingRn.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId,
+                new ScrapingNodeTaskResultProcessing());
+        processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Start();
+        
         ScrapingProcessedResult r = new ScrapingProcessedResult();
         Logger.Log("Results of Scraping node " + scrapingNodeAuthenticationResult.scrapingNode + " received. Processing now...");
         Logger.Log("Result type: " +
@@ -86,6 +87,7 @@ public class ScrapingManaging
             case ScrapingNodeTaskResultType.Unknown:
                 r.processed = false;
                 r.msg = "Cannot process unknown task result type.";
+                processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
                 return r;
             case ScrapingNodeTaskResultType.ErrorWhileRequestingAppsToScrape:
                 if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
@@ -94,6 +96,7 @@ public class ScrapingManaging
                     r.processed = false;
                     r.msg = "You are not responsible for adding apps to scrape. Your submission has been ignored.";
                     r.failedCount = 1;
+                    processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
                     return r;
                 }
                 Logger.Log("Error while requesting apps to scrape. Making other scraping nodes able to request apps to scrape.");
@@ -106,6 +109,7 @@ public class ScrapingManaging
                     r.processed = false;
                     r.msg = "You are not responsible for adding apps to scrape. Your submission has been ignored.";
                     r.failedCount = 1;
+                    processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
                     return r;
                 }
                 Logger.Log("Found apps to scrape. Adding them to the DB.");
@@ -116,16 +120,16 @@ public class ScrapingManaging
                 break;
             case ScrapingNodeTaskResultType.AppsScraped:
                 ProcessScrapedResults(taskResult, scrapingNodeAuthenticationResult, ref r);
-                r.msg = "Processed " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs and " + taskResult.scraped.versions.Count + " version from scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". Thanks for your contribution.";
+                r.msg = "Processed " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". Thanks for your contribution.";
                 break;
         }
-
+        processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
         return r;
     }
 
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)
     {
-        Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs and " + taskResult.scraped.versions.Count + " version from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
+        Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingNodeStats scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         // Process Versions
         foreach (DBVersion v in taskResult.scraped.versions)
@@ -330,7 +334,7 @@ public class ScrapingManaging
         }
 
         r.processed = true;
-        scrapingContribution.lastContribution = DateTime.Now;
+        scrapingContribution.lastContribution = DateTime.UtcNow;
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(scrapingContribution);
     }
 
@@ -344,16 +348,15 @@ public class ScrapingManaging
         ScrapingNodeStats stats = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         stats.snapshot = heartBeat.snapshot;
         // If online, add time since last heartbeat to runtime
-        DateTime now = DateTime.Now;
+        DateTime now = DateTime.UtcNow;
         if (stats.online)
         {
-            stats.runtime += stats.lastHeartBeat - now;
-            stats.totalRuntime += stats.lastHeartBeat - now;
+            stats.runtime += now - stats.lastHeartBeat;
+            stats.totalRuntime += now - stats.lastHeartBeat;
         }
         stats.lastHeartBeat = now;
         
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
-        
     }
 
     public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
@@ -364,8 +367,8 @@ public class ScrapingManaging
             ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         // reset runtime as node has just restarted
         s.runtime = TimeSpan.Zero;
-        s.lastRestart = DateTime.Now;
-        s.lastHeartBeat = DateTime.Now;
+        s.lastRestart = DateTime.UtcNow;
+        s.lastHeartBeat = DateTime.UtcNow;
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(s);
     }
 }

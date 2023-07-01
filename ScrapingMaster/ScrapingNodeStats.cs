@@ -1,3 +1,4 @@
+using ComputerUtils.Logging;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace OculusDB.ScrapingMaster;
@@ -17,7 +18,8 @@ public class ScrapingNodeStats
     {
         get
         {
-            return snapshot.scrapingStatus;
+            
+            return online ? snapshot.scrapingStatus : ScrapingNodeStatus.Offline;
         }
     }
 
@@ -40,8 +42,23 @@ public class ScrapingNodeStats
     {
         get
         {
-            int timeNeededForOffline = status == ScrapingNodeStatus.TransmittingResults ? 20 : 3;
-            return DateTime.Now - lastHeartBeat < TimeSpan.FromMinutes(timeNeededForOffline);
+            if (snapshot.scrapingStatus == ScrapingNodeStatus.TransmittingResults)
+            {
+                if (ScrapingManaging.processingRn.ContainsKey(scrapingNode.scrapingNodeId))
+                {
+                    if (ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processing)
+                    {
+                        // Server is processing it rn
+                        return DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(30);
+                    }
+                    // Server is already done processing but node says it's transmitting results.
+                    // It should take no longer than 20 seconds till the node reports another status.
+                    return DateTime.UtcNow -
+                           ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processingDone <
+                           TimeSpan.FromSeconds(20);
+                }
+            }
+            return DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(1);
         }
     }
 }

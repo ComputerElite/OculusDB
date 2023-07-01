@@ -32,7 +32,7 @@ public class ScrapingNodeMongoDBManager
         List<AppToScrape> appsToScrape =
             MongoDBInteractor.appsToScrape.Find(x => x.priority == priority).SortByDescending(x => x.scrapePriority).Limit(count).ToList();
         // Set responsible scraping node, sent time and remove from apps to scrape
-        DateTime now = DateTime.Now;
+        DateTime now = DateTime.UtcNow;
         
         // Add apps to Scraping apps and remove them from apps to scrape
         if (appsToScrape.Count > 0)
@@ -50,7 +50,7 @@ public class ScrapingNodeMongoDBManager
     
     public static ScrapingNodeAuthenticationResult CheckScrapingNode(ScrapingNodeIdentification scrapingNodeIdentification)
     {
-        DateTime now = DateTime.Now;
+        DateTime now = DateTime.UtcNow;
         ScrapingNode scrapingNode = scrapingNodes.Find(x => x.scrapingNodeToken == scrapingNodeIdentification.scrapingNodeToken).FirstOrDefault();
         if (scrapingNode == null)
         {
@@ -110,7 +110,7 @@ public class ScrapingNodeMongoDBManager
         // Update scraping node stats
         ScrapingNodeStats s = GetScrapingNodeStats(scrapingNode);
         s.contribution.appsQueuedForScraping += appsToScrape.Count;
-        s.lastContribution = DateTime.Now;
+        s.lastContribution = DateTime.UtcNow;
         UpdateScrapingNodeStats(s);
     }
 
@@ -124,7 +124,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void UpdateScrapingNodeStats(ScrapingNodeStats s)
     {
-        if(DateTime.Now < s.firstSight) s.firstSight = DateTime.Now;
+        if(DateTime.UtcNow < s.firstSight) s.firstSight = DateTime.UtcNow;
         scrapingNodeStats.DeleteOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId);
         scrapingNodeStats.InsertOne(s);
     }

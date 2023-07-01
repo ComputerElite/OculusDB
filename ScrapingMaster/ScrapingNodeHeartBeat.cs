@@ -18,5 +18,6 @@ public class ScrapingNodeHeartBeat
         snapshot.queuedDocuments[DBDataTypes.Version] = taskResult.scraped.versions.Count;
         snapshot.queuedDocuments[DBDataTypes.IAPItem] = taskResult.scraped.dlcs.Count;
         snapshot.queuedDocuments[DBDataTypes.IAPItemPack] = taskResult.scraped.dlcPacks.Count;
+        snapshot.queuedDocuments[DBDataTypes.AppImage] = taskResult.scraped.imgs.Count;
     }
 }

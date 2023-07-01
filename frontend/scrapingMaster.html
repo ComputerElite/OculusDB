@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css" >
+    <style>
+    .content {
+        margin-top: 0;
+    }
+    </style>
+    <title>Scraping Master - OculusDB Scraping Master</title>
+    <meta name="title" content="Scraping Master - OculusDB Scraping Master">
+    <meta name="description" content="Get the status of scraping nodes">
+</head>
+<body>
+<noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+<div class="content">
+    <table id="status">
+        
+        
+    </table>
+</div>
+<script>
+    function GetEntry(key, value) {
+        return ` <tr class="noTrBorderBottom">
+                                <td class="label tdPadding">${key}</td>
+                                <td class="noPadding">${value}</td>
+                            </tr>`
+    }
+    function GetTimeDiff(date) {
+        var timeDiff = Date.now() - new Date(date).getTime()
+        const seconds = Math.floor(timeDiff / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const years = Math.floor(days / 365);
+
+        const remainingDays = days % 365;
+        const remainingHours = hours % 24;
+        const remainingMinutes = minutes % 60;
+        const remainingSeconds = seconds % 60;
+
+        const formattedTime = `${years}y ${remainingDays}d ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
+        return formattedTime;
+    }
+    
+    const sortByKey = (a, b) => {
+        const keyA = a[0];
+        const keyB = b[0];
+
+        if (keyA < keyB) {
+            return -1;
+        }
+        if (keyA > keyB) {
+            return 1;
+        }
+        return 0;
+    }
+    
+    var j = []
+    function UpdateNodes() {
+        fetch(`/api/v1/scrapingnodes`).then(res => res.json().then(json => {
+            j = json;
+            UpdateUI()
+        }))
+    }
+    function UpdateUI() {
+        var html = `<tr>
+                <th class="thLeft">Node</th>
+                <th class="thLeft">Version</th>
+                <th class="thLeft">Status</th>
+                <th class="thLeft">Tokens</th>
+                <th class="thLeft">Runtime</th>
+                <th class="thLeft">Queued for submission</th>
+                <th class="thLeft">Contributed</th>
+            </tr>`;
+        for(const node of j) {
+            var queued = ``
+            var q = Object.entries(node.snapshot.queuedDocuments)
+            q.sort(sortByKey)
+            for(const [key, value] of q) {
+                queued += GetEntry(key, value)
+            }
+            if(!node.online) queued = "Node offline"
+            var contributed = GetEntry("Apps for scraping", node.contribution.appsQueuedForScraping)
+            var contributions = Object.entries(node.contribution.contributionPerOculusDBType);
+            contributions.sort(sortByKey);
+            console.log(contributions)
+            for(const [key, value] of contributions) {
+                contributed += GetEntry(key, value)
+            }
+            html += `<tr style="justify-content: center;">
+                <td>
+                    <div class="searchResults">
+                        <div>${node.scrapingNode.scrapingNodeName}</div>
+                        <code>${node.scrapingNode.scrapingNodeId}</code>
+                    </div>
+                </td>
+                <td>${node.scrapingNode.scrapingNodeVersion}</td>
+                <td><div class="${node.online ? 'chip' : 'chipRed'}">${node.statusString}</div></td>
+                <td>1</td>
+                <td class="tableBorderRight">
+                    <div class="searchResults">
+                        <div>${node.runtime.split(".")[0]}</div>
+                        <div>${node.totalRuntime.split(".")[0]} (total runtime)</div>
+                        <div>${GetTimeDiff(node.lastHeartBeat)} ago (last heartbeat)</div>
+                        <div>${GetTimeDiff(node.lastRestart)} ago (last restart)</div>
+                        <div>${GetTimeDiff(node.firstSight)} ago (first sight)</div>
+                    </div>
+                </td>
+                <td class="tableBorderRight">
+                    <div class="searchResults">
+                        ${node.online ? `<div class="chipGreen">${node.snapshot.doneTasks} / ${node.snapshot.totalTasks} tasks processed</div>`: ``}
+                        <table class="noPadding">
+                            ${queued}
+                        </table>
+                    </div>
+                </td>
+                <td>
+                    <div class="searchResults">
+                        <table class="noPadding">
+                            ${contributed}
+                        </table>
+                    </div>
+                </td>
+            </tr>`
+        }
+        document.getElementById("status").innerHTML = html
+    }
+    UpdateNodes()
+    setInterval(UpdateUI, 1000)
+    setInterval(UpdateNodes, 5000)
+</script>
+</body>
+</html>

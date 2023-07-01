@@ -550,7 +550,7 @@ namespace OculusDB
             dbv.parentApplication.hmd = h;
             dbv.parentApplication.displayName = app.displayName;
             dbv.parentApplication.canonicalName = app.canonicalName;
-            dbv.__lastUpdated = DateTime.Now;
+            dbv.__lastUpdated = DateTime.UtcNow;
             
             if(oldEntry == null)
             {
@@ -569,8 +569,8 @@ namespace OculusDB
                 dbv.obbList = oldEntry.obbList;
                 dbv.lastPriorityScrape = oldEntry.lastPriorityScrape;
             }
-            dbv.lastScrape = DateTime.Now;
-            if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.Now;
+            dbv.lastScrape = DateTime.UtcNow;
+            if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.UtcNow;
 
             // delete all old version entries
             versionsCollection.DeleteOne(x => x.id == dbv.id);

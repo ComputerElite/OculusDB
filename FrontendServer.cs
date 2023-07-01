@@ -27,7 +27,7 @@ public class FrontendServer
     public HttpServer server = null;
         public static Config config { get { return OculusDBEnvironment.config; } set { OculusDBEnvironment.config = value; } }
         public static bool isBlocked = false;
-        public Dictionary<string, string> replace = new Dictionary<string, string>
+        public static Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
             {"{oculusloginlink}", "https://oculus.com/experiences/quest" },
@@ -102,9 +102,7 @@ public class FrontendServer
 
             Logger.Log("Setting up routes");
             string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
-
-			//DiscordWebhookSender.SendActivity(DateTime.Now - new TimeSpan(7, 0, 0));
-
+            
             ////////////////// Admin
             server.AddRoute("GET", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>
             {
@@ -806,7 +804,7 @@ public class FrontendServer
 
                 DBAppImage img = MongoDBInteractor.GetAppImage(request.pathDiff);
                 if(img == null) request.Send404();
-                else request.SendData(img.data, "image/webp");
+                else request.SendData(img.data, img.mimeType);
                 return true;
             }), true, true, true, true, 1800, true); // 30 mins
             ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
@@ -903,7 +901,7 @@ public class FrontendServer
             {
                 for (int i = 0; i < config.tokens.Count; i++)
                 {
-                    if(config.tokens[i].expiry < DateTime.Now)
+                    if(config.tokens[i].expiry < DateTime.UtcNow)
                     {
                         request.SendString("Token expired");
                         return false;
@@ -913,7 +911,7 @@ public class FrontendServer
                         if (config.tokens[i].permissions.Contains(p)) return true;
                         else
                         {
-                            
+                                
                             request.SendString("No permission to perform " + p);
                             return false;
                         }

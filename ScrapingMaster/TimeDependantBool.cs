@@ -17,7 +17,7 @@ public class TimeDependantBool
     public void Set(bool value, TimeSpan setToFalseIn, string responsibleScrapingNodeId)
     {
         this.value = value;
-        lastSet = DateTime.Now;
+        lastSet = DateTime.UtcNow;
         validFor = setToFalseIn;
         this.responsibleScrapingNodeId = responsibleScrapingNodeId;
     }
@@ -28,7 +28,7 @@ public class TimeDependantBool
     /// <returns></returns>
     public bool IsTrueAndValid()
     {
-        return value && DateTime.Now < validUntil;
+        return value && DateTime.UtcNow < validUntil;
     }
 
     public static implicit operator bool(TimeDependantBool b)
