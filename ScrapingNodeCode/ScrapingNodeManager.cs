@@ -30,6 +30,21 @@ public class ScrapingNodeManager
     public void StartNode(ScrapingNodeConfig c)
     {
         config = c;
+        if (c.masterAddress == "")
+        {
+            Logger.Log("No master server address set. Use 'dotnet OculusDB.dll --sm <server url>' to set it.", LoggingType.Error);
+            return;
+        }
+        if (c.oculusTokens.Count <= 0)
+        {
+            Logger.Log("No oculus token set. Use 'dotnet OculusDB.dll --so <oculus token>' to set it.", LoggingType.Error);
+            return;
+        }
+        if (c.scrapingNodeToken == "")
+        {
+            Logger.Log("No scraping node token set. Use 'dotnet OculusDB.dll --st <scraping node token>' to set it.", LoggingType.Error);
+            return;
+        }
         scraper = new ScrapingNodeScraper(this);
         client = new HttpClient();
         client.Timeout = TimeSpan.FromMinutes(20);
