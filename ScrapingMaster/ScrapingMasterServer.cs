@@ -118,7 +118,7 @@ public class ScrapingMasterServer
                     creatingNodeZip = true;
                     CreateNodeZip();
                     createdNodeZip = true;
-                    createdNodeZip = false;
+                    creatingNodeZip = false;
                 }
                 else
                 {
