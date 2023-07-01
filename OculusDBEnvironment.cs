@@ -12,7 +12,7 @@ namespace OculusDB
 {
     public class OculusDBEnvironment
     {
-        public static Updater updater = new Updater("1.0.6", "https://github.com/ComputerElite/OculusDB", "OculusDB", "OculusDB.dll");
+        public static Updater updater = new Updater("1.0.7", "https://github.com/ComputerElite/OculusDB", "OculusDB", "OculusDB.dll");
         public static string workingDir = "";
         public static string dataDir = "";
         // Set to false if not in dev mode
@@ -21,7 +21,7 @@ namespace OculusDB
         public static ScrapingNodeConfig scrapingNodeConfig = new ScrapingNodeConfig();
         public static string userAgent { get
             {
-                return "OculusDB/1.0";
+                return "OculusDB/" + updater.version;
             } }
 
         public static void AddVariablesDependentOnVariablesAndFixAllOtherVariables()

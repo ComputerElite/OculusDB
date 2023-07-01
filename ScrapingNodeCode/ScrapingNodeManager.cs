@@ -86,7 +86,7 @@ public class ScrapingNodeManager
         try
         {
             WebClient c = new WebClient();
-            byte[] updateFile = c.DownloadData(config.masterAddress + "/cdn/node.zip");
+            byte[] updateFile = c.DownloadData(config.masterAddress + "/cdn/node.zip?time=" + DateTime.UtcNow.Ticks);
             Updater.StartUpdateNetApp(updateFile, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
         }
         catch (Exception e)
