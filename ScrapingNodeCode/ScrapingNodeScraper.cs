@@ -108,11 +108,13 @@ public class ScrapingNodeScraper
     }
     public TimeSpan timeBetweenScrapes = new TimeSpan(2, 0, 0, 0);
 
+    public string currentlyScraping = "";
     public void Scrape(AppToScrape app)
     {
         taskResult.altered = true;
         Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
         if (a == null) throw new Exception("Application is null");
+        currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = 0;
         // Get price
@@ -505,6 +507,7 @@ public class ScrapingNodeScraper
         beat.snapshot.scrapingStatus = scrapingNodeManager.status;
         beat.snapshot.totalTasks = totalTasks;
         beat.snapshot.doneTasks = tasksDone;
+        beat.snapshot.currentlyScraping = currentlyScraping;
         beat.SetQueuedDocuments(taskResult);
         ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(
             scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));

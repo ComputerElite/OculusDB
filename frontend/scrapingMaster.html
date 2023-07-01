@@ -75,7 +75,7 @@
                 <th class="thLeft">Contributed</th>
             </tr>`;
         for(const node of j) {
-            var queued = ``
+            var queued = ''
             var q = Object.entries(node.snapshot.queuedDocuments)
             q.sort(sortByKey)
             for(const [key, value] of q) {
@@ -110,7 +110,8 @@
                 </td>
                 <td class="tableBorderRight">
                     <div class="searchResults">
-                        ${node.online ? `<div class="chipGreen">${node.snapshot.doneTasks} / ${node.snapshot.totalTasks} tasks processed</div>`: ``}
+                        ${node.online ? `<div class="chipGreen">${node.snapshot.doneTasks} / ${node.snapshot.totalTasks} tasks processed</div>
+                        <div class="chipGreen">Scraping <b>${node.snapshot.currentlyScraping ?? "N/A"}</b></div>`: ``}
                         <table class="noPadding">
                             ${queued}
                         </table>
