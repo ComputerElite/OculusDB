@@ -120,7 +120,12 @@ public class ScrapingNodeMongoDBManager
     public static ScrapingNodeStats GetScrapingNodeStats(ScrapingNode scrapingNode)
     {
         ScrapingNodeStats s = scrapingNodeStats.Find(x => x.scrapingNode.scrapingNodeId == scrapingNode.scrapingNodeId).FirstOrDefault();
-        if (s == null) s = new ScrapingNodeStats();
+        if (s == null)
+        {
+            s = new ScrapingNodeStats();
+            s.scrapingNode = scrapingNode;
+            scrapingNodeStats.InsertOne(s);
+        }
         s.scrapingNode = scrapingNode;
         return s;
     }
@@ -129,8 +134,7 @@ public class ScrapingNodeMongoDBManager
     {
         if(DateTime.UtcNow < s.firstSight) s.firstSight = DateTime.UtcNow;
         s.SetOnline();
-        scrapingNodeStats.DeleteOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId);
-        scrapingNodeStats.InsertOne(s);
+        scrapingNodeStats.ReplaceOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId, s);
     }
 
     public static void AddVersion(DBVersion v, ref ScrapingNodeStats scrapingContribution)
