@@ -128,13 +128,6 @@ public class ScrapingMasterServer
         if(File.Exists(nodeLoc)) File.Delete(nodeLoc);
         Logger.Log(AppDomain.CurrentDomain.BaseDirectory);
         CreateZipArchive(AppDomain.CurrentDomain.BaseDirectory, nodeLoc);
-        ZipArchive a = ZipFile.Open(nodeLoc, ZipArchiveMode.Update);
-        List<ZipArchiveEntry> toDelete = a.Entries.Where(x => x.FullName.Contains("data/")).ToList();
-        foreach (ZipArchiveEntry e in toDelete)
-        {
-            a.GetEntry(e.FullName).Delete();
-        }
-        a.Dispose();
     }
     
     public static void CreateZipArchive(string inputDir, string outputZip)
