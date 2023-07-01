@@ -375,7 +375,7 @@ public class ScrapingNodeScraper
     public List<DBVersion> GetVersionsOfApp(string appId)
     {
         string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/versions/" + appId,
-            JsonSerializer.Serialize(scrapingNodeManager.GetIdentification()));
+            JsonSerializer.Serialize(scrapingNodeManager.GetIdentification())).json;
         return JsonSerializer.Deserialize<List<DBVersion>>(json);
     }
 
@@ -422,7 +422,7 @@ public class ScrapingNodeScraper
         Stopwatch sw = Stopwatch.StartNew();
         try
         {
-            string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/taskresults", JsonSerializer.Serialize(taskResult));
+            string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/taskresults", JsonSerializer.Serialize(taskResult)).json;
             r = JsonSerializer.Deserialize<ScrapingProcessedResult>(json);
             Logger.Log("Got response from scraping master after " + sw.ElapsedMilliseconds + "ms: " + r.msg);
         }
@@ -500,6 +500,7 @@ public class ScrapingNodeScraper
         beat.snapshot.totalTasks = totalTasks;
         beat.snapshot.doneTasks = tasksDone;
         beat.SetQueuedDocuments(taskResult);
-        string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
+        ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(
+            scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
     }
 }

@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.Json;
 using ComputerUtils.Logging;
+using ComputerUtils.Updating;
 using OculusDB.ScrapingMaster;
 
 namespace OculusDB.ScrapingNodeCode;
@@ -16,7 +18,7 @@ public class ScrapingNodeManager
         get => _status;
         set
         {
-            if(_status != status) scraper.SendHeartBeat();
+            if(_status != value) scraper.SendHeartBeat();
             _status = value;
         }
     }
@@ -33,10 +35,10 @@ public class ScrapingNodeManager
         client.Timeout = TimeSpan.FromMinutes(20);
         client.DefaultRequestHeaders.UserAgent.Clear();
         client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OculusDB", OculusDBEnvironment.updater.version));
-        if (!CheckOutServer())
+        ScrapingNodeAuthenticationResult r = CheckOutServer();
+        if (!r.tokenAuthorized)
         {
-            Logger.Log("Master server reports something invalid about the scraping node. Refer to above message for more info. Scraping node will NOT start.", LoggingType.Error);
-            return;
+            CheckAuthorizationResponse(r);
         }
         Logger.Log("Initializing Oculus Interactor");
         OculusInteractor.Init();
@@ -52,19 +54,52 @@ public class ScrapingNodeManager
         }
     }
 
+    private void CheckAuthorizationResponse(ScrapingNodeAuthenticationResult r)
+    {
+        if (!r.scrapingNodeVersionCompatible && r.compatibleScrapingVersion != "")
+        {
+            Logger.Log("Version of scraping node is outdated. This version: " + OculusDBEnvironment.updater.version + ", Server version: " + r.compatibleScrapingVersion, LoggingType.Error);
+            UpdateScrapingNode();
+        }
+        Logger.Log("Master server reports something invalid about the scraping node. Refer to above message for more info. Scraping node will NOT start.", LoggingType.Error);
+        Environment.Exit(1);
+    }
+
+    public void UpdateScrapingNode()
+    {
+        Logger.Log("Trying to update node");
+        try
+        {
+            WebClient c = new WebClient();
+            byte[] updateFile = c.DownloadData(config.masterAddress + "/cdn/node.zip");
+            Updater.StartUpdateNetApp(updateFile, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Couldn't update node automatically. Please update it manually by replacing all files with their new version.", LoggingType.Error);
+            Environment.Exit(1);
+        }
+    }
+
     /// <summary>
     /// Check with the server to see if the node is allowed to scrape and set Node info with server info
     /// </summary>
     /// <returns>Successful authentication with server and version cross check</returns>
-    private bool CheckOutServer()
+    private ScrapingNodeAuthenticationResult CheckOutServer()
     {
         Logger.Log("Checking out master server via " + config.masterAddress + "/api/v1/authenticate");
         string json;
         ScrapingNodeAuthenticationResult res;
         try
         {
-            json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/authenticate", JsonSerializer.Serialize(GetIdentification()));
-            res = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(json);
+            ScrapingNodePostResponse r = GetResponseOfPostRequest(config.masterAddress + "/api/v1/authenticate",
+                JsonSerializer.Serialize(GetIdentification()));
+            if (r.status == 200)
+            {
+                json = r.json;
+                res = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(json);
+            }
+            else throw new Exception("Server error");
         }
         catch (Exception e)
         {
@@ -74,10 +109,11 @@ public class ScrapingNodeManager
                 tokenAuthorized = false,
                 tokenExpired = false,
                 tokenValid = false,
+                compatibleScrapingVersion = OculusDBEnvironment.updater.version
             };
         }
         Logger.Log("Response from master server: " + res.msg, res.tokenAuthorized ? LoggingType.Info : LoggingType.Error);
-        return res.tokenAuthorized;
+        return res;
     }
 
     public void GetScrapingTasks()
@@ -87,7 +123,7 @@ public class ScrapingNodeManager
         try
         {
             string json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/gettasks",
-                JsonSerializer.Serialize(GetIdentification()));
+                JsonSerializer.Serialize(GetIdentification())).json;
             scraper.scrapingTasks.AddRange(JsonSerializer.Deserialize<List<ScrapingTask>>(json));
         }
         catch (Exception e)
@@ -97,14 +133,33 @@ public class ScrapingNodeManager
         }
     }
 
-    public string GetResponseOfPostRequest(string url, string body)
+    public ScrapingNodePostResponse GetResponseOfPostRequest(string url, string body)
     {
-        return SendPostRequest(url, body).Content.ReadAsStringAsync().Result;
+        ScrapingNodePostResponse r = new ScrapingNodePostResponse();
+        HttpResponseMessage m = SendPostRequest(url, body);
+        r.json = m.Content.ReadAsStringAsync().Result;
+        r.status = (int)m.StatusCode;
+        if (r.status != 200)
+        {
+            Logger.Log("Server responded with status code " + r.status, LoggingType.Error);
+            if (r.status == 403)
+            {
+                Logger.Log("Status code is 403, checking response", LoggingType.Warning);
+                ScrapingNodeAuthenticationResult a = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(r.json);
+                CheckAuthorizationResponse(a);
+            }
+        }
+        return r;
     }
     
     public HttpResponseMessage SendPostRequest(string url, string body)
     {
-        return client.Send(ConstructPostRequest(url, body));
+        HttpResponseMessage m = client.SendAsync(ConstructPostRequest(url, body)).Result;
+        if (!m.IsSuccessStatusCode)
+        {
+            
+        }
+        return m;
     }
 
     public ScrapingNodeIdentification GetIdentification()

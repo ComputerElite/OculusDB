@@ -1,8 +1,11 @@
+using System.IO.Compression;
 using System.Text.Json;
 using ComputerUtils.Logging;
 using ComputerUtils.Webserver;
+using Ionic.Zip;
 using OculusDB.Database;
 using OculusDB.ScrapingNodeCode;
+using ZipFile = System.IO.Compression.ZipFile;
 
 namespace OculusDB.ScrapingMaster;
 
@@ -20,6 +23,7 @@ public class ScrapingMasterServer
         ScrapingNodeMongoDBManager.Init();
         MongoDBInteractor.Initialize();
         server = httpServer;
+        CreateNodeZip();
         server.AddRoute("POST", "/api/v1/gettasks", request =>
         {
             // Check if the scraping node is authorized to scrape
@@ -71,12 +75,16 @@ public class ScrapingMasterServer
             }
 
 
-            ScrapingManaging.ProcessHeartBeat(heartBeat, r);
+            request.SendString(JsonSerializer.Serialize(ScrapingManaging.ProcessHeartBeat(heartBeat, r)), "application/json");
             return true;
         });
         server.AddRoute("GET", "/api/v1/scrapingnodes", request =>
         {
-            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingNodes()), "application/json");
+            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingNodes().ConvertAll(x =>
+            {
+                x.SetOnline();
+                return x;
+            })), "application/json");
             return true;
         });
         server.AddRoute("POST", "/api/v1/versions/", new Func<ServerRequest, bool>(request =>
@@ -100,9 +108,66 @@ public class ScrapingMasterServer
             }
             return true;
         }), true, true, true, true, 360); // 6 mins
+        server.AddRoute("GET", "/cdn/node.zip", request =>
+        {
+            request.SendFile(OculusDBEnvironment.dataDir + "node.zip");
+            return true;
+        });
         server.AddRouteFile("/style.css", frontend + "style.css", FrontendServer.replace, true, true, true, 0, true);
         server.AddRouteFile("/", frontend + "scrapingMaster.html", FrontendServer.replace, true, true, true, 0, true);
+        server.AddRouteFile("/setup", frontend + "setupNode.html", FrontendServer.replace, true, true, true, 0, true);
 
+        
         server.StartServer(config.port);
+    }
+
+    public void CreateNodeZip()
+    {
+        string nodeLoc = OculusDBEnvironment.dataDir + "node.zip";
+        Logger.Log("Creating Node zip file");
+        if(File.Exists(nodeLoc)) File.Delete(nodeLoc);
+        Logger.Log(AppDomain.CurrentDomain.BaseDirectory);
+        CreateZipArchive(AppDomain.CurrentDomain.BaseDirectory, nodeLoc);
+        ZipArchive a = ZipFile.Open(nodeLoc, ZipArchiveMode.Update);
+        List<ZipArchiveEntry> toDelete = a.Entries.Where(x => x.FullName.Contains("data/")).ToList();
+        foreach (ZipArchiveEntry e in toDelete)
+        {
+            a.GetEntry(e.FullName).Delete();
+        }
+        a.Dispose();
+    }
+    
+    public static void CreateZipArchive(string inputDir, string outputZip)
+    {
+        string rootDirectory = Path.GetDirectoryName(inputDir);
+        using (FileStream zipToCreate = new FileStream(outputZip, FileMode.Create))
+        {
+            using (ZipArchive archive = new ZipArchive(zipToCreate, ZipArchiveMode.Create))
+            {
+                AddFilesToZip(archive, inputDir, rootDirectory);
+            }
+        }
+    }
+
+    private static void AddFilesToZip(ZipArchive archive, string inputDir, string rootDirectory)
+    {
+        foreach (string filePath in Directory.GetFiles(inputDir))
+        {
+            string relativePath = filePath.Replace(rootDirectory, "").TrimStart(Path.DirectorySeparatorChar);
+            if (relativePath.Contains("data")) return;
+            ZipArchiveEntry entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (Stream entryStream = entry.Open())
+                {
+                    fileStream.CopyTo(entryStream);
+                }
+            }
+        }
+
+        foreach (string subdirectoryPath in Directory.GetDirectories(inputDir))
+        {
+            AddFilesToZip(archive, subdirectoryPath, rootDirectory);
+        }
     }
 }

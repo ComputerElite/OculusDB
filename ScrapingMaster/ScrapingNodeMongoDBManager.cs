@@ -65,7 +65,8 @@ public class ScrapingNodeMongoDBManager
                 {
                     scrapingNodeToken = scrapingNodeIdentification.scrapingNodeToken,
                     scrapingNodeVersion = scrapingNodeIdentification.scrapingNodeVersion
-                }
+                },
+                compatibleScrapingVersion = OculusDBEnvironment.updater.version
             };
         }
 
@@ -80,7 +81,8 @@ public class ScrapingNodeMongoDBManager
                 tokenAuthorized = false,
                 tokenValid = true,
                 msg = "Token expired. Contact ComputerElite if you want to help scraping.",
-                scrapingNode = scrapingNode
+                scrapingNode = scrapingNode,
+                compatibleScrapingVersion = OculusDBEnvironment.updater.version
             };
         }
         
@@ -91,7 +93,8 @@ public class ScrapingNodeMongoDBManager
             tokenAuthorized = true,
             tokenValid = true,
             msg = "Token valid.",
-            scrapingNode = scrapingNode
+            scrapingNode = scrapingNode,
+            compatibleScrapingVersion = OculusDBEnvironment.updater.version
         };
         if (!res.scrapingNodeVersionCompatible)
         {
@@ -125,6 +128,7 @@ public class ScrapingNodeMongoDBManager
     public static void UpdateScrapingNodeStats(ScrapingNodeStats s)
     {
         if(DateTime.UtcNow < s.firstSight) s.firstSight = DateTime.UtcNow;
+        s.SetOnline();
         scrapingNodeStats.DeleteOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId);
         scrapingNodeStats.InsertOne(s);
     }

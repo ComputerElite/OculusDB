@@ -11,10 +11,7 @@ public class ScrapingNodeAuthenticationResult
     public bool tokenExpired { get; set; } = true;
     public bool tokenValid { get; set; } = false;
 
-    public string compatibleScrapingVersion
-    {
-        get { return OculusDBEnvironment.updater.version; }
-    }
+    public string compatibleScrapingVersion { get; set; } = "";
 
     public bool scrapingNodeVersionCompatible
     {

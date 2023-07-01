@@ -16,7 +16,7 @@ tmux send-keys -t "OculusDB":0.0 "cd ~/testing/OculusDB/master/" Enter
 tmux send-keys -t "OculusDB":0.0 "dotnet OculusDB.dll" Enter
 tmux send-keys -t "OculusDB":0.1 "cd ~/testing/OculusDB/frontend/" Enter
 tmux send-keys -t "OculusDB":0.1 "dotnet OculusDB.dll" Enter
-sleep 0.9
+sleep 2.5
 tmux send-keys -t "OculusDB":0.2 "cd ~/testing/OculusDB/node/" Enter
 tmux send-keys -t "OculusDB":0.2 "dotnet OculusDB.dll" Enter
 tmux attach -t OculusDB

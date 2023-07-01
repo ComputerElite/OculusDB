@@ -37,28 +37,28 @@ public class ScrapingNodeStats
     public TimeSpan runtime { get; set; } = TimeSpan.Zero;
     public TimeSpan totalRuntime { get; set; } = TimeSpan.Zero;
 
-    [BsonIgnore]
-    public bool online
+    public bool online { get; set; } = false;
+
+    public void SetOnline()
     {
-        get
+        if (snapshot.scrapingStatus == ScrapingNodeStatus.TransmittingResults)
         {
-            if (snapshot.scrapingStatus == ScrapingNodeStatus.TransmittingResults)
+            if (ScrapingManaging.processingRn.ContainsKey(scrapingNode.scrapingNodeId))
             {
-                if (ScrapingManaging.processingRn.ContainsKey(scrapingNode.scrapingNodeId))
+                if (ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processing)
                 {
-                    if (ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processing)
-                    {
-                        // Server is processing it rn
-                        return DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(30);
-                    }
-                    // Server is already done processing but node says it's transmitting results.
-                    // It should take no longer than 20 seconds till the node reports another status.
-                    return DateTime.UtcNow -
-                           ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processingDone <
-                           TimeSpan.FromSeconds(20);
+                    // Server is processing it rn
+                    online = DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(30);
+                    return;
                 }
+                // Server is already done processing but node says it's transmitting results.
+                // It should take no longer than 20 seconds till the node reports another status.
+                online = DateTime.UtcNow -
+                       ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processingDone <
+                       TimeSpan.FromSeconds(20);
+                return;
             }
-            return DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(1);
         }
+        online = DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(1);
     }
 }

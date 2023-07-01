@@ -343,7 +343,7 @@ public class ScrapingManaging
     /// </summary>
     /// <param name="heartBeat"></param>
     /// <param name="scrapingNodeAuthenticationResult"></param>
-    public static void ProcessHeartBeat(ScrapingNodeHeartBeat heartBeat, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    public static ScrapingNodeHeartBeatProcessed ProcessHeartBeat(ScrapingNodeHeartBeat heartBeat, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
         ScrapingNodeStats stats = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         stats.snapshot = heartBeat.snapshot;
@@ -357,6 +357,7 @@ public class ScrapingManaging
         stats.lastHeartBeat = now;
         
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
+        return new ScrapingNodeHeartBeatProcessed();
     }
 
     public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
