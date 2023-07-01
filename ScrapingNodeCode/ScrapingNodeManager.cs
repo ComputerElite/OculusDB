@@ -165,8 +165,6 @@ public class ScrapingNodeManager
             {
                 Logger.Log("Status code is 403, checking response", LoggingType.Warning);
                 ScrapingNodeAuthenticationResult a = JsonSerializer.Deserialize<ScrapingNodeAuthenticationResult>(r.json);
-                a.scrapingNode.scrapingNodeVersion = OculusDBEnvironment.updater.version;
-                a.compatibleScrapingVersion = OculusDBEnvironment.updater.version;
                 CheckAuthorizationResponse(a);
             }
         }
