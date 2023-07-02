@@ -23,6 +23,7 @@ namespace OculusDB
         public string masterToken { get; set; } = "";
         public string mongoDBName { get; set; } = "OculusDB";
         public string masterWebhookUrl { get; set; } = "";
+        public string nodeStatusWebhookUrl { get; set; } = "";
         public List<Token> tokens { get; set; } = new List<Token>();
 
         public static ReaderWriterLock locker = new ReaderWriterLock();

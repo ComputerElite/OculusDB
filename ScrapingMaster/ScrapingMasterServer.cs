@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
+using ComputerUtils.Discord;
 using ComputerUtils.Logging;
 using ComputerUtils.Webserver;
 using Ionic.Zip;
@@ -24,6 +25,10 @@ public class ScrapingMasterServer
         string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         ScrapingNodeMongoDBManager.Init();
         MongoDBInteractor.Initialize();
+        Thread nodeStatusThread = new Thread(() =>
+        {
+            MonitorNodes();
+        });
         server = httpServer;
         server.AddRoute("POST", "/api/v1/gettasks", request =>
         {
@@ -137,9 +142,48 @@ public class ScrapingMasterServer
         server.AddRouteFile("/style.css", frontend + "style.css", FrontendServer.replace, true, true, true, 0, true);
         server.AddRouteFile("/", frontend + "scrapingMaster.html", FrontendServer.replace, true, true, true, 0, true);
         server.AddRouteFile("/setup", frontend + "setupNode.html", FrontendServer.replace, true, true, true, 0, true);
+        server.AddRouteFile("/logo", frontend + "logo.png", true, true, true);
 
-        
         server.StartServer(config.port);
+    }
+
+    public void SendMasterWebhookMessage(string title, string description, int color)
+    {
+        if (config.nodeStatusWebhookUrl == "") return;
+        try
+        {
+            Logger.Log("Sending master webhook");
+            DiscordWebhook webhook = new DiscordWebhook(config.masterWebhookUrl);
+            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", config.publicAddress + "logo", config.publicAddress, config.publicAddress + "logo", config.publicAddress, color);
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("Exception while sending webhook" + ex.ToString(), LoggingType.Warning);
+        }
+    }
+    
+    private void MonitorNodes()
+    {
+        Dictionary<string, bool> wasOnline = new Dictionary<string, bool>();
+        while (true)
+        {
+            List<ScrapingNodeStats> nodes = ScrapingNodeMongoDBManager.GetScrapingNodes();
+            foreach (ScrapingNodeStats node in nodes)
+            {
+                if (!wasOnline.ContainsKey(node.scrapingNode.scrapingNodeId))
+                {
+                    wasOnline.Add(node.scrapingNode.scrapingNodeId, node.online);
+                }
+
+                if (wasOnline[node.scrapingNode.scrapingNodeId] != node.online)
+                {
+                    // Node status changed, send webhook msg
+                    SendMasterWebhookMessage("Scraping Node " + node.scrapingNode.scrapingNodeId + " " + (node.online ? "online" : "offline"), "", node.online ? 0x00FF00 : 0xFF0000);
+                }
+                wasOnline[node.scrapingNode.scrapingNodeId] = node.online;
+            }
+            Thread.Sleep(15000);
+        }
     }
 
     public void CreateNodeZip()
