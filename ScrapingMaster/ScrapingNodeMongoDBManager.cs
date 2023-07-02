@@ -208,10 +208,10 @@ public class ScrapingNodeMongoDBManager
         while (versions.Count > 0)
         {
             // Bulk do work in batches of 200
-            ids = versions.Select(x => x.id).Take(200).ToArray();
+            ids = versions.Select(x => x.id).Take(Math.Min(versions.Count, 200)).ToArray();
             MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.versionsCollection.InsertMany(versions.Take(200));
-            versions.RemoveRange(0, 200);
+            MongoDBInteractor.versionsCollection.InsertMany(versions.Take(Math.Min(versions.Count, 200)));
+            versions.RemoveRange(0, Math.Min(versions.Count, 200));
         }
         
 
@@ -219,10 +219,10 @@ public class ScrapingNodeMongoDBManager
         while (iapItems.Count > 0)
         {
             // Bulk do work in batches of 200
-            ids = iapItems.Select(x => x.id).Take(200).ToArray();
+            ids = iapItems.Select(x => x.id).Take(Math.Min(iapItems.Count, 200)).ToArray();
             MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.dlcCollection.InsertMany(iapItems.Take(200));
-            iapItems.RemoveRange(0, 200);
+            MongoDBInteractor.dlcCollection.InsertMany(iapItems.Take(Math.Min(iapItems.Count, 200)));
+            iapItems.RemoveRange(0, Math.Min(iapItems.Count, 200));
         }
         
 
@@ -230,30 +230,30 @@ public class ScrapingNodeMongoDBManager
         while (dlcPacks.Count > 0)
         {
             // Bulk do work in batches of 200
-            ids = dlcPacks.Select(x => x.id).Take(200).ToArray();
+            ids = dlcPacks.Select(x => x.id).Take(Math.Min(dlcPacks.Count, 200)).ToArray();
             MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.dlcPackCollection.InsertMany(dlcPacks.Take(200));
-            dlcPacks.RemoveRange(0, 200);
+            MongoDBInteractor.dlcPackCollection.InsertMany(dlcPacks.Take(Math.Min(dlcPacks.Count, 200)));
+            dlcPacks.RemoveRange(0, Math.Min(dlcPacks.Count, 200));
         }
         
         Logger.Log("Adding " + apps.Count + " apps to database.");
         while (apps.Count > 0)
         {
             // Bulk do work in batches of 200
-            ids = apps.Select(x => x.id).Take(200).ToArray();
+            ids = apps.Select(x => x.id).Take(Math.Min(apps.Count, 200)).ToArray();
             MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.applicationCollection.InsertMany(apps.Take(200));
-            apps.RemoveRange(0, 200);
+            MongoDBInteractor.applicationCollection.InsertMany(apps.Take(Math.Min(apps.Count, 200)));
+            apps.RemoveRange(0, Math.Min(apps.Count, 200));
         }
         
         Logger.Log("Adding " + images.Count + " images to database.");
         while (images.Count > 0)
         {
             // Bulk do work in batches of 200
-            ids = images.Select(x => x.appId).Take(200).ToArray();
+            ids = images.Select(x => x.appId).Take(Math.Min(images.Count, 200)).ToArray();
             MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
-            MongoDBInteractor.appImages.InsertMany(images.Take(200));
-            images.RemoveRange(0, 200);
+            MongoDBInteractor.appImages.InsertMany(images.Take(Math.Min(images.Count, 200)));
+            images.RemoveRange(0, Math.Min(images.Count, 200));
         }
     }
 
