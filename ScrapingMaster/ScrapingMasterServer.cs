@@ -168,18 +168,22 @@ public class ScrapingMasterServer
         Dictionary<string, bool> wasOnline = new Dictionary<string, bool>();
         while (true)
         {
-            List<ScrapingNodeStats> nodes = ScrapingNodeMongoDBManager.GetScrapingNodes();
+            List<ScrapingNodeStats> nodes = ScrapingNodeMongoDBManager.GetScrapingNodes().ConvertAll(x =>
+            {
+                x.SetOnline();
+                return x;
+            });
             foreach (ScrapingNodeStats node in nodes)
             {
                 if (!wasOnline.ContainsKey(node.scrapingNode.scrapingNodeId))
                 {
                     wasOnline.Add(node.scrapingNode.scrapingNodeId, node.online);
                 }
-                Logger.Log("Node " + node.scrapingNode.scrapingNodeId + " is " + (node.online ? "online" : "offline"), LoggingType.Debug);
+                //Logger.Log("Node " + node.scrapingNode.scrapingNodeId + " is " + (node.online ? "online" : "offline"), LoggingType.Debug);
 
                 if (wasOnline[node.scrapingNode.scrapingNodeId] != node.online)
                 {
-                    Logger.Log("That is a change", LoggingType.Debug);
+                    //Logger.Log("That is a change", LoggingType.Debug);
                     // Node status changed, send webhook msg
                     SendMasterWebhookMessage("Scraping Node " + node.scrapingNode.scrapingNodeId + " " + (node.online ? "online" : "offline"), "", node.online ? 0x00FF00 : 0xFF0000);
                 }
