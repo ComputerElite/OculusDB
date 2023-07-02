@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MongoDB.Bson.IO;
 
 namespace OculusDB
 {
@@ -93,6 +94,7 @@ namespace OculusDB
         
         public static void Initialize()
         {
+            BsonChunkPool.Default = new BsonChunkPool(512, 1024 * 64);
             ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
             ConventionRegistry.Register("Ignore extra elements cause it's annoying", pack, t => true);
@@ -163,26 +165,7 @@ namespace OculusDB
             blockedAppsCache = blockedApps.Distinct<string>("id", new BsonDocument()).ToList();
         }
 
-        public static void AddAppToScrapeIfNotPresent(AppToScrape appToScrape)
-        {
-            if(appToScrape.priority)
-            {
-                appsToScrape.DeleteMany(x => x.appId == appToScrape.appId && !x.priority);
-
-                if (appsToScrape.Count(x => x.appId == appToScrape.appId && x.priority) <= 0 && appsScraping.Count(x => x.appId == appToScrape.appId) <= 0)
-                {
-                    appsToScrape.InsertOne(appToScrape);
-                }
-            } else
-            {
-                if (!IsAppScrapingOrQueuedToScrape(appToScrape))
-                {
-                    appsToScrape.InsertOne(appToScrape);
-                }
-            }
-        }
-
-		public static void ClearScrapingApps()
+        public static void ClearScrapingApps()
 		{
 			appsScraping.DeleteMany(x => true);
 		}
@@ -785,12 +768,6 @@ namespace OculusDB
         public static bool GetBlockedStatusForApp(string id)
         {
             return blockedAppsCache.Contains(id);
-        }
-
-        public static void AddApp(string id, Headset headset, bool priority = true)
-        {
-            Logger.Log("Adding priority scrape for " + id + " if not existing already");
-            MongoDBInteractor.AddAppToScrapeIfNotPresent(new AppToScrape { priority = priority, appId = id, headset = headset });
         }
 
         public static DBAppImage GetAppImage(string appId)

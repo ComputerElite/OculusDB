@@ -513,7 +513,15 @@ public class FrontendServer
 					request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id. App names will NOT work", "text/plain", 400);
 					return true;
 				}
-				MongoDBInteractor.AddApp(appId, h);
+
+                AppToScrape s = new AppToScrape
+                {
+                    appId = appId,
+                    headset = h,
+                    scrapePriority = AppScrapePriority.High,
+                    priority = false
+                };
+				ScrapingNodeMongoDBManager.AddApp(s);
 
 				request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
 				return true;
