@@ -163,7 +163,7 @@ public class ScrapingNodeManager
     public void GetScrapingTasks()
     {
         Logger.Log("Requesting scraping tasks");
-        status = ScrapingNodeStatus.RequestingToDo;
+        if(status != ScrapingNodeStatus.WaitingForMasterServer) status = ScrapingNodeStatus.RequestingToDo;
         try
         {
             string json = GetResponseOfPostRequest(config.masterAddress + "/api/v1/gettasks",

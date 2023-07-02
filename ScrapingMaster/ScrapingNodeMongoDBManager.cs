@@ -109,10 +109,19 @@ public class ScrapingNodeMongoDBManager
     public static void AddAppsToScrape(List<AppToScrape> appsToScrape, ScrapingNode scrapingNode)
     {
         // Add apps to be scraped
-        MongoDBInteractor.appsToScrape.InsertMany(appsToScrape);
+        // Only insert appsToScrape which ain't in appsToScrape already
+        List<AppToScrape> appsToScrapeFiltered = new List<AppToScrape>();
+        appsToScrape.ForEach(x =>
+        {
+            if (MongoDBInteractor.appsToScrape.Find(y => y.appId == x.appId).FirstOrDefault() == null)
+            {
+                appsToScrapeFiltered.Add(x);
+            }
+        });
+        MongoDBInteractor.appsToScrape.InsertMany(appsToScrapeFiltered);
         // Update scraping node stats
         ScrapingNodeStats s = GetScrapingNodeStats(scrapingNode);
-        s.contribution.appsQueuedForScraping += appsToScrape.Count;
+        s.contribution.appsQueuedForScraping += appsToScrapeFiltered.Count;
         s.lastContribution = DateTime.UtcNow;
         UpdateScrapingNodeStats(s);
     }

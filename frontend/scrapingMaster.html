@@ -82,7 +82,7 @@
                 queued += GetEntry(key, value)
             }
             if(!node.online) queued = "Node offline"
-            var contributed = GetEntry("Apps for scraping", node.contribution.appsQueuedForScraping)
+            var contributed = GetEntry("Apps submitted for scraping", node.contribution.appsQueuedForScraping)
             var contributions = Object.entries(node.contribution.contributionPerOculusDBType);
             contributions.sort(sortByKey);
             console.log(contributions)

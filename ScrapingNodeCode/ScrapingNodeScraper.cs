@@ -61,7 +61,6 @@ public class ScrapingNodeScraper
         taskResult = new ScrapingNodeTaskResult();
         while (scrapingTasks.Count > 0)
         {
-            
             switch (scrapingTasks[0].scrapingTask)
             {
                 case ScrapingTaskType.GetAllAppsToScrape:
@@ -103,8 +102,8 @@ public class ScrapingNodeScraper
                     break;
                 case ScrapingTaskType.WaitForResults:
                     scrapingNodeManager.status = ScrapingNodeStatus.WaitingForMasterServer;
-                    Thread.Sleep(20000);
                     Logger.Log("Waiting 20 seconds as results aren't processed yet");
+                    Thread.Sleep(20000);
                     break;
             }
             // After task is done remove it from the scrapingTasks list

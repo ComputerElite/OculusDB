@@ -132,8 +132,15 @@ public class ScrapingManaging
                 r.msg = "Added " + taskResult.appsToScrape.Count + " apps to scrape. Thanks for the cooperation.";
                 break;
             case ScrapingNodeTaskResultType.AppsScraped:
-                ProcessScrapedResults(taskResult, scrapingNodeAuthenticationResult, ref r);
-                r.msg = "Processed " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". Thanks for your contribution.";
+                try
+                {
+                    ProcessScrapedResults(taskResult, scrapingNodeAuthenticationResult, ref r);
+                    r.msg = "Processed " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". Thanks for your contribution.";
+                }
+                catch (Exception e)
+                {
+                    Logger.Log("Erro while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e);
+                }
                 break;
         }
         processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
