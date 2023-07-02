@@ -28,6 +28,8 @@ namespace OculusDB
             cla.AddCommandLineArgument(new List<string> { "--set-token", "--st" }, false, "Sets the token for the scraping node", "Scraping node token", "");
             cla.AddCommandLineArgument(new List<string> { "--set-ms", "--sm" }, false, "Set the master scraping server url", "Scraping Master URL", "https://scraping.rui2015.me");
             cla.AddCommandLineArgument(new List<string> { "--set-oculus-token", "--so" }, false, "Sets the Oculus token for the scraping node", "Oculus Token", "");
+            cla.AddCommandLineArgument(new List<string> { "--force-scrape", "--fs" }, false, "Forces a scrape for that app, then quits the node", "App id", "");
+            cla.AddCommandLineArgument(new List<string> { "--force-priority", "--fp" }, false, "Forces a priority scrape for that app, then quits the node", "App id", "");
 
             
             if (cla.HasArgument("help"))
@@ -80,6 +82,21 @@ namespace OculusDB
                 return;
             }
 
+            if (cla.HasArgument("--fp"))
+            {
+                OculusDBEnvironment.scrapingNodeConfig.doForceScrape = true;
+                OculusDBEnvironment.scrapingNodeConfig.appId = cla.GetValue("--fp");
+                OculusDBEnvironment.scrapingNodeConfig.isPriorityScrape = true;
+            }
+
+            if (cla.HasArgument("--fs"))
+            {
+                OculusDBEnvironment.scrapingNodeConfig.doForceScrape = true;
+                OculusDBEnvironment.scrapingNodeConfig.appId = cla.GetValue("--fs");
+                OculusDBEnvironment.scrapingNodeConfig.isPriorityScrape = false;
+            }
+            
+            
             if (cla.HasArgument("--type"))
             {
                 switch (cla.GetValue("--type"))

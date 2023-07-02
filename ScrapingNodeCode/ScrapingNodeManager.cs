@@ -5,6 +5,7 @@ using System.Text.Json;
 using ComputerUtils.Logging;
 using ComputerUtils.Updating;
 using OculusDB.ScrapingMaster;
+using OculusGraphQLApiLib;
 
 namespace OculusDB.ScrapingNodeCode;
 
@@ -59,6 +60,22 @@ public class ScrapingNodeManager
         // Start heartbeat loop
         Thread heartBeat = new Thread(() => scraper.HeartBeatLoop());
         heartBeat.Start();
+        if (config.doForceScrape)
+        {
+            scraper.scrapingTasks.Add(new ScrapingTask
+            {
+                scrapingTask = ScrapingTaskType.ScrapeApp,
+                appToScrape = new AppToScrape
+                {
+                    headset = Headset.MONTEREY,
+                    appId = config.appId,
+                    priority = config.isPriorityScrape,
+                    imageUrl = ""
+                }
+            });
+            scraper.DoTasks();
+            return;
+        }
         while (true)
         {
             GetScrapingTasks();

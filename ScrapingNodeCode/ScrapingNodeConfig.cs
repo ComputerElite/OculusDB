@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ComputerUtils.Logging;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -23,6 +24,13 @@ public class ScrapingNodeConfig
 
     public string scrapingNodeToken { get; set; } = "";
     public List<string> oculusTokens { get; set; } = new List<string>();
+
+    [JsonIgnore]
+    public bool doForceScrape = false;
+    [JsonIgnore]
+    public bool isPriorityScrape = false;
+    [JsonIgnore]
+    public string appId = "";
     
     public static ScrapingNodeConfig LoadConfig()
     {
