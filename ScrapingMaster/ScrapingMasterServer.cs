@@ -29,6 +29,7 @@ public class ScrapingMasterServer
         {
             MonitorNodes();
         });
+        nodeStatusThread.Start();
         server = httpServer;
         server.AddRoute("POST", "/api/v1/gettasks", request =>
         {
