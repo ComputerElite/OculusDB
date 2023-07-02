@@ -19,8 +19,9 @@ public class ScrapingNodeManager
         get => _status;
         set
         {
-            if(_status != value) scraper.SendHeartBeat();
+            bool sh = _status != value;
             _status = value;
+            if(sh) scraper.SendHeartBeat();
         }
     }
 
