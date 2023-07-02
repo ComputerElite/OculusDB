@@ -154,7 +154,7 @@ public class ScrapingMasterServer
         try
         {
             Logger.Log("Sending master webhook");
-            DiscordWebhook webhook = new DiscordWebhook(config.masterWebhookUrl);
+            DiscordWebhook webhook = new DiscordWebhook(config.nodeStatusWebhookUrl);
             webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", config.publicAddress + "logo", config.publicAddress, config.publicAddress + "logo", config.publicAddress, color);
         }
         catch (Exception ex)
