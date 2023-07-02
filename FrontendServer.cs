@@ -795,6 +795,7 @@ public class FrontendServer
                     info.dataDocuments = MongoDBInteractor.CountDataDocuments();
                     info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
                     info.scrapingStatusPageUrl = config.scrapingMasterUrl;
+                    info.appCount = MongoDBInteractor.GetAppCount();
 					request.SendString(JsonSerializer.Serialize(info));
                 }
                 catch (Exception e)
