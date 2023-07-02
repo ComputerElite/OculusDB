@@ -165,7 +165,7 @@ public class ScrapingMasterServer
         foreach (string filePath in Directory.GetFiles(inputDir))
         {
             string relativePath = filePath.Replace(rootDirectory, "").TrimStart(Path.DirectorySeparatorChar);
-            if (relativePath.Contains("data") || relativePath.Contains("frontend") || relativePath.Contains(".log")) return;
+            if (relativePath.Contains("data") || relativePath.Contains("frontend/") || relativePath.Contains("updater/") || relativePath.Contains("frontend/") || relativePath.Contains("bin/") || relativePath.Contains(".log") || relativePath.Contains(".zip") || relativePath.Contains("wget-log")) return;
             ZipArchiveEntry entry = archive.CreateEntry(relativePath, CompressionLevel.Optimal);
             using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
