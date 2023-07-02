@@ -175,9 +175,11 @@ public class ScrapingMasterServer
                 {
                     wasOnline.Add(node.scrapingNode.scrapingNodeId, node.online);
                 }
+                Logger.Log("Node " + node.scrapingNode.scrapingNodeId + " is " + (node.online ? "online" : "offline"), LoggingType.Debug);
 
                 if (wasOnline[node.scrapingNode.scrapingNodeId] != node.online)
                 {
+                    Logger.Log("That is a change", LoggingType.Debug);
                     // Node status changed, send webhook msg
                     SendMasterWebhookMessage("Scraping Node " + node.scrapingNode.scrapingNodeId + " " + (node.online ? "online" : "offline"), "", node.online ? 0x00FF00 : 0xFF0000);
                 }
