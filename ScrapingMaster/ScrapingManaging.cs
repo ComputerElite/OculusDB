@@ -45,7 +45,20 @@ public class ScrapingManaging
                 };
             }
         }
-        
+
+        if (processingRn.TryGetValue(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, out ScrapingNodeTaskResultProcessing processing))
+        {
+            if (processing.IsProcessing())
+            {
+                return new List<ScrapingTask>
+                {
+                    new()
+                    {
+                        scrapingTask = ScrapingTaskType.WaitForResults
+                    }
+                };
+            }
+        }
         // There are enough apps to scrape or app adding is running. Send scraping tasks.
         List<ScrapingTask> scrapingTasks = new();
         // Add 20 non-priority apps to scrape and 3 priority apps to scrape

@@ -14,5 +14,6 @@ public enum ScrapingTaskType
 {
     GetAllAppsToScrape,
     Wait1Minute,
-    ScrapeApp
+    ScrapeApp,
+    WaitForResults
 }

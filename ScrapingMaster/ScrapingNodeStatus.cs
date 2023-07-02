@@ -7,5 +7,6 @@ public enum ScrapingNodeStatus
     Idling,
     TransmittingResults,
     StartingUp,
-    Offline
+    Offline,
+    WaitingForMasterServer
 }

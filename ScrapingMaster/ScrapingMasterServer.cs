@@ -63,7 +63,8 @@ public class ScrapingMasterServer
                 return true;
             }
 
-            request.SendString(JsonSerializer.Serialize(ScrapingManaging.ProcessTaskResult(taskResult, r)), "application/json");
+            request.SendString(JsonSerializer.Serialize(new ScrapingNodeTaskResultProcessing { processing = true, processingStart = DateTime.UtcNow }), "application/json");
+            ScrapingManaging.ProcessTaskResult(taskResult, r);
             return true;
         });
         server.AddRoute("POST", "/api/v1/heartbeat", request =>

@@ -17,4 +17,10 @@ public class ScrapingNodeTaskResultProcessing
         processingDone = DateTime.UtcNow;
         processing = false;
     }
+
+    public bool IsProcessing()
+    {
+        // Perhaps add a timeout to make sure that the processing is not stuck and thus never goes to false
+        return processing;
+    }
 }

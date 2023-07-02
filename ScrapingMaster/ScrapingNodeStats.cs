@@ -52,10 +52,10 @@ public class ScrapingNodeStats
                     return;
                 }
                 // Server is already done processing but node says it's transmitting results.
-                // It should take no longer than 20 seconds till the node reports another status.
+                // It should take no longer than 50 seconds till the node reports another status.
                 online = DateTime.UtcNow -
                        ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processingDone <
-                       TimeSpan.FromSeconds(20);
+                       TimeSpan.FromSeconds(50);
                 return;
             }
         }

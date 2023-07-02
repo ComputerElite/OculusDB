@@ -61,10 +61,12 @@ public class ScrapingNodeScraper
         taskResult = new ScrapingNodeTaskResult();
         while (scrapingTasks.Count > 0)
         {
-            scrapingNodeManager.status = ScrapingNodeStatus.Scraping;
+            
             switch (scrapingTasks[0].scrapingTask)
             {
                 case ScrapingTaskType.GetAllAppsToScrape:
+                    TransmittingDone();
+                    scrapingNodeManager.status = ScrapingNodeStatus.Scraping;
                     TransmitAndClearResultsIfPresent();
                     taskResult.altered = true;
                     taskResult.scrapingNodeTaskResultType = ScrapingNodeTaskResultType.FoundAppsToScrape;
@@ -87,6 +89,8 @@ public class ScrapingNodeScraper
                     
                     break;
                 case ScrapingTaskType.ScrapeApp:
+                    TransmittingDone();
+                    scrapingNodeManager.status = ScrapingNodeStatus.Scraping;
                     taskResult.scrapingNodeTaskResultType = ScrapingNodeTaskResultType.AppsScraped;
                     try
                     {
@@ -97,6 +101,11 @@ public class ScrapingNodeScraper
                         Logger.Log("Failed to scrape " + scrapingTasks[0].appToScrape.appId + ": " + e, LoggingType.Error);
                     }
                     break;
+                case ScrapingTaskType.WaitForResults:
+                    scrapingNodeManager.status = ScrapingNodeStatus.WaitingForMasterServer;
+                    Thread.Sleep(20000);
+                    Logger.Log("Waiting 20 seconds as results aren't processed yet");
+                    break;
             }
             // After task is done remove it from the scrapingTasks list
             scrapingTasks.RemoveAt(0);
@@ -106,6 +115,18 @@ public class ScrapingNodeScraper
         // After doing all tasks Transmit results if there are any
         TransmitAndClearResultsIfPresent();
     }
+
+    private void TransmittingDone()
+    {
+        if (transmittingResults)
+        {
+            sw.Stop();
+            Logger.Log("Server processed results in " + sw.ElapsedMilliseconds + "ms");
+            SendHeartBeat();
+        }
+        transmittingResults = false;
+    }
+
     public TimeSpan timeBetweenScrapes = new TimeSpan(2, 0, 0, 0);
 
     public string currentlyScraping = "";
@@ -418,6 +439,7 @@ public class ScrapingNodeScraper
             return price;
         }
 
+    Stopwatch sw = Stopwatch.StartNew();
     public void TransmitAndClearResultsIfPresent()
     {
         if (!taskResult.altered) return;
@@ -427,19 +449,19 @@ public class ScrapingNodeScraper
         Logger.Log("Transmitting results");
         taskResult.identification = scrapingNodeManager.GetIdentification();
         ScrapingProcessedResult r;
-        Stopwatch sw = Stopwatch.StartNew();
+        sw = Stopwatch.StartNew();
         try
         {
             string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/taskresults", JsonSerializer.Serialize(taskResult)).json;
             r = JsonSerializer.Deserialize<ScrapingProcessedResult>(json);
-            Logger.Log("Got response from scraping master after " + sw.ElapsedMilliseconds + "ms: " + r.msg);
         }
         catch (Exception e)
         {
             Logger.Log("Error while transmitting results: " + e, LoggingType.Error);
         }
         taskResult = new ScrapingNodeTaskResult();
-        transmittingResults = false;
+        // Sleep 500 ms so Server can defo mark the node as processing
+        Thread.Sleep(500);
     }
     
     public List<AppToScrape> CollectAppsToScrapeForHeadset(Headset h)
