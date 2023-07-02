@@ -49,6 +49,7 @@ public class ScrapingMasterServer
                 return true;
             }
             ScrapingManaging.OnNodeStarted(r);
+            request.SendString(JsonSerializer.Serialize(r), "application/json");
             return true;
         });
         server.AddRoute("POST", "/api/v1/taskresults", request =>
