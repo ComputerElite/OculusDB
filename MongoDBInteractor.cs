@@ -586,8 +586,6 @@ namespace OculusDB
 
         public static List<BsonDocument> GetByID(string id, int history = 1)
         {
-            List<DBApplication> apps = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
-            if (apps.Count > 0) return ToBsonDocumentList(apps);
             List<DBVersion> versions = versionsCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
             if (versions.Count > 0)
             {
@@ -598,6 +596,8 @@ namespace OculusDB
                 }
                 return MongoDBFilterMiddleware(ToBsonDocumentList(versions));
             }
+            List<DBApplication> apps = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
+            if (apps.Count > 0) return ToBsonDocumentList(apps);
             List<DBIAPItem> dlcs = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
             if (dlcs.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcs));
             List<DBIAPItemPack> dlcPacks = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();

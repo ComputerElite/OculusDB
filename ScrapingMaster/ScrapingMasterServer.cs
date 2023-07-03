@@ -90,13 +90,9 @@ public class ScrapingMasterServer
         });
         server.AddRoute("GET", "/api/v1/scrapingnodes", request =>
         {
-            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingNodes().ConvertAll(x =>
-            {
-                x.SetOnline();
-                return x;
-            })), "application/json");
+            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingNodes()), "application/json");
             return true;
-        });
+        }, false, true, true, true, 4); // 4 seconds in cache
         server.AddRoute("POST", "/api/v1/versions/", new Func<ServerRequest, bool>(request =>
         {
             ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);
@@ -155,7 +151,7 @@ public class ScrapingMasterServer
         {
             Logger.Log("Sending master webhook");
             DiscordWebhook webhook = new DiscordWebhook(config.nodeStatusWebhookUrl);
-            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", config.publicAddress + "logo", config.publicAddress, config.publicAddress + "logo", config.publicAddress, color);
+            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", config.scrapingMasterUrl + "logo", config.scrapingMasterUrl, config.scrapingMasterUrl + "logo", config.scrapingMasterUrl, color);
         }
         catch (Exception ex)
         {
@@ -168,11 +164,7 @@ public class ScrapingMasterServer
         Dictionary<string, bool> wasOnline = new Dictionary<string, bool>();
         while (true)
         {
-            List<ScrapingNodeStats> nodes = ScrapingNodeMongoDBManager.GetScrapingNodes().ConvertAll(x =>
-            {
-                x.SetOnline();
-                return x;
-            });
+            List<ScrapingNodeStats> nodes = ScrapingNodeMongoDBManager.GetScrapingNodes();
             foreach (ScrapingNodeStats node in nodes)
             {
                 if (!wasOnline.ContainsKey(node.scrapingNode.scrapingNodeId))

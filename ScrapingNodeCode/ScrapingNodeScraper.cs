@@ -520,8 +520,6 @@ public class ScrapingNodeScraper
 
     public void SendHeartBeat()
     {
-        // Do not send heartbeats while transmitting results
-        if(transmittingResults) return;
         Logger.Log("Sending heartbeat");
         ScrapingNodeHeartBeat beat = new ScrapingNodeHeartBeat();
         beat.identification = scrapingNodeManager.GetIdentification();

@@ -150,7 +150,7 @@ public class ScrapingManaging
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)
     {
         Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
-        ScrapingNodeStats scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
+        ScrapingContribution scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeContribution(scrapingNodeAuthenticationResult.scrapingNode);
         // Process Versions
         foreach (DBVersion v in taskResult.scraped.versions)
         {
@@ -185,19 +185,19 @@ public class ScrapingManaging
 				{
 					// Changelog is most likely new
 					e.__OculusDBType = DBDataTypes.ActivityVersionChangelogAvailable;
-					DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+					ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), ref scrapingContribution);
 				}
 				else if(oldEntry != null && oldEntry.changeLog != v.changeLog)
 				{
 					// Changelog got most likely updated
 					e.__OculusDBType = DBDataTypes.ActivityVersionChangelogUpdated;
-					DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+					ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument(), ref scrapingContribution);
 				}
 			}
 
 			if (lastActivity == null)
             {
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument(), ref scrapingContribution);
             }
             else
             {
@@ -207,7 +207,7 @@ public class ScrapingManaging
                     DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
                     toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
                     toAdd.__lastEntry = lastActivity["_id"].ToString();
-                    DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                    ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument(), ref scrapingContribution);
                 }
             }
             // Update contributions
@@ -240,14 +240,14 @@ public class ScrapingManaging
             ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
             if (oldDLC == null)
             {
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument(), ref scrapingContribution);
             }
             else if (oldDLC["latestAssetFileId"] != newDLC.latestAssetFileId || oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
             {
                 DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                 updated.__lastEntry = oldDLC["_id"].ToString();
                 updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
             }
             r.processedCount++;
         }
@@ -288,14 +288,14 @@ public class ScrapingManaging
             }
             if (oldDLC == null)
             {
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument(), ref scrapingContribution);
             }
             else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLCPack.displayName || oldDLC["displayShortDescription"] != newDLCPack.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToArray()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToArray()))
             {
                 DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
                 updated.__lastEntry = oldDLC["_id"].ToString();
                 updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
             }
             r.processedCount++;
         }
@@ -316,7 +316,7 @@ public class ScrapingManaging
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime(a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), ref scrapingContribution);
             }
             
             
@@ -336,12 +336,12 @@ public class ScrapingManaging
                     priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
                     priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
                     priceChange.__lastEntry = lastPriceChange.__id;
-                    DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                    ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
                 }
             }
             else
             {
-                DiscordWebhookSender.SendActivity(ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), scrapingContribution.scrapingNode), ref scrapingContribution);
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
             
             ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
@@ -355,7 +355,7 @@ public class ScrapingManaging
 
         r.processed = true;
         scrapingContribution.lastContribution = DateTime.UtcNow;
-        ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(scrapingContribution);
+        ScrapingNodeMongoDBManager.UpdateScrapingNodeContribution(scrapingContribution);
         ScrapingNodeMongoDBManager.Flush();
     }
 
@@ -368,6 +368,7 @@ public class ScrapingManaging
     {
         ScrapingNodeStats stats = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         stats.snapshot = heartBeat.snapshot;
+        
         // If online, add time since last heartbeat to runtime
         DateTime now = DateTime.UtcNow;
         if (stats.online)

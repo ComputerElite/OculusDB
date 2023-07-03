@@ -15,6 +15,6 @@ public class ScrapingNode
 
     public override string ToString()
     {
-        return scrapingNodeName + "(" + scrapingNodeId + ")";
+        return scrapingNodeName + " (" + scrapingNodeId + ")";
     }
 }

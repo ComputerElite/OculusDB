@@ -3,6 +3,7 @@ using ComputerUtils.RandomExtensions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OculusDB.Database;
+using OculusDB.Users;
 
 namespace OculusDB.ScrapingMaster;
 
@@ -12,6 +13,7 @@ public class ScrapingNodeMongoDBManager
     public static IMongoDatabase oculusDBDatabase;
     public static IMongoCollection<ScrapingNode> scrapingNodes;
     public static IMongoCollection<ScrapingNodeStats> scrapingNodeStats;
+    public static IMongoCollection<ScrapingContribution> scrapingNodeContributions;
 
     public static void Init()
     {
@@ -19,6 +21,23 @@ public class ScrapingNodeMongoDBManager
         oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
         scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
         scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
+        scrapingNodeContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
+
+        MigrateOldContributions();
+    }
+
+    private static void MigrateOldContributions()
+    {
+        List<ScrapingNodeStats> s = scrapingNodeStats.Find(x => true).ToList();
+        foreach (ScrapingNodeStats stats in s)
+        {
+            if(scrapingNodeContributions.Find(x => x.scrapingNode.scrapingNodeId == stats.scrapingNode.scrapingNodeId).FirstOrDefault() == null)
+            {
+                Logger.Log("Migrated Scraping node contribution of " + stats.contribution.scrapingNode);
+                stats.contribution.scrapingNode = stats.scrapingNode;
+                scrapingNodeContributions.InsertOne(stats.contribution);
+            }
+        }
     }
 
     public static long GetNonPriorityAppsToScrapeCount()
@@ -120,10 +139,28 @@ public class ScrapingNodeMongoDBManager
         });
         MongoDBInteractor.appsToScrape.InsertMany(appsToScrapeFiltered);
         // Update scraping node stats
-        ScrapingNodeStats s = GetScrapingNodeStats(scrapingNode);
-        s.contribution.appsQueuedForScraping += appsToScrapeFiltered.Count;
-        s.lastContribution = DateTime.UtcNow;
-        UpdateScrapingNodeStats(s);
+        ScrapingContribution contribution = GetScrapingNodeContribution(scrapingNode);
+        contribution.lastContribution = DateTime.UtcNow;
+        contribution.appsQueuedForScraping += appsToScrapeFiltered.Count;
+        UpdateScrapingNodeContribution(contribution);
+    }
+
+    public static void UpdateScrapingNodeContribution(ScrapingContribution contribution)
+    {
+        scrapingNodeContributions.ReplaceOne(x => x.scrapingNode.scrapingNodeId == contribution.scrapingNode.scrapingNodeId, contribution);
+    }
+
+    public static ScrapingContribution GetScrapingNodeContribution(ScrapingNode scrapingNode)
+    {
+        ScrapingContribution s = scrapingNodeContributions.Find(x => x.scrapingNode.scrapingNodeId == scrapingNode.scrapingNodeId).FirstOrDefault();
+        if (s == null)
+        {
+            s = new ScrapingContribution();
+            s.scrapingNode = scrapingNode;
+            scrapingNodeContributions.InsertOne(s);
+        }
+        s.scrapingNode = scrapingNode;
+        return s;
     }
 
     public static ScrapingNodeStats GetScrapingNodeStats(ScrapingNode scrapingNode)
@@ -143,38 +180,39 @@ public class ScrapingNodeMongoDBManager
     {
         if(DateTime.UtcNow < s.firstSight) s.firstSight = DateTime.UtcNow;
         s.SetOnline();
-        scrapingNodeStats.ReplaceOne(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId, s);
+        scrapingNodeStats.DeleteMany(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId);
+        scrapingNodeStats.InsertOne(s);
     }
 
     public static List<DBVersion> versions = new ();
-    public static void AddVersion(DBVersion v, ref ScrapingNodeStats scrapingContribution)
+    public static void AddVersion(DBVersion v, ref ScrapingContribution contribution)
     {
-        scrapingContribution.contribution.AddContribution(v.__OculusDBType, 1);
-        v.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        contribution.AddContribution(v.__OculusDBType, 1);
+        v.__sn = contribution.scrapingNode.scrapingNodeId;
         versions.Add(v);
     }
 
     public static List<DBIAPItem> iapItems = new ();
-    public static void AddDLC(DBIAPItem d, ref ScrapingNodeStats scrapingContribution)
+    public static void AddDLC(DBIAPItem d, ref ScrapingContribution contribution)
     {
-        scrapingContribution.contribution.AddContribution(d.__OculusDBType, 1);
-        d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        contribution.AddContribution(d.__OculusDBType, 1);
+        d.__sn = contribution.scrapingNode.scrapingNodeId;
         iapItems.Add(d);
     }
 
     public static List<DBIAPItemPack> dlcPacks = new ();
-    public static void AddDLCPack(DBIAPItemPack d, ref ScrapingNodeStats scrapingContribution)
+    public static void AddDLCPack(DBIAPItemPack d, ref ScrapingContribution contribution)
     {
-        scrapingContribution.contribution.AddContribution(d.__OculusDBType, 1);
-        d.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        contribution.AddContribution(d.__OculusDBType, 1);
+        d.__sn = contribution.scrapingNode.scrapingNodeId;
         dlcPacks.Add(d);
     }
     
     public static List<DBApplication> apps = new ();
-    public static void AddApplication(DBApplication a, ref ScrapingNodeStats scrapingContribution)
+    public static void AddApplication(DBApplication a, ref ScrapingContribution contribution)
     {
-        scrapingContribution.contribution.AddContribution(a.__OculusDBType, 1);
-        a.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        contribution.AddContribution(a.__OculusDBType, 1);
+        a.__sn = contribution.scrapingNode.scrapingNodeId;
         AppToScrape t = MongoDBInteractor.appsScraping.FindOneAndDelete(x => x.appId == a.id);
         if (t != null)
         {
@@ -182,18 +220,29 @@ public class ScrapingNodeMongoDBManager
         }
         apps.Add(a);
     }
-    
-    public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d, ScrapingNode scrapingNode)
+
+    public static List<BsonDocument> queuedActivity = new List<BsonDocument>();
+    public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d, ref ScrapingContribution contribution)
     {
+        contribution.AddContribution(d["__OculusDBType"].AsString, 1);
         d["_id"] = ObjectId.GenerateNewId();
-        d["__sn"] = scrapingNode.scrapingNodeId;
-        MongoDBInteractor.activityCollection.InsertOne(d);
-        return MongoDBInteractor.activityCollection.Find(x => x["_id"] == d["_id"]).FirstOrDefault();
+        d["__id"] = d["_id"].AsObjectId;
+        d["__sn"] = contribution.scrapingNode.scrapingNodeId;
+        queuedActivity.Add(d);
+        return d;
     }
 
     public static List<ScrapingNodeStats> GetScrapingNodes()
     {
-        return scrapingNodeStats.Find(x => true).ToList();
+        return scrapingNodeStats.Find(x => true).ToList().ConvertAll(x =>
+        {
+            x.SetOnline();
+            // Find contribution in DB
+            x.contribution = scrapingNodeContributions.Find(y => y.scrapingNode.scrapingNodeId == x.scrapingNode.scrapingNodeId)
+                .FirstOrDefault();
+            if (x.contribution == null) x.contribution = new ScrapingContribution();
+            return x;
+        });
     }
 
 
@@ -203,10 +252,10 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBAppImage> images = new ();
-    public static void AddImage(DBAppImage img, ref ScrapingNodeStats scrapingContribution)
+    public static void AddImage(DBAppImage img, ref ScrapingContribution contribution)
     {
-        scrapingContribution.contribution.AddContribution(img.__OculusDBType, 1);
-        img.__sn = scrapingContribution.scrapingNode.scrapingNodeId;
+        contribution.AddContribution(img.__OculusDBType, 1);
+        img.__sn = contribution.scrapingNode.scrapingNodeId;
         images.Add(img);
     }
 
@@ -263,6 +312,18 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
             MongoDBInteractor.appImages.InsertMany(images.Take(Math.Min(images.Count, 200)));
             images.RemoveRange(0, Math.Min(images.Count, 200));
+        }
+        
+        Logger.Log("Adding " + queuedActivity.Count + " activities to database and sending webhooks.");
+        while (queuedActivity.Count > 0)
+        {
+            // Bulk do work in batches of 200
+            MongoDBInteractor.activityCollection.InsertMany(queuedActivity.Take(Math.Min(queuedActivity.Count, 200)));
+            for(int i = 0; i < Math.Min(queuedActivity.Count, 200); i++)
+            {
+                DiscordWebhookSender.SendActivity(queuedActivity[i]);
+            }
+            queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, 200));
         }
     }
 
