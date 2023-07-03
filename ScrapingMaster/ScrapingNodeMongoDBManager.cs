@@ -22,22 +22,6 @@ public class ScrapingNodeMongoDBManager
         scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
         scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
         scrapingNodeContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
-
-        MigrateOldContributions();
-    }
-
-    private static void MigrateOldContributions()
-    {
-        List<ScrapingNodeStats> s = scrapingNodeStats.Find(x => true).ToList();
-        foreach (ScrapingNodeStats stats in s)
-        {
-            if(scrapingNodeContributions.Find(x => x.scrapingNode.scrapingNodeId == stats.scrapingNode.scrapingNodeId).FirstOrDefault() == null)
-            {
-                Logger.Log("Migrated Scraping node contribution of " + stats.contribution.scrapingNode);
-                stats.contribution.scrapingNode = stats.scrapingNode;
-                scrapingNodeContributions.InsertOne(stats.contribution);
-            }
-        }
     }
 
     public static long GetNonPriorityAppsToScrapeCount()
