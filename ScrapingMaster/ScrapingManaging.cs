@@ -152,6 +152,7 @@ public class ScrapingManaging
         Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingContribution scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeContribution(scrapingNodeAuthenticationResult.scrapingNode);
         // Process Versions
+        Dictionary<string, List<DBVersion>> versionLookup = new Dictionary<string, List<DBVersion>>();
         foreach (DBVersion v in taskResult.scraped.versions)
         {
             DBApplication parentApplication =
@@ -162,7 +163,13 @@ public class ScrapingManaging
                 continue;
             }
             BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabaseVersion(v.id);
-            DBVersion oldEntry = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(v.id).FirstOrDefault());
+            if (!versionLookup.ContainsKey(v.parentApplication.id))
+            {
+                // Add versions to VersionLookup
+                versionLookup.Add(v.parentApplication.id, MongoDBInteractor.GetVersions(v.parentApplication.id, false));
+            }
+
+            DBVersion oldEntry = versionLookup[v.parentApplication.id].FirstOrDefault(x => x.id == v.id);
             
             // Create activity entry
             DBActivityNewVersion newVersion = new DBActivityNewVersion();
