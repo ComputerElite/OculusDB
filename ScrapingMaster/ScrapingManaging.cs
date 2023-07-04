@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using ComputerUtils.Logging;
 using ComputerUtils.VarUtils;
@@ -153,6 +154,11 @@ public class ScrapingManaging
         ScrapingContribution scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeContribution(scrapingNodeAuthenticationResult.scrapingNode);
         // Process Versions
         Dictionary<string, List<DBVersion>> versionLookup = new Dictionary<string, List<DBVersion>>();
+        ScrapingProcessingStats stats = new ScrapingProcessingStats();
+        stats.scrapingNode = scrapingNodeAuthenticationResult.scrapingNode;
+        stats.processStartTime = DateTime.Now;
+        stats.nodesProcessingAtStart = processingRn.Count(x => x.Value.IsProcessing());
+        Stopwatch sw = Stopwatch.StartNew();
         foreach (DBVersion v in taskResult.scraped.versions)
         {
             DBApplication parentApplication =
@@ -221,7 +227,9 @@ public class ScrapingManaging
             ScrapingNodeMongoDBManager.AddVersion(v, ref scrapingContribution);
             r.processedCount++;
         }
-        
+        stats.versionProcessTime = sw.Elapsed;
+        stats.versionsProcessed = taskResult.scraped.versions.Count;
+        sw.Restart();
         // Process DLCs
         foreach (DBIAPItem d in taskResult.scraped.dlcs)
         {
@@ -258,6 +266,9 @@ public class ScrapingManaging
             }
             r.processedCount++;
         }
+        stats.dlcProcessTime = sw.Elapsed;
+        stats.dlcsProcessed = taskResult.scraped.dlcs.Count;
+        sw.Restart();
         
         // Process DLC Packs
         foreach (DBIAPItemPack d in taskResult.scraped.dlcPacks)
@@ -306,6 +317,9 @@ public class ScrapingManaging
             }
             r.processedCount++;
         }
+        stats.dlcPackProcessTime = sw.Elapsed;
+        stats.dlcPacksProcessed = taskResult.scraped.dlcPacks.Count;
+        sw.Restart();
         
         // Process Applications
         foreach (DBApplication a in taskResult.scraped.applications)
@@ -354,6 +368,9 @@ public class ScrapingManaging
             ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
             r.processedCount++;
         }
+        stats.appProcessTime = sw.Elapsed;
+        stats.appsProcessed = taskResult.scraped.applications.Count;
+        sw.Stop();
 
         foreach (DBAppImage img in taskResult.scraped.imgs)
         {
@@ -362,6 +379,9 @@ public class ScrapingManaging
 
         r.processed = true;
         scrapingContribution.lastContribution = DateTime.UtcNow;
+        stats.processEndTime = DateTime.UtcNow;
+        stats.nodesProcessingAtEnd = processingRn.Count(x => x.Value.IsProcessing());
+        ScrapingNodeMongoDBManager.AddScrapingProcessingStat(stats);
         ScrapingNodeMongoDBManager.UpdateScrapingNodeContribution(scrapingContribution);
         ScrapingNodeMongoDBManager.Flush();
     }

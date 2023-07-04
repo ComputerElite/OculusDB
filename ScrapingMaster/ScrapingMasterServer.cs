@@ -93,6 +93,11 @@ public class ScrapingMasterServer
             request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingNodes()), "application/json");
             return true;
         }, false, true, true, true, 4); // 4 seconds in cache
+        server.AddRoute("GET", "/api/v1/processingstats", request =>
+        {
+            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingProcessingStats()), "application/json");
+            return true;
+        }, false, true, true, true, 4);
         server.AddRoute("POST", "/api/v1/versions/", new Func<ServerRequest, bool>(request =>
         {
             ScrapingNodeIdentification scrapingNodeIdentification = JsonSerializer.Deserialize<ScrapingNodeIdentification>(request.bodyString);

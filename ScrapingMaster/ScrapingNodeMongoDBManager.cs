@@ -14,6 +14,7 @@ public class ScrapingNodeMongoDBManager
     public static IMongoCollection<ScrapingNode> scrapingNodes;
     public static IMongoCollection<ScrapingNodeStats> scrapingNodeStats;
     public static IMongoCollection<ScrapingContribution> scrapingNodeContributions;
+    public static IMongoCollection<ScrapingProcessingStats> scrapingProcessingStats;
 
     public static void Init()
     {
@@ -22,6 +23,17 @@ public class ScrapingNodeMongoDBManager
         scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
         scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
         scrapingNodeContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
+        scrapingProcessingStats = oculusDBDatabase.GetCollection<ScrapingProcessingStats>("scrapingProcessingStats");
+    }
+    
+    public static void AddScrapingProcessingStat(ScrapingProcessingStats scrapingProcessingStat)
+    {
+        scrapingProcessingStats.InsertOne(scrapingProcessingStat);
+    }
+
+    public static List<ScrapingProcessingStats> GetScrapingProcessingStats()
+    {
+        return scrapingProcessingStats.Find(x => true).Limit(1000).ToList();
     }
 
     public static long GetNonPriorityAppsToScrapeCount()
