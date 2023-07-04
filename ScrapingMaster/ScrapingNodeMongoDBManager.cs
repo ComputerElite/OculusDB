@@ -238,7 +238,7 @@ public class ScrapingNodeMongoDBManager
 
     public static List<ScrapingNodeStats> GetScrapingNodes()
     {
-        return scrapingNodeStats.Find(x => true).SortBy(x => x.firstSight).SortBy(x => x.online).ToList().ConvertAll(x =>
+        return scrapingNodeStats.Find(x => true).SortBy(x => x.firstSight).ToList().ConvertAll(x =>
         {
             x.SetOnline();
             // Find contribution in DB
