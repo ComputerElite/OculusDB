@@ -42,6 +42,8 @@ public class ScrapingNodeStats
 
     public void SetOnline()
     {
+        /*
+         // Nodes are sending heartbeats at all time now, we don't need that code anymore
         if (snapshot.scrapingStatus == ScrapingNodeStatus.TransmittingResults || snapshot.scrapingStatus == ScrapingNodeStatus.WaitingForMasterServer)
         {
             if (ScrapingManaging.processingRn.ContainsKey(scrapingNode.scrapingNodeId))
@@ -53,13 +55,14 @@ public class ScrapingNodeStats
                     return;
                 }
                 // Server is already done processing but node says it's transmitting results/waiting for master server.
-                // It should take no longer than 50 seconds till the node reports another status.
+                // It should take no longer than 90 seconds till the node reports another status.
                 online = DateTime.UtcNow -
                        ScrapingManaging.processingRn[scrapingNode.scrapingNodeId].processingDone <
-                       TimeSpan.FromSeconds(50);
+                       TimeSpan.FromSeconds(90);
                 return;
             }
         }
+        */
         online = DateTime.UtcNow - lastHeartBeat < TimeSpan.FromMinutes(1);
     }
 }
