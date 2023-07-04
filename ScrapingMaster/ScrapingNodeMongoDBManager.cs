@@ -146,16 +146,24 @@ public class ScrapingNodeMongoDBManager
         s.scrapingNode = scrapingNode;
         return s;
     }
+    
+    public static List<string> existingScrapingNodes = new List<string>();
 
     public static ScrapingNodeStats GetScrapingNodeStats(ScrapingNode scrapingNode)
     {
         ScrapingNodeStats s = scrapingNodeStats.Find(x => x.scrapingNode.scrapingNodeId == scrapingNode.scrapingNodeId).FirstOrDefault();
         if (s == null)
         {
+            if (existingScrapingNodes.Contains(scrapingNode.scrapingNodeId))
+            {
+                // The entry should exist in the db. However as it doesn't let's return null so it doesn't get overriden with default data.
+                return null;
+            }
             s = new ScrapingNodeStats();
             s.scrapingNode = scrapingNode;
             scrapingNodeStats.InsertOne(s);
         }
+        existingScrapingNodes.Add(scrapingNode.scrapingNodeId);
         s.scrapingNode = scrapingNode;
         return s;
     }

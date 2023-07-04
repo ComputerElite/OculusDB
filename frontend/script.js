@@ -512,7 +512,10 @@ function FormatChangelog(c) {
     return c.replace(/\</, "&lt;").replace(/\>/, "&gt;").replace(/\n/, "<br>")
 }
 
+var addedApplicationSpecificFor = "";
 function AddApplicationSpecific(id) {
+    if(addedApplicationSpecificFor == id) return;
+    addedApplicationSpecificFor = id;
     fetch(`/applicationspecific/${id}`).then(res => {
         if(res.status != 200) {
             document.getElementById("specificContainer").style.display = "none"

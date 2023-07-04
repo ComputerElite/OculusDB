@@ -106,9 +106,15 @@ public class ScrapingNodeManager
         Logger.Log("An unknown error occured, however it's most likely temporary and thus we'll continue as normal", LoggingType.Warning);
     }
 
+    private bool nodeUpdating = false;
     public void UpdateScrapingNode()
     {
         Logger.Log("Trying to update node");
+        if (nodeUpdating)
+        {
+            Logger.Log("Node is already updating via another thread. Not starting another update attempt.", LoggingType.Warning);
+            return;
+        }
         try
         {
             WebClient c = new WebClient();

@@ -374,6 +374,14 @@ public class ScrapingManaging
     public static ScrapingNodeHeartBeatProcessed ProcessHeartBeat(ScrapingNodeHeartBeat heartBeat, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
         ScrapingNodeStats stats = ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
+        if (stats == null)
+        {
+            return new ScrapingNodeHeartBeatProcessed
+            {
+                processed = false,
+                msg = "Couldn't find status entry at this time. Next heartbeat should get processed."
+            };
+        }
         stats.snapshot = heartBeat.snapshot;
         
         // If online, add time since last heartbeat to runtime
@@ -395,6 +403,10 @@ public class ScrapingManaging
         isAppAddingRunning.Unlock(scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingNodeStats s =
             ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
+        if (s == null)
+        {
+            return;
+        }
         // reset runtime as node has just restarted
         s.runtime = TimeSpan.Zero;
         s.lastRestart = DateTime.UtcNow;
