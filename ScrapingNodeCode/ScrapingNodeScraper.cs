@@ -240,32 +240,9 @@ public class ScrapingNodeScraper
                 newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
                 newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
                 
-                if (dlc.node.IsIAPItem())
-                {
-                    // Handle DLC entitlement check 
-                    UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, dlc.node.id, dlc.node.display_name);
+                // Skip dlc if it's free. Most likely indicates a bought DLC for which I do not figure out the correct price
+                if (newDLC.priceOffsetNumerical <= 0) continue;
 
-                    if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0 || ownsDlc == UserEntitlement.OWNED && newDLC.priceOffsetNumerical <= 0) continue;
-                }
-                else
-                {
-                    // Handle DLC Pack entitlement check
-                    bool ownsAll = true;
-                    foreach (Node<IAPItem> includedDlc in dlc.node.bundle_items.edges)
-                    {
-                        UserEntitlement ownsDlc = GetEntitlementStatusOfAppOrDLC(a.id, includedDlc.node.id, includedDlc.node.display_name);
-                        if (ownsDlc == UserEntitlement.FAILED && newDLC.priceOffsetNumerical <= 0 ||
-                            ownsDlc == UserEntitlement.OWNED && newDLC.priceOffsetNumerical <= 0)
-                        {
-                            ownsAll = false;
-                            break;
-                        }
-                    }
-
-                    // If not all DLCs in the pack are owned, skip the dlc pack to avoid price changing
-                    if (!ownsAll) continue;
-                }
-                
 
                 newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);
                 if (dlc.node.IsIAPItem())
