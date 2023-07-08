@@ -101,8 +101,8 @@
                 <td>1</td>
                 <td class="tableBorderRight">
                     <div class="searchResults">
-                        <div>${node.runtime.split(".")[0]}</div>
-                        <div>${node.totalRuntime.split(".").} (total runtime)</div>
+                        <div>${node.runtime.substring(0, node.runtime.lastIndexOf("."))}</div>
+                        <div>${node.totalRuntime.substring(0, node.totalRuntime.lastIndexOf("."))} (total runtime)</div>
                         <div>${GetTimeDiff(node.lastHeartBeat)} ago (last heartbeat)</div>
                         <div>${GetTimeDiff(node.lastRestart)} ago (last restart)</div>
                         <div>${GetTimeDiff(node.firstSight)} ago (first sight)</div>
@@ -110,7 +110,8 @@
                 </td>
                 <td class="tableBorderRight">
                     <div class="searchResults">
-                        ${node.online ? `<div class="chipGreen">${node.snapshot.doneTasks} / ${node.snapshot.totalTasks} tasks processed</div>
+                        <div>Task results processing: <b>${node.tasksProcessing}</b></div>
+                        ${node.online && node.status == 1 /* 1 is scraping */? `<div class="chipGreen">${node.snapshot.doneTasks} / ${node.snapshot.totalTasks} tasks processed</div>
                         <div class="chipGreen">Scraping <b>${node.snapshot.currentlyScraping ?? "N/A"}</b></div>`: ``}
                         <table class="noPadding">
                             ${queued}
@@ -119,6 +120,7 @@
                 </td>
                 <td>
                     <div class="searchResults">
+                        <div>Task results processed: <b>${node.contribution.taskResultsProcessed}</b></div>
                         <table class="noPadding">
                             ${contributed}
                         </table>

@@ -69,7 +69,7 @@ public class ScrapingMasterServer
                 return true;
             }
 
-            request.SendString(JsonSerializer.Serialize(new ScrapingNodeTaskResultProcessing { processing = true, processingStart = DateTime.UtcNow }), "application/json");
+            request.SendString(JsonSerializer.Serialize(new ScrapingNodeTaskResultProcessing()), "application/json");
             ScrapingManaging.ProcessTaskResult(taskResult, r);
             return true;
         });

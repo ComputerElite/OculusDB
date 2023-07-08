@@ -135,15 +135,26 @@ public class ScrapingNodeMongoDBManager
         });
         MongoDBInteractor.appsToScrape.InsertMany(appsToScrapeFiltered);
         // Update scraping node stats
-        ScrapingContribution contribution = GetScrapingNodeContribution(scrapingNode);
+        ScrapingContribution contribution = new ScrapingContribution();
+        contribution.scrapingNode = scrapingNode;
+        contribution.taskResultsProcessed = 1;
         contribution.lastContribution = DateTime.UtcNow;
         contribution.appsQueuedForScraping += appsToScrapeFiltered.Count;
-        UpdateScrapingNodeContribution(contribution);
+        IncScrapingNodeContribution(contribution);
     }
 
-    public static void UpdateScrapingNodeContribution(ScrapingContribution contribution)
+    public static void IncScrapingNodeContribution(ScrapingContribution scrapingContribution)
     {
-        scrapingNodeContributions.ReplaceOne(x => x.scrapingNode.scrapingNodeId == contribution.scrapingNode.scrapingNodeId, contribution);
+        UpdateDefinition<ScrapingContribution> update = Builders<ScrapingContribution>.Update
+            .Inc(x => x.appsQueuedForScraping, scrapingContribution.appsQueuedForScraping)
+            .Inc(x => x.taskResultsProcessed, scrapingContribution.taskResultsProcessed);
+        foreach (KeyValuePair<string,long> keyValuePair in scrapingContribution.contributionPerOculusDBType)
+        {
+            update = update.Inc(x => x.contributionPerOculusDBType[keyValuePair.Key], keyValuePair.Value);
+        }
+
+        scrapingNodeContributions.UpdateOne(
+            x => x.scrapingNode.scrapingNodeId == scrapingContribution.scrapingNode.scrapingNodeId, update);
     }
 
     public static ScrapingContribution GetScrapingNodeContribution(ScrapingNode scrapingNode)
@@ -245,6 +256,10 @@ public class ScrapingNodeMongoDBManager
             x.contribution = scrapingNodeContributions.Find(y => y.scrapingNode.scrapingNodeId == x.scrapingNode.scrapingNodeId)
                 .FirstOrDefault();
             if (x.contribution == null) x.contribution = new ScrapingContribution();
+            if (ScrapingManaging.processingRn.TryGetValue(x.scrapingNode.scrapingNodeId, out ScrapingNodeTaskResultProcessing processing))
+            {
+                x.tasksProcessing = processing.processingCount;
+            }
             return x;
         });
     }

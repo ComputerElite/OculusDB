@@ -10,6 +10,7 @@ public class ScrapingContribution
     public DateTime lastContribution { get; set; } = DateTime.MinValue;
     public Dictionary<string, long> contributionPerOculusDBType { get; set; } = new();
     public long appsQueuedForScraping { get; set; } = 0;
+    public long taskResultsProcessed { get; set; } = 0;
     [JsonIgnore]
     public ScrapingNode scrapingNode { get; set; } = new ScrapingNode();
 

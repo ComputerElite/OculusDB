@@ -39,6 +39,7 @@ public class ScrapingNodeStats
     public TimeSpan totalRuntime { get; set; } = TimeSpan.Zero;
 
     public bool online { get; set; } = false;
+    public long tasksProcessing { get; set; } = 0;
 
     public void SetOnline()
     {

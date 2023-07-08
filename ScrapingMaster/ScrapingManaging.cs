@@ -49,7 +49,7 @@ public class ScrapingManaging
 
         if (processingRn.TryGetValue(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, out ScrapingNodeTaskResultProcessing processing))
         {
-            if (processing.IsProcessing())
+            if (processing.processingCount >= 5) // Allow up to 5 submissions per node to be processed at the same time
             {
                 return new List<ScrapingTask>
                 {
@@ -151,13 +151,14 @@ public class ScrapingManaging
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)
     {
         Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
-        ScrapingContribution scrapingContribution = ScrapingNodeMongoDBManager.GetScrapingNodeContribution(scrapingNodeAuthenticationResult.scrapingNode);
+        ScrapingContribution scrapingContribution = new ScrapingContribution();
+        scrapingContribution.scrapingNode = scrapingNodeAuthenticationResult.scrapingNode;
         // Process Versions
         Dictionary<string, List<DBVersion>> versionLookup = new Dictionary<string, List<DBVersion>>();
         ScrapingProcessingStats stats = new ScrapingProcessingStats();
         stats.scrapingNode = scrapingNodeAuthenticationResult.scrapingNode;
         stats.processStartTime = DateTime.Now;
-        stats.nodesProcessingAtStart = processingRn.Count(x => x.Value.IsProcessing());
+        stats.nodesProcessingAtStart = processingRn.Sum(x => x.Value.processingCount);
         Stopwatch sw = Stopwatch.StartNew();
         foreach (DBVersion v in taskResult.scraped.versions)
         {
@@ -380,9 +381,10 @@ public class ScrapingManaging
         r.processed = true;
         scrapingContribution.lastContribution = DateTime.UtcNow;
         stats.processEndTime = DateTime.UtcNow;
-        stats.nodesProcessingAtEnd = processingRn.Count(x => x.Value.IsProcessing());
+        stats.nodesProcessingAtEnd = processingRn.Sum(x => x.Value.processingCount);
         ScrapingNodeMongoDBManager.AddScrapingProcessingStat(stats);
-        ScrapingNodeMongoDBManager.UpdateScrapingNodeContribution(scrapingContribution);
+        scrapingContribution.taskResultsProcessed = 1;
+        ScrapingNodeMongoDBManager.IncScrapingNodeContribution(scrapingContribution);
         ScrapingNodeMongoDBManager.Flush();
     }
 
