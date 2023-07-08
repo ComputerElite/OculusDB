@@ -4,6 +4,7 @@ using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Web;
 using ComputerUtils.Discord;
 using ComputerUtils.FileManaging;
 using ComputerUtils.Logging;
@@ -646,7 +647,7 @@ public class FrontendServer
                         Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
                         if (conv != Headset.INVALID) headsets.Add(conv);
                     }
-                    List<DBApplication> d = MongoDBInteractor.SearchApplication(request.pathDiff, headsets, request.queryString.Get("quick") == null ? false : true);
+                    List<DBApplication> d = MongoDBInteractor.SearchApplication(HttpUtility.UrlDecode(request.pathDiff), headsets, request.queryString.Get("quick") == null ? false : true);
                     if (d.Count <= 0)
                     {
                         request.SendString("[]", "application/json", 200);

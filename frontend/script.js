@@ -333,7 +333,7 @@ function GetActivityById(id) {
 
 function Search(element)
 {
-    var query = document.getElementById(element).value
+    var query = encodeURIComponent(document.getElementById(element).value)
     if(params.get("headsets")) {
         query += "&headsets=" + params.get("headsets")
     }

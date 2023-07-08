@@ -135,7 +135,7 @@ public class ScrapingNodeScraper
         Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
         if (a == null) throw new Exception("Application is null");
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
-		if (!a.supported_hmd_platforms_enum.Contains(app.headset)) app.headset = a.supported_hmd_platforms_enum[0];
+		if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = 0;
         // Get price
         string currency = "";

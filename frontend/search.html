@@ -104,7 +104,7 @@
             document.getElementById("query").value = query
             document.getElementById("query2").value = query
             SearchResults.innerHTML = loader
-            fetch("/api/v1/search/" + query + "?headsets=" + params.get("headsets")).then(res => {
+            fetch("/api/v1/search/" + encodeURIComponent(query) + "?headsets=" + params.get("headsets")).then(res => {
                 if(res.status != 200) {
                     res.text().then(text => {
                         PopUp(text)
