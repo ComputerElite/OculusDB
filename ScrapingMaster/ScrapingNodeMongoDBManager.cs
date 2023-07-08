@@ -262,7 +262,8 @@ public class ScrapingNodeMongoDBManager
     public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
     {
         appToScrape.scrapePriority = s;
-        MongoDBInteractor.appsToScrape.InsertOne(appToScrape);
+        // ToDo: add check to check if the app is already in the queue/scraping. invalidate appsScraping entries after an hour so it doesn't get stuck.
+        //MongoDBInteractor.appsToScrape.InsertOne(appToScrape);
     }
 
     public static List<DBAppImage> images = new ();
