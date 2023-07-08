@@ -58,7 +58,6 @@ public class ScrapingNodeMongoDBManager
                 x.sentToScrapeTime = now;
                 MongoDBInteractor.appsToScrape.DeleteOne(y => y.appId == x.appId && y.priority == x.priority);
             });
-            MongoDBInteractor.appsScraping.InsertMany(appsToScrape);
         }
         return appsToScrape;
     }
@@ -228,11 +227,6 @@ public class ScrapingNodeMongoDBManager
     {
         contribution.AddContribution(a.__OculusDBType, 1);
         a.__sn = contribution.scrapingNode.scrapingNodeId;
-        AppToScrape t = MongoDBInteractor.appsScraping.FindOneAndDelete(x => x.appId == a.id);
-        if (t != null)
-        {
-            MongoDBInteractor.scrapedApps.InsertOne(t);
-        }
         apps.Add(a);
     }
 
@@ -268,6 +262,7 @@ public class ScrapingNodeMongoDBManager
     public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
     {
         appToScrape.scrapePriority = s;
+        MongoDBInteractor.appsToScrape.InsertOne(appToScrape);
     }
 
     public static List<DBAppImage> images = new ();

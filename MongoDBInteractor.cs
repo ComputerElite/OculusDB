@@ -32,8 +32,6 @@ namespace OculusDB
         public static IMongoCollection<ActivityWebhook>? webhookCollection;
         public static IMongoCollection<Analytic>? analyticsCollection;
         public static IMongoCollection<AppToScrape>? appsToScrape;
-        public static IMongoCollection<AppToScrape>? appsScraping;
-        public static IMongoCollection<AppToScrape>? scrapedApps;
 		public static IMongoCollection<VersionAlias>? versionAliases;
         
         public static IMongoCollection<DBApplication>? blockedApps;
@@ -150,9 +148,7 @@ namespace OculusDB
             dlcPackCollection = oculusDBDatabase.GetCollection<DBIAPItemPack>("dlcPacks");
             appImages = oculusDBDatabase.GetCollection<DBAppImage>("appImages");
 
-            appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
             appsToScrape = oculusDBDatabase.GetCollection<AppToScrape>("appsToScrape");
-            scrapedApps = oculusDBDatabase.GetCollection<AppToScrape>("scrapedApps");
             qAVSReports = oculusDBDatabase.GetCollection<QAVSReport>("QAVSReports");
             versionAliases = oculusDBDatabase.GetCollection<VersionAlias>("versionAliases");
             blockedApps = oculusDBDatabase.GetCollection<DBApplication>("blockedApps");
@@ -163,12 +159,6 @@ namespace OculusDB
         public static void UpdateBlockedAppsCache()
         {
             blockedAppsCache = blockedApps.Distinct<string>("id", new BsonDocument()).ToList();
-        }
-
-        public static void MarkAppAsScrapedOrFailed(AppToScrape app)
-        {
-            appsScraping.DeleteMany(x => x.appId == app.appId);
-            if(!app.priority) scrapedApps.InsertOne(app);
         }
 
         public static List<VersionAlias> GetVersionAliases(string appId)
@@ -558,7 +548,6 @@ namespace OculusDB
         {
             return new ScrapeStatus
             {
-                appsScraping = appsScraping.Find(x => true).ToList(),
                 appsToScrape = appsToScrape.Find(x => true).ToList()
             };
         }

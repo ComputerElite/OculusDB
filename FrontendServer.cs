@@ -176,7 +176,6 @@ public class FrontendServer
                 catch (Exception e)
                 {
                     request.SendString(e.ToString(), "text/plain", 500);
-                    MongoDBInteractor.MarkAppAsScrapedOrFailed(s);
                 }
                 return true;
             });

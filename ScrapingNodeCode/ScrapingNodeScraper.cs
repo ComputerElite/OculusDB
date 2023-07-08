@@ -175,6 +175,7 @@ public class ScrapingNodeScraper
         {
             bool doPriorityForThisVersion = app.priority;
             DBVersion oldEntry = connected.FirstOrDefault(x => x.id == b.id);
+            Logger.Log(oldEntry.version);
             if (doPriorityForThisVersion)
             {
                 if (oldEntry != null)

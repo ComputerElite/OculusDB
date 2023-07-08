@@ -17,8 +17,8 @@ namespace OculusDB
         public static string dataDir = "";
         // Set to false if not in dev mode
         public static bool debugging = false;
-        public static Config config = new Config();
-        public static ScrapingNodeConfig scrapingNodeConfig = new ScrapingNodeConfig();
+        public static Config config = new ();
+        public static ScrapingNodeConfig scrapingNodeConfig = new ();
         public static string userAgent { get
             {
                 return "OculusDB/" + updater.version;
