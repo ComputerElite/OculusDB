@@ -29,7 +29,24 @@ public class ScrapingNodeMongoDBManager
 
         CleanAppsScraping();
     }
-    
+
+    public static void CheckActivityCollection()
+    {
+        Logger.Log("Performing query...");
+        List<string> ids = MongoDBInteractor.activityCollection.Distinct<string>("id",
+            Builders<BsonDocument>.Filter.Eq("__OculusDBType", DBDataTypes.ActivityVersionUpdated)).ToList();
+        Logger.Log("Id count: " + ids.Count);
+        foreach (string id in ids)
+        {
+            long count = MongoDBInteractor.activityCollection.CountDocuments(x => x["id"] == id);
+            if (count >= 3)
+            {
+                Logger.Log("Found " + count + " documents for version " + id + ".");
+            }
+        }
+        Environment.Exit(0);
+    }
+
     public static void AddScrapingProcessingStat(ScrapingProcessingStats scrapingProcessingStat)
     {
         scrapingProcessingStats.InsertOne(scrapingProcessingStat);

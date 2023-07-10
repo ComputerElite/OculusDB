@@ -25,6 +25,8 @@ public class ScrapingMasterServer
         string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         ScrapingNodeMongoDBManager.Init();
         MongoDBInteractor.Initialize();
+        
+        //ScrapingNodeMongoDBManager.CheckActivityCollection();
         Thread nodeStatusThread = new Thread(() =>
         {
             MonitorNodes();
