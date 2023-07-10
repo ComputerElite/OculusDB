@@ -15,6 +15,7 @@ public class ScrapingNodeMongoDBManager
     public static IMongoCollection<ScrapingNodeStats> scrapingNodeStats;
     public static IMongoCollection<ScrapingContribution> scrapingNodeContributions;
     public static IMongoCollection<ScrapingProcessingStats> scrapingProcessingStats;
+    public static IMongoCollection<AppToScrape> appsScraping;
 
     public static void Init()
     {
@@ -24,6 +25,9 @@ public class ScrapingNodeMongoDBManager
         scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
         scrapingNodeContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
         scrapingProcessingStats = oculusDBDatabase.GetCollection<ScrapingProcessingStats>("scrapingProcessingStats");
+        appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
+
+        CleanAppsScraping();
     }
     
     public static void AddScrapingProcessingStat(ScrapingProcessingStats scrapingProcessingStat)
@@ -56,6 +60,7 @@ public class ScrapingNodeMongoDBManager
             {
                 x.responsibleScrapingNodeId = responsibleForApps.scrapingNodeId;
                 x.sentToScrapeTime = now;
+                appsScraping.InsertOne(x);
                 MongoDBInteractor.appsToScrape.DeleteOne(y => y.appId == x.appId && y.priority == x.priority);
             });
         }
@@ -258,10 +263,24 @@ public class ScrapingNodeMongoDBManager
         });
     }
 
+    public static void CleanAppsScraping()
+    {
+        // Delete all apps which have been scraping for longer than 45 minutes
+        appsScraping.DeleteMany(x => x.sentToScrapeTime < DateTime.UtcNow.AddMinutes(-45));
+    }
 
     public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
     {
         appToScrape.scrapePriority = s;
+        
+        // check if app is scraping or already in queue as priority
+        if (MongoDBInteractor.appsToScrape.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null
+            && appsScraping.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null)
+        {
+            // App is already in queue
+            return;
+        }
+        
         MongoDBInteractor.appsToScrape.InsertOne(appToScrape);
     }
 
@@ -339,6 +358,8 @@ public class ScrapingNodeMongoDBManager
             }
             queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, 200));
         }
+
+        CleanAppsScraping();
     }
 
     public static string CreateScrapingNode(string id, string? name)

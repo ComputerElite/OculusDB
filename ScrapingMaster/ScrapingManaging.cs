@@ -252,6 +252,9 @@ public class ScrapingManaging
             newDLC.latestAssetFileId = d.latest_supported_asset_file != null ? d.latest_supported_asset_file.id : "";
             newDLC.priceOffset = d.current_offer.price.offset_amount;
             
+            // Skip dlc pack if it's free
+            if(newDLC.priceOffsetNumerical == 0) continue;
+            
             BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id);
             ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
             if (oldDLC == null)
@@ -290,6 +293,9 @@ public class ScrapingManaging
             newDLCPack.displayName = d.display_name;
             newDLCPack.displayShortDescription = d.display_short_description;
             newDLCPack.priceOffset = d.current_offer.price.offset_amount;
+            
+            // Skip dlc pack if it's free
+            if(newDLCPack.priceOffsetNumerical == 0) continue;
             
             BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id);
             ScrapingNodeMongoDBManager.AddDLCPack(d, ref scrapingContribution);
