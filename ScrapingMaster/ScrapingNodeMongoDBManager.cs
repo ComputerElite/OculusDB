@@ -272,7 +272,7 @@ public class ScrapingNodeMongoDBManager
     public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
     {
         appToScrape.scrapePriority = s;
-        
+
         // check if app is scraping or already in queue as priority
         if (MongoDBInteractor.appsToScrape.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null
             && appsScraping.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null)
