@@ -26,7 +26,7 @@ public class ScrapingMasterServer
         ScrapingNodeMongoDBManager.Init();
         MongoDBInteractor.Initialize();
         
-        //ScrapingNodeMongoDBManager.CheckActivityCollection();
+        ScrapingNodeMongoDBManager.CheckActivityCollection();
         Thread nodeStatusThread = new Thread(() =>
         {
             MonitorNodes();

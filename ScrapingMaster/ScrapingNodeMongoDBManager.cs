@@ -36,15 +36,73 @@ public class ScrapingNodeMongoDBManager
         List<string> ids = MongoDBInteractor.activityCollection.Distinct<string>("id",
             Builders<BsonDocument>.Filter.Eq("__OculusDBType", DBDataTypes.ActivityVersionUpdated)).ToList();
         Logger.Log("Id count: " + ids.Count);
+        int i = 0;
+        List<BsonDocument> toDelete = new List<BsonDocument>();
         foreach (string id in ids)
         {
             long count = MongoDBInteractor.activityCollection.CountDocuments(x => x["id"] == id);
-            if (count >= 3)
+            if (count >= 2)
             {
-                Logger.Log("Found " + count + " documents for version " + id + ".");
+                List<BsonDocument> activities =
+                    MongoDBInteractor.activityCollection.Find(x => x["id"] == id).ToList();
+                activities = activities.OrderBy(x => x["__lastUpdated"].ToUniversalTime()).ToList();
+                string lastChangelog = null;
+                string lastRC = "";
+                foreach (BsonDocument activity in activities)
+                {
+                    bool added = false;
+                    if(activity["__OculusDBType"].AsString != "ActivityVersionUpdated") continue;
+                    //Logger.Log(activity.ToJson());
+                    if (activity["changeLog"].IsBsonNull)
+                    {
+                        if(lastChangelog == null) {
+                            //Logger.Log("o: " + lastChangelog);
+                            //Logger.Log("n: " + null);
+                            toDelete.Add(activity);
+                            added = true;
+                        }
+
+                        lastChangelog = null;
+                        added = true;
+                    }
+                    else
+                    {
+                        if(lastChangelog == activity["changeLog"]) {
+                            //Logger.Log("o: " + lastChangelog);
+                            //Logger.Log("n: " + activity["changeLog"]);
+                            toDelete.Add(activity);
+                            added = true;
+                        }
+                        lastChangelog = (string)activity["changeLog"];
+                    }
+                    
+
+                    if (lastRC == GetRC(activity) && !added)
+                    {
+                        //Logger.Log("o: " + lastRC);
+                        //Logger.Log("n: " + GetRC(activity));
+                        toDelete.Add(activity);
+                    }
+                    lastRC = GetRC(activity);
+                }
+                Logger.Log("Deleting " + toDelete.Count + " activities of " + activities.Count + " activities");
+            }
+
+            i++;
+            Logger.Log(i + "/" + ids.Count + "  (" + (i * 100.0 / ids.Count) + "%)");
+            if (toDelete.Count >= 200)
+            {
+                Logger.Log("Deleting...");
+                Logger.Log("deleted: " + MongoDBInteractor.activityCollection.DeleteMany(Builders<BsonDocument>.Filter.In("_id", toDelete.Select(x => x["_id"]))).DeletedCount);
+                toDelete.Clear();
             }
         }
         Environment.Exit(0);
+    }
+
+    public static string GetRC(BsonDocument d)
+    {
+        return String.Join(',', d["releaseChannels"].AsBsonArray.Select(x => x["channel_name"].AsString).ToArray());
     }
 
     public static void AddScrapingProcessingStat(ScrapingProcessingStats scrapingProcessingStat)
