@@ -15,17 +15,22 @@ namespace OculusDB.ScrapingMaster;
 
 public class ScrapingManaging
 {
-    public static TimeDependantBool isAppAddingRunning { get; set; } = new TimeDependantBool();
+    public static Dictionary<string, TimeDependantBool> isAppAddingRunning { get; set; } = new ();
     public static Dictionary<string, ScrapingNodeTaskResultProcessing> processingRn = new ();
     public static List<ScrapingTask> GetTasks(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
-    {
-        if (ScrapingNodeMongoDBManager.GetNonPriorityAppsToScrapeCount() <= 20)
+    {            
+        string currency = scrapingNodeAuthenticationResult.scrapingNode.currency;
+        if (ScrapingNodeMongoDBManager.GetNonPriorityAppsToScrapeCount(currency) <= 20)
         {
             // Apps to scrape should be added
-            if (!isAppAddingRunning)
+            if(!isAppAddingRunning.ContainsKey(currency))
+            {
+                isAppAddingRunning.Add(scrapingNodeAuthenticationResult.scrapingNode.currency, new());
+            }
+            if (!isAppAddingRunning[currency])
             {
                 // Request node to get all apps on Oculus for scraping. Results should be returned within 10 minutes.
-                isAppAddingRunning.Set(true, TimeSpan.FromMinutes(10), scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId);
+                isAppAddingRunning[currency].Set(true, TimeSpan.FromMinutes(10), scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId);
                 return new List<ScrapingTask>
                 {
                     new()
@@ -34,7 +39,7 @@ public class ScrapingManaging
                     }
                 };
             }
-            if (isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+            if (isAppAddingRunning[currency].IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
             {
                 // Why tf are you requesting tasks. You should be getting all apps to scrape rn you idiot
                 return new List<ScrapingTask>
@@ -87,6 +92,8 @@ public class ScrapingManaging
             processingRn.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId,
                 new ScrapingNodeTaskResultProcessing());
         processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Start();
+
+        string currency = scrapingNodeAuthenticationResult.scrapingNode.currency;
         
         ScrapingProcessedResult r = new ScrapingProcessedResult();
         Logger.Log("Results of Scraping node " + scrapingNodeAuthenticationResult.scrapingNode + " received. Processing now...");
@@ -104,7 +111,7 @@ public class ScrapingManaging
                 processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
                 return r;
             case ScrapingNodeTaskResultType.ErrorWhileRequestingAppsToScrape:
-                if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+                if (!isAppAddingRunning[currency].IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
                 {
                     Logger.Log("Node is not responsible for adding apps to scrape. Ignoring error.");
                     r.processed = false;
@@ -114,10 +121,10 @@ public class ScrapingManaging
                     return r;
                 }
                 Logger.Log("Error while requesting apps to scrape. Making other scraping nodes able to request apps to scrape.");
-                isAppAddingRunning.Set(false, TimeSpan.FromMinutes(10), "");
+                isAppAddingRunning[currency].Set(false, TimeSpan.FromMinutes(10), "");
                 break;
             case ScrapingNodeTaskResultType.FoundAppsToScrape:
-                if (!isAppAddingRunning.IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
+                if (!isAppAddingRunning[currency].IsThisResponsible(scrapingNodeAuthenticationResult.scrapingNode))
                 {
                     Logger.Log("Node is not responsible for adding apps to scrape. Ignoring.");
                     r.processed = false;
@@ -140,7 +147,7 @@ public class ScrapingManaging
                 }
                 catch (Exception e)
                 {
-                    Logger.Log("Erro while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e);
+                    Logger.Log("Error while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e);
                 }
                 break;
         }
@@ -251,6 +258,8 @@ public class ScrapingManaging
             newDLC.displayShortDescription = d.display_short_description;
             newDLC.latestAssetFileId = d.latest_supported_asset_file != null ? d.latest_supported_asset_file.id : "";
             newDLC.priceOffset = d.current_offer.price.offset_amount;
+            newDLC.priceFormatted = d.current_offer.price.formatted;
+            newDLC.currency = d.current_offer.price.currency;
             
             // Skip dlc pack if it's free
             if(newDLC.priceOffsetNumerical == 0) continue;
@@ -298,6 +307,8 @@ public class ScrapingManaging
             newDLCPack.displayName = d.display_name;
             newDLCPack.displayShortDescription = d.display_short_description;
             newDLCPack.priceOffset = d.current_offer.price.offset_amount;
+            newDLCPack.priceFormatted = d.current_offer.price.formatted;
+            newDLCPack.currency = d.current_offer.price.currency;
             
             // Skip dlc pack if it's free
             if(newDLCPack.priceOffsetNumerical == 0) continue;
@@ -357,7 +368,7 @@ public class ScrapingManaging
             
             
             // Price Change activity
-            DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id));
+            DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id, a.currency));
             DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
             priceChange.parentApplication.id = a.id;
             priceChange.parentApplication.hmd = a.hmd;
@@ -365,6 +376,7 @@ public class ScrapingManaging
             priceChange.parentApplication.displayName = a.displayName;
             priceChange.newPriceOffsetNumerical = a.priceOffsetNumerical;
             priceChange.newPriceFormatted = a.priceFormatted;
+            priceChange.currency = a.currency;
             if (lastPriceChange != null)
             {
                 if (lastPriceChange.newPriceOffset != priceChange.newPriceOffset)
@@ -436,7 +448,7 @@ public class ScrapingManaging
     public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
         // If node was responsible for something that locks other nodes from doing it, unlock it
-        isAppAddingRunning.Unlock(scrapingNodeAuthenticationResult.scrapingNode);
+        isAppAddingRunning[scrapingNodeAuthenticationResult.scrapingNode.currency].Unlock(scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingNodeStats s =
             ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         if (s == null)

@@ -110,7 +110,7 @@
             }
 
             function AddConnected() {
-                fetch(`/api/v1/connected/${id}`).then(res => {
+                fetch(`/api/v1/connected/${id}?currency=${params.get("currency") ? params.get("currency") : ""}`).then(res => {
                     if(res.status != 200) {
                         res.text().then(text => {
                             PopUp(text)
@@ -245,7 +245,7 @@
             const priceHistory = document.getElementById("history")
 
             function PlotPrice() {
-                fetch(`/api/v1/pricehistory/${id}`).then(res => res.json().then(res => {
+                fetch(`/api/v1/pricehistory/${id}?currency=${params.get("currency") ? params.get("currency") : ""}`).then(res => res.json().then(res => {
                     var x = []
                     var y = []
                     var layout = {

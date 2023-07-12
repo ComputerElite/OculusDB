@@ -104,7 +104,7 @@
             if(constraints == "") constraints = "none"
 
 
-            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip + (applicationId ? "&application=" + applicationId : "")).then(res => {
+            fetch("/api/v1/activity?typeconstraint=" + (constraints ?? "none") + "&skip=" + skip + (applicationId ? "&application=" + applicationId : "") + `&currency=${params.get("currency") ? params.get("currency") : ""}`).then(res => {
                 if(res.status != 200) {
                     res.text().then(text => {
                         PopUp(text)

@@ -11,6 +11,7 @@ public class ScrapingNode
     public string scrapingNodeToken { get; set; } = "";
     public string scrapingNodeName { get; set; } = "";
     public string scrapingNodeVersion { get; set; } = "0.0";
+    public string currency { get; set; } = "";
     public DateTime expires { get; set; } = DateTime.MinValue;
 
     public override string ToString()

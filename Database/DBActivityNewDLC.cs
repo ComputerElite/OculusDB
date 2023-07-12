@@ -13,6 +13,7 @@ namespace OculusDB.Database
 {
     public class DBActivityNewDLC
     {
+
         [BsonIgnore]
         public string __id
         {
@@ -49,6 +50,7 @@ namespace OculusDB.Database
                 priceOffset = value.ToString();
             }
         }
+        public string currency { get; set; } = "";
 
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
     }

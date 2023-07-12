@@ -20,6 +20,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
+using OculusDB.ScrapingMaster;
 
 namespace OculusDB
 {
@@ -354,7 +355,7 @@ namespace OculusDB
             return null;
         }
 
-        public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "", string applicationId = "")
+        public static List<BsonDocument> GetLatestActivities(int count, int skip = 0, string typeConstraint = "", string applicationId = "", string currency = "")
         {
             string[] stuff = typeConstraint.Split(',');
             BsonArray a = new BsonArray();
@@ -371,6 +372,18 @@ namespace OculusDB
 				orContitionsForApplication.Add(new BsonDocument("parentApplication.id", applicationId));
 				and.Add(new BsonDocument("$or", orContitionsForApplication));
 			}
+            if (currency != "")
+            {
+                BsonDocument currencyFilter = new BsonDocument();
+                // Check if currency either doesn't exist or is the specified currency
+                BsonArray orContitionsForCurrency = new BsonArray
+                {
+                    new BsonDocument("currency", new BsonDocument("$exists", false)),
+                    new BsonDocument("currency", currency)
+                };
+                currencyFilter.Add("$or", orContitionsForCurrency);
+                and.Add(currencyFilter);
+            }
             q.Add(new BsonDocument("$and", and));
 
 			return MongoDBFilterMiddleware(activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList());
@@ -400,14 +413,14 @@ namespace OculusDB
             return webhookCollection.Find(new BsonDocument()).ToList();
         }
 
-        public static BsonDocument GetLastPriceChangeOfApp(string appId)
+        public static BsonDocument GetLastPriceChangeOfApp(string appId, string currency)
         {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged && (!x.Contains("currency") || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
-        public static List<BsonDocument> GetPriceChanges(string id)
+        public static List<BsonDocument> GetPriceChanges(string id, string currency)
         {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged)).SortByDescending(x => x["__lastUpdated"]).ToList());
+            return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged) && (!x.Contains("currency") || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).ToList());
         }
         
         public static List<BsonDocument> GetByID(string id, int history = 1)
@@ -436,7 +449,7 @@ namespace OculusDB
             return list.ConvertAll(x => x.ToBsonDocument());
         }
 
-        public static ConnectedList GetConnected(string id)
+        public static ConnectedList GetConnected(string id, string currency = "")
         {
             ConnectedList l = new ConnectedList();
             List<BsonDocument> docs = GetByID(id);
@@ -452,6 +465,10 @@ namespace OculusDB
             l.dlcs = dlcCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcPacks = dlcPackCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
 
+            l.applications.ConvertAll(x => GetCorrectApplicationEntry(x, currency));
+            l.dlcs.ConvertAll(x => GetCorrectDLCEntry(x, currency));
+            l.dlcPacks.ConvertAll(x => GetCorrectDLCPackEntry(x, currency));
+            
             List<VersionAlias> aliases = GetVersionAliases(applicationId);
             for(int i = 0; i < l.versions.Count; i++)
             {
@@ -462,6 +479,32 @@ namespace OculusDB
 
             return l;
         }
+
+        /// <summary>
+        /// Returns the DLC pack in the correct currency if it exists, otherwise returns the original DLC pack
+        /// </summary>
+        private static DBIAPItemPack GetCorrectDLCPackEntry(DBIAPItemPack dbDlcPack, string currency)
+        {
+            return ScrapingNodeMongoDBManager.GetLocaleDLCPacksCollection(currency).Find(x => x.id == dbDlcPack.id).FirstOrDefault() ?? dbDlcPack;
+        }
+
+        /// <summary>
+        /// Return the DLC in the correct currency if it exists, otherwise returns the original DLC
+        /// </summary>
+        private static DBIAPItem GetCorrectDLCEntry(DBIAPItem dbDlc, string currency)
+        {
+            return ScrapingNodeMongoDBManager.GetLocaleDLCsCollection(currency).Find(x => x.id == dbDlc.id).FirstOrDefault() ?? dbDlc;
+        }
+        
+        /// <summary>
+        /// Return the application in the correct currency if it exists, otherwise returns the original application
+        /// </summary>
+        private static DBApplication GetCorrectApplicationEntry(DBApplication dbApplication, string currency)
+        {
+            return ScrapingNodeMongoDBManager.GetLocaleAppsCollection(currency).Find(x => x.id == dbApplication.id).FirstOrDefault() ?? dbApplication;
+        }
+        
+        
 
         private static bool IsApplicationBlocked(string id)
         {
@@ -477,9 +520,9 @@ namespace OculusDB
             return l;
         }
 
-        public static List<DBApplication> GetAllApplications()
+        public static List<DBApplication> GetAllApplications(string currency)
         {
-            return applicationCollection.Find(x => true).SortByDescending(x => x.__lastUpdated).ToList();
+            return applicationCollection.Find(x => true).SortByDescending(x => x.__lastUpdated).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
         }
 
         public static List<DBApplication> SearchApplication(string query, List<Headset> headsets, bool quick)

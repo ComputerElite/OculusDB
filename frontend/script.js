@@ -301,7 +301,7 @@ document.getElementById("query").onkeydown = e => {
 
 function GetObjectById(id) {
     return new Promise((resolve, reject) => {
-        fetch("/api/v1/id/" + id).then(res => {
+        fetch(`/api/v1/id/${id}?currency=${params.get("currency") ? params.get("currency") : ""}`).then(res => {
             if(res.status != 200) {
                 res.text().then(text => {
                     PopUp(text)
@@ -561,9 +561,9 @@ function GetVersion(version, id, showWorking = true) {
             resolve(res)
         } catch{
             if(showWorking) PopUp(`<div>Working... ${loader}</div>`)
-            fetch(`/api/v1/connected/${id}`).then(res => res.json().then(connected => {
+            fetch(`/api/v1/versions/${id}`).then(res => res.json().then(versions => {
                 var res;
-                connected.versions.forEach(v => {
+                versions.forEach(v => {
                     if(v.version == version && (!v.binary_release_channels || v.binary_release_channels.nodes.length > 0)) res = v
                 });
                 resolve(res)

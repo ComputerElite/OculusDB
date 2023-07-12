@@ -48,6 +48,7 @@ namespace OculusDB.Database
                 priceOffset = value.ToString();
             }
         }
+        public string currency { get; set; } = "";
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
         public List<DBActivityNewDLCPackDLC> includedDLCs { get; set; } = new List<DBActivityNewDLCPackDLC>();
     }

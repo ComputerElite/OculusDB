@@ -37,6 +37,7 @@ namespace OculusDB.Database
         public string displayName { get; set; } = "";
         public string displayLongDescription { get; set; } = "";
         public string publisherName { get; set; } = "";
+        // Prices may not be used, instead use price changes to have currency support
         public string priceFormatted { get; set; } = "$0.00";
         public string priceOffset { get; set; } = "0";
         public long priceOffsetNumerical

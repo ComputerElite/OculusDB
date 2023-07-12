@@ -33,6 +33,7 @@ namespace OculusDB.Database
         public AppStoreOffer baseline_offer { get; set; } = new AppStoreOffer();
         public string priceFormatted { get; set; } = "$0.00";
         public long priceOffsetNumerical { get; set; } = 0;
+        public string currency { get; set; } = "";
         public string canonicalName { get; set; } = "";
         public AppStoreOffer current_gift_offer { get; set; } = new AppStoreOffer();
         public AppStoreOffer current_offer { get; set; } = new AppStoreOffer();

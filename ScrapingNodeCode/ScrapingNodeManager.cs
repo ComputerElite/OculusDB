@@ -219,9 +219,11 @@ public class ScrapingNodeManager
         {
             scrapingNodeToken = config.scrapingNodeToken,
             scrapingNodeVersion = OculusDBEnvironment.updater.version,
-            tokenCount = config.oculusTokens.Count
+            tokenCount = config.oculusTokens.Count,
+            currency = scraper.GetCurrency()
         };
     }
+
 
     public HttpRequestMessage ConstructPostRequest(string url, string body)
     {

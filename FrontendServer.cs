@@ -484,7 +484,8 @@ public class FrontendServer
             server.AddRoute("GET", "/api/v1/allapps", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
-                List<DBApplication> apps = MongoDBInteractor.GetAllApplications();
+                string currency = request.queryString.Get("currency") ?? "";
+                List<DBApplication> apps = MongoDBInteractor.GetAllApplications(currency);
                 request.SendString(JsonSerializer.Serialize(apps), "application/json");
                 return true;
             }), false, true, true, true);
@@ -683,7 +684,8 @@ public class FrontendServer
                 try
                 {
                     List<dynamic> changes = new List<dynamic>();
-                    foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff)) changes.Add(ObjectConverter.ConvertToDBType(d));
+                    string currency = request.queryString.Get("currency") ?? "";
+                    foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff, currency)) changes.Add(ObjectConverter.ConvertToDBType(d));
                     request.SendString(JsonSerializer.Serialize(changes), "application/json");
                 }
                 catch (Exception e)
@@ -701,6 +703,7 @@ public class FrontendServer
                 int skip = 0;
                 string typeConstraint = "";
 				string application = "";
+                string currency = "";
 				try
                 {
                     count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
@@ -714,6 +717,7 @@ public class FrontendServer
                     if (skip < 0) skip = 0;
                     typeConstraint = request.queryString.Get("typeconstraint") ?? "";
 					application = request.queryString.Get("application") ?? "";
+                    currency = request.queryString.Get("currency") ?? "";
 				}
                 catch (Exception ex)
                 {
@@ -722,7 +726,7 @@ public class FrontendServer
                 }
                 try
                 {
-                    List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(count, skip, typeConstraint, application);
+                    List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(count, skip, typeConstraint, application, currency);
                     List<dynamic> asObjects = new List<dynamic>();
                     foreach (BsonDocument activity in activities)
                     {

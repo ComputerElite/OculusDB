@@ -324,6 +324,7 @@ public class ScrapingNodeScraper
         dba.priceOffsetNumerical = correctPrice;
         dba.priceFormatted = FormatPrice(correctPrice, currency);
         dba.packageName = packageName;
+        dba.currency = currency;
         taskResult.scraped.applications.Add(dba);
         DBAppImage dbi = DownloadImage(dba);
         if (dbi != null)
@@ -507,5 +508,16 @@ public class ScrapingNodeScraper
         beat.SetQueuedDocuments(taskResult);
         ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(
             scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
+    }
+
+    private Dictionary<int, string> currencyTokenDict = new();
+    public string GetCurrency()
+    {
+        // To get the currency of the node just request beat saber from oculus and check the price
+        if(currencyTokenDict.ContainsKey(currentToken)) return currencyTokenDict[currentToken];
+        Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.node;
+        string currency = a.current_offer.price.currency;
+        currencyTokenDict.Add(currentToken, currency);
+        return currency;
     }
 }
