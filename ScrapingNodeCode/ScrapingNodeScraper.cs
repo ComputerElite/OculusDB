@@ -451,7 +451,7 @@ public class ScrapingNodeScraper
             foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
             {
                 apps++;
-                appsToScrape.Add(new AppToScrape { headset = h, appId = a.id, priority = false, imageUrl = a.cover_square_image.uri });
+                appsToScrape.Add(new AppToScrape { currency = GetCurrency(), headset = h, appId = a.id, priority = false, imageUrl = a.cover_square_image.uri });
             }
         } catch(Exception e)
         {
@@ -480,7 +480,7 @@ public class ScrapingNodeScraper
             string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
             if (id.Length <= 16)
             {
-                appsToScrape.Add(new AppToScrape { appId = id, imageUrl = a.image_url, priority = false, headset = Headset.HOLLYWOOD });
+                appsToScrape.Add(new AppToScrape { currency = GetCurrency(), appId = id, imageUrl = a.image_url, priority = false, headset = Headset.HOLLYWOOD });
             }
         }
 
