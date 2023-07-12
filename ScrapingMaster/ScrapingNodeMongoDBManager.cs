@@ -32,6 +32,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void CheckActivityCollection()
     {
+        return;
         Logger.Log("Performing query...");
         List<string> ids = MongoDBInteractor.activityCollection.Distinct<string>("id",
             Builders<BsonDocument>.Filter.Eq("__OculusDBType", DBDataTypes.ActivityVersionUpdated)).ToList();
@@ -51,7 +52,7 @@ public class ScrapingNodeMongoDBManager
                 foreach (BsonDocument activity in activities)
                 {
                     bool added = false;
-                    if(activity["__OculusDBType"].AsString != "ActivityVersionUpdated") continue;
+                    if(activity["__OculusDBType"].AsString != "ActivityVersionUpdated" || !activity.Contains("changeLog")) continue;
                     //Logger.Log(activity.ToJson());
                     if (activity["changeLog"].IsBsonNull)
                     {
@@ -63,7 +64,6 @@ public class ScrapingNodeMongoDBManager
                         }
 
                         lastChangelog = null;
-                        added = true;
                     }
                     else
                     {
@@ -446,5 +446,10 @@ public class ScrapingNodeMongoDBManager
         n.expires = DateTime.UtcNow.AddYears(10);
         scrapingNodes.InsertOne(n);
         return n.scrapingNodeToken;
+    }
+
+    public static List<DBIAPItem> GetDLCs(string appId)
+    {
+        return MongoDBInteractor.dlcCollection.Find(x => x.parentApplication.id == appId).ToList();
     }
 }

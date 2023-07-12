@@ -275,10 +275,15 @@ public class ScrapingManaging
         sw.Restart();
         
         // Process DLC Packs
+        Dictionary<string, List<DBIAPItem>> dlcsInDB = new ();
         foreach (DBIAPItemPack d in taskResult.scraped.dlcPacks)
         {
             DBApplication parentApplication =
                 taskResult.scraped.applications.FirstOrDefault(x => x.id == d.parentApplication.id);
+            if (!dlcsInDB.ContainsKey(d.id))
+            {
+                dlcsInDB.Add(parentApplication.id, ScrapingNodeMongoDBManager.GetDLCs(parentApplication.id));
+            }
             if (parentApplication == null)
             {
                 Logger.Log("Skipping " + d + " because the parent application isn't in the scraping results");
@@ -303,8 +308,11 @@ public class ScrapingManaging
             foreach (DBItemId item in d.bundle_items)
             {
                 DBIAPItem matching = taskResult.scraped.dlcs.FirstOrDefault(x => x.id == item.id);
-                if(matching == null) continue;
-                if (matching == null) continue;
+                if (matching == null)
+                {
+                    matching = dlcsInDB[parentApplication.id].FirstOrDefault(x => x.id == item.id);
+                    if(matching == null) continue;
+                }
                 DBActivityNewDLCPackDLC dlcItem = new DBActivityNewDLCPackDLC();
                 dlcItem.id = matching.id;
                 dlcItem.displayName = matching.display_name;
