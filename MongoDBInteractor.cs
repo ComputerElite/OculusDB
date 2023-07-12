@@ -485,6 +485,7 @@ namespace OculusDB
         /// </summary>
         private static DBIAPItemPack GetCorrectDLCPackEntry(DBIAPItemPack dbDlcPack, string currency)
         {
+            if(currency == "") return dbDlcPack;
             return ScrapingNodeMongoDBManager.GetLocaleDLCPacksCollection(currency).Find(x => x.id == dbDlcPack.id).FirstOrDefault() ?? dbDlcPack;
         }
 
@@ -493,6 +494,7 @@ namespace OculusDB
         /// </summary>
         private static DBIAPItem GetCorrectDLCEntry(DBIAPItem dbDlc, string currency)
         {
+            if(currency == "") return dbDlc;
             return ScrapingNodeMongoDBManager.GetLocaleDLCsCollection(currency).Find(x => x.id == dbDlc.id).FirstOrDefault() ?? dbDlc;
         }
         
@@ -501,6 +503,7 @@ namespace OculusDB
         /// </summary>
         private static DBApplication GetCorrectApplicationEntry(DBApplication dbApplication, string currency)
         {
+            if(currency == "") return dbApplication;
             return ScrapingNodeMongoDBManager.GetLocaleAppsCollection(currency).Find(x => x.id == dbApplication.id).FirstOrDefault() ?? dbApplication;
         }
         
