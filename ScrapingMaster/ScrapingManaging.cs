@@ -94,7 +94,10 @@ public class ScrapingManaging
         processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Start();
 
         string currency = scrapingNodeAuthenticationResult.scrapingNode.currency;
-        
+        if (!isAppAddingRunning.ContainsKey(currency))
+        {
+            isAppAddingRunning.Add(scrapingNodeAuthenticationResult.scrapingNode.currency, new());
+        }
         ScrapingProcessedResult r = new ScrapingProcessedResult();
         Logger.Log("Results of Scraping node " + scrapingNodeAuthenticationResult.scrapingNode + " received. Processing now...");
         Logger.Log("Result type: " +
@@ -448,7 +451,11 @@ public class ScrapingManaging
     public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
     {
         // If node was responsible for something that locks other nodes from doing it, unlock it
-        isAppAddingRunning[scrapingNodeAuthenticationResult.scrapingNode.currency].Unlock(scrapingNodeAuthenticationResult.scrapingNode);
+        string currency = scrapingNodeAuthenticationResult.scrapingNode.currency;
+        if (isAppAddingRunning.ContainsKey(currency))
+        {
+            isAppAddingRunning[currency].Unlock(scrapingNodeAuthenticationResult.scrapingNode);
+        }
         ScrapingNodeStats s =
             ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
         if (s == null)
