@@ -397,6 +397,11 @@ namespace OculusDB
         {
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
+        
+        public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
+        {
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (!x.Contains("currency") || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
+        }
 
 		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
 		{

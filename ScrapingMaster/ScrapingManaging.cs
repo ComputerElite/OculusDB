@@ -267,13 +267,13 @@ public class ScrapingManaging
             // Skip dlc pack if it's free
             if(newDLC.priceOffsetNumerical == 0) continue;
             
-            BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id);
+            BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id, newDLC.currency);
             ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
             if (oldDLC == null)
             {
                 ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument(), ref scrapingContribution);
             }
-            else if (oldDLC["latestAssetFileId"] != newDLC.latestAssetFileId || oldDLC["priceOffset"] != newDLC.priceOffset || oldDLC["displayName"] != newDLC.displayName || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
+            else if (!oldDLC.Contains("latestAssetFileId") || oldDLC["latestAssetFileId"] != newDLC.latestAssetFileId || !oldDLC.Contains("priceOffset") ||  oldDLC["priceOffset"] != newDLC.priceOffset || !oldDLC.Contains("displayName") || oldDLC["displayName"] != newDLC.displayName || !oldDLC.Contains("displayShortDescription") || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
             {
                 DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
                 updated.__lastEntry = oldDLC["_id"].ToString();
@@ -316,7 +316,7 @@ public class ScrapingManaging
             // Skip dlc pack if it's free
             if(newDLCPack.priceOffsetNumerical == 0) continue;
             
-            BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id);
+            BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id, newDLCPack.currency);
             ScrapingNodeMongoDBManager.AddDLCPack(d, ref scrapingContribution);
             newDLCPack.__OculusDBType = DBDataTypes.ActivityNewDLCPack;
             foreach (DBItemId item in d.bundle_items)
@@ -337,7 +337,7 @@ public class ScrapingManaging
             {
                 ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument(), ref scrapingContribution);
             }
-            else if (oldDLC["priceOffset"] != newDLCPack.priceOffset || oldDLC["displayName"] != newDLCPack.displayName || oldDLC["displayShortDescription"] != newDLCPack.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToArray()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToArray()))
+            else if (!oldDLC.Contains("priceOffset") || oldDLC["priceOffset"] != newDLCPack.priceOffset|| !oldDLC.Contains("displayName") || oldDLC["displayName"] != newDLCPack.displayName || !oldDLC.Contains("displayShortDescription") || oldDLC["displayShortDescription"] != newDLCPack.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToArray()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToArray()))
             {
                 DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
                 updated.__lastEntry = oldDLC["_id"].ToString();

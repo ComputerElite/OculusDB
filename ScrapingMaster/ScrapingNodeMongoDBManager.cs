@@ -100,7 +100,7 @@ public class ScrapingNodeMongoDBManager
         // Get apps to scrape
         string currency = responsibleForApps.currency;
         List<AppToScrape> appsToScrape =
-            MongoDBInteractor.appsToScrape.Find(x => x.priority == priority && x.currency == currency).SortByDescending(x => x.scrapePriority).Limit(count).ToList();
+            MongoDBInteractor.appsToScrape.Find(x => x.priority == priority && (x.currency == currency || x.currency == "")).SortByDescending(x => x.scrapePriority).Limit(count).ToList();
         // Set responsible scraping node, sent time and remove from apps to scrape
         DateTime now = DateTime.UtcNow;
         
