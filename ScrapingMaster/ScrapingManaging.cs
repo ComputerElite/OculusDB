@@ -46,7 +46,7 @@ public class ScrapingManaging
                 {
                     new()
                     {
-                        scrapingTask = ScrapingTaskType.GetAllAppsToScrape
+                        scrapingTask = ScrapingTaskType.WaitForResults
                     }
                 };
             }

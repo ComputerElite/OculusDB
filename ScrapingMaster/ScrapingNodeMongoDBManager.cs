@@ -186,6 +186,7 @@ public class ScrapingNodeMongoDBManager
         {
             if (MongoDBInteractor.appsToScrape.Find(y => y.appId == x.appId).FirstOrDefault() == null)
             {
+                x.currency = scrapingNode.currency;
                 appsToScrapeFiltered.Add(x);
             }
         });

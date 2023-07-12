@@ -473,7 +473,7 @@ public class ScrapingNodeScraper
             s.AddRange(JsonSerializer.Deserialize<List<SidequestApplabGame>>(c.DownloadString("https://api.sidequestvr.com/v2/apps?limit=1000&skip=" + s.Count + "&is_app_lab=true&has_oculus_url=true&sortOn=downloads&descending=true")));
             didIncrease = lastCount != s.Count;
             lastCount = s.Count;
-        }
+        }   
         Logger.Log("queued " + lastCount + " applab apps");
         foreach (SidequestApplabGame a in s)
         {
