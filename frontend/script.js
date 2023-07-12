@@ -733,13 +733,13 @@ function FormatDLCPackActivityDLC(a, i) {
             <div class="buttons">
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.id}')">
             </div>
-            <div class="flex header" onclick="RevealDescription('${i}_${a.__id}')" >
-                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_${a.__id}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;"></div>
+            <div class="flex header" onclick="RevealDescription('${i}_${a.id}')" >
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${i}_${a.id}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">${a.displayName}</div>
             </div>
         </div>
 
-        <div class="hidden" id="${i}_${a.__id}">
+        <div class="hidden" id="${i}_${a.id}">
             <table>
                 <colgroup>
                     <col width="130em">
