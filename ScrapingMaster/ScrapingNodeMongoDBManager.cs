@@ -32,7 +32,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void CheckActivityCollection()
     {
-        //return;
+        return;
         Logger.Log("Performing query...");
         List<string> ids = MongoDBInteractor.activityCollection.Distinct<string>("id",
             Builders<BsonDocument>.Filter.Eq("__OculusDBType", DBDataTypes.ActivityDLCUpdated)).ToList();
