@@ -634,7 +634,7 @@ public class FrontendServer
                     Logger.Log(e.ToString(), LoggingType.Error);
                 }
                 return true;
-            }), true, true, true, true, 360); // 6 mins
+            }), true, true, true, true, 120); // 2 mins
             server.AddRouteRedirect("GET", "/api/search/", "/api/v1/search/", true);
             server.AddRoute("GET", "/api/v1/search/", new Func<ServerRequest, bool>(request =>
             {
