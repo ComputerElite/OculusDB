@@ -54,6 +54,11 @@ public class ScrapingNodeManager
         client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OculusDB", OculusDBEnvironment.updater.version));
         // Check out server to let it know the node is stared. If errors occur during the checkout, the node will do the appropriate action automatically
         ScrapingNodeAuthenticationResult r = CheckOutServer();
+        if (r.overrideSettings.overrideCurrency != "")
+        {
+            config.overrideCurrency = r.overrideSettings.overrideCurrency;
+            config.Save();
+        }
         Logger.Log("Initializing Oculus Interactor");
         OculusInteractor.Init();
         scraper.ChangeToken();

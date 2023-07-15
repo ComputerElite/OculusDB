@@ -23,6 +23,7 @@ public class ScrapingNodeConfig
     }
 
     public string scrapingNodeToken { get; set; } = "";
+    public string overrideCurrency { get; set; } = "";
     public List<string> oculusTokens { get; set; } = new List<string>();
 
     [JsonIgnore]

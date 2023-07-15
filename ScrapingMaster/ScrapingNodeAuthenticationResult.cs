@@ -12,6 +12,7 @@ public class ScrapingNodeAuthenticationResult
     public bool tokenValid { get; set; } = false;
 
     public string compatibleScrapingVersion { get; set; } = "";
+    public ScrapingNodeOverrideSettings overrideSettings { get; set; } = new();
 
     public bool scrapingNodeVersionCompatible
     {

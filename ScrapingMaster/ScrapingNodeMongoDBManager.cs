@@ -16,6 +16,7 @@ public class ScrapingNodeMongoDBManager
     public static IMongoCollection<ScrapingContribution> scrapingNodeContributions;
     public static IMongoCollection<ScrapingProcessingStats> scrapingProcessingStats;
     public static IMongoCollection<AppToScrape> appsScraping;
+    public static IMongoCollection<ScrapingNodeOverrideSettings> scrapingNodeOverrideSettingses;
 
     public static void Init()
     {
@@ -26,6 +27,7 @@ public class ScrapingNodeMongoDBManager
         scrapingNodeContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
         scrapingProcessingStats = oculusDBDatabase.GetCollection<ScrapingProcessingStats>("scrapingProcessingStats");
         appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
+        scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
 
         CleanAppsScraping();
     }
@@ -141,6 +143,9 @@ public class ScrapingNodeMongoDBManager
                 compatibleScrapingVersion = OculusDBEnvironment.updater.version
             };
         }
+        ScrapingNodeOverrideSettings scrapingNodeOverrideSettings = scrapingNodeOverrideSettingses.Find(x => x.scrapingNode.scrapingNodeId == scrapingNode.scrapingNodeId).FirstOrDefault();
+        if(scrapingNodeOverrideSettings == null) scrapingNodeOverrideSettings = new ScrapingNodeOverrideSettings();
+        
         scrapingNode.currency = scrapingNodeIdentification.currency;
         scrapingNode.scrapingNodeVersion = scrapingNodeIdentification.scrapingNodeVersion;
         scrapingNodes.ReplaceOne(x => x.scrapingNodeToken == scrapingNodeIdentification.scrapingNodeToken, scrapingNode);
@@ -154,6 +159,7 @@ public class ScrapingNodeMongoDBManager
                 tokenValid = true,
                 msg = "Token expired. Contact ComputerElite if you want to help scraping.",
                 scrapingNode = scrapingNode,
+                overrideSettings = scrapingNodeOverrideSettings,
                 compatibleScrapingVersion = OculusDBEnvironment.updater.version
             };
         }
@@ -166,6 +172,7 @@ public class ScrapingNodeMongoDBManager
             tokenValid = true,
             msg = "Token valid.",
             scrapingNode = scrapingNode,
+            overrideSettings = scrapingNodeOverrideSettings,
             compatibleScrapingVersion = OculusDBEnvironment.updater.version
         };
         if (!res.scrapingNodeVersionCompatible)

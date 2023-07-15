@@ -263,6 +263,10 @@ public class ScrapingNodeScraper
         DBIAPItemPack dbdlcp = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
         dbdlcp.parentApplication.hmd = h;
         dbdlcp.parentApplication.displayName = app.displayName;
+        if(dbdlcp.current_offer != null && dbdlcp.current_offer.price != null)
+        {
+            dbdlcp.current_offer.price.currency = GetOverrideCurrency(dbdlcp.current_offer.price.currency);
+        }
         foreach(Node<IAPItem> i in a.bundle_items.edges)
         {
             DBItemId id = new DBItemId();
@@ -278,6 +282,10 @@ public class ScrapingNodeScraper
         DBIAPItem dbdlc = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
         dbdlc.parentApplication.hmd = h;
         dbdlc.latestAssetFileId = a.latest_supported_asset_file != null ? a.latest_supported_asset_file.id : "";
+        if (dbdlc.current_offer != null && dbdlc.current_offer.price != null)
+        {
+            dbdlc.current_offer.price.currency = GetOverrideCurrency(dbdlc.current_offer.price.currency);
+        }
         taskResult.scraped.dlcs.Add(dbdlc);
     }
 
@@ -316,6 +324,12 @@ public class ScrapingNodeScraper
         taskResult.scraped.versions.Add(dbv);
     }
 
+    public string GetOverrideCurrency(string currency)
+    {
+        if (scrapingNodeManager.config.overrideCurrency != "") return scrapingNodeManager.config.overrideCurrency;
+        return currency;
+    }
+
     public void AddApplication(Application a, Headset h, string image, string packageName, long correctPrice, string currency)
     {
         DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
@@ -324,7 +338,19 @@ public class ScrapingNodeScraper
         dba.priceOffsetNumerical = correctPrice;
         dba.priceFormatted = FormatPrice(correctPrice, currency);
         dba.packageName = packageName;
-        dba.currency = currency;
+        dba.currency = GetOverrideCurrency(currency);
+        if (dba.baseline_offer != null && dba.baseline_offer.price != null)
+        {
+            dba.baseline_offer.price.currency = GetOverrideCurrency(dba.baseline_offer.price.currency);
+        }
+        if (dba.current_offer != null && dba.current_offer.price != null)
+        {
+            dba.current_offer.price.currency = GetOverrideCurrency(dba.current_offer.price.currency);
+        }
+        if(dba.current_gift_offer != null && dba.current_gift_offer.price != null)
+        {
+            dba.current_gift_offer.price.currency = GetOverrideCurrency(dba.current_gift_offer.price.currency);
+        }
         taskResult.scraped.applications.Add(dba);
         DBAppImage dbi = DownloadImage(dba);
         if (dbi != null)
@@ -407,14 +433,15 @@ public class ScrapingNodeScraper
     }
 
     public string FormatPrice(long offsetAmount, string currency)
-        {
-            string symbol = "";
-            if (currency == "USD") symbol = "$";
-            if (currency == "EUR") symbol = "€";
-            string price = symbol + String.Format("{0:0.00}", offsetAmount / 100.0);
-            
-            return price;
-        }
+    {
+        string symbol = "";
+        if (currency == "USD") symbol = "$";
+        if (currency == "AUD") symbol = "$";
+        if (currency == "EUR") symbol = "€";
+        string price = symbol + String.Format("{0:0.00}", offsetAmount / 100.0);
+        
+        return price;
+    }
 
     Stopwatch sw = Stopwatch.StartNew();
     public void TransmitAndClearResultsIfPresent()
@@ -514,6 +541,7 @@ public class ScrapingNodeScraper
     public string GetCurrency()
     {
         // To get the currency of the node just request beat saber from oculus and check the price
+        if(scrapingNodeManager.config.overrideCurrency != "") return scrapingNodeManager.config.overrideCurrency;
         if(currencyTokenDict.ContainsKey(currentToken)) return currencyTokenDict[currentToken];
         Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.node;
         string currency = a.current_offer.price.currency;
