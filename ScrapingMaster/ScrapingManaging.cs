@@ -268,6 +268,7 @@ public class ScrapingManaging
             if(newDLC.priceOffsetNumerical == 0) continue;
             
             BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id, newDLC.currency);
+            Logger.Log(oldDLC.ToJson());
             ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
             if (oldDLC == null)
             {
