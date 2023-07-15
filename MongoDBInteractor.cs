@@ -400,7 +400,7 @@ namespace OculusDB
         
         public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
         {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (!x.Contains("currency") || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (x["currency"] == null || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
 		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
@@ -420,12 +420,12 @@ namespace OculusDB
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId, string currency)
         {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged && (!x.Contains("currency") || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
+            return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged && (x["currency"] == null|| x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
         public static List<BsonDocument> GetPriceChanges(string id, string currency)
         {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged) && (!x.Contains("currency") || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).ToList());
+            return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged) && (x["currency"] == null || x["currency"] == currency)).SortByDescending(x => x["__lastUpdated"]).ToList());
         }
         
         public static List<BsonDocument> GetByID(string id, int history = 1)
