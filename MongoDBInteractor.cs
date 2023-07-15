@@ -401,6 +401,7 @@ namespace OculusDB
         
         public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
         {
+            Logger.Log("Checking currency " + currency + " for " + id, LoggingType.Important);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
