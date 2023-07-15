@@ -133,22 +133,12 @@
                 return "No recorded downloads"
             }
 
+            var currencyForPriceHistory = ""
+            
             function UpdateConnected(first = false) {
                 if(object.__OculusDBType == "Application") {
                     document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
                     RevealDescription("this_" + object.id)
-                }
-
-                if(first) {
-                    AddDownloadStats(connected.applications[0].id)
-                    if(object.__OculusDBType != "Version"){
-                        var script = document.createElement("script")
-                        script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
-                        script.onload = () => PlotPrice()
-                        document.head.appendChild(script)
-                    } else {
-                        priceHistory.innerHTML = "Prices are not available for Versions"
-                    }
                 }
                 
                 if(object.__OculusDBType == "Application") {
@@ -158,6 +148,7 @@
                 }
                 var apps = ""
                 connected.applications.forEach(a => {
+                    currencyForPriceHistory = a.currency
                     a.downloads = GetDownloads(a.id)
                     apps += FormatApplication(a, a.id)
                     if(object.__OculusDBType != "Application") {
@@ -207,6 +198,18 @@
                     openTab(document.getElementById("dlcpacks_button"), 'dlcpacks')
                     ScrollAndExpand(object.id)
                 }
+
+                if(first) {
+                    AddDownloadStats(connected.applications[0].id)
+                    if(object.__OculusDBType != "Version"){
+                        var script = document.createElement("script")
+                        script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
+                        script.onload = () => PlotPrice()
+                        document.head.appendChild(script)
+                    } else {
+                        priceHistory.innerHTML = "Prices are not available for Versions"
+                    }
+                }
             }
 
             function ScrollAndExpand(id) {
@@ -245,7 +248,7 @@
             const priceHistory = document.getElementById("history")
 
             function PlotPrice() {
-                fetch(`/api/v1/pricehistory/${id}?currency=${params.get("currency") ? params.get("currency") : ""}`).then(res => res.json().then(res => {
+                fetch(`/api/v1/pricehistory/${id}?currency=${currencyForPriceHistory}`).then(res => res.json().then(res => {
                     var x = []
                     var y = []
                     var layout = {
