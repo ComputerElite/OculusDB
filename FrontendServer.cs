@@ -607,7 +607,7 @@ public class FrontendServer
                     Logger.Log(e.ToString(), LoggingType.Error);
                 }
                 return true;
-            }), true, true, true, true, 360); // 6 mins
+            }), true, true, true, true, 120); // 2 mins
             server.AddRoute("GET", "/api/v1/versions/", new Func<ServerRequest, bool>(request =>
             {
                 if (!DoesUserHaveAccess(request)) return true;
