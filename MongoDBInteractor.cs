@@ -385,6 +385,7 @@ namespace OculusDB
                 and.Add(currencyFilter);
             }
             q.Add(new BsonDocument("$and", and));
+            Logger.Log(q.ToJson(), LoggingType.Important);
 
 			return MongoDBFilterMiddleware(activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList());
         }
