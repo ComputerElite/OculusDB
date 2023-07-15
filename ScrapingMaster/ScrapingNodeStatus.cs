@@ -8,5 +8,6 @@ public enum ScrapingNodeStatus
     TransmittingResults,
     StartingUp,
     Offline,
-    WaitingForMasterServer
+    WaitingForMasterServer,
+    RateLimited
 }

@@ -26,6 +26,8 @@ public class ScrapingNodeScraper
     public int currentToken = 0;
     public int totalTasks = 0;
     public int tasksDone = 0;
+    
+    public ScrapingNodeScraperErrorTracker errorTracker { get; set; } = new ScrapingNodeScraperErrorTracker();
 
 
     public ScrapingNodeScraper(ScrapingNodeManager manager)
@@ -61,6 +63,18 @@ public class ScrapingNodeScraper
         taskResult = new ScrapingNodeTaskResult();
         while (scrapingTasks.Count > 0)
         {
+            if (!errorTracker.ContinueScraping())
+            {
+                scrapingNodeManager.status = ScrapingNodeStatus.RateLimited;
+                int toSleep = (int)Math.Round((errorTracker.continueTime - DateTime.UtcNow).TotalMilliseconds);
+                if (toSleep < 0)
+                {
+                    continue;
+                }
+                Logger.Log("Rate limited. Sleeping for " + toSleep + "ms. That's until " + errorTracker.continueTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                Thread.Sleep(toSleep);
+                continue;
+            }
             switch (scrapingTasks[0].scrapingTask)
             {
                 case ScrapingTaskType.GetAllAppsToScrape:
@@ -133,7 +147,11 @@ public class ScrapingNodeScraper
     {
         taskResult.altered = true;
         Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
-        if (a == null) throw new Exception("Application is null");
+        if (a == null)
+        {
+            errorTracker.AddError();
+            throw new Exception("Application is null");
+        }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = 0;
@@ -530,6 +548,7 @@ public class ScrapingNodeScraper
         beat.identification = scrapingNodeManager.GetIdentification();
         beat.snapshot.scrapingStatus = scrapingNodeManager.status;
         beat.snapshot.totalTasks = totalTasks;
+        beat.snapshot.scrapingContinueTime = errorTracker.continueTime;
         beat.snapshot.doneTasks = tasksDone;
         beat.snapshot.currentlyScraping = currentlyScraping;
         beat.SetQueuedDocuments(taskResult);

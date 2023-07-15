@@ -107,6 +107,7 @@
                         <div>${GetTimeDiff(node.lastHeartBeat)} ago (last heartbeat)</div>
                         <div>${GetTimeDiff(node.lastRestart)} ago (last restart)</div>
                         <div>${GetTimeDiff(node.firstSight)} ago (first sight)</div>
+                        <div>continue scraping: ${new Date(node.snapshot.scrapingContinueTime).toLocaleString()}</div>
                     </div>
                 </td>
                 <td class="tableBorderRight">
