@@ -31,7 +31,10 @@
             var activity = {}
 
             function OpenLastActivity() {
-                if(!activity.__lastEntry) alert("No preceeding entry found")
+                if(!activity.__lastEntry) {
+                    alert("No preceeding entry found")
+                    return
+                }
                 window.location.href = GetActivityLink(activity.__lastEntry)
             }
 
