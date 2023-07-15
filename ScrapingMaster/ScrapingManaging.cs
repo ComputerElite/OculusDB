@@ -268,7 +268,7 @@ public class ScrapingManaging
             if(newDLC.priceOffsetNumerical == 0) continue;
             
             BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id, newDLC.currency);
-            Logger.Log(oldDLC.ToJson());
+            //Logger.Log(oldDLC.ToJson());
             ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
             if (oldDLC == null)
             {
@@ -293,14 +293,14 @@ public class ScrapingManaging
         {
             DBApplication parentApplication =
                 taskResult.scraped.applications.FirstOrDefault(x => x.id == d.parentApplication.id);
-            if (!dlcsInDB.ContainsKey(d.id))
-            {
-                dlcsInDB.Add(parentApplication.id, ScrapingNodeMongoDBManager.GetDLCs(parentApplication.id));
-            }
             if (parentApplication == null)
             {
                 Logger.Log("Skipping " + d + " because the parent application isn't in the scraping results");
                 continue;
+            }
+            if (!dlcsInDB.ContainsKey(parentApplication.id))
+            {
+                dlcsInDB.Add(parentApplication.id, ScrapingNodeMongoDBManager.GetDLCs(parentApplication.id));
             }
             DBActivityNewDLCPack newDLCPack = new DBActivityNewDLCPack();
             newDLCPack.id = d.id;
