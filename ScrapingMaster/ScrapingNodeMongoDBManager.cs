@@ -369,13 +369,16 @@ public class ScrapingNodeMongoDBManager
         
 
         Logger.Log("Adding " + iapItems.Count + " dlcs to database.");
+        
+        List<string> addedIds = new ();
         while (iapItems.Count > 0)
         {
             // Bulk do work in batches of 200
             ids = iapItems.Select(x => x.id).Take(Math.Min(iapItems.Count, 200)).ToArray();
             // Add to main DB for search
             MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.dlcCollection.InsertMany(iapItems.Take(Math.Min(iapItems.Count, 200)));
+            MongoDBInteractor.dlcCollection.InsertMany(iapItems.Take(Math.Min(iapItems.Count, 200)).Where(x => !addedIds.Contains(x.id)));
+            addedIds.AddRange(ids);
             
             // add to locale dlcs thing for future access to it
             foreach (DBIAPItem d in iapItems.Take(Math.Min(iapItems.Count, 200)))
@@ -388,13 +391,15 @@ public class ScrapingNodeMongoDBManager
         
 
         Logger.Log("Adding " + dlcPacks.Count + " dlc packs to database.");
+        addedIds.Clear();
         while (dlcPacks.Count > 0)
         {
             // Bulk do work in batches of 200
             ids = dlcPacks.Select(x => x.id).Take(Math.Min(dlcPacks.Count, 200)).ToArray();
             // Add to main db for search
             MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.dlcPackCollection.InsertMany(dlcPacks.Take(Math.Min(dlcPacks.Count, 200)));
+            MongoDBInteractor.dlcPackCollection.InsertMany(dlcPacks.Take(Math.Min(dlcPacks.Count, 200)).Where(x => !addedIds.Contains(x.id)));
+            addedIds.AddRange(ids);
             // add to locale dlcs thing for future access to it
             foreach (DBIAPItemPack d in dlcPacks.Take(Math.Min(dlcPacks.Count, 200)))
             {
@@ -406,13 +411,15 @@ public class ScrapingNodeMongoDBManager
         }
         
         Logger.Log("Adding " + apps.Count + " apps to database.");
+        addedIds.Clear();
         while (apps.Count > 0)
         {
             // Bulk do work in batches of 200
             ids = apps.Select(x => x.id).Take(Math.Min(apps.Count, 200)).ToArray();
             // Add to main db for search
             MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.applicationCollection.InsertMany(apps.Take(Math.Min(apps.Count, 200)));
+            MongoDBInteractor.applicationCollection.InsertMany(apps.Take(Math.Min(apps.Count, 200)).Where(x => !addedIds.Contains(x.id)));
+            addedIds.AddRange(ids);
             
             // add to locale application thing for future access to it
             foreach (DBApplication a in apps.Take(Math.Min(apps.Count, 200)))
