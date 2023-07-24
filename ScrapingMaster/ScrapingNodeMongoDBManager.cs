@@ -34,7 +34,6 @@ public class ScrapingNodeMongoDBManager
 
     public static void CheckActivityCollection()
     {
-        return;
         Logger.Log("Performing query...");
         List<string> ids = MongoDBInteractor.activityCollection.Distinct<string>("id",
             Builders<BsonDocument>.Filter.Eq("__OculusDBType", DBDataTypes.ActivityDLCUpdated)).ToList();
@@ -105,7 +104,7 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.appsToScrape.Find(x => x.priority == priority && (x.currency == currency || x.currency == "")).SortByDescending(x => x.scrapePriority).Limit(count).ToList();
         // Set responsible scraping node, sent time and remove from apps to scrape
         DateTime now = DateTime.UtcNow;
-        
+        List<AppToScrape> selected = new();
         // Add apps to Scraping apps and remove them from apps to scrape
         if (appsToScrape.Count > 0)
         {
@@ -115,10 +114,13 @@ public class ScrapingNodeMongoDBManager
                 x.sentToScrapeTime = now;
                 appsScraping.DeleteMany(y => y.appId == x.appId && y.priority == x.priority && y.currency == x.currency);
                 appsScraping.InsertOne(x);
+                if(!selected.Any(x => x.appId == x.appId && x.priority == x.priority))
+                    selected.Add(x);
                 MongoDBInteractor.appsToScrape.DeleteOne(y => y.appId == x.appId && y.priority == x.priority && y.currency == x.currency);
             });
         }
-        return appsToScrape;
+        
+        return selected;
     }
     
     public static ScrapingNodeAuthenticationResult CheckScrapingNode(ScrapingNodeIdentification scrapingNodeIdentification)
@@ -337,7 +339,7 @@ public class ScrapingNodeMongoDBManager
 
         // check if app is scraping or already in queue as priority
         if (MongoDBInteractor.appsToScrape.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null
-            && appsScraping.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null)
+            || appsScraping.Find(x => x.appId == appToScrape.appId && x.priority == appToScrape.priority).FirstOrDefault() != null)
         {
             // App is already in queue
             return;
