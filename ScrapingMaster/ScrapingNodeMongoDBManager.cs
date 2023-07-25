@@ -307,6 +307,12 @@ public class ScrapingNodeMongoDBManager
         d["_id"] = ObjectId.GenerateNewId();
         d["__id"] = d["_id"].AsObjectId;
         d["__sn"] = contribution.scrapingNode.scrapingNodeId;
+        if (queuedActivity.Any(x => x["_id"] == d["_id"]))
+        {
+            // If the id already exists for whatever reason, generate a new one
+            contribution.AddContribution(d["__OculusDBType"].AsString, -1);
+            return AddBsonDocumentToActivityCollection(d, ref contribution);
+        }
         queuedActivity.Add(d);
         return d;
     }
