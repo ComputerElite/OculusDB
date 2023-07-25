@@ -452,7 +452,6 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.activityCollection.InsertMany(docs);
             for(int i = 0; i < docs.Count; i++)
             {
-                Logger.Log("Sending webhook for activity " + docs[i]["_id"].AsObjectId.ToString());
                 DiscordWebhookSender.SendActivity(docs[i]);
             }
             queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, 200));
