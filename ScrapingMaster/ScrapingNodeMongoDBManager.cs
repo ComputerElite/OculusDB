@@ -307,12 +307,6 @@ public class ScrapingNodeMongoDBManager
         d["_id"] = ObjectId.GenerateNewId();
         d["__id"] = d["_id"].AsObjectId;
         d["__sn"] = contribution.scrapingNode.scrapingNodeId;
-        if (queuedActivity.Any(x => x["_id"] == d["_id"]))
-        {
-            // If the id already exists for whatever reason, generate a new one
-            contribution.AddContribution(d["__OculusDBType"].AsString, -1);
-            return AddBsonDocumentToActivityCollection(d, ref contribution);
-        }
         queuedActivity.Add(d);
         return d;
     }
@@ -451,13 +445,24 @@ public class ScrapingNodeMongoDBManager
         }
         
         Logger.Log("Adding " + queuedActivity.Count + " activities to database and sending webhooks.");
+        List<ObjectId> oIds = new ();
         while (queuedActivity.Count > 0)
         {
             // Bulk do work in batches of 200
-            MongoDBInteractor.activityCollection.InsertMany(queuedActivity.Take(Math.Min(queuedActivity.Count, 200)));
-            for(int i = 0; i < Math.Min(queuedActivity.Count, 200); i++)
+            List<BsonDocument> docs = queuedActivity.Take(Math.Min(queuedActivity.Count, 200)).ToList();
+            for(int i = 0; i < docs.Count; i++)
             {
-                DiscordWebhookSender.SendActivity(queuedActivity[i]);
+                ObjectId thisId = docs[i]["_id"].AsObjectId;
+                if(oIds.Contains(thisId))
+                {
+                    docs[i]["_id"] = ObjectId.GenerateNewId();
+                }
+                oIds.Add(thisId);
+            }
+            MongoDBInteractor.activityCollection.InsertMany(docs);
+            for(int i = 0; i < docs.Count; i++)
+            {
+                DiscordWebhookSender.SendActivity(docs[i]);
             }
             queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, 200));
         }
