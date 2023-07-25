@@ -445,24 +445,14 @@ public class ScrapingNodeMongoDBManager
         }
         
         Logger.Log("Adding " + queuedActivity.Count + " activities to database and sending webhooks.");
-        List<ObjectId> oIds = new ();
         while (queuedActivity.Count > 0)
         {
             // Bulk do work in batches of 200
             List<BsonDocument> docs = queuedActivity.Take(Math.Min(queuedActivity.Count, 200)).ToList();
-            for(int i = 0; i < docs.Count; i++)
-            {
-                ObjectId thisId = docs[i]["_id"].AsObjectId;
-                if(oIds.Contains(thisId))
-                {
-                    docs[i]["_id"] = ObjectId.GenerateNewId();
-                    thisId = docs[i]["_id"].AsObjectId;
-                }
-                oIds.Add(thisId);
-            }
             MongoDBInteractor.activityCollection.InsertMany(docs);
             for(int i = 0; i < docs.Count; i++)
             {
+                Logger.Log("Sending webhook for activity " + docs[i]["_id"].AsObjectId.ToString());
                 DiscordWebhookSender.SendActivity(docs[i]);
             }
             queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, 200));
