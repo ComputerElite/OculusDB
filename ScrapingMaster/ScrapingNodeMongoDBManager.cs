@@ -456,6 +456,7 @@ public class ScrapingNodeMongoDBManager
                 if(oIds.Contains(thisId))
                 {
                     docs[i]["_id"] = ObjectId.GenerateNewId();
+                    thisId = docs[i]["_id"].AsObjectId;
                 }
                 oIds.Add(thisId);
             }
