@@ -543,7 +543,6 @@ public class ScrapingNodeScraper
 
     public void SendHeartBeat()
     {
-        Logger.Log("Sending heartbeat");
         ScrapingNodeHeartBeat beat = new ScrapingNodeHeartBeat();
         beat.identification = scrapingNodeManager.GetIdentification();
         beat.snapshot.scrapingStatus = scrapingNodeManager.status;
@@ -552,6 +551,7 @@ public class ScrapingNodeScraper
         beat.snapshot.doneTasks = tasksDone;
         beat.snapshot.currentlyScraping = currentlyScraping;
         beat.SetQueuedDocuments(taskResult);
+        Logger.Log("Sending heartbeat. Status: " + Enum.GetName(typeof(ScrapingNodeStatus), scrapingNodeManager.status));
         ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(
             scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
     }
