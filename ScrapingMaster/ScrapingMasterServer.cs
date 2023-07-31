@@ -90,6 +90,26 @@ public class ScrapingMasterServer
             request.SendString(JsonSerializer.Serialize(ScrapingManaging.ProcessHeartBeat(heartBeat, r)), "application/json");
             return true;
         });
+        server.AddRoute("POST", "/api/v1/reportscrapingerror/", request =>
+        {
+            ScrapingErrorContainer errorContainer = JsonSerializer.Deserialize<ScrapingErrorContainer>(request.bodyString);
+            ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(errorContainer.identification);
+            if (!r.tokenAuthorized)
+            {
+                request.SendString(JsonSerializer.Serialize(r), "application/json", 403);
+                return true;
+            }
+
+            ScrapingError error = ScrapingNodeMongoDBManager.AddErrorReport(errorContainer.scrapingError, r);
+            SendMasterWebhookMessage("Scraping error reported", config.scrapingMasterUrl + "api/v1/scrapingerror/" + error.__id, 0xFFFF00);
+            request.SendString("OK");
+            return true;
+        });
+        server.AddRoute("GET", "/api/v1/scrapingerror/", request =>
+        {
+            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetErrorsReport(request.pathDiff)));
+            return true;
+        }, true, true, true);
         server.AddRoute("GET", "/api/v1/scrapingnodes", request =>
         {
             request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetScrapingNodes()), "application/json");

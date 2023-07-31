@@ -225,7 +225,7 @@ function SetCheckboxesBasedOnValue(options, value) {
         }
     } else {
         for (const [key, value] of Object.entries(options)) {
-            document.getElementById(key).checked = localStorage.isQAVS ? key == "monterey" : true
+            document.getElementById(key).checked = localStorage.isQAVS ? key == "monterey" ||  key == "hollywood" || key == "seacliff" || key == "eureka" : true
         }
         Update(false)
     }
@@ -410,6 +410,8 @@ function GetHeadsetNameEnum(headset) {
             return "Quest 1";
         case 2:
             return "Quest 2";
+        case 7:
+            return "Quest 3";
         case 6:
             return "Quest Pro";
         case 3:
@@ -429,11 +431,13 @@ function GetLogicalHeadsetNameEnum(headset) {
         case 5:
             return "Rift and Rift S";
         case 1:
-            return "Quest 1, 2 and Pro";
+            return "Quest 1, 2, 3 and Pro";
         case 2:
-            return "Quest 1, 2 and Pro";
+            return "Quest 1, 2, 3 and Pro";
         case 6:
-            return "Quest 1, 2 and Pro";
+            return "Quest 1, 2, 3 and Pro";
+        case 7:
+            return "Quest 1, 2, 3 and Pro";
         case 3:
             return "GearVR";
         case 4:

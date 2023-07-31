@@ -85,7 +85,9 @@ public class ScrapingNodeScraper
                     taskResult.scrapingNodeTaskResultType = ScrapingNodeTaskResultType.FoundAppsToScrape;
                     try
                     {
+                        taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.MONTEREY));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.HOLLYWOOD));
+                        taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.EUREKA));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.RIFT));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.GEARVR));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.PACIFIC));
@@ -111,6 +113,7 @@ public class ScrapingNodeScraper
                     }
                     catch (Exception e)
                     {
+                        ReportError(scrapingTasks[0].appToScrape, e);
                         Logger.Log("Failed to scrape " + scrapingTasks[0].appToScrape.appId + ": " + e, LoggingType.Error);
                     }
                     break;
@@ -127,6 +130,27 @@ public class ScrapingNodeScraper
         
         // After doing all tasks Transmit results if there are any
         TransmitAndClearResultsIfPresent();
+    }
+
+    private void ReportError(AppToScrape appToScrape, Exception exception)
+    {
+        // Ignore application is null errors
+        if (exception.Message == "Application is null") return;
+        ScrapingError error = new ScrapingError();
+        error.appToScrape = appToScrape;
+        error.errorMessage = exception.ToString();
+        ScrapingErrorContainer c = new ScrapingErrorContainer();
+        c.scrapingError = error;
+        c.identification = scrapingNodeManager.GetIdentification();
+        Logger.Log("Reporting error to MasterServer", LoggingType.Warning);
+        try
+        {
+            string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/reportscrapingerror/", JsonSerializer.Serialize(c)).json;
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Failed to report error to MasterServer: " + e, LoggingType.Error);
+        }
     }
 
     private void TransmittingDone()

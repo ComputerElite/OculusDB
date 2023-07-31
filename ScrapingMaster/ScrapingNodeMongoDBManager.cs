@@ -17,6 +17,7 @@ public class ScrapingNodeMongoDBManager
     public static IMongoCollection<ScrapingProcessingStats> scrapingProcessingStats;
     public static IMongoCollection<AppToScrape> appsScraping;
     public static IMongoCollection<ScrapingNodeOverrideSettings> scrapingNodeOverrideSettingses;
+    public static IMongoCollection<ScrapingError> scrapingErrors;
 
     public static void Init()
     {
@@ -28,6 +29,7 @@ public class ScrapingNodeMongoDBManager
         scrapingProcessingStats = oculusDBDatabase.GetCollection<ScrapingProcessingStats>("scrapingProcessingStats");
         appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
         scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
+        scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
 
         CleanAppsScraping();
     }
@@ -489,5 +491,17 @@ public class ScrapingNodeMongoDBManager
     public static List<DBIAPItem> GetDLCs(string appId)
     {
         return MongoDBInteractor.dlcCollection.Find(x => x.parentApplication.id == appId).ToList();
+    }
+
+    public static ScrapingError AddErrorReport(ScrapingError error, ScrapingNodeAuthenticationResult r)
+    {
+        error.scrapingNodeId = r.scrapingNode.scrapingNodeId;
+        scrapingErrors.InsertOne(error);
+        return error;
+    }
+
+    public static ScrapingError GetErrorsReport(string id)
+    {
+        return scrapingErrors.Find(x => x._id == id).FirstOrDefault();
     }
 }

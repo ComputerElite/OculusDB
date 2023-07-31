@@ -22,8 +22,23 @@
                 <span class="checkmark"></span>
             </label>
             <label class="checkmarkContainer">
-                <div>Quest 1/2/Pro</div>
+                <div>Quest 1</div>
                 <input id="monterey" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest 2</div>
+                <input id="hollywood" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest 3</div>
+                <input id="eureka" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest Pro</div>
+                <input id="seacliff" type='checkbox' onclick='Update()'>
                 <span class="checkmark"></span>
             </label>
             <label class="checkmarkContainer">
@@ -52,7 +67,10 @@
         <script src="/script.js"></script>
         <script>
             const rift = document.getElementById("rift")
+            const hollywood = document.getElementById("hollywood")
             const monterey = document.getElementById("monterey")
+            const eureka = document.getElementById("eureka")
+            const seacliff = document.getElementById("seacliff")
             const gearvr = document.getElementById("gearvr")
             const pacific = document.getElementById("pacific")
 
@@ -86,9 +104,16 @@
                     "LAGUNA"
                 ],
                 "monterey": [
-                    "MONTEREY",
-                    "HOLLYWOOD",
+                    "MONTEREY"
+                ],
+                "hollywood": [
+                    "HOLLYWOOD"
+                ],
+                "seacliff": [
                     "SEACLIFF"
+                ],
+                "eureka": [
+                    "EUREKA"
                 ],
                 "gearvr": [
                     "GEARVR"

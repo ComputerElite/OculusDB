@@ -43,6 +43,11 @@
                     "value": 6,
                     "enumName": "SEACLIFF",
                     "description": "Quest Pro"
+                },
+                {
+                    "value": 7,
+                    "enumName": "EUREKA",
+                    "description": "Quest 3"
                 }
             ]
         },
