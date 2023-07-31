@@ -388,6 +388,8 @@ function GetHeadsetName(headset) {
             return "Quest 1";
         case "HOLLYWOOD":
             return "Quest 2";
+        case "EUREKA":
+            return "Quest 3";
         case "GEARVR":
             return "GearVR";
         case "PACIFIC":
@@ -421,6 +423,14 @@ function GetHeadsetNameEnum(headset) {
         default:
             return "unknown";
     }
+}
+
+function GetHeadsetNames(headsets) {
+    var names = []
+    headsets.forEach(x => {
+        names.push(GetHeadsetName(x))
+    })
+    return names.join(", ")
 }
 
 function GetLogicalHeadsetNameEnum(headset) {
@@ -839,7 +849,7 @@ function FormatApplication(application, htmlId = "") {
             <div class="flex header" style="${application.blocked ? `color: var(--red);` : ``}" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
                 <img alt="Icon of ${application.displayName}" onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
-                <div stlye="font-size: 1.25em;">${application.displayName} (${ GetLogicalHeadsetNameEnum(application.hmd).replace(" and ", ", ")})</div>
+                <div stlye="font-size: 1.25em;">${application.displayName} (${ GetHeadsetNames(application.supported_hmd_platforms)})</div>
             </div>
             
         </div>

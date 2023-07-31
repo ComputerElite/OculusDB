@@ -545,10 +545,10 @@ namespace OculusDB
             foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("hmd", h),
-                new BsonDocument("parentApplication.hmd", h)
+                new BsonDocument("supported_hmd_platforms_enum", h)
             }));
             Regex r = new Regex(".*" + query.Replace(" ", ".*") + ".*", RegexOptions.IgnoreCase);
-            return applicationCollection.Find(x => headsets.Contains(x.hmd) &&  (r.IsMatch(x.display_name) ||r.IsMatch(x.canonicalName) ||r.IsMatch(x.id) || r.IsMatch(x.publisher_name) || r.IsMatch(x.packageName))).ToList();
+            return applicationCollection.Find(x => (r.IsMatch(x.display_name) ||r.IsMatch(x.canonicalName) ||r.IsMatch(x.id) || r.IsMatch(x.publisher_name) || r.IsMatch(x.packageName))).ToList().Where(x => x.supported_hmd_platforms_enum.Any(x => headsets.Contains(x))).ToList();
         }
 
 		internal static void CleanDB()
