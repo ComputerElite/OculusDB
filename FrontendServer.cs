@@ -179,11 +179,6 @@ public class FrontendServer
                 }
                 return true;
             });
-            server.AddRoute("GET", "/api/v1/scrapes/status", request =>
-            {
-                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetScrapeStatus()), "application/json");
-                return true;
-            }, false, true, true, true, 2);
             server.AddRouteFile("/utils", frontend + "utils.html", replace);
 
             ////////////////// Aliases

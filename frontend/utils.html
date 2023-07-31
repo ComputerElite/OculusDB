@@ -32,30 +32,6 @@
                     </label>
                     <input type="button" value="Scrape now" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) ScrapeNow()">
                     <div class="textbox" id="scrape-status"></div>
-                    <h3>Scrape status</h3>
-                    <input type="button" value="Update status" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) UpdateScrapeStatus()">
-                    <div style="display: flex; flex-direction: row; justify-content: space-between;">
-                        <div class="application" style="flex-direction: column; justify-content: start">
-                            <h3>Queued</h3>
-                            <table id="appsToScrape">
-                                <tr>
-                                    <th>App id</th>
-                                    <th>Priority</th>
-                                    <th>Queued at</th>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="application" style="flex-direction: column; justify-content: start">
-                            <h3>Scraping</h3>
-                            <table id="appsScraping">
-                                <tr>
-                                    <th>App id</th>
-                                    <th>Priority</th>
-                                    <th>Queued at</th>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -156,27 +132,6 @@
                         <th>Priority</th>
                         <th>Queued at</th>
                     </tr>`
-    UpdateScrapeStatus();
-    function UpdateScrapeStatus() {
-        fetch("/api/v1/scrapes/status").then(res => {
-            res.json().then(j => {
-                var appsScraping = header
-                for(const a of j.appsScraping) {
-                    appsScraping += `<tr><td>${a.appId}</td><td>${a.priority}</td><td> ${GetTimeString(a.addedTime)}</td></tr>`
-                }
-                
-                var appsToScrape = header
-                for(const a of j.appsToScrape) {
-                    appsToScrape += `<tr><td>${a.appId}</td><td>${a.priority}</td><td> ${GetTimeString(a.addedTime)}</td></tr>`
-                }
-                
-                document.getElementById("appsScraping").innerHTML = appsScraping
-                document.getElementById("appsToScrape").innerHTML = appsToScrape
-            })
-        })
-    }
-    
-    setInterval(UpdateScrapeStatus, 2000)
     
     function ScrapeNow() {
         TextBoxText("scrape-status", "Scraping... Waiting for response")
