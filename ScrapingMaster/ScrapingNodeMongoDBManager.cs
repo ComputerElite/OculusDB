@@ -115,7 +115,7 @@ public class ScrapingNodeMongoDBManager
                 x.sentToScrapeTime = now;
                 appsScraping.DeleteMany(y => y.appId == x.appId && y.priority == x.priority && y.currency == x.currency);
                 appsScraping.InsertOne(x);
-                if(!selected.Any(x => x.appId == x.appId && x.priority == x.priority))
+                if(!selected.Any(y => x.appId == y.appId && x.priority == y.priority))
                     selected.Add(x);
                 MongoDBInteractor.appsToScrape.DeleteOne(y => y.appId == x.appId && y.priority == x.priority && y.currency == x.currency);
             });
