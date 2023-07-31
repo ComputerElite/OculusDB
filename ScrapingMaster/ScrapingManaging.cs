@@ -469,4 +469,24 @@ public class ScrapingManaging
         s.lastHeartBeat = DateTime.UtcNow;
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(s);
     }
+
+    public static Dictionary<string, TimeDependantBool> GetAppAdding()
+    {
+        return isAppAddingRunning;
+    }
+
+    public static AppCount GetAppCount(string? currency)
+    {
+        return new AppCount
+        {
+            count = ScrapingNodeMongoDBManager.GetNonPriorityAppsToScrapeCount(currency ?? ""),
+            currency = currency ?? ""
+        };
+    }
+}
+
+public class AppCount
+{
+    public long count { get; set; } = 0;
+    public string currency { get; set; } = "";
 }
