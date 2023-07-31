@@ -150,7 +150,7 @@ public class ScrapingManaging
                 }
                 catch (Exception e)
                 {
-                    Logger.Log("Error while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e);
+                    Logger.Log("Error while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e, LoggingType.Warning);
                 }
                 break;
         }
