@@ -41,11 +41,19 @@ public class ScrapingNodeScraper
         currentToken++;
         currentToken %= scrapingNodeManager.config.oculusTokens.Count;
         GraphQLClient.oculusStoreToken = scrapingNodeManager.config.oculusTokens[currentToken];
-        GetEntitlements();
+        try
+        {
+            GetEntitlements();
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Failed to get entitlements for token " + currentToken + ". Error: " + e, LoggingType.Error);
+        }
     }
 
     public void GetEntitlements()
     {
+        GraphQLClient.log = false;
         Logger.Log("Getting entitlements of token at " + currentToken);
         ViewerData<OculusUserWrapper> user = GraphQLClient.GetActiveEntitelments();
         if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null ||user.data.viewer.user.active_entitlements.nodes == null)
@@ -178,10 +186,10 @@ public class ScrapingNodeScraper
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
-        long priceNumerical = 0;
+        long priceNumerical = -1;
         // Get price
         string currency = "";
-        if (a.current_offer != null)
+        if (a.current_offer != null && a.current_offer.price != null)
         {
             priceNumerical = Convert.ToInt64(a.current_offer.price.offset_amount);
             currency = a.current_offer.price.currency;
@@ -205,7 +213,15 @@ public class ScrapingNodeScraper
         }
         else if (ownsApp == UserEntitlement.OWNED)
         {
-            if (a.baseline_offer != null) priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
+            if (a.baseline_offer != null && a.baseline_offer.price != null)
+            {
+                priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
+                currency = a.baseline_offer.price.currency;
+            }
+            else
+            {
+                throw new Exception("Could not get baseline price for application " + a.id + " " + a.displayName + "... The user owns this app but the baseline price is null: " + JsonSerializer.Serialize(a));
+            }
         }
         
         
@@ -586,9 +602,18 @@ public class ScrapingNodeScraper
         // To get the currency of the node just request beat saber from oculus and check the price
         if(scrapingNodeManager.config.overrideCurrency != "") return scrapingNodeManager.config.overrideCurrency;
         if(currencyTokenDict.ContainsKey(currentToken)) return currencyTokenDict[currentToken];
-        Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.node;
-        string currency = a.current_offer.price.currency;
-        currencyTokenDict.Add(currentToken, currency);
-        return currency;
+        try
+        {
+            GraphQLClient.log = false;
+            Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.node;
+            string currency = a.current_offer.price.currency;
+            currencyTokenDict.Add(currentToken, currency);
+            return currency;
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Error while getting currency: " + e, LoggingType.Error);
+            return "";
+        }
     }
 }
