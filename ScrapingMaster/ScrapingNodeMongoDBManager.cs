@@ -274,7 +274,8 @@ public class ScrapingNodeMongoDBManager
     {
         contribution.AddContribution(v.__OculusDBType, 1);
         v.__sn = contribution.scrapingNode.scrapingNodeId;
-        versions.RemoveAll(x => x.id == v.id);
+        versions.RemoveAll(x => x == null || x.id == v.id);
+        if (v == null) return;
         versions.Add(v);
     }
 
