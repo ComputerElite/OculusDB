@@ -360,8 +360,11 @@ public class ScrapingNodeMongoDBManager
         images.Add(img);
     }
 
+    public static TimeDependantBool flushing = new TimeDependantBool();
     public static void Flush()
     {
+        if (flushing.IsTrueAndValid()) return;
+        flushing.Set(true, TimeSpan.FromMinutes(2), "");
         Logger.Log("Adding " + versions.Count + " versions to database.");
         string[] ids = new string[200];
         while (versions.Count > 0)
@@ -468,6 +471,7 @@ public class ScrapingNodeMongoDBManager
             queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, 200));
         }
 
+        flushing.Set(false, TimeSpan.FromMinutes(0), "");
         CleanAppsScraping();
     }
 
