@@ -229,55 +229,74 @@ public class ScrapingNodeScraper
         string packageName = "";
         List<DBVersion> connected = GetVersionsOfApp(a.id);
         bool addedApplication = false;
-        foreach (AndroidBinary b in GraphQLClient.AllVersionsOfApp(a.id).data.node.primary_binaries.nodes)
+        Data<NodesPrimaryBinaryApplication> versions = GraphQLClient.AllVersionsOfApp(a.id);
+        if (versions.data != null && versions.data.node != null && versions.data.node.primary_binaries != null &&
+            versions.data.node.primary_binaries.nodes != null)
         {
-            bool doPriorityForThisVersion = app.priority;
-            DBVersion oldEntry = connected.FirstOrDefault(x => x.id == b.id);
-            if (doPriorityForThisVersion)
+            foreach (AndroidBinary b in versions.data.node.primary_binaries.nodes)
             {
-                if (oldEntry != null)
+                bool doPriorityForThisVersion = app.priority;
+                DBVersion oldEntry = connected.FirstOrDefault(x => x.id == b.id);
+                if (doPriorityForThisVersion)
                 {
-                    // Only do priority scrape if last scrape is older than 2 days
-                    if (DateTime.UtcNow - oldEntry.lastPriorityScrape < timeBetweenScrapes)
+                    if (oldEntry != null)
                     {
-                        doPriorityForThisVersion = false;
-                        Logger.Log("Skipping priority scrape of " + a.id + " v " + b.version + " because last priority scrape was " + (DateTime.UtcNow - oldEntry.lastPriorityScrape).TotalDays + " days ago", LoggingType.Debug);
+                        // Only do priority scrape if last scrape is older than 2 days
+                        if (DateTime.UtcNow - oldEntry.lastPriorityScrape < timeBetweenScrapes)
+                        {
+                            doPriorityForThisVersion = false;
+                            Logger.Log(
+                                "Skipping priority scrape of " + a.id + " v " + b.version +
+                                " because last priority scrape was " +
+                                (DateTime.UtcNow - oldEntry.lastPriorityScrape).TotalDays + " days ago",
+                                LoggingType.Debug);
+                        }
                     }
                 }
-            }
-            if(packageName == "")
-            {
-                PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
-                if(info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
-			}
-            if(!addedApplication)
-            {
-				AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, currency);
-                addedApplication = true;
-			}
-            if(b != null && doPriorityForThisVersion)
-            {
-                Logger.Log("Scraping v " + b.version, LoggingType.Important);
-			}
-			AndroidBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
-            bool wasNull = false;
-            if (bin == null)
-            {
-                if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
-                wasNull = true;
-                bin = b;
-			}
-            // Preserve changelogs and obbs across scrapes by:
-            // - Don't delete versions after scrape
-            // - If not priority scrape enter changelog and obb of most recent versions
-            if((!doPriorityForThisVersion || wasNull) && oldEntry != null)
-            {
-                bin.changeLog = oldEntry.changeLog;
-            }
 
-            AddVersion(bin, a, app.headset, doPriorityForThisVersion ? null : oldEntry,
-                doPriorityForThisVersion);
+                if (packageName == "")
+                {
+                    PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
+                    if (info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
+                }
+
+                if (!addedApplication)
+                {
+                    AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, currency);
+                    addedApplication = true;
+                }
+
+                if (b != null && doPriorityForThisVersion)
+                {
+                    Logger.Log("Scraping v " + b.version, LoggingType.Important);
+                }
+
+                AndroidBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                bool wasNull = false;
+                if (bin == null)
+                {
+                    if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
+                    wasNull = true;
+                    bin = b;
+                }
+
+                // Preserve changelogs and obbs across scrapes by:
+                // - Don't delete versions after scrape
+                // - If not priority scrape enter changelog and obb of most recent versions
+                if ((!doPriorityForThisVersion || wasNull) && oldEntry != null)
+                {
+                    bin.changeLog = oldEntry.changeLog;
+                }
+
+                AddVersion(bin, a, app.headset, doPriorityForThisVersion ? null : oldEntry,
+                    doPriorityForThisVersion);
+            }
         }
+        else
+        {
+            Logger.Log("No versions found for " + a.id + " " + a.displayName, LoggingType.Warning);
+        }
+
         if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
         {
             foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
@@ -300,7 +319,7 @@ public class ScrapingNodeScraper
                 
                 // Skip dlc if it's free. Most likely indicates a bought DLC for which I do not figure out the correct price
                 if (newDLC.priceOffsetNumerical <= 0) continue;
-
+                if (a.current_offer == null || a.current_offer.price == null) continue; // Price not available
 
                 newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);
                 if (dlc.node.IsIAPItem())
