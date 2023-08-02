@@ -181,14 +181,14 @@ public class ScrapingMasterServer
         server.StartServer(config.port);
     }
 
-    public void SendMasterWebhookMessage(string title, string description, int color)
+    public static void SendMasterWebhookMessage(string title, string description, int color)
     {
-        if (config.nodeStatusWebhookUrl == "") return;
+        if (OculusDBEnvironment.config.nodeStatusWebhookUrl == "") return;
         try
         {
             Logger.Log("Sending master webhook");
-            DiscordWebhook webhook = new DiscordWebhook(config.nodeStatusWebhookUrl);
-            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", config.scrapingMasterUrl + "logo", config.scrapingMasterUrl, config.scrapingMasterUrl + "logo", config.scrapingMasterUrl, color);
+            DiscordWebhook webhook = new DiscordWebhook(OculusDBEnvironment.config.nodeStatusWebhookUrl);
+            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", OculusDBEnvironment.config.scrapingMasterUrl + "logo", OculusDBEnvironment.config.scrapingMasterUrl, OculusDBEnvironment.config.scrapingMasterUrl + "logo", OculusDBEnvironment.config.scrapingMasterUrl, color);
         }
         catch (Exception ex)
         {

@@ -334,7 +334,7 @@ public class ScrapingNodeMongoDBManager
     public static void CleanAppsScraping()
     {
         // Delete all apps which have been scraping for longer than 45 minutes
-        appsScraping.DeleteMany(x => x.sentToScrapeTime < DateTime.UtcNow.AddMinutes(-45));
+        appsScraping.DeleteMany(x => x.sentToScrapeTime < DateTime.UtcNow.AddMinutes(-60));
     }
 
     public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)

@@ -151,6 +151,18 @@ public class ScrapingManaging
                 catch (Exception e)
                 {
                     Logger.Log("Error while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e, LoggingType.Warning);
+                    ScrapingError error = ScrapingNodeMongoDBManager.AddErrorReport(new ScrapingError
+                    {
+                        errorMessage = e.ToString(),
+                        scrapingNodeId = "MASTER-SERVER"
+                    }, new ScrapingNodeAuthenticationResult
+                    {
+                        scrapingNode = new ScrapingNode
+                        {
+                            scrapingNodeId = "MASTER-SERVER"
+                        }
+                    });
+                    ScrapingMasterServer.SendMasterWebhookMessage("Processing error", OculusDBEnvironment.config.scrapingMasterUrl + "api/v1/scrapingerror/" + error.__id, 0xFF8800);
                 }
                 break;
         }
