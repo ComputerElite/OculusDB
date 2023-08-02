@@ -297,7 +297,7 @@ public class ScrapingNodeScraper
             Logger.Log("No versions found for " + a.id + " " + a.displayName, LoggingType.Warning);
         }
 
-        if (d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
+        if (d.data != null && d.data.node != null && d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
         {
             foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
             {
