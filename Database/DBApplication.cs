@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ComputerUtils.VarUtils;
 
 namespace OculusDB.Database
 {
@@ -63,6 +64,15 @@ namespace OculusDB.Database
             } }
         public Nodes<ReleaseChannel> release_channels { get; set; } = new Nodes<ReleaseChannel>();
         public long? release_date { get; set; } = 0;
+        [BsonIgnore]
+        public DateTime releaseDate
+        {
+            get
+            {
+                return TimeConverter.UnixTimeStampToDateTime(release_date);
+            }
+        }
+
         public List<string> supported_hmd_platforms { get; set; } = new List<string>();
         public List<Headset> supported_hmd_platforms_enum
         {

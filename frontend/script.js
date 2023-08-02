@@ -838,7 +838,7 @@ function FormatParentApplication(a, activityId) {
 </div>`
 }
 
-function FormatApplication(application, htmlId = "") {
+function FormatApplication(application, htmlId = "", expanded = false) {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))" cmon-1="Copy Oculus link" cmov-1="Copy('${GetOculusLink(application.id, application.hmd)}')">
     <div class="info">
         <div class="flex outside">
@@ -847,13 +847,13 @@ function FormatApplication(application, htmlId = "") {
                 <input type="button" value="View Activity" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenRecentActivity('${application.id}')">
             </div>
             <div class="flex header" style="${application.blocked ? `color: var(--red);` : ``}" onclick="RevealDescription('${htmlId}')">
-                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect">&gt;</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect${expanded ? " rotate" : ""}">&gt;</div>
                 <img alt="Icon of ${application.displayName}" onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
                 <div stlye="font-size: 1.25em;">${application.displayName} (${ GetHeadsetNames(application.supported_hmd_platforms)})</div>
             </div>
             
         </div>
-        <div class="hidden" id="${htmlId}">
+        <div class="${expanded ? ``: `hidden`}" id="${htmlId}">
             <table>
                 <colgroup>
                     <col width="200em">
@@ -865,6 +865,12 @@ function FormatApplication(application, htmlId = "") {
                 <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate ? application.quality_rating_aggregate.toFixed(2) : "Not available"}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
+                <tr><td class="label">Website URL</td><td class="value">${application.website_url ?? "No entry"}</td></tr>
+                <tr><td class="label">Genres</td><td class="value">${application.genre_names.join(", ") ?? "No genres"}</td></tr>
+                <tr><td class="label">Is AppLab</td><td class="value">${application.is_concept}</td></tr>
+                <tr><td class="label">Is Approved</td><td class="value">${application.is_approved}</td></tr>
+                <tr><td class="label">Has ads</td><td class="value">${application.has_in_app_ads}</td></tr>
+                <tr><td class="label">Release time</td><td class="value">${new Date(application.releaseDate).toLocaleString()}</td></tr>
                 <tr><td class="label">Package name</td><td class="value">${application.packageName ? application.packageName : "Not available"}</td></tr>
                 <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
                 <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
@@ -875,6 +881,41 @@ function FormatApplication(application, htmlId = "") {
     </div>
 
 </div>`
+}
+
+function FormatApplicationUpatedActivity(a, htmlid) {
+    return `<div class="leftRightAdjustedContainer">
+                <div class="tabContainer leftRightAdjustedContainerItemLeft">
+                    <h2>Old</h2>
+                    ${FormatApplication(a.old, `${htmlid}_${a.__id}_old`, false)}
+                </div>
+                <div class="leftRightAdjustedContainerItemRight">
+                    <h2>New</h2>
+                    ${FormatApplication(a.new, `${htmlid}_${a.__id}_new`, false)}
+                </div>
+            </div>`
+}
+
+function FormatJsonToTable(json) {
+    var longest = 0;
+    var content = ``
+    for(const [key, value] of Object.entries(json)) {
+        var n = key.replace(/_/g, " ")
+        if(n.length > longest) longest = n.length
+        content += `<tr>
+            <td className="label">${n}</td>
+            <td className="value">${value}</td>
+        </tr>`
+    }
+    var table = `<table>
+                <colgroup>
+                    <col width="${longest * 10 + 20}em">
+                    <col width="100%">
+                </colgroup>
+                ${content}
+            </table>
+            `
+    return table;
 }
 
 function FormatApplicationActivity(a, htmlid) {
@@ -1131,6 +1172,7 @@ function AutoFormat(e, connected, htmlid = "") {
     if(e.__OculusDBType == "ActivityNewDLCPack" || e.__OculusDBType == "ActivityDLCPackUpdated") return FormatDLCPackActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityNewVersion" || e.__OculusDBType == "ActivityVersionUpdated") return FormatVersionActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityNewApplication") return FormatApplicationActivity(e, htmlid)
+    if(e.__OculusDBType == "ActivityApplicationUpdated") return FormatApplicationUpatedActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityPriceChanged") return FormatPriceChanged(e, htmlid)
     if(e.__OculusDBType == "ActivityVersionChangelogAvailable" || e.__OculusDBType == "ActivityVersionChangelogUpdated") return FormatChangelogActivity(e, htmlid)
     return ""

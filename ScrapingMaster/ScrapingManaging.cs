@@ -367,7 +367,9 @@ public class ScrapingManaging
         foreach (DBApplication a in taskResult.scraped.applications)
         {
             // New Application activity
-            if (MongoDBInteractor.GetLastEventWithIDInDatabase(a.id) == null)
+            bool isNew = false;
+            BsonDocument lastEvent = MongoDBInteractor.GetLastEventWithIDInDatabase(a.id);
+            if (lastEvent == null)
             {
                 DBActivityNewApplication e = new DBActivityNewApplication();
                 e.id = a.id;
@@ -380,6 +382,7 @@ public class ScrapingManaging
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime(a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
                 ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), ref scrapingContribution);
+                isNew = true;
             }
             
             
@@ -407,8 +410,30 @@ public class ScrapingManaging
             {
                 ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
-            
-            ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
+
+            DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id).FirstOrDefault());
+            DBActivityApplicationUpdated updated = new DBActivityApplicationUpdated();
+            updated.oldApplication = old;
+            updated.newApplication = a;
+            if (old.canonicalName != a.canonicalName
+                || old.has_in_app_ads != a.has_in_app_ads
+                || old.is_approved != a.is_approved
+                || old.is_concept != a.is_concept
+                || old.display_long_description != a.display_long_description
+                || old.display_name != a.display_name
+                || old.genre_names != a.genre_names
+                || old.organization.id != a.organization.id
+                || old.platform != a.platform
+                || old.release_date != a.release_date
+                || old.publisher_name != a.publisher_name
+                || old.website_url != a.website_url
+                || old.supported_hmd_platforms_enum != a.supported_hmd_platforms_enum)
+            {
+                // Application updated
+                updated.__OculusDBType = DBDataTypes.ActivityApplicationUpdated;
+                updated.__lastEntry = lastEvent == null ? null : lastEvent["_id"].ToString();
+                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
+            }
             r.processedCount++;
         }
         stats.appProcessTime = sw.Elapsed;

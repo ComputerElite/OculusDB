@@ -63,6 +63,11 @@
               "enumName": "ActivityNewApplication",
               "description": "New Application released"
             },
+          {
+              "value": "ActivityApplicationUpdated",
+              "enumName": "ActivityApplicationUpdated",
+              "description": "Application details have been updated"
+          },
             {
               "value": "ActivityPriceChanged",
               "enumName": "ActivityPriceChanged",
