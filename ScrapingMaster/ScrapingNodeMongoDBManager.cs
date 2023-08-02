@@ -383,11 +383,13 @@ public class ScrapingNodeMongoDBManager
             ids = iapItems.Select(x => x.id).Take(Math.Min(iapItems.Count, 200)).ToArray();
             // Add to main DB for search
             MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.dlcCollection.InsertMany(iapItems.Take(Math.Min(iapItems.Count, 200)).Where(x => !addedIds.Contains(x.id)));
+            List<DBIAPItem> items = iapItems.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapItems.Count, 200)).ToList();
+            if (items.Count <= 0) break;
+            MongoDBInteractor.dlcCollection.InsertMany(items);
             addedIds.AddRange(ids);
             
             // add to locale dlcs thing for future access to it
-            foreach (DBIAPItem d in iapItems.Take(Math.Min(iapItems.Count, 200)))
+            foreach (DBIAPItem d in items)
             {
                 GetLocaleDLCsCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
                 GetLocaleDLCsCollection(d.current_offer.price.currency).InsertOne(d);
@@ -404,10 +406,13 @@ public class ScrapingNodeMongoDBManager
             ids = dlcPacks.Select(x => x.id).Take(Math.Min(dlcPacks.Count, 200)).ToArray();
             // Add to main db for search
             MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.dlcPackCollection.InsertMany(dlcPacks.Take(Math.Min(dlcPacks.Count, 200)).Where(x => !addedIds.Contains(x.id)));
+            List<DBIAPItemPack> items = dlcPacks.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacks.Count, 200)).ToList();
+            if (items.Count <= 0) break;
+            MongoDBInteractor.dlcPackCollection.InsertMany(items);
             addedIds.AddRange(ids);
+            
             // add to locale dlcs thing for future access to it
-            foreach (DBIAPItemPack d in dlcPacks.Take(Math.Min(dlcPacks.Count, 200)))
+            foreach (DBIAPItemPack d in items)
             {
                 GetLocaleDLCPacksCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
                 GetLocaleDLCPacksCollection(d.current_offer.price.currency).InsertOne(d);
@@ -424,11 +429,14 @@ public class ScrapingNodeMongoDBManager
             ids = apps.Select(x => x.id).Take(Math.Min(apps.Count, 200)).ToArray();
             // Add to main db for search
             MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.applicationCollection.InsertMany(apps.Take(Math.Min(apps.Count, 200)).Where(x => !addedIds.Contains(x.id)));
+            List<DBApplication> items = apps.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(apps.Count, 200))
+                .ToList();
+            if (items.Count <= 0) break;
+            MongoDBInteractor.applicationCollection.InsertMany(items);
             addedIds.AddRange(ids);
             
             // add to locale application thing for future access to it
-            foreach (DBApplication a in apps.Take(Math.Min(apps.Count, 200)))
+            foreach (DBApplication a in items)
             {
                 GetLocaleAppsCollection(a.currency).DeleteMany(x => x.id == a.id);
                 GetLocaleAppsCollection(a.currency).InsertOne(a);
