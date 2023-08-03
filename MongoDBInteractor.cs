@@ -432,7 +432,7 @@ namespace OculusDB
             return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged) && x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).ToList());
         }
         
-        public static List<BsonDocument> GetByID(string id, int history = 1)
+        public static List<BsonDocument> GetByID(string id, int history = 1, string currency = "")
         {
             List<DBVersion> versions = versionsCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
             if (versions.Count > 0)
@@ -444,11 +444,11 @@ namespace OculusDB
                 }
                 return MongoDBFilterMiddleware(ToBsonDocumentList(versions));
             }
-            List<DBApplication> apps = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
+            List<DBApplication> apps = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
             if (apps.Count > 0) return ToBsonDocumentList(apps);
-            List<DBIAPItem> dlcs = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
+            List<DBIAPItem> dlcs = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList().ConvertAll(x => GetCorrectDLCEntry(x, currency));
             if (dlcs.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcs));
-            List<DBIAPItemPack> dlcPacks = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
+            List<DBIAPItemPack> dlcPacks = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList().ConvertAll(x => GetCorrectDLCPackEntry(x, currency));
             if (dlcPacks.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcPacks));
             return new();
         }

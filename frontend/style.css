@@ -180,9 +180,10 @@ h6 {
 }
 
 body {
+    position: relative;
     margin: 0;
     color: var(--textColor);
-    line-height: 1.8;
+    line-height: 1.8;;
     /*
     background-color: var(--bgColor);
      */
@@ -728,7 +729,13 @@ input[type=checkbox] {
 }
 
 input[type=checkbox]:checked {
-    background-color: var(--hightlightedColor);
+    background-color: var(--highlightedColor);
+}
+
+.footer {
+    padding: 10px;
+    background-color: var(--bgColor);
+    margin-top: 10px;
 }
 
 .checkmark:after {

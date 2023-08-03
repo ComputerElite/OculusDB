@@ -34,6 +34,9 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
     <a class="underlineAnimation navBarElement navBarMarginLeft" href="/supportus">Support us</a>
     <a class="underlineAnimation navBarElement" style="height: 100%;" href="{OculusDBDC}"><img alt="Discord logo" style="height: 100%;" src="/assets/discord.svg"></a>
 </div>
+</div>
+<div class="footer">
+    <div>This website is not affiliated with Oculus/Meta VR</div>
 </div>`
 
 const loader = `<div class="loader"></div>`

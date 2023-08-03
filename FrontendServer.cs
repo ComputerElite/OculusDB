@@ -548,7 +548,7 @@ public class FrontendServer
                 if (!DoesUserHaveAccess(request)) return true;
                 try
                 {
-                    List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff);
+                    List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff, 1, request.queryString.Get("currency") ?? "");
                     if (d.Count <= 0)
 					{
 						request.SendString("{}", "application/json", 404);
