@@ -891,16 +891,34 @@ function FormatApplication(application, htmlId = "", expanded = false) {
 }
 
 function FormatApplicationUpdatedActivity(a, htmlid) {
-    return `<div class="leftRightAdjustedContainer">
+    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy activity link" cmov-0="Copy(GetActivityLink('${a.__id}'))">
+    <div class="info">
+        <div class="flex outside">
+            <div class="buttons">
+                <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${a.__id}')">
+                <input type="button" value="View Application" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenApplication('${a.newApplication.id}')">
+            </div>
+            <div class="flex header" onclick="RevealDescription('${htmlid}')">
+                <div>${GetTimeString(a.__lastUpdated)}</div>
+                <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
+                <div stlye="font-size: 1.25em;">Application Updated! <b>${a.displayName}</b></div>
+            </div>
+        </div>
+
+        <div class="hidden" id="${htmlid}">
+            <div class="leftRightAdjustedContainer">
                 <div class="tabContainer leftRightAdjustedContainerItemLeft">
                     <h2>Old</h2>
-                    ${FormatApplication(a.oldApplication, `${htmlid}_${a.__id}_old`, false)}
+                    ${FormatApplication(a.oldApplication, `${htmlid}_${a.__id}_old`, true)}
                 </div>
                 <div class="leftRightAdjustedContainerItemRight">
                     <h2>New</h2>
-                    ${FormatApplication(a.newApplication, `${htmlid}_${a.__id}_new`, false)}
+                    ${FormatApplication(a.newApplication, `${htmlid}_${a.__id}_new`, true)}
                 </div>
-            </div>`
+            </div>
+        </div>
+    </div>
+</div>`
 }
 
 function FormatJsonToTable(json) {
