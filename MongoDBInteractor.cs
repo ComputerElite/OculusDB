@@ -335,7 +335,17 @@ namespace OculusDB
             List<BsonDocument> toReturn = new List<BsonDocument>();
             foreach (BsonDocument b in toFilter)
             {
-                string appId = b.Contains("parentApplication") ? b.GetValue("parentApplication").AsBsonDocument.GetValue("id").AsString : b.GetValue("id").AsString;
+                string appId = "";
+                if (b.Contains("parentApplication"))
+                {
+                    appId = b.GetValue("parentApplication").AsBsonDocument.GetValue("id").AsString;
+                } else if (b.Contains("id"))
+                {
+                    appId = b.GetValue("id").AsString;
+                } else if (b.Contains("oldApplication"))
+                {
+                    appId = b.GetValue("oldApplication").AsBsonDocument.GetValue("id").AsString;
+                }
                 if (!blockedAppsCache.Contains(appId))
                 {
                     toReturn.Add(b);
