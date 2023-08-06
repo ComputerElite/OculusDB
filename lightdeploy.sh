@@ -18,7 +18,7 @@ echo Deleting existing update zip
 rm net6.0.zip
 
 echo Creating new update zip
-7z a net6.0.zip OculusDB.dll *.txt
+7z a net6.0.zip OculusDB.dll OculusGraphQLApiLib.dll *.txt
 
 echo Created update zip
 echo Changelog:
