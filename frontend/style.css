@@ -425,6 +425,9 @@ code {
 .leftRightAdjustedContainerItemLeft {
     width: 60% !important;
 }
+.leftRightAdjustedContainerItem {
+    width: 50% !important;
+}
 
 .leftRightAdjustedContainerItemRight {
     width: 40% !important;

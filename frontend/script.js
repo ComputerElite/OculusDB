@@ -901,17 +901,17 @@ function FormatApplicationUpdatedActivity(a, htmlid) {
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(a.__lastUpdated)}</div>
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
-                <div stlye="font-size: 1.25em;">Application Updated! <b>${a.displayName}</b></div>
+                <div stlye="font-size: 1.25em;">Application Updated! <b>${a.newApplication.displayName}</b></div>
             </div>
         </div>
 
         <div class="hidden" id="${htmlid}">
             <div class="leftRightAdjustedContainer">
-                <div class="tabContainer leftRightAdjustedContainerItemLeft">
+                <div class="tabContainer leftRightAdjustedContainerItem">
                     <h2>Old</h2>
                     ${FormatApplication(a.oldApplication, `${htmlid}_${a.__id}_old`, true)}
                 </div>
-                <div class="leftRightAdjustedContainerItemRight">
+                <div class="leftRightAdjustedContainerItem">
                     <h2>New</h2>
                     ${FormatApplication(a.newApplication, `${htmlid}_${a.__id}_new`, true)}
                 </div>
