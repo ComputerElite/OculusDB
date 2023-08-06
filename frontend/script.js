@@ -890,15 +890,15 @@ function FormatApplication(application, htmlId = "", expanded = false) {
 </div>`
 }
 
-function FormatApplicationUpatedActivity(a, htmlid) {
+function FormatApplicationUpdatedActivity(a, htmlid) {
     return `<div class="leftRightAdjustedContainer">
                 <div class="tabContainer leftRightAdjustedContainerItemLeft">
                     <h2>Old</h2>
-                    ${FormatApplication(a.old, `${htmlid}_${a.__id}_old`, false)}
+                    ${FormatApplication(a.oldApplication, `${htmlid}_${a.__id}_old`, false)}
                 </div>
                 <div class="leftRightAdjustedContainerItemRight">
                     <h2>New</h2>
-                    ${FormatApplication(a.new, `${htmlid}_${a.__id}_new`, false)}
+                    ${FormatApplication(a.newApplication, `${htmlid}_${a.__id}_new`, false)}
                 </div>
             </div>`
 }
@@ -1179,7 +1179,7 @@ function AutoFormat(e, connected, htmlid = "") {
     if(e.__OculusDBType == "ActivityNewDLCPack" || e.__OculusDBType == "ActivityDLCPackUpdated") return FormatDLCPackActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityNewVersion" || e.__OculusDBType == "ActivityVersionUpdated") return FormatVersionActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityNewApplication") return FormatApplicationActivity(e, htmlid)
-    if(e.__OculusDBType == "ActivityApplicationUpdated") return FormatApplicationUpatedActivity(e, htmlid)
+    if(e.__OculusDBType == "ActivityApplicationUpdated") return FormatApplicationUpdatedActivity(e, htmlid)
     if(e.__OculusDBType == "ActivityPriceChanged") return FormatPriceChanged(e, htmlid)
     if(e.__OculusDBType == "ActivityVersionChangelogAvailable" || e.__OculusDBType == "ActivityVersionChangelogUpdated") return FormatChangelogActivity(e, htmlid)
     return ""
