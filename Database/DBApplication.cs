@@ -31,13 +31,60 @@ namespace OculusDB.Database
 
         // Application
         public string appName { get; set; } = "";
-        public AppStoreOffer baseline_offer { get; set; } = new AppStoreOffer();
+        
+        /// <summary>
+        /// Normal price without discount
+        /// </summary>
+        public AppStoreOffer baseline_offer { get; set; } = null;
         public string priceFormatted { get; set; } = "$0.00";
         public long priceOffsetNumerical { get; set; } = 0;
+
+        public bool appHasDiscount
+        {
+            get
+            {
+                return baseline_offer != null && current_offer != null && current_offer.price != null && baseline_offer.price != null
+                    && current_offer.price.offset_amount_numerical < baseline_offer.price.offset_amount_numerical
+                    && TimeConverter.UnixTimeStampToDateTime(current_offer.end_time) > DateTime.UtcNow;
+            }
+        }
+
+        public DateTime discountEndTime
+        {
+            get
+            {
+                if(current_offer == null || current_offer.end_time == 0) return DateTime.MinValue;
+                return TimeConverter.UnixTimeStampToDateTime(current_offer.end_time);
+            }
+        }
+
+        public bool appHasTrial
+        {
+            get
+            {
+                return current_trial_offer != null;
+            }
+        }
+
+        public bool appCanBeBought
+        {
+            get
+            {
+                return current_offer != null && baseline_offer != null;
+            }
+        }
+        
         public string currency { get; set; } = "";
         public string canonicalName { get; set; } = "";
-        public AppStoreOffer current_gift_offer { get; set; } = new AppStoreOffer();
-        public AppStoreOffer current_offer { get; set; } = new AppStoreOffer();
+        public AppStoreOffer current_gift_offer { get; set; } = null;
+        /// <summary>
+        /// Price the user pays
+        /// </summary>
+        public AppStoreOffer current_offer { get; set; } = null;
+        /// <summary>
+        /// Trial offer
+        /// </summary>
+        public AppStoreTrialOffer current_trial_offer { get; set; } = null;
         [BsonIgnore]
         public string displayName { get { return display_name; } set { display_name = value; } }
         public string display_name { get; set; } = "";

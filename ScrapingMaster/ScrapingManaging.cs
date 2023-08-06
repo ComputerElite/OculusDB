@@ -384,6 +384,12 @@ public class ScrapingManaging
                 ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), ref scrapingContribution);
                 isNew = true;
             }
+
+            if (a.baseline_offer == null && a.current_offer != null)
+            {
+                // If there is no baseline offer set the baseline offer to the current offer for consistency
+                a.baseline_offer = a.current_offer;
+            }
             
             
             // Price Change activity
@@ -427,7 +433,8 @@ public class ScrapingManaging
                 || old.release_date != a.release_date
                 || old.publisher_name != a.publisher_name
                 || old.website_url != a.website_url
-                || old.supported_hmd_platforms_enum != a.supported_hmd_platforms_enum)
+                || old.supported_hmd_platforms_enum != a.supported_hmd_platforms_enum
+                || old.appHasTrial != a.appHasTrial)
             {
                 // Application updated
                 updated.__OculusDBType = DBDataTypes.ActivityApplicationUpdated;

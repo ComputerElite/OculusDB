@@ -191,48 +191,14 @@ public class ScrapingNodeScraper
         string currency = "";
         if (a.current_offer != null && a.current_offer.price != null)
         {
-            priceNumerical = Convert.ToInt64(a.current_offer.price.offset_amount);
+            priceNumerical = a.current_offer.price.offset_amount_numerical;
             currency = a.current_offer.price.currency;
         }
-
-        UserEntitlement ownsApp = GetEntitlementStatusOfAppOrDLC(a.id);
-        if (a.current_offer == null && a.baseline_offer == null)
+        else if(a.baseline_offer != null && a.baseline_offer.price != null)
         {
-            // Game is not available to purchase (E. g. Echo VR)
-            priceNumerical = -1;
-            currency = "";
+            priceNumerical = a.baseline_offer.price.offset_amount_numerical;
+            currency = a.baseline_offer.price.currency;
         }
-        else
-        {
-            if (ownsApp == UserEntitlement.FAILED)
-            {
-                if (a.current_offer != null && a.baseline_offer != null)
-                {
-                    // If price of baseline and current is not the same and there is no discount then the user probably owns the app.
-                    // Owning an app sets it current_offer to 0 currency but baseline_offer still contains the price
-                    // So if the user owns the app use the baseline price. If not use the current_price
-                    // That way discounts for the apps the user owns can't be tracked. I love oculus
-                    if (a.current_offer.price.offset_amount != a.baseline_offer.price.offset_amount && a.current_offer.promo_benefit == null)
-                    {
-                        priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
-                        currency = a.baseline_offer.price.currency;
-                    }
-                }
-            }
-            else if (ownsApp == UserEntitlement.OWNED)
-            {
-                if (a.baseline_offer != null && a.baseline_offer.price != null)
-                {
-                    priceNumerical = Convert.ToInt64(a.baseline_offer.price.offset_amount);
-                    currency = a.baseline_offer.price.currency;
-                }
-                else
-                {
-                    throw new Exception("Could not get baseline price for application " + a.id + " " + a.displayName + "... The user owns this app but the baseline price is null: " + JsonSerializer.Serialize(a));
-                }
-            }
-        }
-        
         
         
         Data<Application> d = GraphQLClient.GetDLCs(a.id);

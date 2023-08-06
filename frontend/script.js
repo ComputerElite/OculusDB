@@ -863,8 +863,12 @@ function FormatApplication(application, htmlId = "", expanded = false) {
                     <col width="100%">
                 </colgroup>
                 <tr><td class="label">Description</td><td class="value">${application.display_long_description.replace("\n", "<br>")}</td></tr>
-                <tr><td class="label">Current price</td><td class="value">${application.priceFormatted != null ? application.priceFormatted : (application.current_offer != null ? application.current_offer.price.formatted : (application.priceOffsetNumerical == -1 ? "Not purchasable" : "No price available"))}</td></tr>
-                <tr><td class="label">Baseline price</td><td class="value">${application.current_offer != null ? (application.baseline_offer.price.offset_amount != 0 && application.baseline_offer.price.offset_amount < application.current_offer.price.offset_amount ? application.baseline_offer.price.formatted : application.current_offer.price.formatted) : "No price available"}</td></tr>
+                <tr><td class="label">Discount</td><td class="value">${application.appHasDiscount ? application.current_offer.promo_benefit + "  ends " + new Date(application.discountEndTime).toLocaleString() : "None"}</td></tr>
+
+                <tr><td class="label">Current price</td><td class="value">${application.appCanBeBought ? application.priceFormatted : "Not purchasable"}</td></tr>
+                <tr><td class="label">Baseline price</td><td class="value">${application.baseline_offer != null ? application.baseline_offer.price.formatted : "Not available"}</td></tr>
+                
+                <tr><td class="label">Has trial</td><td class="value">${application.appHasTrial ? `True<br>${application.current_trial_offer.descriptions.join('<br>').replace("\n", "<br>")}` : `False`}</td></tr>
                 <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate ? application.quality_rating_aggregate.toFixed(2) : "Not available"}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
