@@ -105,6 +105,7 @@ namespace OculusDB
             RemoveIdRemap<AppStoreOffer>();
             RemoveIdRemap<DBVersion>();
             RemoveIdRemap<DBActivityNewApplication>();
+            RemoveIdRemap<DBActivityApplicationUpdated>();
             RemoveIdRemap<DBActivityNewVersion>();
             RemoveIdRemap<DBActivityVersionUpdated>();
             RemoveIdRemap<DBActivityPriceChanged>();
