@@ -93,6 +93,10 @@ namespace OculusDB
             {
                 return BsonSerializer.Deserialize<DBActivityNewApplication>(d);
             }
+            else if (type == DBDataTypes.ActivityApplicationUpdated)
+            {
+                return BsonSerializer.Deserialize<DBActivityApplicationUpdated>(d);
+            }
             else if (type == DBDataTypes.ActivityNewVersion)
             {
                 return BsonSerializer.Deserialize<DBActivityNewVersion>(d);
