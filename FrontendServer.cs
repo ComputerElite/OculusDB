@@ -847,6 +847,7 @@ public class FrontendServer
             server.AddRouteFile("/notfound.jpg", frontend + "notfound.jpg", true, true, true, accessCheck);
             server.AddRouteFile("/favicon.ico", frontend + "favicon.png", true, true, true, accessCheck);
             server.AddRouteFile("/privacy", frontend + "privacy.html", replace, true, true, true, accessCheck);
+            server.AddRouteFile("/saved", frontend + "saved.html", replace, true, true, true, accessCheck);
             
             server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
             {

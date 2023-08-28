@@ -5,10 +5,11 @@
     supportUs: false
 }
 
+const params = new URLSearchParams(window.location.search)
 
 document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">`
 
-document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
+if(!params.get("nonavbar")) document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 <div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
     <img alt="ComputerElite icon. Wooden background featuring a windows logo, oculus logo and a piano" class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
     <div class="navBarElement title anim">
@@ -26,11 +27,12 @@ document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
         <input type="button" onclick="Search('query')" value="Search">
     </div>
     <a class="underlineAnimation navBarElement" href="/login">Login</a>
+    <a class="underlineAnimation navBarElement" href="/saved">Saved apps</a>
     <a class="underlineAnimation navBarElement" href="/privacy">Privacy Policy</a>
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
     <a class="underlineAnimation navBarElement" href="/server">Server</a>
     <a class="underlineAnimation navBarElement" href="/downloadstats">Download stats</a>
-    <a class="underlineAnimation navBarElement" href="/guide">Downgrading guide</a>
+    <a class="underlineAnimation navBarElement" href="/guide">Downgrade guide</a>
     <a class="underlineAnimation navBarElement navBarMarginLeft" href="/supportus">Support us</a>
     <a class="underlineAnimation navBarElement" style="height: 100%;" href="{OculusDBDC}"><img alt="Discord logo" style="height: 100%;" src="/assets/discord.svg"></a>
 </div>
@@ -91,7 +93,6 @@ function GetRandomBool(trueChance) {
     return Math.random() * trueChance <= 1 // 1 in x
 }
 
-const params = new URLSearchParams(window.location.search)
 if(params.has("isqavs")) localStorage.isQAVS = "true"
 if(params.has("isoculusdowngrader")) localStorage.isOculusDowngrader = "true"
 
@@ -841,6 +842,42 @@ function FormatParentApplication(a, activityId) {
 </div>`
 }
 
+function IsStarred(id) {
+    var starred = localStorage.starred;
+    if(!starred) {
+        localStorage.starred = "[]";
+        return false;
+    }
+    var starredArray = JSON.parse(starred);
+    return starredArray.includes(id);
+}
+
+function SetStarred(id, s) {
+    var starred = localStorage.starred;
+    if(!starred) {
+        localStorage.starred = "[]";
+        starred = localStorage.starred;
+    }
+    var starredArray = JSON.parse(starred);
+    if(starredArray.includes(id) && !s) {
+        starredArray.splice(starredArray.indexOf(id), 1);
+    } else if(!starredArray.includes(id) && s) {
+        starredArray.push(id);
+    }
+    localStorage.starred = JSON.stringify(starredArray);
+}
+        
+ 
+function GetStarForId(id) {
+    return IsStarred(id) ? "&#9733;" : "&#9734;";
+}
+
+function UpdateStarredForId(id, element, event) {
+    event.cancelBubble = true;
+    SetStarred(id, !IsStarred(id));
+    element.innerHTML = GetStarForId(id);
+}
+
 function FormatApplication(application, htmlId = "", expanded = false) {
     return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))" cmon-1="Copy Oculus link" cmov-1="Copy('${GetOculusLink(application.id, application.hmd)}')">
     <div class="info">
@@ -851,6 +888,7 @@ function FormatApplication(application, htmlId = "", expanded = false) {
             </div>
             <div class="flex header" style="${application.blocked ? `color: var(--red);` : ``}" onclick="RevealDescription('${htmlId}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlId}_trigger" class="anim noselect${expanded ? " rotate" : ""}">&gt;</div>
+                <a class="star" onclick="UpdateStarredForId('${application.id}', this, event)">${GetStarForId(application.id)}</a>
                 <img alt="Icon of ${application.displayName}" onerror="this.src = '/notfound.jpg'" src="${application.imageLink}" style="max-height: 4em; width: auto; margin-right: 10px;">
                 <div stlye="font-size: 1.25em;">${application.displayName} (${ GetHeadsetNames(application.supported_hmd_platforms)})</div>
             </div>
