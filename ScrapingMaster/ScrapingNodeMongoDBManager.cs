@@ -366,7 +366,7 @@ public class ScrapingNodeMongoDBManager
         if (flushing.IsTrueAndValid()) return;
         flushing.Set(true, TimeSpan.FromMinutes(2), "");
         Logger.Log("Adding " + versions.Count + " versions to database.");
-        const int batchSize = 100;
+        const int batchSize = 25;
         string[] ids = new string[batchSize];
         while (versions.Count > 0)
         {
