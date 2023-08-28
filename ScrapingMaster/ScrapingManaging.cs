@@ -151,23 +151,28 @@ public class ScrapingManaging
                 catch (Exception e)
                 {
                     Logger.Log("Error while processing scraped results of node " + scrapingNodeAuthenticationResult.scrapingNode + ": " + e, LoggingType.Warning);
-                    ScrapingError error = ScrapingNodeMongoDBManager.AddErrorReport(new ScrapingError
-                    {
-                        errorMessage = e.ToString(),
-                        scrapingNodeId = "MASTER-SERVER"
-                    }, new ScrapingNodeAuthenticationResult
-                    {
-                        scrapingNode = new ScrapingNode
-                        {
-                            scrapingNodeId = "MASTER-SERVER"
-                        }
-                    });
-                    ScrapingMasterServer.SendMasterWebhookMessage("Processing error", OculusDBEnvironment.config.scrapingMasterUrl + "api/v1/scrapingerror/" + error.__id, 0xFF8800);
+                    ReportErrorWithDiscordMessage(e.ToString());
                 }
                 break;
         }
         processingRn[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId].Done();
         return r;
+    }
+
+    public static void ReportErrorWithDiscordMessage(string errorMsg, string discordDescription = "")
+    {
+        ScrapingError error = ScrapingNodeMongoDBManager.AddErrorReport(new ScrapingError
+        {
+            errorMessage = errorMsg,
+            scrapingNodeId = "MASTER-SERVER"
+        }, new ScrapingNodeAuthenticationResult
+        {
+            scrapingNode = new ScrapingNode
+            {
+                scrapingNodeId = "MASTER-SERVER"
+            }
+        });
+        ScrapingMasterServer.SendMasterWebhookMessage("Processing error", discordDescription + "\n" + OculusDBEnvironment.config.scrapingMasterUrl + "api/v1/scrapingerror/" + error.__id, 0xFF8800);
     }
 
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)
@@ -414,7 +419,15 @@ public class ScrapingManaging
             }
             else
             {
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
+                if (priceChange == null)
+                {
+                    ReportErrorWithDiscordMessage("Price change is null. Responsible node is " + scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, "nullError");
+                }
+                else if (scrapingContribution == null)
+                {
+                    ReportErrorWithDiscordMessage("Scraping Contribution is null. Responsible node is " + scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, "nullError");
+                }
+                else ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
 
             DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id).FirstOrDefault());
