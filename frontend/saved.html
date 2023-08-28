@@ -29,7 +29,7 @@
                 var html = ""
                 for(const id of savedApps) {
                     if(!cachedApps[id]) cachedApps[id] = await GetObjectById(id)
-                    html += AutoFormat(cachedApps[id])
+                    html += AutoFormat(cachedApps[id], id)
                 }
                 if(!html) html = `<div class="application">You don't have any saved apps. To save them, press the star icon next to their name.</div>`
                 searchResults.innerHTML = html;
