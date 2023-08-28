@@ -13,6 +13,7 @@ using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 
 namespace OculusDB.ScrapingNodeCode;
 
@@ -422,27 +423,37 @@ public class ScrapingNodeScraper
             WebClient c = new WebClient();
             c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
             byte[] data = c.DownloadData(a.img);
-            if (!ext.EndsWith(".webp"))
+            // Try converting image to webp format
+            try
             {
-                // Try converting image to webp format
-                try
+                using (var img = Image.Load(data))
                 {
-                    using (var img = Image.Load(data))
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        string newFileName = OculusDBEnvironment.dataDir + "images" + Path.DirectorySeparatorChar +
-                                             a.id + ".webp";
-                        if(File.Exists(newFileName)) File.Delete(newFileName);
-                        using (MemoryStream ms = new MemoryStream())
+                        int width = img.Width;
+                        int height = img.Height;
+                        if (width > 1024 || height > 1024)
                         {
-                            img.Save(ms, new WebpEncoder());
-                            data = ms.ToArray();
+                            if (width > height)
+                            {
+                                height = (int) (height * (1024f / width));
+                                width = 1024;
+                            }
+                            else
+                            {
+                                width = (int) (width * (1024f / height));
+                                height = 1024;
+                            }
                         }
+                        img.Mutate(x => x.Resize(width, height));
+                        img.Save(ms, new WebpEncoder());
+                        data = ms.ToArray();
                     }
                 }
-                catch (Exception e)
-                {
-                    Logger.Log("Couldn't convert image to webp:\n" + e.ToString(), LoggingType.Warning);
-                }
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Couldn't convert image to webp:\n" + e.ToString(), LoggingType.Warning);
             }
             DBAppImage dbi = new DBAppImage();
             dbi.data = data;
