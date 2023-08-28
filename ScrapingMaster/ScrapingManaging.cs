@@ -371,6 +371,11 @@ public class ScrapingManaging
         // Process Applications
         foreach (DBApplication a in taskResult.scraped.applications)
         {
+            if (a == null)
+            {
+                ReportErrorWithDiscordMessage("Application is null. Scraping node is " + scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, "Application is null");
+                continue;
+            }
             // New Application activity
             bool isNew = false;
             BsonDocument lastEvent = MongoDBInteractor.GetLastEventWithIDInDatabase(a.id);
