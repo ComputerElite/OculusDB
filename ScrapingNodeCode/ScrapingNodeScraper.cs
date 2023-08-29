@@ -453,7 +453,8 @@ public class ScrapingNodeScraper
             }
             catch (Exception e)
             {
-                Logger.Log("Couldn't convert image to webp:\n" + e.ToString(), LoggingType.Warning);
+                Logger.Log("Couldn't convert image to webp or scale it to max 1024x1024:\n" + e, LoggingType.Warning);
+                return null;
             }
             DBAppImage dbi = new DBAppImage();
             dbi.data = data;
