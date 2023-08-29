@@ -566,24 +566,48 @@ function DownloadVersionPopUp(version, id) {
                         <input type="button" onclick="document.getElementById('popup').click()" value="No">
                     </div>`)
         }
+    }).catch(err => {
+        console.log("Ouch")
     })
 }
 
 function GetVersion(version, id, showWorking = true) {
     return new Promise((resolve, reject) => {
         try {
-            var res;
+            var res = null;
             connected.versions.forEach(v => {
                 if(v.version == version && (!v.binary_release_channels || v.binary_release_channels.nodes.length > 0)) res = v
             });
+            if(!res) {
+                if(showWorking) {
+
+                    PopUp(`
+                    <div>Couldn't find that version. Please try again later.</div>
+                    <div>
+                        <input type="button" value="OK" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
+                    </div>`)
+                }
+                reject("not found")
+                return
+            }
             resolve(res)
         } catch{
             if(showWorking) PopUp(`<div>Working... ${loader}</div>`)
             fetch(`/api/v1/versions/${id}`).then(res => res.json().then(versions => {
-                var res;
+                var res = null;
                 versions.forEach(v => {
                     if(v.version == version && (!v.binary_release_channels || v.binary_release_channels.nodes.length > 0)) res = v
                 });
+                if(showWorking && !res) {
+                    PopUp(`
+                    <div>Couldn't find that version. Please try again later.</div>
+                    <div>
+                        <input type="button" value="OK" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { ClosePopUp(); }">
+                    </div>`)
+
+                    reject("not found")
+                    return;
+                }
                 resolve(res)
             }))
         }
