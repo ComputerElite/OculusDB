@@ -373,12 +373,7 @@ function OpenRecentActivity(id) {
 }
 
 function GetOculusLink(id, hmd) {
-    var link = "https://www.oculus.com/experiences/"
-    if(hmd == 0 || hmd == 5) link += "rift"
-    else if(hmd == 1 || hmd == 2 || hmd == 6) link += "quest"
-    else if(hmd == 3) link += "gear-vr"
-    else if(hmd == 4) link += "go"
-    return link + "/" + id
+    return "https://meta.com/en-gb/experiences/" + id;
 }
 
 function GetHeadsetName(headset) {
