@@ -31,7 +31,7 @@ public class FrontendServer
         public static Dictionary<string, string> replace = new Dictionary<string, string>
         {
             {"{meta}", "<meta charset=\"UTF-8\">\n<meta name=\"theme-color\" content=\"#63fac3\">\n<meta name=\"site_name\" content=\"OculusDB\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" },
-            {"{oculusloginlink}", "https://oculus.com/experiences/quest" },
+            {"{oculusloginlink}", "https://developer.oculus.com/manage/" },
             {"{BSLGDC}", "https://discord.gg/MrwMx5e" },
             {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" },
         };
