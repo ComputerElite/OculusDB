@@ -272,6 +272,7 @@ public class ScrapingNodeMongoDBManager
     public static List<DBVersion> versions = new ();
     public static void AddVersion(DBVersion v, ref ScrapingContribution contribution)
     {
+        if (v == null) return;
         contribution.AddContribution(v.__OculusDBType, 1);
         v.__sn = contribution.scrapingNode.scrapingNodeId;
         versions.RemoveAll(x => x == null || x.id == v.id);
@@ -282,6 +283,7 @@ public class ScrapingNodeMongoDBManager
     public static List<DBIAPItem> iapItems = new ();
     public static void AddDLC(DBIAPItem d, ref ScrapingContribution contribution)
     {
+        if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = contribution.scrapingNode.scrapingNodeId;
         iapItems.Add(d);
@@ -290,6 +292,7 @@ public class ScrapingNodeMongoDBManager
     public static List<DBIAPItemPack> dlcPacks = new ();
     public static void AddDLCPack(DBIAPItemPack d, ref ScrapingContribution contribution)
     {
+        if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = contribution.scrapingNode.scrapingNodeId;
         dlcPacks.Add(d);
@@ -298,6 +301,7 @@ public class ScrapingNodeMongoDBManager
     public static List<DBApplication> apps = new ();
     public static void AddApplication(DBApplication a, ref ScrapingContribution contribution)
     {
+        if(a == null) return;
         contribution.AddContribution(a.__OculusDBType, 1);
         a.__sn = contribution.scrapingNode.scrapingNodeId;
         apps.Add(a);
@@ -306,6 +310,7 @@ public class ScrapingNodeMongoDBManager
     public static List<BsonDocument> queuedActivity = new List<BsonDocument>();
     public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d, ref ScrapingContribution contribution)
     {
+        if (d == null) return null;
         contribution.AddContribution(d["__OculusDBType"].AsString, 1);
         d["_id"] = ObjectId.GenerateNewId();
         d["__id"] = d["_id"].AsObjectId;
@@ -355,6 +360,7 @@ public class ScrapingNodeMongoDBManager
     public static List<DBAppImage> images = new ();
     public static void AddImage(DBAppImage img, ref ScrapingContribution contribution)
     {
+        if (img == null) return;
         contribution.AddContribution(img.__OculusDBType, 1);
         img.__sn = contribution.scrapingNode.scrapingNodeId;
         images.Add(img);

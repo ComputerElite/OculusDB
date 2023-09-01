@@ -434,6 +434,7 @@ public class ScrapingManaging
                 }
                 else ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
+            ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
 
             DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id).FirstOrDefault());
             if (old != null)
@@ -462,7 +463,6 @@ public class ScrapingManaging
                     ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
                 }
             }
-            
             r.processedCount++;
         }
         stats.appProcessTime = sw.Elapsed;
