@@ -88,6 +88,7 @@
                         <div>This application has been blocked on OculusDB. This means it has been removed from the public. You cannot view any version of this app. If you think this is a mistake join the <a href="{OculusDBDC}">OculusDB Discord Server</a> and ask there in the #support channel</div>
                         <input type="button" value="Ok" onclick="ClosePopUp()">
                     `)
+                    stopLoading()
                     return
                 }
                 AddConnected()
@@ -97,8 +98,19 @@
                         <div>The item has not been found on OculusDB. If the app you wanted to view exists it'll be attempted to scrape it and you may see the app within the next minutes.</div>
                         <input type="button" value="Ok" onclick="ClosePopUp()">
                     `)
+                    stopLoading()
                 }
             })
+            
+            function stopLoading() {
+                versions.innerHTML = "App not found"
+                applications.innerHTML = "App not found"
+                dlcs.innerHTML = "App not found"
+                dlcpacks.innerHTML = "App not found"
+                document.getElementById("history").innerHTML = "Can't load history. App not found"
+                document.getElementById("specific").innerHTML = "App not found"
+                document.getElementById("this").innerHTML = "App not found"
+            }
 
             function AddDownloadStats(id) {
                 fetch(`/api/v1/applicationanalytics/${id}`).then(res => {
