@@ -25,7 +25,7 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build
-    - name: Zip build
+    - name: Zip build Debug
       uses: papeloto/action-zip@v1
       with:
         files: bin/Debug/net6.0
@@ -35,3 +35,15 @@ jobs:
       with:
         name: net6.0.zip
         path: bin/Debug/net6.0
+
+        
+    - name: Zip build
+      uses: papeloto/action-zip@v1
+      with:
+        files: bin/Release/net6.0
+        dest: net6.0.zip
+    - name: Upload net6.0.zip
+      uses: actions/upload-artifact@v3
+      with:
+        name: net6.0.zip
+        path: bin/Release/net6.0
