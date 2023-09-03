@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Login - OculusDB</title>
+        <meta name="title" content="Login - OculusDB">
+        <meta name="description" content="Login to your OculusDB account">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <h2>Only administrators can sign in</h2>
+            <label >
+                Token
+                <input type="password" id="password" style="width: max-content;">
+            </label>
+            <input type="button" value="Login" id="b" onclick="Login()">
+            <div class="textbox" id="status"></div>
+        </div>
+        
+        <script src="/script.js"></script>
+        <script>
+            const b = document.getElementById("b")
+            var currentUser = {}
+
+            fetch("/api/v1/user?token=" + GetCookie("token")).then(res => {
+                res.json().then(res => {
+                    currentUser = res
+                    if(res.redirect == "/admin") b.value = "Admin"
+                })
+            })
+
+            function Login() {
+                if(password.value == "") {
+                    window.location.href = currentUser.redirect
+                }
+                var pwd = password.value
+                if(pwd.includes("@") || pwd.includes(" ") || pwd.startsWith("OC")) {
+                    TextBoxError("status", `Whoops, seems like you wanted to log in with your Oculus/Facebook/Meta Account.<br>To do that, visit <a href="{oculusloginlink}">{oculusloginlink}</a> and log in there.`)
+                    return
+                }
+                fetch("/api/v1/login", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        password: document.getElementById("password").value
+                    })
+                }).then(res => {
+                    res.json().then(j => {
+                        if(j.authorized) {
+                            if(j.isAdmin) SetCookie("token", j.token, 14)
+                            else localStorage.token = j.token
+                            window.location.href = j.redirect
+                        } else {
+                            TextBoxError("status", j.status)
+                        }
+                    })
+                })
+                
+            }
+        </script>
+    </body>
+</html>

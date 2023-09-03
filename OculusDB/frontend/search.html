@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Search - OculusDB</title>
+        <meta name="title" content="Search - OculusDB">
+        <meta name="description" content="Search OculusDB">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <div class="navBarElement">
+                <input type="text" placeholder="Query" id="query2">
+                <input type="button" onclick="Search('query2')" value="Search">
+            </div>
+            
+            <h1>Results</h1>
+            <label class="checkmarkContainer">
+                <div>Rift/Rift S</div>
+                <input id="rift" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest 1</div>
+                <input id="monterey" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest 2</div>
+                <input id="hollywood" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest 3</div>
+                <input id="eureka" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Quest Pro</div>
+                <input id="seacliff" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>GearVR</div>
+                <input id="gearvr" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                <div>Go</div>
+                <input id="pacific" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <div class="SearchResults" id="searchResults">
+
+            </div>
+            <div>
+                Are we missing an app? Enter a valid app id
+                <br>
+                or url and we will add it to the database.
+                <br>
+                <input type="text" placeholder="App id or URL" id="addApp">
+                <input type="button" value="Submit" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AddApp()">
+                <div class="textbox" style="width: clamp(600px, 50vw, 1800px);" id="reportmissingbox"></div>
+            </div>
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            const rift = document.getElementById("rift")
+            const hollywood = document.getElementById("hollywood")
+            const monterey = document.getElementById("monterey")
+            const eureka = document.getElementById("eureka")
+            const seacliff = document.getElementById("seacliff")
+            const gearvr = document.getElementById("gearvr")
+            const pacific = document.getElementById("pacific")
+
+            var query = params.get("query")
+
+            document.getElementById("query2").onkeydown = e => {
+                if(e.code == "Enter") {
+                    Search("query2")
+                }
+            }
+
+            function AddApp() {
+                var appId = document.getElementById("addApp").value
+                TextBoxText("reportmissingbox", "Waiting for response")
+                fetch(`/api/v1/reportmissing/${appId}`).then(res => {
+                    res.text().then(text => {
+                        if(res.status == 200) {
+                            TextBoxGood("reportmissingbox", text)
+                        } else if (res.status == 400) {
+                            TextBoxError("reportmissingbox", text)
+                        } else {
+                            TextBoxError("reportmissingbox", "An unknown error occurred")
+                        }
+                    })
+                })
+            }
+
+            var options = {
+                "rift": [
+                    "RIFT",
+                    "LAGUNA"
+                ],
+                "monterey": [
+                    "MONTEREY"
+                ],
+                "hollywood": [
+                    "HOLLYWOOD"
+                ],
+                "seacliff": [
+                    "SEACLIFF"
+                ],
+                "eureka": [
+                    "EUREKA"
+                ],
+                "gearvr": [
+                    "GEARVR"
+                ],
+                "pacific": [
+                    "PACIFIC"
+                ]
+            }
+
+            SetCheckboxesBasedOnValue(options, params.get("headsets"))
+            const SearchResults = document.getElementById("searchResults")
+
+            document.getElementById("query").value = query
+            document.getElementById("query2").value = query
+            SearchResults.innerHTML = loader
+            fetch("/api/v1/search/" + encodeURIComponent(query) + "?headsets=" + params.get("headsets")).then(res => {
+                if(res.status != 200) {
+                    res.text().then(text => {
+                        PopUp(text)
+                    })
+                } else {
+                    res.json().then(res => {
+                        var results = ""
+                        res.forEach(x => {
+                            results += FormatApplication(x, x.id)
+                        })
+                        if(results == "") {
+                            results = noResult
+                        }
+                        SearchResults.innerHTML = results
+                    })
+                }
+            })
+
+            function Update(refresh = true) {
+                params.set("headsets", GetValuesOFCheckboxes(options))
+                if(refresh) window.location.href = "?" + params.toString()
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,6 @@
+[submodule "ComputerUtils"]
+	path = ComputerUtils
+	url = https://github.com/ComputerElite/ComputerUtils
+[submodule "OculusGraphQLApiLib"]
+	path = OculusGraphQLApiLib
+	url = https://github.com/ComputerElite/OculusGraphQLApiLib

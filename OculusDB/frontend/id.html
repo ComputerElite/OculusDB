@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Information - OculusDB</title>
+        <meta name="title" content="Information - OculusDB">
+        <meta name="description" content="Shows information about an version, app or dlc">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <div id="specificContainer">
+                <h2>Application specific</h2>
+                <div id="specific">
+                    <div class="loader"></div>
+                </div>
+            </div>
+            <br>
+            <div class="leftRightAdjustedContainer">
+                <div class="tabContainer leftRightAdjustedContainerItemLeft">
+                    <div class="tab">
+                        <button id="applications_button" class="tablinks" onclick="openTab(this, 'applications')">Applications</button>
+                        <button id="dlcs_button" class="tablinks" onclick="openTab(this, 'dlcs')">DLCs</button>
+                        <button id="dlcpacks_button" class="tablinks" onclick="openTab(this, 'dlcpacks')">DLC Packs</button>
+                        <button id="versions_button" class="tablinks active" onclick="openTab(this, 'versions')">Versions</button>
+                    </div>
+                    <div id="applications" class="tabcontent">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="dlcs" class="tabcontent">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="dlcpacks" class="tabcontent">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="versions" style="display: block;" class="tabcontent active">
+                        <div class="loader"></div>
+                    </div>
+                    <input type="checkbox">
+                </div>
+                <div class="leftRightAdjustedContainerItemRight">
+                    <div id="this"><div class="loader"></div></div>
+                </div>
+            </div>
+            
+            <div>
+                <h2>Price history</h2>
+                <div id="history">
+                    <div class="loader"></div>
+                </div>
+            </div>
+            <h2>OculusDB Info</h2>
+            <a href="/api/v1/id/{0}">Raw Json</a>
+            <table>
+                <tr><td class="label">OculusDB Type</td><td id="type">Fetching...</td></tr>
+                <tr><td class="label">Last Updated</td><td id="lastUpdated">Fetching...</td></tr>
+            </table>
+            <input type="button" value="Force Scrape" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) location = '/utils?id=' + id">
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            const id = "{0}"
+            const applications = document.getElementById("applications")
+            const dlcpacks = document.getElementById("dlcpacks")
+            const dlcs = document.getElementById("dlcs")
+            const versions = document.getElementById("versions")
+
+            // query params
+            const downloadVersion = params.get("downloadversion")
+
+            var object = {}
+            var connected = {}
+            var analytics = []
+
+            var connectedSection = params.get("connected")
+
+            if(connectedSection) {
+                openTab(document.getElementById(connectedSection.toLowerCase() + "_button"), connectedSection)
+            }
+
+            GetObjectById(id).then(res => {
+                object = res
+                document.getElementById("type").innerHTML = object.__OculusDBType
+                document.getElementById("lastUpdated").innerHTML = new Date(object.__lastUpdated).toLocaleString()
+                if(res.blocked) {
+                    PopUp(`
+                        <div>This application has been blocked on OculusDB. This means it has been removed from the public. You cannot view any version of this app. If you think this is a mistake join the <a href="{OculusDBDC}">OculusDB Discord Server</a> and ask there in the #support channel</div>
+                        <input type="button" value="Ok" onclick="ClosePopUp()">
+                    `)
+                    stopLoading()
+                    return
+                }
+                AddConnected()
+            }).catch(err => {
+                if(err == 404) {
+                    PopUp(`
+                        <div>The item has not been found on OculusDB. If the app you wanted to view exists it'll be attempted to scrape it and you may see the app within the next minutes.</div>
+                        <input type="button" value="Ok" onclick="ClosePopUp()">
+                    `)
+                    stopLoading()
+                }
+            })
+            
+            function stopLoading() {
+                versions.innerHTML = "App not found"
+                applications.innerHTML = "App not found"
+                dlcs.innerHTML = "App not found"
+                dlcpacks.innerHTML = "App not found"
+                document.getElementById("history").innerHTML = "Can't load history. App not found"
+                document.getElementById("specific").innerHTML = "App not found"
+                document.getElementById("this").innerHTML = "App not found"
+            }
+
+            function AddDownloadStats(id) {
+                fetch(`/api/v1/applicationanalytics/${id}`).then(res => {
+                    res.json().then(res => {
+                        analytics = res
+                        UpdateConnected(false)
+                    })
+                })
+            }
+
+            function AddConnected() {
+                fetch(`/api/v1/connected/${id}?currency=${params.get("currency") ? params.get("currency") : ""}`).then(res => {
+                    if(res.status != 200) {
+                        res.text().then(text => {
+                            PopUp(text)
+                        })
+                    } else {
+                        res.json().then(res => {
+                            connected = res
+                            UpdateConnected(true)
+                        })
+                    }
+                })
+            }
+
+            function GetDownloads(id) {
+                for(var i = 0; i < analytics.length; i++) {
+                    if(analytics[i].itemId == id) {
+                        return analytics[i].count + " downloads"
+                    }
+                }
+                return "No recorded downloads"
+            }
+
+            var currencyForPriceHistory = ""
+            
+            function UpdateConnected(first = false) {
+                if(object.__OculusDBType == "Application") {
+                    document.getElementById("this").innerHTML = AutoFormat(object, connected, "this_" + object.id)
+                    RevealDescription("this_" + object.id)
+                }
+                
+                if(object.__OculusDBType == "Application") {
+                    AddApplicationSpecific(object.id)
+                } else {
+                    document.getElementById("specificContainer").style.display = "none"
+                }
+                var apps = ""
+                connected.applications.forEach(a => {
+                    currencyForPriceHistory = a.currency
+                    a.downloads = GetDownloads(a.id)
+                    apps += FormatApplication(a, a.id)
+                    if(object.__OculusDBType != "Application") {
+                        document.getElementById("this").innerHTML = AutoFormat(a, connected, "this_" + a.id)
+                        RevealDescription("this_" + a.id)
+                        AddApplicationSpecific(a.id)
+                    }
+                })
+                if(!apps) apps = noResult
+                applications.innerHTML = apps
+
+                
+
+                var ds = ""
+                connected.dlcs.forEach(d => {
+                    
+                    d.downloads = GetDownloads(d.id)
+                    ds += FormatDLC(d, d.id)
+                })
+                if(!ds) ds = noResult
+                dlcs.innerHTML = ds
+
+                var dps = ""
+                connected.dlcPacks.forEach(dp => {
+                    dp.downloads = GetDownloads(dp.id)
+                    dps += FormatDLCPack(dp, connected.dlcs, dp.id)
+                })
+                if(!dps) dps = noResult
+                dlcpacks.innerHTML = dps
+
+                var showAll = false;
+                if(object.__OculusDBType == "Version") {
+                    if(!object.downloadable) {
+                        showAll = true
+                    }
+                }
+
+                UpdateVersions(showAll)
+
+                if(object.__OculusDBType == "Version") {
+                    openTab(document.getElementById("versions_button"), 'versions')
+                    ScrollAndExpand(object.id)
+                } else if(object.__OculusDBType == "IAPItem") {
+                    openTab(document.getElementById("dlcs_button"), 'dlcs')
+                    ScrollAndExpand(object.id)
+                } else if(object.__OculusDBType == "IAPItemPack") {
+                    openTab(document.getElementById("dlcpacks_button"), 'dlcpacks')
+                    ScrollAndExpand(object.id)
+                }
+
+                if(first) {
+                    AddDownloadStats(connected.applications[0].id)
+                    if(object.__OculusDBType != "Version"){
+                        var script = document.createElement("script")
+                        script.src = "https://cdn.plot.ly/plotly-2.9.0.min.js"
+                        script.onload = () => PlotPrice()
+                        document.head.appendChild(script)
+                    } else {
+                        priceHistory.innerHTML = "Prices are not available for Versions"
+                    }
+                }
+            }
+
+            function ScrollAndExpand(id) {
+                RevealDescription(id)
+                HighlightElement(`anchor_${id}`, false)
+            }
+
+            function DownloadVersion(version) {
+                window.open(GetDownloadLink(GetVersion(version).id), "_blank")
+                document.getElementById('popup').click()
+            }
+
+            function UpdateVersions(showAll) {
+                showAll = showAll ? showAll : (document.getElementById("showallcheckbox") ? document.getElementById("showallcheckbox").checked : false)
+                var showBetas = document.getElementById("showbetascheckbox") ? document.getElementById("showbetascheckbox").checked : false
+                var vers = `
+                <label class="checkmarkContainer"><div>Show all versions</div><input type='checkbox' id="showallcheckbox" onclick='UpdateVersions()' ${showAll ? " checked" : ""}><span class="checkmark"></span></label>
+                <label class="checkmarkContainer"><div>Show Betas</div><input type='checkbox' id="showbetascheckbox" onclick='UpdateVersions()' ${showBetas ? " checked" : ""}><span class="checkmark"></span></label>`
+                var hmd = -1
+                
+                connected.versions.forEach(v => {
+                    hmd = v.parentApplication.hmd
+                    v.downloads = GetDownloads(v.id)
+                    if(downloadVersion && downloadVersion == v.version) {
+                        DownloadVersionPopUp(v.version)
+                    }
+                    if(v.downloadable && (v.binary_release_channels.nodes.map(x => x.channel_name).includes("LIVE") || showBetas) || showAll)
+                        vers += FormatVersion(v, v.id)
+                })
+                if(hmd != -1) {
+                    vers = `These versions are for <b>${GetLogicalHeadsetNameEnum(hmd)}</b>. If you want them for another headset search again and click on another entry for this game.` + vers
+                }
+                versions.innerHTML = vers
+            }
+
+            const priceHistory = document.getElementById("history")
+
+            function PlotPrice() {
+                fetch(`/api/v1/pricehistory/${id}?currency=${currencyForPriceHistory}`).then(res => res.json().then(res => {
+                    var x = []
+                    var y = []
+                    var layout = {
+                        width: "100%",
+                        height: "100%",
+                        font: {
+                            color: "#EEEEEE"
+                        },
+                        plot_bgcolor: "#181A1B",
+                        paper_bgcolor: "#181A1B",
+                        xaxis: {
+                            title: "Time"
+                        },
+                        yaxis: {
+                            title: "Price",
+                            tickvals: [],
+                            ticktext: []
+                        }
+                    }
+                    var prices = {}
+                    res.forEach(p => {
+                        x.unshift(p.__lastUpdated)
+                        y.unshift(p.newPriceOffsetNumerical ? p.newPriceOffsetNumerical : p.priceOffsetNumerical)
+                        if(p.newPriceOffsetFormatted ? p.newPriceOffsetFormatted : p.priceOffsetFormatted) {
+                            prices[p.newPriceOffsetNumerical ? p.newPriceOffsetNumerical : p.priceOffsetNumerical] = p.newPriceOffsetFormatted ? p.newPriceOffsetFormatted : p.priceOffsetFormatted
+                        }
+                    })
+                    Object.keys(prices).sort().reduce(
+                        (obj, key) => { 
+                            layout.yaxis.tickvals.push(key)
+                            layout.yaxis.ticktext.push(prices[key])
+                            return obj;
+                        }, 
+                        {}
+                    );
+                    console.log(layout)
+                    priceHistory.innerHTML = ""
+                    Plotly.newPlot(priceHistory, [{
+                        x: x,
+                        y: y,
+                        line: {
+                            shape: "hv",
+                            color: "#63FAC3"
+                        }
+                    }], layout)
+                }))
+            }
+        </script>
+    </body>
+</html>

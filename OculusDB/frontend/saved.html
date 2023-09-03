@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Search - OculusDB</title>
+        <meta name="title" content="Search - OculusDB">
+        <meta name="description" content="Search OculusDB">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <h1>Saved apps</h1>
+            <div class="SearchResults" id="searchResults">
+                
+            </div>
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            var cachedApps = [];
+
+            DisplaySavedApps();
+            async function DisplaySavedApps() {
+                var searchResults = document.getElementById("searchResults");
+                searchResults.innerHTML = loader;
+                var starred = localStorage.starred;
+                if(!starred) starred = "[]";
+                var savedApps = JSON.parse(starred);
+                var html = ""
+                for(const id of savedApps) {
+                    if(!cachedApps[id]) cachedApps[id] = await GetObjectById(id)
+                    html += AutoFormat(cachedApps[id], id)
+                }
+                if(!html) html = `<div class="application">You don't have any saved apps. To save them, press the star icon next to their name.</div>`
+                searchResults.innerHTML = html;
+            }
+        </script>
+    </body>
+</html>

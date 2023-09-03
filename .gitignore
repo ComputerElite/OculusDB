@@ -1,2 +1,7 @@
-﻿/bin
-/obj
+﻿/OculusDB/bin
+/OculusDB/obj
+/OculusDB/.vs
+/OculusDB/.idea
+/packages
+/.vs
+/.idea

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {meta}
+        <link rel="stylesheet" href="/style.css" >
+        <title>Explore - OculusDB</title>
+        <meta name="title" content="Explore - OculusDB">
+        <meta name="description" content="Explore OculusDB">
+    </head>
+    <body>
+        <noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+        <div class="content">
+            <h1>Results</h1>
+            <label class="checkmarkContainer">
+                Rift/Rift S
+                <input id="rift" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                Quest 1/Quest 2
+                <input id="monterey" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                GearVR
+                <input id="gearvr" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
+                Go
+                <input id="pacific" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <select id="sort">
+                <option value="reviews">Best Reviews</option>
+                <option value="name">Name</option>
+                <option value="publisher">Publisher</option>
+                <option value="releaseTime">Release time</option>
+            </select>
+            <div class="SearchResults" id="searchResults">
+
+            </div>
+        </div>
+        <script src="/script.js"></script>
+        <script>
+            const results = document.getElementById("searchResults")
+            const sort = document.getElementById("sort")
+            
+            sort.onchange = (e) => {
+                Update()
+            }
+
+            function Update() {
+                results.innerHTML = loader
+                fetch("/api/v1/explore?sorting=" + sort.value).then(res => res.json().then(res => {
+                    var apps = ""
+                    res.forEach(e => {
+                        apps += FormatApplication(e, e.id)
+                    })
+                    if(apps == "") apps = noResult
+                    results.innerHTML = apps
+                    UpdateContextMenu()
+                }))
+
+            }
+        </script>
+    </body>
+</html>

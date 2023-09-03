@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OculusDB", "OculusDB.csproj", "{A5DA64EB-C6FE-4335-A2C7-2E4576C90E95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OculusDB", "OculusDB\OculusDB.csproj", "{4806A093-BC74-4519-B352-830069FC3C22}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputerUtils", "..\..\ComputerUtils\ComputerUtils\ComputerUtils.csproj", "{9C6451BE-5FF3-42FC-A697-287070125E37}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerUtils", "ComputerUtils\ComputerUtils\ComputerUtils.csproj", "{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OculusGraphQLApiLib", "..\..\OculusGraphQLApiLib\OculusGraphQLApiLib\OculusGraphQLApiLib.csproj", "{CCDB1CAE-8740-46BA-83B4-FBF1D77C0977}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OculusGraphQLApiLib", "OculusGraphQLApiLib\OculusGraphQLApiLib\OculusGraphQLApiLib.csproj", "{38AD7E17-31C0-40AC-B450-D174E953D94B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OculusGraphQLApiLibCLI", "OculusGraphQLApiLib\OculusGraphQLApiLibCLI\OculusGraphQLApiLibCLI.csproj", "{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,23 +17,27 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A5DA64EB-C6FE-4335-A2C7-2E4576C90E95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5DA64EB-C6FE-4335-A2C7-2E4576C90E95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5DA64EB-C6FE-4335-A2C7-2E4576C90E95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5DA64EB-C6FE-4335-A2C7-2E4576C90E95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9C6451BE-5FF3-42FC-A697-287070125E37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9C6451BE-5FF3-42FC-A697-287070125E37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9C6451BE-5FF3-42FC-A697-287070125E37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9C6451BE-5FF3-42FC-A697-287070125E37}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCDB1CAE-8740-46BA-83B4-FBF1D77C0977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCDB1CAE-8740-46BA-83B4-FBF1D77C0977}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCDB1CAE-8740-46BA-83B4-FBF1D77C0977}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCDB1CAE-8740-46BA-83B4-FBF1D77C0977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4806A093-BC74-4519-B352-830069FC3C22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4806A093-BC74-4519-B352-830069FC3C22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4806A093-BC74-4519-B352-830069FC3C22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4806A093-BC74-4519-B352-830069FC3C22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {893FCEAD-94E5-4003-AB4E-69FCE62CCBC5}
+		SolutionGuid = {BBB9E66B-11EE-45C6-86D3-DB8A689ACFEB}
 	EndGlobalSection
 EndGlobal
