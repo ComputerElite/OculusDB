@@ -36,7 +36,14 @@ namespace OculusDB.Database
         public string id { get; set; } = "";
         public string displayName { get; set; } = "";
         public string displayShortDescription { get; set; } = "";
-        public string priceFormatted { get; set; } = "$0.00";
+
+        public string priceFormatted
+        {
+            get
+            {
+                return AppStoreOfferPrice.GetFormattedPrice(priceOffsetNumerical, currency);
+            }
+        }
         public string priceOffset { get; set; } = "0";
         public string latestAssetFileId { get; set; } = "";
         public long priceOffsetNumerical

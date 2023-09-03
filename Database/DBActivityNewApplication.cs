@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using OculusGraphQLApiLib.Results;
 
 namespace OculusDB.Database
 {
@@ -38,7 +39,13 @@ namespace OculusDB.Database
         public string displayLongDescription { get; set; } = "";
         public string publisherName { get; set; } = "";
         // Prices may not be used, instead use price changes to have currency support
-        public string priceFormatted { get; set; } = "$0.00";
+        public string priceFormatted
+        {
+            get
+            {
+                return AppStoreOfferPrice.GetFormattedPrice(priceOffsetNumerical, currency);
+            }
+        }
         public string priceOffset { get; set; } = "0";
         public long priceOffsetNumerical
         {
@@ -51,6 +58,7 @@ namespace OculusDB.Database
                 priceOffset = value.ToString();
             }
         }
+        public string currency { get; set; } = "";
         public List<string> supportedHmdPlatforms { get; set; } = new List<string>();
         public Headset hmd { get; set; } = Headset.RIFT;
     }

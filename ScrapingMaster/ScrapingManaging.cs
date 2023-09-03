@@ -278,7 +278,6 @@ public class ScrapingManaging
             newDLC.displayShortDescription = d.display_short_description;
             newDLC.latestAssetFileId = d.latest_supported_asset_file != null ? d.latest_supported_asset_file.id : "";
             newDLC.priceOffset = d.current_offer.price.offset_amount;
-            newDLC.priceFormatted = d.current_offer.price.formatted;
             newDLC.currency = d.current_offer.price.currency;
             
             // Skip dlc pack if it's free
@@ -328,7 +327,6 @@ public class ScrapingManaging
             newDLCPack.displayName = d.display_name;
             newDLCPack.displayShortDescription = d.display_short_description;
             newDLCPack.priceOffset = d.current_offer.price.offset_amount;
-            newDLCPack.priceFormatted = d.current_offer.price.formatted;
             newDLCPack.currency = d.current_offer.price.currency;
             
             // Skip dlc pack if it's free
@@ -387,7 +385,7 @@ public class ScrapingManaging
                 e.publisherName = a.publisher_name;
                 e.displayName = a.displayName;
                 e.priceOffsetNumerical = a.priceOffsetNumerical;
-                e.priceFormatted = a.priceFormatted;
+                e.currency = a.currency;
                 e.displayLongDescription = a.display_long_description;
                 e.releaseDate = TimeConverter.UnixTimeStampToDateTime(a.release_date);
                 e.supportedHmdPlatforms = a.supported_hmd_platforms;
@@ -410,13 +408,11 @@ public class ScrapingManaging
             priceChange.parentApplication.canonicalName = a.canonicalName;
             priceChange.parentApplication.displayName = a.displayName;
             priceChange.newPriceOffsetNumerical = a.priceOffsetNumerical;
-            priceChange.newPriceFormatted = a.priceFormatted;
             priceChange.currency = a.currency;
             if (lastPriceChange != null)
             {
                 if (lastPriceChange.newPriceOffset != priceChange.newPriceOffset)
                 {
-                    priceChange.oldPriceFormatted = lastPriceChange.newPriceFormatted;
                     priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
                     priceChange.__lastEntry = lastPriceChange.__id;
                     ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);

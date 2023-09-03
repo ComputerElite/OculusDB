@@ -298,7 +298,6 @@ public class ScrapingNodeScraper
                 if (newDLC.priceOffsetNumerical <= 0) continue;
                 if (a.current_offer == null || a.current_offer.price == null) continue; // Price not available
 
-                newDLC.priceFormatted = FormatPrice(newDLC.priceOffsetNumerical, a.current_offer.price.currency);
                 if (dlc.node.IsIAPItem())
                 {
                     AddDLC(dlc.node, app.headset);
@@ -390,7 +389,6 @@ public class ScrapingNodeScraper
         dba.hmd = h;
         dba.img = image;
         dba.priceOffsetNumerical = correctPrice;
-        dba.priceFormatted = FormatPrice(correctPrice, currency);
         dba.packageName = packageName;
         dba.currency = GetOverrideCurrency(currency);
         if (dba.baseline_offer != null && dba.baseline_offer.price != null)
@@ -495,17 +493,6 @@ public class ScrapingNodeScraper
             }
         }
         return UserEntitlement.NOTOWNED;
-    }
-
-    public string FormatPrice(long offsetAmount, string currency)
-    {
-        string symbol = "";
-        if (currency == "USD") symbol = "$";
-        if (currency == "AUD") symbol = "$";
-        if (currency == "EUR") symbol = "€";
-        string price = symbol + String.Format("{0:0.00}", offsetAmount / 100.0);
-        
-        return price;
     }
 
     Stopwatch sw = Stopwatch.StartNew();

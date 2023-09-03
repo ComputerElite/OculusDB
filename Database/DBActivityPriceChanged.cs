@@ -32,7 +32,13 @@ namespace OculusDB.Database
         public string __lastEntry { get; set; } = null;
         public string __OculusDBType { get; set; } = DBDataTypes.ActivityPriceChanged;
         public DateTime __lastUpdated { get; set; } = DateTime.Now;
-        public string oldPriceFormatted { get; set; } = "$0.00";
+        public string oldPriceFormatted
+        {
+            get
+            {
+                return AppStoreOfferPrice.GetFormattedPrice(oldPriceOffsetNumerical, currency);
+            }
+        }
         public string oldPriceOffset { get; set; } = "0";
         public long oldPriceOffsetNumerical
         {
@@ -45,7 +51,13 @@ namespace OculusDB.Database
                 oldPriceOffset = value.ToString();
             }
         }
-        public string newPriceFormatted { get; set; } = "$0.00";
+        public string newPriceFormatted
+        {
+            get
+            {
+                return AppStoreOfferPrice.GetFormattedPrice(newPriceOffsetNumerical, currency);
+            }
+        }
         public string newPriceOffset { get; set; } = "0";
         public long newPriceOffsetNumerical
         {

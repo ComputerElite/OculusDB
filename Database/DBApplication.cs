@@ -36,7 +36,13 @@ namespace OculusDB.Database
         /// Normal price without discount
         /// </summary>
         public AppStoreOffer baseline_offer { get; set; } = null;
-        public string priceFormatted { get; set; } = "$0.00";
+        public string priceFormatted
+        {
+            get
+            {
+                return AppStoreOfferPrice.GetFormattedPrice(priceOffsetNumerical, currency);
+            }
+        }
         public long priceOffsetNumerical { get; set; } = 0;
 
         public bool appHasDiscount
