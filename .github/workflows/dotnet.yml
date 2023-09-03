@@ -23,18 +23,18 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      working-directory: 'OculusDB/OculusDB'
+      working-directory: 'OculusDB'
       run: dotnet restore
     - name: Build
-      working-directory: 'OculusDB/OculusDB'
+      working-directory: 'OculusDB'
       run: dotnet build --no-restore
     - name: Zip build
       uses: papeloto/action-zip@v1
       with:
-        files: OculusDB/OculusDB/bin/Debug/net6.0
+        files: OculusDB/bin/Debug/net6.0
         dest: net6.0.zip
     - name: Upload net6.0.zip
       uses: actions/upload-artifact@v3
       with:
         name: net6.0.zip
-        path: OculusDB/OculusDB/bin/Debug/net6.0
+        path: OculusDB/bin/Debug/net6.0
