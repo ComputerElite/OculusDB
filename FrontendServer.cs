@@ -581,7 +581,7 @@ public class FrontendServer
                 if (!DoesUserHaveAccess(request)) return true;
                 try
                 {
-                    ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
+                    ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff, request.queryString.Get("currency") ?? "");
                     request.SendString(JsonSerializer.Serialize(connected), "application/json");
 
                     // Requests a priority scrape for every app
