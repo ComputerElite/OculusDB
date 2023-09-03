@@ -29,9 +29,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: net6.0-Debug.zip
-        path: bin/Debug/net6.0
+        path: OculusDB/bin/Debug/net6.0
     - name: Upload Release net6.0.zip
       uses: actions/upload-artifact@v3
       with:
         name: net6.0-Release.zip
-        path: bin/Release/net6.0
+        path: OculusDB/bin/Release/net6.0
