@@ -28,10 +28,10 @@ jobs:
     - name: Upload Debug net6.0.zip
       uses: actions/upload-artifact@v3
       with:
-        name: net6.0-Debug.zip
+        name: net6.0-Debug
         path: OculusDB/bin/Debug/net6.0
     - name: Upload Release net6.0.zip
       uses: actions/upload-artifact@v3
       with:
-        name: net6.0-Release.zip
+        name: net6.0-Release
         path: OculusDB/bin/Release/net6.0
