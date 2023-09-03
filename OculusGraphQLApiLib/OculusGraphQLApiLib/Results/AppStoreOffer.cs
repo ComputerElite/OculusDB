@@ -73,7 +73,7 @@ namespace OculusGraphQLApiLib.Results
         
         public static string GetFormattedPrice(int price, string currency)
         {
-            return GetFormattedPrice(Convert.ToInt32(price), currency);
+            return GetFormattedPrice(Convert.ToInt64(price), currency);
         }
     }
 }
