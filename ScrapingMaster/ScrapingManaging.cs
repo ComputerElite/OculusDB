@@ -434,7 +434,7 @@ public class ScrapingManaging
                 }
                 else ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
-            ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
+            // ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
 
             DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id).FirstOrDefault());
             if (old != null)
