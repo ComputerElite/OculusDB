@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - run: cd OculusDB/OculusDB
+    - run: cd OculusDB
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
