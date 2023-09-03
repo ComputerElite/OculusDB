@@ -16,15 +16,7 @@ jobs:
     - run: pwd
     - uses: actions/checkout@v3
       with:
-        path: 'OculusDB/OculusDB'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'ComputerElite/ComputerUtils'
-        path: 'ComputerUtils/'
-    - uses: actions/checkout@v3
-      with:
-        repository: 'ComputerElite/OculusGraphQLApiLib'
-        path: 'OculusGraphQLApiLib'
+        path: 'OculusDB'
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
