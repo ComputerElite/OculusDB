@@ -599,8 +599,15 @@ public class ScrapingNodeScraper
         beat.snapshot.currentlyScraping = currentlyScraping;
         beat.SetQueuedDocuments(taskResult);
         Logger.Log("Sending heartbeat. Status: " + Enum.GetName(typeof(ScrapingNodeStatus), scrapingNodeManager.status));
-        ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(
-            scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
+        try
+        {
+            ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(
+                scrapingNodeManager.config.masterAddress + "/api/v1/heartbeat", JsonSerializer.Serialize(beat));
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Error while sending heartbeat: " + e, LoggingType.Error);
+        }
     }
 
     private Dictionary<int, string> currencyTokenDict = new();
