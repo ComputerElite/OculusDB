@@ -20,10 +20,10 @@
             <div class="leftRightAdjustedContainer">
                 <div class="tabContainer leftRightAdjustedContainerItemLeft">
                     <div class="tab">
-                        <button id="applications_button" class="tablinks" onclick="openTab(this, 'applications')">Applications</button>
-                        <button id="dlcs_button" class="tablinks" onclick="openTab(this, 'dlcs')">DLCs</button>
-                        <button id="dlcpacks_button" class="tablinks" onclick="openTab(this, 'dlcpacks')">DLC Packs</button>
-                        <button id="versions_button" class="tablinks active" onclick="openTab(this, 'versions')">Versions</button>
+                        <button id="applications_button" class="tablinks" onclick="openTab(this, 'applications')">Applications<span id="applications_count"></span></button>
+                        <button id="dlcs_button" class="tablinks" onclick="openTab(this, 'dlcs')">DLCs<span id="dlcs_count"></span></button>
+                        <button id="dlcpacks_button" class="tablinks" onclick="openTab(this, 'dlcpacks')">DLC Packs<span id="dlcpacks_count"></span></button>
+                        <button id="versions_button" class="tablinks active" onclick="openTab(this, 'versions')">Versions<span id="versions_count"></span></button>
                     </div>
                     <div id="applications" class="tabcontent">
                         <div class="loader"></div>
@@ -159,6 +159,7 @@
                     document.getElementById("specificContainer").style.display = "none"
                 }
                 var apps = ""
+                document.getElementById("applications_count").innerHTML = ` (${connected.applications.length})`
                 connected.applications.forEach(a => {
                     currencyForPriceHistory = a.currency
                     a.downloads = GetDownloads(a.id)
@@ -175,6 +176,7 @@
                 
 
                 var ds = ""
+                document.getElementById("dlcs_count").innerHTML = ` (${connected.dlcs.length})`
                 connected.dlcs.forEach(d => {
                     
                     d.downloads = GetDownloads(d.id)
@@ -184,6 +186,7 @@
                 dlcs.innerHTML = ds
 
                 var dps = ""
+                document.getElementById("dlcpacks_count").innerHTML = ` (${connected.dlcPacks.length})`
                 connected.dlcPacks.forEach(dp => {
                     dp.downloads = GetDownloads(dp.id)
                     dps += FormatDLCPack(dp, connected.dlcs, dp.id)
@@ -241,16 +244,19 @@
                 <label class="checkmarkContainer"><div>Show all versions</div><input type='checkbox' id="showallcheckbox" onclick='UpdateVersions()' ${showAll ? " checked" : ""}><span class="checkmark"></span></label>
                 <label class="checkmarkContainer"><div>Show Betas</div><input type='checkbox' id="showbetascheckbox" onclick='UpdateVersions()' ${showBetas ? " checked" : ""}><span class="checkmark"></span></label>`
                 var hmd = -1
-                
-                connected.versions.forEach(v => {
+                var verCount = 0
+                for(const v of connected.versions) {
                     hmd = v.parentApplication.hmd
                     v.downloads = GetDownloads(v.id)
                     if(downloadVersion && downloadVersion == v.version) {
                         DownloadVersionPopUp(v.version)
                     }
-                    if(v.downloadable && (v.binary_release_channels.nodes.map(x => x.channel_name).includes("LIVE") || showBetas) || showAll)
+                    if(v.downloadable && (v.binary_release_channels.nodes.map(x => x.channel_name).includes("LIVE") || showBetas) || showAll) {
                         vers += FormatVersion(v, v.id)
-                })
+                        verCount++;
+                    }
+                }
+                document.getElementById("versions_count").innerHTML = ` (${verCount})`
                 if(hmd != -1) {
                     vers = `These versions are for <b>${GetLogicalHeadsetNameEnum(hmd)}</b>. If you want them for another headset search again and click on another entry for this game.` + vers
                 }
