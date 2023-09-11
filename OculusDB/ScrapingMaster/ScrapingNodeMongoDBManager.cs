@@ -380,9 +380,9 @@ public class ScrapingNodeMongoDBManager
         while (versionsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = versionsTmp.Select(x => x.id).Take(Math.Min(versionsTmp.Count, batchSize)).ToArray();
-            MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
             List<DBVersion> items = versionsTmp.Take(Math.Min(versionsTmp.Count, batchSize)).Where(x => x != null).ToList();
+            ids = items.Select(x => x.id).ToArray();
+            MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
             if(items.Count > 0) MongoDBInteractor.versionsCollection.InsertMany(items); 
             versionsTmp.RemoveRange(0, Math.Min(versionsTmp.Count, batchSize));
         }
@@ -396,10 +396,11 @@ public class ScrapingNodeMongoDBManager
         while (iapitemsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = iapitemsTmp.Select(x => x.id).Take(Math.Min(iapitemsTmp.Count, batchSize)).ToArray();
+            List<DBIAPItem> items = iapitemsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapitemsTmp.Count, batchSize)).Where(x => x != null).ToList();
+            
+            ids = items.Select(x => x.id).ToArray();
             // Add to main DB for search
             MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
-            List<DBIAPItem> items = iapitemsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapitemsTmp.Count, batchSize)).Where(x => x != null).ToList();
             if (items.Count > 0)
             {
                 MongoDBInteractor.dlcCollection.InsertMany(items);
@@ -425,10 +426,11 @@ public class ScrapingNodeMongoDBManager
         while (dlcPacksTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = dlcPacksTmp.Select(x => x.id).Take(Math.Min(dlcPacksTmp.Count, batchSize)).ToArray();
+            List<DBIAPItemPack> items = dlcPacksTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacksTmp.Count, batchSize)).Where(x => x != null).ToList();
+            
+            ids = items.Select(x => x.id).ToArray();
             // Add to main db for search
             MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
-            List<DBIAPItemPack> items = dlcPacksTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacksTmp.Count, batchSize)).Where(x => x != null).ToList();
             if (items.Count > 0)
             {
                 MongoDBInteractor.dlcPackCollection.InsertMany(items);
@@ -452,11 +454,12 @@ public class ScrapingNodeMongoDBManager
         while (appsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = appsTmp.Select(x => x.id).Take(Math.Min(appsTmp.Count, batchSize)).ToArray();
-            // Add to main db for search
-            MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
+           
             List<DBApplication> items = appsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(appsTmp.Count, batchSize)).Where(x => x != null)
                 .ToList();
+            ids = items.Select(x => x.id).ToArray();
+            // Add to main db for search
+            MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
             if (items.Count > 0)
             {
                 MongoDBInteractor.applicationCollection.InsertMany(items);
@@ -480,9 +483,10 @@ public class ScrapingNodeMongoDBManager
         while (images.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = imagesTmp.Select(x => x.appId).Take(Math.Min(imagesTmp.Count, batchSize)).ToArray();
-            MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
+            
             List<DBAppImage> items = imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null).ToList();
+            ids = items.Select(x => x.appId).ToArray();
+            MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
             if(items.Count > 0) MongoDBInteractor.appImages.InsertMany(items);
             imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }
