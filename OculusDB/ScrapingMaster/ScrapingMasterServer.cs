@@ -107,7 +107,7 @@ public class ScrapingMasterServer
         });
         server.AddRoute("GET", "/api/v1/scrapingerror/", request =>
         {
-            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetErrorsReport(request.pathDiff)));
+            request.SendString(JsonSerializer.Serialize(ScrapingNodeMongoDBManager.GetErrorsReport(request.pathDiff)), "application/json");
             return true;
         }, true, true, true);
         server.AddRoute("GET", "/api/v1/scrapingnodes", request =>
