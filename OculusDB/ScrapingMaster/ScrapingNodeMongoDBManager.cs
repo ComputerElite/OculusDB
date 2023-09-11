@@ -372,29 +372,31 @@ public class ScrapingNodeMongoDBManager
         if (flushing.IsTrueAndValid()) return;
         
         flushing.Set(true, TimeSpan.FromMinutes(2), "");
-        Logger.Log("Adding " + versions.Count + " versions to database.");
-        const int batchSize = 25;
+        List<DBVersion> versionsTmp = new List<DBVersion>(versions);
+        Logger.Log("Adding " + versionsTmp.Count + " versions to database.");
+        const int batchSize = 50;
         string[] ids = new string[batchSize];
-        while (versions.Count > 0)
+        while (versionsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = versions.Select(x => x.id).Take(Math.Min(versions.Count, batchSize)).ToArray();
+            ids = versionsTmp.Select(x => x.id).Take(Math.Min(versionsTmp.Count, batchSize)).ToArray();
             MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.versionsCollection.InsertMany(versions.Take(Math.Min(versions.Count, batchSize)).Where(x => x != null));
-            versions.RemoveRange(0, Math.Min(versions.Count, batchSize));
+            MongoDBInteractor.versionsCollection.InsertMany(versionsTmp.Take(Math.Min(versionsTmp.Count, batchSize)).Where(x => x != null));
+            versionsTmp.RemoveRange(0, Math.Min(versionsTmp.Count, batchSize));
         }
+        versions.RemoveRange(0, versionsTmp.Count);
         
 
-        Logger.Log("Adding " + iapItems.Count + " dlcs to database.");
-        
+        List<DBIAPItem> iapitemsTmp = new List<DBIAPItem>(iapItems);
+        Logger.Log("Adding " + iapItemsTmp.Count + " dlcs to database.");
         List<string> addedIds = new ();
-        while (iapItems.Count > 0)
+        while (iapitemsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = iapItems.Select(x => x.id).Take(Math.Min(iapItems.Count, batchSize)).ToArray();
+            ids = iapitemsTmp.Select(x => x.id).Take(Math.Min(iapitemsTmp.Count, batchSize)).ToArray();
             // Add to main DB for search
             MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
-            List<DBIAPItem> items = iapItems.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapItems.Count, batchSize)).Where(x => x != null).ToList();
+            List<DBIAPItem> items = iapitemsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapitemsTmp.Count, batchSize)).Where(x => x != null).ToList();
             if (items.Count <= 0) break;
             MongoDBInteractor.dlcCollection.InsertMany(items);
             addedIds.AddRange(ids);
@@ -405,19 +407,22 @@ public class ScrapingNodeMongoDBManager
                 GetLocaleDLCsCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
                 GetLocaleDLCsCollection(d.current_offer.price.currency).InsertOne(d);
             }
-            iapItems.RemoveRange(0, Math.Min(iapItems.Count, batchSize));
+            iapitemsTmp.RemoveRange(0, Math.Min(iapitemsTmp.Count, batchSize));
         }
+        iapItems.RemoveRange(0, iapitemsTmp.Count);
+        
         
 
-        Logger.Log("Adding " + dlcPacks.Count + " dlc packs to database.");
+        List<DBIAPItemPack> dlcPacksTmp = new List<DBIAPItemPack>(dlcPacks);
+        Logger.Log("Adding " + dlcPacksTmp.Count + " dlc packs to database.");
         addedIds.Clear();
-        while (dlcPacks.Count > 0)
+        while (dlcPacksTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = dlcPacks.Select(x => x.id).Take(Math.Min(dlcPacks.Count, batchSize)).ToArray();
+            ids = dlcPacksTmp.Select(x => x.id).Take(Math.Min(dlcPacksTmp.Count, batchSize)).ToArray();
             // Add to main db for search
             MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
-            List<DBIAPItemPack> items = dlcPacks.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacks.Count, batchSize)).Where(x => x != null).ToList();
+            List<DBIAPItemPack> items = dlcPacksTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacksTmp.Count, batchSize)).Where(x => x != null).ToList();
             if (items.Count <= 0) break;
             MongoDBInteractor.dlcPackCollection.InsertMany(items);
             addedIds.AddRange(ids);
@@ -429,18 +434,20 @@ public class ScrapingNodeMongoDBManager
                 GetLocaleDLCPacksCollection(d.current_offer.price.currency).InsertOne(d);
             }
             
-            dlcPacks.RemoveRange(0, Math.Min(dlcPacks.Count, batchSize));
+            dlcPacksTmp.RemoveRange(0, Math.Min(dlcPacksTmp.Count, batchSize));
         }
+        dlcPacks.RemoveRange(0, dlcPacksTmp.Count);
         
-        Logger.Log("Adding " + apps.Count + " apps to database.");
+        List<DBApplication> appsTmp = new List<DBApplication>(apps);
+        Logger.Log("Adding " + appsTmp.Count + " apps to database.");
         addedIds.Clear();
-        while (apps.Count > 0)
+        while (appsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = apps.Select(x => x.id).Take(Math.Min(apps.Count, batchSize)).ToArray();
+            ids = appsTmp.Select(x => x.id).Take(Math.Min(appsTmp.Count, batchSize)).ToArray();
             // Add to main db for search
             MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
-            List<DBApplication> items = apps.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(apps.Count, batchSize)).Where(x => x != null)
+            List<DBApplication> items = appsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(appsTmp.Count, batchSize)).Where(x => x != null)
                 .ToList();
             if (items.Count <= 0) break;
             MongoDBInteractor.applicationCollection.InsertMany(items);
@@ -453,31 +460,37 @@ public class ScrapingNodeMongoDBManager
                 GetLocaleAppsCollection(a.currency).InsertOne(a);
             }
             
-            apps.RemoveRange(0, Math.Min(apps.Count, batchSize));
+            appsTmp.RemoveRange(0, Math.Min(appsTmp.Count, batchSize));
         }
+        apps.RemoveRange(0, appsTmp.Count);
         
-        Logger.Log("Adding " + images.Count + " images to database.");
+        List<DBAppImage> imagesTmp = new List<DBAppImage>(images);
+        Logger.Log("Adding " + imagesTmp.Count + " images to database.");
         while (images.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            ids = images.Select(x => x.appId).Take(Math.Min(images.Count, batchSize)).ToArray();
+            ids = imagesTmp.Select(x => x.appId).Take(Math.Min(imagesTmp.Count, batchSize)).ToArray();
             MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
-            MongoDBInteractor.appImages.InsertMany(images.Take(Math.Min(images.Count, batchSize)).Where(x => x != null));
-            images.RemoveRange(0, Math.Min(images.Count, batchSize));
+            MongoDBInteractor.appImages.InsertMany(imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null));
+            imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }
+        images.RemoveRange(0, imagesTmp.Count);
         
-        Logger.Log("Adding " + queuedActivity.Count + " activities to database and sending webhooks.");
+        List<BsonDocument> queuedActivityTmp = new List<BsonDocument>(queuedActivity);
+        Logger.Log("Adding " + queuedActivityTmp.Count + " activities to database and sending webhooks.");
         while (queuedActivity.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            List<BsonDocument> docs = queuedActivity.Take(Math.Min(queuedActivity.Count, batchSize)).Where(x => x != null).ToList();
+            List<BsonDocument> docs = queuedActivityTmp.Take(Math.Min(queuedActivityTmp.Count, batchSize)).Where(x => x != null).ToList();
+            if(docs.Count <= 0) break;
             MongoDBInteractor.activityCollection.InsertMany(docs);
             for(int i = 0; i < docs.Count; i++)
             {
                 DiscordWebhookSender.SendActivity(docs[i]);
             }
-            queuedActivity.RemoveRange(0, Math.Min(queuedActivity.Count, batchSize));
+            queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
         }
+        queuedActivity.RemoveRange(0, queuedActivityTmp.Count);
 
         flushing.Set(false, TimeSpan.FromMinutes(0), "");
         CleanAppsScraping();
