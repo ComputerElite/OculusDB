@@ -373,6 +373,7 @@ public class ScrapingNodeMongoDBManager
         
         flushing.Set(true, TimeSpan.FromMinutes(2), "");
         List<DBVersion> versionsTmp = new List<DBVersion>(versions);
+        int count = versionsTmp.Count;
         Logger.Log("Adding " + versionsTmp.Count + " versions to database.");
         const int batchSize = 50;
         string[] ids = new string[batchSize];
@@ -384,10 +385,11 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.versionsCollection.InsertMany(versionsTmp.Take(Math.Min(versionsTmp.Count, batchSize)).Where(x => x != null));
             versionsTmp.RemoveRange(0, Math.Min(versionsTmp.Count, batchSize));
         }
-        versions.RemoveRange(0, versionsTmp.Count);
+        versions.RemoveRange(0, count);
         
 
         List<DBIAPItem> iapitemsTmp = new List<DBIAPItem>(iapItems);
+        count = iapitemsTmp.Count;
         Logger.Log("Adding " + iapItemsTmp.Count + " dlcs to database.");
         List<string> addedIds = new ();
         while (iapitemsTmp.Count > 0)
@@ -409,11 +411,12 @@ public class ScrapingNodeMongoDBManager
             }
             iapitemsTmp.RemoveRange(0, Math.Min(iapitemsTmp.Count, batchSize));
         }
-        iapItems.RemoveRange(0, iapitemsTmp.Count);
+        iapItems.RemoveRange(0, count);
         
         
 
         List<DBIAPItemPack> dlcPacksTmp = new List<DBIAPItemPack>(dlcPacks);
+        count = dlcPacksTmp.Count;
         Logger.Log("Adding " + dlcPacksTmp.Count + " dlc packs to database.");
         addedIds.Clear();
         while (dlcPacksTmp.Count > 0)
@@ -436,9 +439,10 @@ public class ScrapingNodeMongoDBManager
             
             dlcPacksTmp.RemoveRange(0, Math.Min(dlcPacksTmp.Count, batchSize));
         }
-        dlcPacks.RemoveRange(0, dlcPacksTmp.Count);
+        dlcPacks.RemoveRange(0, count);
         
         List<DBApplication> appsTmp = new List<DBApplication>(apps);
+        count = appsTmp.Count;
         Logger.Log("Adding " + appsTmp.Count + " apps to database.");
         addedIds.Clear();
         while (appsTmp.Count > 0)
@@ -462,9 +466,10 @@ public class ScrapingNodeMongoDBManager
             
             appsTmp.RemoveRange(0, Math.Min(appsTmp.Count, batchSize));
         }
-        apps.RemoveRange(0, appsTmp.Count);
+        apps.RemoveRange(0, count);
         
         List<DBAppImage> imagesTmp = new List<DBAppImage>(images);
+        count = imagesTmp.Count;
         Logger.Log("Adding " + imagesTmp.Count + " images to database.");
         while (images.Count > 0)
         {
@@ -474,9 +479,10 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.appImages.InsertMany(imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null));
             imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }
-        images.RemoveRange(0, imagesTmp.Count);
+        images.RemoveRange(0, count);
         
         List<BsonDocument> queuedActivityTmp = new List<BsonDocument>(queuedActivity);
+        count = queuedActivityTmp.Count;
         Logger.Log("Adding " + queuedActivityTmp.Count + " activities to database and sending webhooks.");
         while (queuedActivity.Count > 0)
         {
@@ -490,7 +496,7 @@ public class ScrapingNodeMongoDBManager
             }
             queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
         }
-        queuedActivity.RemoveRange(0, queuedActivityTmp.Count);
+        queuedActivity.RemoveRange(0, count);
 
         flushing.Set(false, TimeSpan.FromMinutes(0), "");
         CleanAppsScraping();
