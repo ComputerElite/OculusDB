@@ -390,7 +390,7 @@ public class ScrapingNodeMongoDBManager
 
         List<DBIAPItem> iapitemsTmp = new List<DBIAPItem>(iapItems);
         count = iapitemsTmp.Count;
-        Logger.Log("Adding " + iapItemsTmp.Count + " dlcs to database.");
+        Logger.Log("Adding " + iapitemsTmp.Count + " dlcs to database.");
         List<string> addedIds = new ();
         while (iapitemsTmp.Count > 0)
         {
