@@ -382,7 +382,8 @@ public class ScrapingNodeMongoDBManager
             // Bulk do work in batches of batchSize
             ids = versionsTmp.Select(x => x.id).Take(Math.Min(versionsTmp.Count, batchSize)).ToArray();
             MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
-            MongoDBInteractor.versionsCollection.InsertMany(versionsTmp.Take(Math.Min(versionsTmp.Count, batchSize)).Where(x => x != null));
+            List<DBVersion> items = versionsTmp.Take(Math.Min(versionsTmp.Count, batchSize)).Where(x => x != null).ToList();
+            if(items.Count > 0) MongoDBInteractor.versionsCollection.InsertMany(items); 
             versionsTmp.RemoveRange(0, Math.Min(versionsTmp.Count, batchSize));
         }
         versions.RemoveRange(0, count);
