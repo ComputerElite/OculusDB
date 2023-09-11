@@ -400,15 +400,17 @@ public class ScrapingNodeMongoDBManager
             // Add to main DB for search
             MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
             List<DBIAPItem> items = iapitemsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapitemsTmp.Count, batchSize)).Where(x => x != null).ToList();
-            if (items.Count <= 0) break;
-            MongoDBInteractor.dlcCollection.InsertMany(items);
-            addedIds.AddRange(ids);
-            
-            // add to locale dlcs thing for future access to it
-            foreach (DBIAPItem d in items)
+            if (items.Count > 0)
             {
-                GetLocaleDLCsCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
-                GetLocaleDLCsCollection(d.current_offer.price.currency).InsertOne(d);
+                MongoDBInteractor.dlcCollection.InsertMany(items);
+                addedIds.AddRange(ids);
+            
+                // add to locale dlcs thing for future access to it
+                foreach (DBIAPItem d in items)
+                {
+                    GetLocaleDLCsCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
+                    GetLocaleDLCsCollection(d.current_offer.price.currency).InsertOne(d);
+                }
             }
             iapitemsTmp.RemoveRange(0, Math.Min(iapitemsTmp.Count, batchSize));
         }
@@ -427,17 +429,18 @@ public class ScrapingNodeMongoDBManager
             // Add to main db for search
             MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
             List<DBIAPItemPack> items = dlcPacksTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacksTmp.Count, batchSize)).Where(x => x != null).ToList();
-            if (items.Count <= 0) break;
-            MongoDBInteractor.dlcPackCollection.InsertMany(items);
-            addedIds.AddRange(ids);
-            
-            // add to locale dlcs thing for future access to it
-            foreach (DBIAPItemPack d in items)
+            if (items.Count > 0)
             {
-                GetLocaleDLCPacksCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
-                GetLocaleDLCPacksCollection(d.current_offer.price.currency).InsertOne(d);
-            }
+                MongoDBInteractor.dlcPackCollection.InsertMany(items);
+                addedIds.AddRange(ids);
             
+                // add to locale dlcs thing for future access to it
+                foreach (DBIAPItemPack d in items)
+                {
+                    GetLocaleDLCPacksCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
+                    GetLocaleDLCPacksCollection(d.current_offer.price.currency).InsertOne(d);
+                }
+            }
             dlcPacksTmp.RemoveRange(0, Math.Min(dlcPacksTmp.Count, batchSize));
         }
         dlcPacks.RemoveRange(0, count);
@@ -454,15 +457,17 @@ public class ScrapingNodeMongoDBManager
             MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
             List<DBApplication> items = appsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(appsTmp.Count, batchSize)).Where(x => x != null)
                 .ToList();
-            if (items.Count <= 0) break;
-            MongoDBInteractor.applicationCollection.InsertMany(items);
-            addedIds.AddRange(ids);
-            
-            // add to locale application thing for future access to it
-            foreach (DBApplication a in items)
+            if (items.Count > 0)
             {
-                GetLocaleAppsCollection(a.currency).DeleteMany(x => x.id == a.id);
-                GetLocaleAppsCollection(a.currency).InsertOne(a);
+                MongoDBInteractor.applicationCollection.InsertMany(items);
+                addedIds.AddRange(ids);
+            
+                // add to locale application thing for future access to it
+                foreach (DBApplication a in items)
+                {
+                    GetLocaleAppsCollection(a.currency).DeleteMany(x => x.id == a.id);
+                    GetLocaleAppsCollection(a.currency).InsertOne(a);
+                }
             }
             
             appsTmp.RemoveRange(0, Math.Min(appsTmp.Count, batchSize));
@@ -478,8 +483,7 @@ public class ScrapingNodeMongoDBManager
             ids = imagesTmp.Select(x => x.appId).Take(Math.Min(imagesTmp.Count, batchSize)).ToArray();
             MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
             List<DBAppImage> items = imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null).ToList();
-            if(items.Count <= 0) break;
-            MongoDBInteractor.appImages.InsertMany(items);
+            if(items.Count > 0) MongoDBInteractor.appImages.InsertMany(items);
             imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }
         images.RemoveRange(0, count);
@@ -491,11 +495,13 @@ public class ScrapingNodeMongoDBManager
         {
             // Bulk do work in batches of batchSize
             List<BsonDocument> docs = queuedActivityTmp.Take(Math.Min(queuedActivityTmp.Count, batchSize)).Where(x => x != null).ToList();
-            if(docs.Count <= 0) break;
-            MongoDBInteractor.activityCollection.InsertMany(docs);
-            for(int i = 0; i < docs.Count; i++)
+            if (docs.Count > 0)
             {
-                DiscordWebhookSender.SendActivity(docs[i]);
+                MongoDBInteractor.activityCollection.InsertMany(docs);
+                for(int i = 0; i < docs.Count; i++)
+                {
+                    DiscordWebhookSender.SendActivity(docs[i]);
+                }
             }
             queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
         }
