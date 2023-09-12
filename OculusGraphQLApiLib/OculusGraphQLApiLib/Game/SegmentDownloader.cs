@@ -20,6 +20,7 @@ public class SegmentDownloader
     public long downloadedBytes { get; set; } = 0;
     public long totalBytes { get; set; } = 0;
     public long totalDownloadedBytes { get; set; } = 0;
+    public const string UserAgent = "OculusGraphQLApiLib/1.0";
     private long finishedFilesTotalDownloadedBytes { get; set; } = 0;
     SHA256 shaCalculator = SHA256.Create();
     
@@ -69,6 +70,7 @@ public class SegmentDownloader
         extraText = "Downloading " + currentlyDownloading.file;
 
         ComputerUtils_FastFileDownloader.FileDownloader downloader = new ComputerUtils_FastFileDownloader.FileDownloader();
+        downloader.UserAgent = UserAgent;
         downloader.OnDownloadProgress = () =>
         {
             downloadedBytes = downloader.downloadedBytes;
