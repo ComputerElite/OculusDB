@@ -154,7 +154,7 @@ namespace OculusGraphQLApiLib.Game
                         segments.Add(seg);
                     }
                 }
-                valid += GameDownloader.DownloadSegments(downloadTotal, segments, access_token, manifest, gameDirectory, false);
+                if(segments.Count > 0) valid += GameDownloader.DownloadSegments(downloadTotal, segments, access_token, manifest, gameDirectory, false);
             }
             Console.WriteLine();
             Console.WriteLine();

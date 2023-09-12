@@ -275,8 +275,6 @@ public class ScrapingNodeMongoDBManager
         if (v == null) return;
         contribution.AddContribution(v.__OculusDBType, 1);
         v.__sn = contribution.scrapingNode.scrapingNodeId;
-        versions.RemoveAll(x => x == null || x.id == v.id);
-        if (v == null) return;
         versions.Add(v);
     }
 
@@ -370,12 +368,24 @@ public class ScrapingNodeMongoDBManager
     public static void Flush()
     {
         if (flushing.IsTrueAndValid()) return;
+        const int batchSize = 50;
         
         flushing.Set(true, TimeSpan.FromMinutes(2), "");
         List<DBVersion> versionsTmp = new List<DBVersion>(versions);
         int count = versionsTmp.Count;
+        // Remove all old ids from versions list
+        List<string> addedIds = new List<string>();
         Logger.Log("Adding " + versionsTmp.Count + " versions to database.");
-        const int batchSize = 50;
+        for (int i = versionsTmp.Count - 1; i >= 0; i--)
+        {
+            if (versionsTmp[i] == null || addedIds.Contains(versionsTmp[i].id))
+            {
+                versionsTmp.RemoveAt(i);
+                continue;
+            }
+            addedIds.Add(versionsTmp[i].id);
+        }
+        Logger.Log(versionsTmp.Count + " versions left after removing duplicates.");
         string[] ids = new string[batchSize];
         while (versionsTmp.Count > 0)
         {
@@ -392,7 +402,7 @@ public class ScrapingNodeMongoDBManager
         List<DBIAPItem> iapitemsTmp = new List<DBIAPItem>(iapItems);
         count = iapitemsTmp.Count;
         Logger.Log("Adding " + iapitemsTmp.Count + " dlcs to database.");
-        List<string> addedIds = new ();
+        addedIds = new ();
         while (iapitemsTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
