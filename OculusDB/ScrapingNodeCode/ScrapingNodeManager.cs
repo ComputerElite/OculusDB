@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -27,6 +28,7 @@ public class ScrapingNodeManager
 
     public ScrapingNodeConfig config = new ScrapingNodeConfig();
     public ScrapingNode scrapingNode = new ScrapingNode();
+    public bool nodeRunning = true;
     HttpClient client = new HttpClient();
     
     public void StartNode(ScrapingNodeConfig c)
@@ -80,6 +82,8 @@ public class ScrapingNodeManager
                 }
             });
             scraper.DoTasks();
+            nodeRunning = false;
+            Environment.Exit(0);
             return;
         }
         while (true)
