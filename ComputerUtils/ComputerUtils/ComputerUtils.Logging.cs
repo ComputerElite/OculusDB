@@ -24,7 +24,7 @@ namespace ComputerUtils.Logging {
 
         public static string CensorString(string input)
         {
-            //foreach (string s in notAllowedStrings) input = input.Replace(s, "");
+            foreach (string s in notAllowedStrings) input = input.Replace(s, "");
             return input;
         }
 
