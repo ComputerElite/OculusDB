@@ -54,7 +54,6 @@ public class ScrapingNodeScraper
 
     public void GetEntitlements()
     {
-        GraphQLClient.log = false;
         Logger.Log("Getting entitlements of token at " + currentToken);
         ViewerData<OculusUserWrapper> user = GraphQLClient.GetActiveEntitelments();
         if(user == null || user.data == null || user.data.viewer == null || user.data.viewer.user == null || user.data.viewer.user.active_entitlements == null ||user.data.viewer.user.active_entitlements.nodes == null)
@@ -605,7 +604,6 @@ public class ScrapingNodeScraper
         if(currencyTokenDict.ContainsKey(currentToken)) return currencyTokenDict[currentToken];
         try
         {
-            GraphQLClient.log = false;
             Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.node;
             string currency = a.current_offer.price.currency;
             currencyTokenDict.Add(currentToken, currency);

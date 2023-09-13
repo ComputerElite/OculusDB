@@ -31,6 +31,7 @@ namespace OculusDB
             cla.AddCommandLineArgument(new List<string> { "--set-currency", "--sc" }, false, "Sets the nodes currency (e. g. if it reports USD but uses AUD)", "currency", "");
             cla.AddCommandLineArgument(new List<string> { "--force-scrape", "--fs" }, false, "Forces a scrape for that app, then quits the node", "App id", "");
             cla.AddCommandLineArgument(new List<string> { "--force-priority", "--fp" }, false, "Forces a priority scrape for that app, then quits the node", "App id", "");
+            cla.AddCommandLineArgument(new List<string> { "--log-oculus", "--lo" }, true, "Enables logging of OculusGraphQLApiLib meaning responses to requests and co will be logged", "", "");
 
             
             if (cla.HasArgument("help"))
@@ -60,6 +61,10 @@ namespace OculusDB
                 return;
             }
 
+            if (cla.HasArgument("--log-oculus"))
+            {
+                OculusInteractor.logOculusRequests = true;
+            }
             if (cla.HasArgument("--st"))
             {
                 OculusDBEnvironment.scrapingNodeConfig.scrapingNodeToken = cla.GetValue("--st");

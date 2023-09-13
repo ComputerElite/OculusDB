@@ -49,6 +49,7 @@ public class ScrapingNodeManager
             Logger.Log("No scraping node token set. Use 'dotnet OculusDB.dll --st <scraping node token>' to set it.", LoggingType.Error);
             return;
         }
+        OculusInteractor.Init();
         scraper = new ScrapingNodeScraper(this);
         client = new HttpClient();
         client.Timeout = TimeSpan.FromMinutes(20);
@@ -62,7 +63,6 @@ public class ScrapingNodeManager
             config.Save();
         }
         Logger.Log("Initializing Oculus Interactor");
-        OculusInteractor.Init();
         scraper.ChangeToken();
         
         // Start heartbeat loop

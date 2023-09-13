@@ -13,11 +13,12 @@ namespace OculusDB
 {
     public class OculusInteractor
     {
+        public static bool logOculusRequests = false;
         public static void Init()
         {
             GraphQLClient.forcedLocale = "en_US";
             GraphQLClient.throwException = false;
-            GraphQLClient.log = false;
+            GraphQLClient.log = logOculusRequests;
         }
 
         public static IEnumerable<Application> EnumerateAllApplications(Headset headset)
