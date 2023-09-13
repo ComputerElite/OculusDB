@@ -222,8 +222,8 @@ namespace OculusGraphQLApiLib
         public static Data<Application> GetAppDetail(string id, Headset headset)
         {
             GraphQLClient c = OculusTemplate();
-            c.options.doc_id = "4282918028433524";
-            c.options.variables = "{\"itemId\":\"" + id + "\",\"first\":20,\"last\":null,\"after\":null,\"before\":null,\"forward\":true,\"ordering\":null,\"ratingScores\":null,\"hmdType\":\"" + HeadsetTools.GetHeadsetCodeName(headset) + "\"}";
+            c.options.doc_id = "6549406941839522";
+            c.options.variables = "{\"itemId\":\"" + id + "\",\"hmdType\":\"" + HeadsetTools.GetHeadsetCodeName(headset) + "\"}";
             return JsonSerializer.Deserialize<Data<Application>>(c.Request(), jsonOptions);
         }
 
