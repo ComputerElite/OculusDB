@@ -35,7 +35,6 @@ public class ComputerUtils_FastFileDownloader
             public Action OnDownloadProgress;
             public Action OnDownloadError;
             public Dictionary<string, string> headers = new Dictionary<string, string>();
-            public string UserAgent = "ComputerUtils.FastFileDownloader/1.0";
 
             public void DownloadFile(string url, string savePath, int numConnections)
             {
@@ -59,7 +58,7 @@ public class ComputerUtils_FastFileDownloader
                 {
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                     request.Method = "GET";
-                    request.UserAgent = UserAgent;
+                    request.UserAgent = Constants.UserAgent;
                     request.AllowAutoRedirect = true;
                     try
                     {
@@ -177,7 +176,7 @@ public class ComputerUtils_FastFileDownloader
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = "GET";
-                request.UserAgent = UserAgent;
+                request.UserAgent = Constants.UserAgent;
                 foreach(KeyValuePair<string, string> header in headers)
                 {
                     request.Headers.Add(header.Key, header.Value);

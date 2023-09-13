@@ -70,7 +70,6 @@ public class SegmentDownloader
         extraText = "Downloading " + currentlyDownloading.file;
 
         ComputerUtils_FastFileDownloader.FileDownloader downloader = new ComputerUtils_FastFileDownloader.FileDownloader();
-        downloader.UserAgent = UserAgent;
         downloader.OnDownloadProgress = () =>
         {
             downloadedBytes = downloader.downloadedBytes;

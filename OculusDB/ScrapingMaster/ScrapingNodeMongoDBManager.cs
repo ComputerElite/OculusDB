@@ -378,12 +378,18 @@ public class ScrapingNodeMongoDBManager
         Logger.Log("Adding " + versionsTmp.Count + " versions to database.");
         for (int i = versionsTmp.Count - 1; i >= 0; i--)
         {
-            if (versionsTmp[i] == null || addedIds.Contains(versionsTmp[i].id))
+            try
+            {
+                if (versionsTmp[i] == null || versionsTmp[i].id == null || addedIds.Contains(versionsTmp[i].id))
+                {
+                    versionsTmp.RemoveAt(i);
+                    continue;
+                }
+                addedIds.Add(versionsTmp[i].id);
+            } catch (Exception e)
             {
                 versionsTmp.RemoveAt(i);
-                continue;
             }
-            addedIds.Add(versionsTmp[i].id);
         }
         Logger.Log(versionsTmp.Count + " versions left after removing duplicates.");
         string[] ids = new string[batchSize];
