@@ -58,13 +58,13 @@ namespace OculusGraphQLApiLib.Results
 
     public class Nodes<T>
     {
-        public long count { get; set; } = 0;
+        public long? count { get; set; } = 0;
         public List<T> nodes { get; set; } = new List<T>();
     }
 
     public class Edges<T>
     {
-        public long count { get; set; } = 0;
+        public long? count { get; set; } = 0;
         public List<T> edges { get; set; } = new List<T>();
         public PageInfo page_info { get; set; } = new PageInfo();
     }
