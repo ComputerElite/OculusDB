@@ -48,6 +48,7 @@ public class ScrapingNodeScraper
             scrapingNodeManager.status = ScrapingNodeStatus.OAuthException;
             SendHeartBeat();
             oAuthException = true;
+            Environment.Exit(1);
         };
     }
 
