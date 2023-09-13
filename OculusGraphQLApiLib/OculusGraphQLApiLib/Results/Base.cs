@@ -37,6 +37,21 @@ namespace OculusGraphQLApiLib.Results
         public Node<T> data { get; set; } = new Node<T>();
         public List<Error> errors { get; set; } = new List<Error>();
     }
+    public class DataItem<T>
+    {
+        public Item<T> data { get; set; } = new Item<T>();
+        public Extensions extensions { get; set; } = new Extensions();
+    }
+
+    public class Item<T>
+    {
+        public T item { get; set; } = default(T);
+    }
+
+    public class Extensions
+    {
+        public bool is_final { get; set; } = false;
+    }
 
     public class PlainData<T>
     {

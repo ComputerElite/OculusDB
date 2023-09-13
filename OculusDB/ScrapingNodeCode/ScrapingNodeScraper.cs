@@ -199,7 +199,7 @@ public class ScrapingNodeScraper
     public void Scrape(AppToScrape app)
     {
         taskResult.altered = true;
-        Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.node;
+        Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.item;
         if (a == null)
         {
             errorTracker.AddError();
@@ -625,7 +625,7 @@ public class ScrapingNodeScraper
         if(currencyTokenDict.ContainsKey(currentToken)) return currencyTokenDict[currentToken];
         try
         {
-            Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.node;
+            Application a = GraphQLClient.GetAppDetail("2448060205267927", Headset.MONTEREY).data.item;
             string currency = a.current_offer.price.currency;
             currencyTokenDict.Add(currentToken, currency);
             return currency;
