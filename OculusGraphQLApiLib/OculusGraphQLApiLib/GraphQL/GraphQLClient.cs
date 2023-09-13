@@ -23,6 +23,9 @@ namespace OculusGraphQLApiLib
         {
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
+        public delegate void OAuthException(string message);
+
+        public static event OAuthException OnOAuthException;
 
         public GraphQLClient(string uri, GraphQLOptions options)
         {
@@ -54,7 +57,8 @@ namespace OculusGraphQLApiLib
             }
             catch (WebException e)
             {
-                if (log) Logger.Log("Request failed (" + e.Status + "): \n" + new StreamReader(e.Response.GetResponseStream()).ReadToEnd(), LoggingType.Error);
+                string response = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
+                if (log) Logger.Log("Request failed (" + e.Status + "): \n" + response, LoggingType.Error);
                 Console.ForegroundColor = ConsoleColor.Red;
                 if(log) Console.WriteLine("Request to Oculus failed. Please try again later and/or contact ComputerElite.");
                 if(throwException) throw new Exception(e.Status.ToString().StartsWith("4") ? "I fuqed up" : "Some Request to Oculus failed so yeah idk how to handle it.");
@@ -92,8 +96,22 @@ namespace OculusGraphQLApiLib
             }
             catch (WebException e)
             {
-
-                if (log) Logger.Log("Request failed, retrying (" + e.Status.ToString() + ", " + (int)e.Status + "): \n" + new StreamReader(e.Response.GetResponseStream()).ReadToEnd(), LoggingType.Error);
+                string response = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
+                try
+                {
+                    ErrorContainer error = JsonSerializer.Deserialize<ErrorContainer>(response);
+                    if (error.error.type.ToLower() == "oauthexception")
+                    {
+                        if (log) Logger.Log("OAuthException: " + error.error.message, LoggingType.Error);
+                        OnOAuthException?.Invoke(error.error.message);
+                        return "{}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if(log) Logger.Log("Couldn't parse error message: " + ex, LoggingType.Warning);
+                }
+                if (log) Logger.Log("Request failed, retrying (" + e.Status.ToString() + ", " + (int)e.Status + "): \n" + response, LoggingType.Error);
                 return Request(asBody, customHeaders, retry + 1, e.Status.ToString());
             }
             return "{}";

@@ -9,5 +9,6 @@ public enum ScrapingNodeStatus
     StartingUp,
     Offline,
     WaitingForMasterServer,
-    RateLimited
+    RateLimited,
+    OAuthException
 }

@@ -21,7 +21,7 @@ public class ScrapingNodeStats
         get
         {
             
-            return online ? snapshot.scrapingStatus : ScrapingNodeStatus.Offline;
+            return online || snapshot.scrapingStatus == ScrapingNodeStatus.OAuthException ? snapshot.scrapingStatus : ScrapingNodeStatus.Offline;
         }
     }
 

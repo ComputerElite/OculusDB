@@ -51,6 +51,7 @@ public class ScrapingNodeManager
         }
         OculusInteractor.Init();
         scraper = new ScrapingNodeScraper(this);
+        scraper.Init();
         client = new HttpClient();
         client.Timeout = TimeSpan.FromMinutes(20);
         client.DefaultRequestHeaders.UserAgent.Clear();
@@ -86,7 +87,7 @@ public class ScrapingNodeManager
             Environment.Exit(0);
             return;
         }
-        while (true)
+        while (!scraper.oAuthException)
         {
             GetScrapingTasks();
             scraper.DoTasks();

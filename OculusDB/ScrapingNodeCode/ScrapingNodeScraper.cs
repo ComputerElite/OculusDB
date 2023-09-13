@@ -27,6 +27,7 @@ public class ScrapingNodeScraper
     public int currentToken = 0;
     public int totalTasks = 0;
     public int tasksDone = 0;
+    public bool oAuthException = false;
     
     public ScrapingNodeScraperErrorTracker errorTracker { get; set; } = new ScrapingNodeScraperErrorTracker();
 
@@ -34,6 +35,20 @@ public class ScrapingNodeScraper
     public ScrapingNodeScraper(ScrapingNodeManager manager)
     {
         scrapingNodeManager = manager;
+    }
+
+    public void Init()
+    {
+        // Register OAuthError
+        GraphQLClient.OnOAuthException += message =>
+        {
+            // Token is invalid. Report to MasterServer
+            Logger.Log("OAuthException: " + message, LoggingType.Error);
+            Logger.Log("Node will now stop scraping. Please update your token via 'dotnet OculusDB.dll --so <Oculus Token>'", LoggingType.Error);
+            scrapingNodeManager.status = ScrapingNodeStatus.OAuthException;
+            SendHeartBeat();
+            oAuthException = true;
+        };
     }
 
     public void ChangeToken()
@@ -71,6 +86,11 @@ public class ScrapingNodeScraper
         taskResult = new ScrapingNodeTaskResult();
         while (scrapingTasks.Count > 0)
         {
+            if (oAuthException)
+            {
+                Logger.Log("Terminating scraping. OAuthException occurred");
+                return;
+            }
             if (!errorTracker.ContinueScraping())
             {
                 scrapingNodeManager.status = ScrapingNodeStatus.RateLimited;

@@ -506,6 +506,11 @@ public class ScrapingManaging
             stats.totalRuntime += now - stats.lastHeartBeat;
         }
         stats.lastHeartBeat = now;
+        if (stats.status == ScrapingNodeStatus.OAuthException)
+        {
+            // Send message on Discord
+            ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
+        }
         
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
         return new ScrapingNodeHeartBeatProcessed();
