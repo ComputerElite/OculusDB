@@ -402,7 +402,7 @@ public class ScrapingNodeMongoDBManager
             if(items.Count > 0) MongoDBInteractor.versionsCollection.InsertMany(items); 
             versionsTmp.RemoveRange(0, Math.Min(versionsTmp.Count, batchSize));
         }
-        versions.RemoveRange(0, count);
+        versions.RemoveRange(0, Math.Min(count, versions.Count));
         
 
         List<DBIAPItem> iapitemsTmp = new List<DBIAPItem>(iapItems);
