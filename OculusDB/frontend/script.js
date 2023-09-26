@@ -1367,7 +1367,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     } else {
         PopUp(`
         <div>
-            To download games you must be logged in on <a href="{oculusloginlink}">{oculusloginlink}</a>. If you aren't logged in you won't be able to download games.
+            To download games you must be logged in on <a href="{oculusloginlink}">{oculusloginlink}</a> with an account which owns the game! If you aren't logged in, you won't be able to download games.
             <br>
             <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
             <div class="textbox" id="downloadTextBox"></div>
