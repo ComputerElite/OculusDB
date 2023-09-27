@@ -480,6 +480,8 @@ public class ScrapingManaging
         ScrapingNodeMongoDBManager.Flush();
     }
 
+    public static Dictionary<string, DateTime> OAuthExceptionReportTimes = new ();
+
     /// <summary>
     /// Process heartbeats from scraping nodes
     /// </summary>
@@ -506,10 +508,12 @@ public class ScrapingManaging
             stats.totalRuntime += now - stats.lastHeartBeat;
         }
         stats.lastHeartBeat = now;
-        if (stats.status == ScrapingNodeStatus.OAuthException)
+        if(!OAuthExceptionReportTimes.ContainsKey(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId)) OAuthExceptionReportTimes.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, DateTime.MinValue);
+        if (stats.status == ScrapingNodeStatus.OAuthException && (DateTime.Now - OAuthExceptionReportTimes[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId]).TotalDays >= 1)
         {
+            OAuthExceptionReportTimes[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId] = DateTime.Now;
             // Send message on Discord
-            //ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
+            ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
         }
         
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
