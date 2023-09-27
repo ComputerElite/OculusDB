@@ -509,7 +509,7 @@ public class ScrapingManaging
         if (stats.status == ScrapingNodeStatus.OAuthException)
         {
             // Send message on Discord
-            ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
+            //ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
         }
         
         ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
