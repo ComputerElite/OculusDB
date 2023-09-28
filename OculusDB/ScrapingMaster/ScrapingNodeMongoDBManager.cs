@@ -310,8 +310,11 @@ public class ScrapingNodeMongoDBManager
     {
         if (d == null) return null;
         contribution.AddContribution(d["__OculusDBType"].AsString, 1);
-        d["_id"] = ObjectId.GenerateNewId();
-        d["__id"] = d["_id"].AsObjectId;
+        do
+        {
+            d["_id"] = ObjectId.GenerateNewId();
+            d["__id"] = d["_id"].AsObjectId;
+        } while (queuedActivity.Any(x => x["__id"].AsObjectId == d["__id"].AsObjectId));
         d["__sn"] = contribution.scrapingNode.scrapingNodeId;
         queuedActivity.Add(d);
         return d;
@@ -522,8 +525,8 @@ public class ScrapingNodeMongoDBManager
                     List<BsonDocument> toSend = new List<BsonDocument>(docs);
                     for (int i = 0; i < docs.Count; i++)
                     {
-                        Logger.Log("Sending activity " + docs[i]["__id"]);
-                        DiscordWebhookSender.SendActivity(docs[i]);
+                        Logger.Log("Sending activity " + toSend[i]["__id"]);
+                        DiscordWebhookSender.SendActivity(toSend[i]);
                     }
                 });
                 sendMsgsThread.Start();
