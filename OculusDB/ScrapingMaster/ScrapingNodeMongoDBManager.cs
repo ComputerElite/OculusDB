@@ -310,11 +310,6 @@ public class ScrapingNodeMongoDBManager
     {
         if (d == null) return null;
         contribution.AddContribution(d["__OculusDBType"].AsString, 1);
-        do
-        {
-            d["_id"] = ObjectId.GenerateNewId();
-            d["__id"] = d["_id"].AsObjectId;
-        } while (queuedActivity.Any(x => x["__id"].AsObjectId == d["__id"].AsObjectId));
         d["__sn"] = contribution.scrapingNode.scrapingNodeId;
         queuedActivity.Add(d);
         return d;
@@ -517,6 +512,11 @@ public class ScrapingNodeMongoDBManager
         {
             // Bulk do work in batches of batchSize
             List<BsonDocument> docs = queuedActivityTmp.Take(Math.Min(queuedActivityTmp.Count, batchSize)).Where(x => x != null).ToList();
+            for (int i = 0; i < docs.Count; i++)
+            {
+                docs[i]["_id"] = ObjectId.GenerateNewId();
+                docs[i]["__id"] = docs[i]["_id"].AsObjectId;
+            }
             if (docs.Count > 0)
             {
                 MongoDBInteractor.activityCollection.InsertMany(docs);
