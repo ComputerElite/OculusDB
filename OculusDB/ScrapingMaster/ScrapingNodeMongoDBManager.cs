@@ -520,12 +520,14 @@ public class ScrapingNodeMongoDBManager
                 MongoDBInteractor.activityCollection.InsertMany(docs);
                 for(int i = 0; i < docs.Count; i++)
                 {
+                    Logger.Log("Sending activity " + docs[i]["__id"]);
                     DiscordWebhookSender.SendActivity(docs[i]);
                 }
             }
             queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
         }
         queuedActivity.RemoveRange(0, count);
+        Logger.Log("Flushed queue");
 
         flushing.Set(false, TimeSpan.FromMinutes(0), "");
         CleanAppsScraping();
