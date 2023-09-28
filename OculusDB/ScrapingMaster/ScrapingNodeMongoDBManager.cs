@@ -499,10 +499,11 @@ public class ScrapingNodeMongoDBManager
         while (images.Count > 0)
         {
             // Bulk do work in batches of batchSize
-            
             List<DBAppImage> items = imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null).ToList();
+            Logger.Log("Removing " + items.Count + " images from database.");
             ids = items.Select(x => x.appId).ToArray();
             MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
+            Logger.Log("Adding " + items.Count + " images to database.");
             if(items.Count > 0) MongoDBInteractor.appImages.InsertMany(items);
             imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }
