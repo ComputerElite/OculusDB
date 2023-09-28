@@ -15,6 +15,7 @@ namespace OculusDB.ScrapingMaster;
 
 public class ScrapingManaging
 {
+    public static ulong processTaskId = 0;
     public static Dictionary<string, TimeDependantBool> isAppAddingRunning { get; set; } = new ();
     public static Dictionary<string, ScrapingNodeTaskResultProcessing> processingRn = new ();
     public static List<ScrapingTask> GetTasks(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
@@ -177,7 +178,9 @@ public class ScrapingManaging
 
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)
     {
-        Logger.Log("Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
+        ulong taskId = processTaskId;
+        processTaskId++;
+        Logger.Log("# " + taskId + "  Processing " + taskResult.scraped.applications.Count + " applications, " + taskResult.scraped.dlcs.Count + " dlcs, " + taskResult.scraped.dlcPacks.Count + " dlc packs, " + taskResult.scraped.versions.Count + " version and " + taskResult.scraped.imgs.Count + " images from scraping node " + scrapingNodeAuthenticationResult.scrapingNode);
         ScrapingContribution scrapingContribution = new ScrapingContribution();
         scrapingContribution.scrapingNode = scrapingNodeAuthenticationResult.scrapingNode;
         // Process Versions
@@ -187,6 +190,8 @@ public class ScrapingManaging
         stats.processStartTime = DateTime.Now;
         stats.nodesProcessingAtStart = processingRn.Sum(x => x.Value.processingCount);
         Stopwatch sw = Stopwatch.StartNew();
+        
+        Logger.Log("# " + taskId + " processing " + taskResult.scraped.versions.Count + " versions");
         foreach (DBVersion v in taskResult.scraped.versions)
         {
             DBApplication parentApplication =
@@ -259,6 +264,7 @@ public class ScrapingManaging
         stats.versionsProcessed = taskResult.scraped.versions.Count;
         sw.Restart();
         // Process DLCs
+        Logger.Log("# " + taskId + " processing " + taskResult.scraped.dlcs.Count + " dlcs");
         foreach (DBIAPItem d in taskResult.scraped.dlcs)
         {
             DBApplication parentApplication =
@@ -305,6 +311,7 @@ public class ScrapingManaging
         
         // Process DLC Packs
         Dictionary<string, List<DBIAPItem>> dlcsInDB = new ();
+        Logger.Log("# " + taskId + " processing " + taskResult.scraped.dlcPacks.Count + " dlc packs");
         foreach (DBIAPItemPack d in taskResult.scraped.dlcPacks)
         {
             DBApplication parentApplication =
@@ -367,6 +374,7 @@ public class ScrapingManaging
         sw.Restart();
         
         // Process Applications
+        Logger.Log("# " + taskId + " processing " + taskResult.scraped.applications.Count + " applications");
         foreach (DBApplication a in taskResult.scraped.applications)
         {
             if (a == null)
@@ -465,19 +473,23 @@ public class ScrapingManaging
         stats.appsProcessed = taskResult.scraped.applications.Count;
         sw.Stop();
 
+        Logger.Log("# " + taskId + " processing " + taskResult.scraped.imgs.Count + " images");
         foreach (DBAppImage img in taskResult.scraped.imgs)
         {
             ScrapingNodeMongoDBManager.AddImage(img, ref scrapingContribution);
         }
 
         r.processed = true;
+        Logger.Log("# " + taskId + " processing done. Incrementing stats");
         scrapingContribution.lastContribution = DateTime.UtcNow;
         stats.processEndTime = DateTime.UtcNow;
         stats.nodesProcessingAtEnd = processingRn.Sum(x => x.Value.processingCount);
         ScrapingNodeMongoDBManager.AddScrapingProcessingStat(stats);
         scrapingContribution.taskResultsProcessed = 1;
         ScrapingNodeMongoDBManager.IncScrapingNodeContribution(scrapingContribution);
+        Logger.Log("# " + taskId + " flushing");
         ScrapingNodeMongoDBManager.Flush();
+        Logger.Log("# " + taskId + " flushed");
     }
 
     public static Dictionary<string, DateTime> OAuthExceptionReportTimes = new ();

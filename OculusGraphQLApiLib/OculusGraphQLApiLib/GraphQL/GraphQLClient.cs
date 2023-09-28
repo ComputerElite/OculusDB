@@ -19,6 +19,7 @@ namespace OculusGraphQLApiLib
         public static bool throwException = true;
         public static bool log = true;
         public static int retryTimes = 3;
+        public static Dictionary<string, string> customHeaders = new Dictionary<string, string>();
         public static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
         {
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
@@ -66,7 +67,7 @@ namespace OculusGraphQLApiLib
             return "{}";
         }
 
-        public string Request(bool asBody = false, Dictionary<string, string> customHeaders = null, int retry = 0, string status = "200")
+        public string Request(bool asBody = false, int retry = 0, string status = "200")
         {
             if (retry == retryTimes)
             {
@@ -78,6 +79,7 @@ namespace OculusGraphQLApiLib
             }
             if(log && retry != 0) Logger.Log("Starting retry number " + retry);
             WebClient c = new WebClient();
+            c.Headers.Add("User-Agent", Constants.UA);
             if (customHeaders != null)
             {
                 foreach (KeyValuePair<string, string> header in customHeaders)
@@ -112,7 +114,7 @@ namespace OculusGraphQLApiLib
                     if(log) Logger.Log("Couldn't parse error message: " + ex, LoggingType.Warning);
                 }
                 if (log) Logger.Log("Request failed, retrying (" + e.Status.ToString() + ", " + (int)e.Status + "): \n" + response, LoggingType.Error);
-                return Request(asBody, customHeaders, retry + 1, e.Status.ToString());
+                return Request(asBody, retry + 1, e.Status.ToString());
             }
             return "{}";
         }
