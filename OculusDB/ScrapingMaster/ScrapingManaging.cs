@@ -377,6 +377,7 @@ public class ScrapingManaging
         Logger.Log("# " + taskId + " processing " + taskResult.scraped.applications.Count + " applications");
         foreach (DBApplication a in taskResult.scraped.applications)
         {
+            Logger.Log("# " + taskId + " processing " + a.id);
             if (a == null)
             {
                 ReportErrorWithDiscordMessage("Application is null. Scraping node is " + scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, "Application is null");
@@ -438,9 +439,9 @@ public class ScrapingManaging
                 }
                 else ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
-            // ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
 
             DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id).FirstOrDefault());
+            ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
             if (old != null)
             {
                 DBActivityApplicationUpdated updated = new DBActivityApplicationUpdated();
