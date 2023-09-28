@@ -496,14 +496,12 @@ public class ScrapingNodeMongoDBManager
         List<DBAppImage> imagesTmp = new List<DBAppImage>(images);
         count = imagesTmp.Count;
         Logger.Log("Adding " + imagesTmp.Count + " images to database.");
-        while (images.Count > 0)
+        while (imagesTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
             List<DBAppImage> items = imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null).ToList();
-            Logger.Log("Removing " + items.Count + " images from database.");
             ids = items.Select(x => x.appId).ToArray();
             MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
-            Logger.Log("Adding " + items.Count + " images to database.");
             if(items.Count > 0) MongoDBInteractor.appImages.InsertMany(items);
             imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }
@@ -519,11 +517,16 @@ public class ScrapingNodeMongoDBManager
             if (docs.Count > 0)
             {
                 MongoDBInteractor.activityCollection.InsertMany(docs);
-                for(int i = 0; i < docs.Count; i++)
+                Thread sendMsgsThread = new Thread(() =>
                 {
-                    Logger.Log("Sending activity " + docs[i]["__id"]);
-                    DiscordWebhookSender.SendActivity(docs[i]);
-                }
+                    List<BsonDocument> toSend = new List<BsonDocument>(docs);
+                    for (int i = 0; i < docs.Count; i++)
+                    {
+                        Logger.Log("Sending activity " + docs[i]["__id"]);
+                        DiscordWebhookSender.SendActivity(docs[i]);
+                    }
+                });
+                sendMsgsThread.Start();
             }
             queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
         }
