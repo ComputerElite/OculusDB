@@ -861,7 +861,12 @@ function FormatParentApplication(a, activityId) {
 </div>`
 }
 
+function InIFrame() {
+    return window.self !== window.top;
+}
+
 function IsStarred(id) {
+    if(InIFrame()) return false;
     var starred = localStorage.starred;
     if(!starred) {
         localStorage.starred = "[]";
@@ -872,6 +877,7 @@ function IsStarred(id) {
 }
 
 function SetStarred(id, s) {
+    if(InIFrame()) return;
     var starred = localStorage.starred;
     if(!starred) {
         localStorage.starred = "[]";
