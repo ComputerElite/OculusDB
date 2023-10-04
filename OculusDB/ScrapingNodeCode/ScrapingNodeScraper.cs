@@ -597,6 +597,7 @@ public class ScrapingNodeScraper
 
     public void SendHeartBeat()
     {
+        if(manager.config.doForceScrape) return; // Don't send heartbeat when force scraping to prevent discord spam
         ScrapingNodeHeartBeat beat = new ScrapingNodeHeartBeat();
         beat.identification = scrapingNodeManager.GetIdentification();
         beat.snapshot.scrapingStatus = scrapingNodeManager.status;
