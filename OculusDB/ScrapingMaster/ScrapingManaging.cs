@@ -521,13 +521,8 @@ public class ScrapingManaging
             stats.totalRuntime += now - stats.lastHeartBeat;
         }
         stats.lastHeartBeat = now;
-<<<<<<< HEAD
-        if(oAuthExceptionReportTimes.)
-        if (stats.status == ScrapingNodeStatus.OAuthException)
-=======
         if(!OAuthExceptionReportTimes.ContainsKey(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId)) OAuthExceptionReportTimes.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, DateTime.MinValue);
         if (stats.status == ScrapingNodeStatus.OAuthException && (DateTime.Now - OAuthExceptionReportTimes[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId]).TotalDays >= 1)
->>>>>>> f913613323540806b4845a146c55f8960d6e12f8
         {
             OAuthExceptionReportTimes[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId] = DateTime.Now;
             // Send message on Discord

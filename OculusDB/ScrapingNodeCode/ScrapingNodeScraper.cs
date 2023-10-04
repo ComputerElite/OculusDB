@@ -34,7 +34,7 @@ public class ScrapingNodeScraper
 
     public ScrapingNodeScraper(ScrapingNodeManager manager)
     {
-        scrapingNodeManager = manager;
+        scrapingNodeManager = manager; 
     }
 
     public void Init()
