@@ -508,7 +508,7 @@ public class ScrapingNodeMongoDBManager
         List<BsonDocument> queuedActivityTmp = new List<BsonDocument>(queuedActivity);
         count = queuedActivityTmp.Count;
         Logger.Log("Adding " + queuedActivityTmp.Count + " activities to database and sending webhooks.");
-        while (queuedActivity.Count > 0)
+        while (queuedActivityTmp.Count > 0)
         {
             // Bulk do work in batches of batchSize
             List<BsonDocument> docs = queuedActivityTmp.Take(Math.Min(queuedActivityTmp.Count, batchSize)).Where(x => x != null).ToList();
@@ -523,7 +523,7 @@ public class ScrapingNodeMongoDBManager
                 Thread sendMsgsThread = new Thread(() =>
                 {
                     List<BsonDocument> toSend = new List<BsonDocument>(docs);
-                    for (int i = 0; i < docs.Count; i++)
+                    for (int i = 0; i < toSend.Count; i++)
                     {
                         Logger.Log("Sending activity " + toSend[i]["__id"]);
                         DiscordWebhookSender.SendActivity(toSend[i]);
