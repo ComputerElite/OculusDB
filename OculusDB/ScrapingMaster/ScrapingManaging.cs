@@ -447,6 +447,22 @@ public class ScrapingManaging
                 DBActivityApplicationUpdated updated = new DBActivityApplicationUpdated();
                 updated.oldApplication = old;
                 updated.newApplication = a;
+                updated.id = a.id;
+                Logger.Log("canonicalName: " + (old.canonicalName != a.canonicalName) + " " + old.canonicalName + " - " + a.canonicalName);
+                Logger.Log("has_in_app_ads: " + (old.has_in_app_ads != a.has_in_app_ads) + " " + old.has_in_app_ads + " - " + a.has_in_app_ads);
+                Logger.Log("is_approved: " + (old.is_approved != a.is_approved) + " " + old.is_approved + " - " + a.is_approved);
+                Logger.Log("is_concept: " + (old.is_concept != a.is_concept) + " " + old.is_concept + " - " + a.is_concept);
+                Logger.Log("display_long_description: " + (old.display_long_description != a.display_long_description) + " " + old.display_long_description + " - " + a.display_long_description);
+                Logger.Log("display_name: " + (old.display_name != a.display_name) + " " + old.display_name + " - " + a.display_name);
+                Logger.Log("genre_names: " + (old.genre_names != a.genre_names) + " " + String.Join(", ", old.genre_names) + " - " + String.Join(", ", a.genre_names));
+                Logger.Log("organization.id: " + (old.organization.id != a.organization.id) + " " + old.organization.id + " - " + a.organization.id);
+                Logger.Log("platform: " + (old.platform != a.platform) + " " + old.platform + " - " + a.platform);
+                Logger.Log("release_date: " + (old.release_date != a.release_date) + " " + old.release_date + " - " + a.release_date);
+                Logger.Log("publisher_name: " + (old.publisher_name != a.publisher_name) + " " + old.publisher_name + " - " + a.publisher_name);
+                Logger.Log("website_url: " + (old.website_url != a.website_url) + " " + old.website_url + " - " + a.website_url);
+                Logger.Log("supported_hmd_platforms_enum: " + (old.supported_hmd_platforms_enum != a.supported_hmd_platforms_enum) + " " + String.Join(", ", old.supported_hmd_platforms_enum) + " - " + String.Join(", ", a.supported_hmd_platforms_enum));
+                Logger.Log("appHasTrial: " + (old.appHasTrial != a.appHasTrial) + " " + old.appHasTrial + " - " + a.appHasTrial);
+                
                 if (old.canonicalName != a.canonicalName
                     || old.has_in_app_ads != a.has_in_app_ads
                     || old.is_approved != a.is_approved

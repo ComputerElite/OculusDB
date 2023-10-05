@@ -32,6 +32,7 @@ namespace OculusDB.Database
         public string __lastEntry { get; set; } = null;
         public string __OculusDBType { get; set; } = DBDataTypes.ActivityApplicationUpdated;
         public DateTime __lastUpdated { get; set; } = DateTime.Now;
+        public string id { get; set; } = "";
         public DBApplication oldApplication { get; set; } = new DBApplication();
         public DBApplication newApplication { get; set; } = new DBApplication();
     }
