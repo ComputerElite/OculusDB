@@ -979,6 +979,14 @@ function FormatApplicationUpdatedActivity(a, htmlid) {
                     ${FormatApplication(a.newApplication, `${htmlid}_${a.__id}_new`, true)}
                 </div>
             </div>
+            <table>
+                <colgroup>
+                    <col width="130em">
+                    <col width="100%">
+                </colgroup>
+                <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
+                <tr><td class="label">Scraped by</td><td class="value">${a.__sn}</td></tr>
+            </table>
         </div>
     </div>
 </div>`
