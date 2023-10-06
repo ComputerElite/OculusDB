@@ -368,7 +368,7 @@ public class ScrapingNodeMongoDBManager
         if (flushing.IsTrueAndValid()) return;
         const int batchSize = 50;
         
-        flushing.Set(true, TimeSpan.FromMinutes(2), "");
+        flushing.Set(true, TimeSpan.FromMinutes(20), "");
         List<DBVersion> versionsTmp = new List<DBVersion>(versions);
         int count = versionsTmp.Count;
         // Remove all old ids from versions list
@@ -520,16 +520,11 @@ public class ScrapingNodeMongoDBManager
             if (docs.Count > 0)
             {
                 MongoDBInteractor.activityCollection.InsertMany(docs);
-                Thread sendMsgsThread = new Thread(() =>
+                for (int i = 0; i < docs.Count; i++)
                 {
-                    List<BsonDocument> toSend = new List<BsonDocument>(docs);
-                    for (int i = 0; i < toSend.Count; i++)
-                    {
-                        Logger.Log("Sending activity " + toSend[i]["__id"]);
-                        DiscordWebhookSender.SendActivity(toSend[i]);
-                    }
-                });
-                sendMsgsThread.Start();
+                    Logger.Log("Sending activity " + docs[i]["__id"]);
+                    DiscordWebhookSender.SendActivity(docs[i]);
+                }
             }
             queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
         }
