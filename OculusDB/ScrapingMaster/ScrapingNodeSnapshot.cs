@@ -7,6 +7,7 @@ public class ScrapingNodeSnapshot
 {
     public long doneTasks { get; set; } = 0;
     public long totalTasks { get; set; } = 0;
+    public bool isPriorityScrape { get; set; } = false;
     public DateTime scrapingContinueTime { get; set; } = DateTime.MinValue;
     public string currentlyScraping { get; set; } = "";
     public ScrapingNodeStatus scrapingStatus { get; set; } = ScrapingNodeStatus.Idling;

@@ -512,9 +512,10 @@ public class ScrapingManaging
                 msg = "Couldn't find status entry at this time. Next heartbeat should get processed."
             };
         }
-        stats.snapshot = heartBeat.snapshot;
         
-        // If online, add time since last heartbeat to runtime
+        // If online, add time since last heartbeat to runtime only if not priority scrape to prevent discord spam
+        
+        stats.snapshot = heartBeat.snapshot;
         DateTime now = DateTime.UtcNow;
         if (stats.online)
         {
@@ -522,6 +523,7 @@ public class ScrapingManaging
             stats.totalRuntime += now - stats.lastHeartBeat;
         }
         stats.lastHeartBeat = now;
+
         if(!OAuthExceptionReportTimes.ContainsKey(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId)) OAuthExceptionReportTimes.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, DateTime.MinValue);
         if (stats.status == ScrapingNodeStatus.OAuthException && (DateTime.Now - OAuthExceptionReportTimes[scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId]).TotalDays >= 1)
         {
@@ -529,8 +531,7 @@ public class ScrapingManaging
             // Send message on Discord
             ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
         }
-        
-        ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
+        if (!heartBeat.snapshot.isPriorityScrape) ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
         return new ScrapingNodeHeartBeatProcessed();
     }
 
