@@ -19,6 +19,7 @@
             <div>Login status: <b id="login">not logged in</b></div>
             <div><b id="space">0 Bytes</b> of space available on their device</div>
             <div>Reported: <b id="time">Today</b></div>
+            <div>Device: <b id="device">Unknown</b></div>
             <div>QAVS version: <b id="version">1.8.0.0</b></div>
             <div>Android Version: <b id="aversion">Android 10</b></div>
 
@@ -128,6 +129,7 @@
                     document.getElementById("space").innerText = log.availableSpaceString
                     document.getElementById("time").innerText = GetTimeString(log.reportTime)
                     document.getElementById("version").innerText = log.version
+                    document.getElementById("device").innerText = log.device
                     document.getElementById("aversion").innerText = GetAndroidVersion(log.androidVersion)
                     document.getElementById("logText").innerHTML = log.log.replace(/\n/, "<br>")
                     document.getElementById("mods").innerHTML = FormatMods(log.modsAndLibs)
