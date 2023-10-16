@@ -935,8 +935,8 @@ function FormatApplication(application, htmlId = "", expanded = false) {
                 <tr><td class="label">Rating</td><td class="value">${application.quality_rating_aggregate ? application.quality_rating_aggregate.toFixed(2) : "Not available"}</td></tr>
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(application.supported_hmd_platforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${application.publisher_name}</td></tr>
-                <tr><td class="label">Website URL</td><td class="value">${application.website_url ?? "No entry"}</td></tr>
-                <tr><td class="label">Genres</td><td class="value">${application.genre_names.join(", ") ?? "No genres"}</td></tr>
+                <tr><td class="label">Website URL</td><td class="value">${application.website_url ? application.website_url : "No entry"}</td></tr>
+                <tr><td class="label">Genres</td><td class="value">${application.genre_names.join(", ") ? application.genre_names.join(", ") : "No genres"}</td></tr>
                 <tr><td class="label">Is AppLab</td><td class="value">${application.is_concept}</td></tr>
                 <tr><td class="label">Is Approved</td><td class="value">${application.is_approved}</td></tr>
                 <tr><td class="label">Has ads</td><td class="value">${application.has_in_app_ads}</td></tr>
