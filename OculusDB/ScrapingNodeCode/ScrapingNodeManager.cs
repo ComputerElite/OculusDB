@@ -230,7 +230,8 @@ public class ScrapingNodeManager
             scrapingNodeToken = config.scrapingNodeToken,
             scrapingNodeVersion = OculusDBEnvironment.updater.version,
             tokenCount = config.oculusTokens.Count,
-            currency = scraper.GetCurrency()
+            currency = scraper.GetCurrency(),
+            isPriorityScrape = config.isPriorityScrape
         };
     }
 

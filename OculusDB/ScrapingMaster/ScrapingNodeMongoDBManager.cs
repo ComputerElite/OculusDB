@@ -263,6 +263,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void UpdateScrapingNodeStats(ScrapingNodeStats s)
     {
+        if (s.snapshot.isPriorityScrape) return;
         if(DateTime.UtcNow < s.firstSight) s.firstSight = DateTime.UtcNow;
         s.SetOnline();
         scrapingNodeStats.DeleteMany(x => x.scrapingNode.scrapingNodeId == s.scrapingNode.scrapingNodeId);

@@ -9,5 +9,6 @@ public class ScrapingNodeIdentification
     public string scrapingNodeToken { get; set; } = "";
     public string scrapingNodeVersion { get; set; } = "1.0.0";
     public string currency { get; set; } = "";
+    public bool isPriorityScrape { get; set; } = false;
     public int tokenCount { get; set; } = 0;
 }
