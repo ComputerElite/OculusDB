@@ -367,7 +367,7 @@ public class ScrapingNodeMongoDBManager
     public static void Flush()
     {
         if (flushing.IsTrueAndValid()) return;
-        const int batchSize = 50;
+        const int batchSize = 20;
         
         flushing.Set(true, TimeSpan.FromMinutes(20), "");
         List<DBVersion> versionsTmp = new List<DBVersion>(versions);
