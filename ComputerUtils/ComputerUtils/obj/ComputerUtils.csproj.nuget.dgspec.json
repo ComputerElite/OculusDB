@@ -1,0 +1,83 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/computerelite/rider/OculusDB/ComputerUtils/ComputerUtils/ComputerUtils.csproj": {}
+  },
+  "projects": {
+    "/home/computerelite/rider/OculusDB/ComputerUtils/ComputerUtils/ComputerUtils.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/computerelite/rider/OculusDB/ComputerUtils/ComputerUtils/ComputerUtils.csproj",
+        "projectName": "ComputerUtils",
+        "projectPath": "/home/computerelite/rider/OculusDB/ComputerUtils/ComputerUtils/ComputerUtils.csproj",
+        "packagesPath": "/home/computerelite/.nuget/packages/",
+        "outputPath": "/home/computerelite/rider/OculusDB/ComputerUtils/ComputerUtils/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/computerelite/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AForge.Video": {
+              "target": "Package",
+              "version": "[2.2.5, )"
+            },
+            "AForge.Video.DirectShow": {
+              "target": "Package",
+              "version": "[2.2.5, )"
+            },
+            "MimeTypeMapOfficial": {
+              "target": "Package",
+              "version": "[1.0.17, )"
+            },
+            "QRCoder": {
+              "target": "Package",
+              "version": "[1.4.3, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/7.0.113/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
