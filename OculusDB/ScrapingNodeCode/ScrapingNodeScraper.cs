@@ -474,6 +474,12 @@ public class ScrapingNodeScraper
                 Logger.Log("Couldn't convert image to webp or scale it to max 1024x1024:\n" + e, LoggingType.Warning);
                 return null;
             }
+
+            if (data.Length > 400 * 1024)
+            {
+                Logger.Log("Converted image larger than 400 KB. Skipping", LoggingType.Warning);
+                return null;
+            }
             DBAppImage dbi = new DBAppImage();
             dbi.data = data;
             dbi.mimeType = HttpServer.GetContentTpe("image" + ext);
