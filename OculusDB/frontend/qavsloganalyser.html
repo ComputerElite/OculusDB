@@ -19,6 +19,7 @@
             <div>Login status: <b id="login">not logged in</b></div>
             <div><b id="space">0 Bytes</b> of space available on their device</div>
             <div>Reported: <b id="time">Today</b></div>
+            <div>QAVS ModManager modloader mode: <b id="modloadermode">Today</b></div>
             <div>Device: <b id="device">Unknown</b></div>
             <div>QAVS version: <b id="version">1.8.0.0</b></div>
             <div>Android Version: <b id="aversion">Android 10</b></div>
@@ -127,6 +128,7 @@
                     log = data
                     document.getElementById("login").innerText = log.userIsLoggedIn ? "logged in" : "not logged in"
                     document.getElementById("space").innerText = log.availableSpaceString
+                    document.getElementById("modloadermode").innerText = log.modloaderMode
                     document.getElementById("time").innerText = GetTimeString(log.reportTime)
                     document.getElementById("version").innerText = log.version
                     document.getElementById("device").innerText = log.device
@@ -163,6 +165,8 @@
                         return "Android 12L"
                     case 33:
                         return "Android 13"
+                    case 34:
+                        return "Android 14"
                 }
             }
 
