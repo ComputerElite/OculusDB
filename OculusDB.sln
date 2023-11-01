@@ -5,11 +5,9 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OculusDB", "OculusDB\OculusDB.csproj", "{4806A093-BC74-4519-B352-830069FC3C22}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerUtils", "ComputerUtils\ComputerUtils\ComputerUtils.csproj", "{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OculusGraphQLApiLib", "OculusGraphQLApiLib\OculusGraphQLApiLib\OculusGraphQLApiLib.csproj", "{51058A09-E75E-4704-8F65-FBEA78BEC099}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OculusGraphQLApiLib", "OculusGraphQLApiLib\OculusGraphQLApiLib\OculusGraphQLApiLib.csproj", "{38AD7E17-31C0-40AC-B450-D174E953D94B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OculusGraphQLApiLibCLI", "OculusGraphQLApiLib\OculusGraphQLApiLibCLI\OculusGraphQLApiLibCLI.csproj", "{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerUtils", "OculusGraphQLApiLib\ComputerUtils\ComputerUtils\ComputerUtils.csproj", "{E5DB6EB7-BAAA-48DE-B8FC-8A147F1B4EFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,18 +19,14 @@ Global
 		{4806A093-BC74-4519-B352-830069FC3C22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4806A093-BC74-4519-B352-830069FC3C22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4806A093-BC74-4519-B352-830069FC3C22}.Release|Any CPU.Build.0 = Release|Any CPU
-		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{73B8AE70-3FD6-41D8-84F9-0AB8171704A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38AD7E17-31C0-40AC-B450-D174E953D94B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFC5D33B-CBFB-449D-84B9-55ACE27FA68F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51058A09-E75E-4704-8F65-FBEA78BEC099}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51058A09-E75E-4704-8F65-FBEA78BEC099}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51058A09-E75E-4704-8F65-FBEA78BEC099}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51058A09-E75E-4704-8F65-FBEA78BEC099}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5DB6EB7-BAAA-48DE-B8FC-8A147F1B4EFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5DB6EB7-BAAA-48DE-B8FC-8A147F1B4EFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5DB6EB7-BAAA-48DE-B8FC-8A147F1B4EFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5DB6EB7-BAAA-48DE-B8FC-8A147F1B4EFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
