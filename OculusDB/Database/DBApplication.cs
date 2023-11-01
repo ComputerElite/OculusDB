@@ -104,6 +104,26 @@ namespace OculusDB.Database
         public Organization organization { get; set; } = new Organization();
         public string platform { get; set; } = "";
         public string publisher_name { get; set; } = "";
+        public long required_space_adjusted { get; set; } = -1;
+        [BsonIgnore]
+        public string requiredSpaceAdjustedFormatted
+        {
+            get
+            {
+                return SizeConverter.ByteSizeToString(required_space_adjusted);
+            }
+        }
+
+        public long total_installed_space { get; set; } = -1;
+        [BsonIgnore]
+        public string totalInstalledSpaceFormatted
+        {
+            get
+            {
+                return SizeConverter.ByteSizeToString(total_installed_space);
+            }
+        }
+
 
         public double? quality_rating_aggregate { get; set; } = 0.0;
 

@@ -938,6 +938,8 @@ function FormatApplication(application, htmlId = "", expanded = false) {
                 <tr><td class="label">Website URL</td><td class="value">${application.website_url ? application.website_url : "No entry"}</td></tr>
                 <tr><td class="label">Genres</td><td class="value">${application.genre_names.join(", ") ? application.genre_names.join(", ") : "No genres"}</td></tr>
                 <tr><td class="label">Is AppLab</td><td class="value">${application.is_concept}</td></tr>
+                <tr><td class="label">Installed Size</td><td class="value">${application.totalInstalledSpaceFormatted}</td></tr>
+                <tr><td class="label">Space required</td><td class="value">${application.requiredSpaceAdjustedFormatted}</td></tr>
                 <tr><td class="label">Is Approved</td><td class="value">${application.is_approved}</td></tr>
                 <tr><td class="label">Has ads</td><td class="value">${application.has_in_app_ads}</td></tr>
                 <tr><td class="label">Release time</td><td class="value">${new Date(application.releaseDate).toLocaleString()}</td></tr>

@@ -408,6 +408,11 @@ public class ScrapingNodeScraper
         DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
         dba.hmd = h;
         dba.img = image;
+        if (a.latest_supported_binary != null)
+        {
+            dba.total_installed_space = a.latest_supported_binary.total_installed_space_numerical;
+            dba.required_space_adjusted = a.latest_supported_binary.required_space_adjusted_numerical;
+        }
         dba.priceOffsetNumerical = correctPrice;
         dba.packageName = packageName;
         dba.currency = GetOverrideCurrency(currency);
