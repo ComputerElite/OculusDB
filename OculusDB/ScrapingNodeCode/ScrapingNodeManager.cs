@@ -129,7 +129,7 @@ public class ScrapingNodeManager
         {
             WebClient c = new WebClient();
             byte[] updateFile = c.DownloadData(config.masterAddress + "/cdn/node.zip?time=" + DateTime.UtcNow.Ticks);
-            Updater.StartUpdateNetApp(updateFile, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+            Updater.StartUpdateNetApp(updateFile, Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.cla);
         }
         catch (Exception e)
         {

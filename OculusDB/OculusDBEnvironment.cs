@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ComputerUtils.CommandLine;
 using ComputerUtils.Updating;
 using OculusDB.ScrapingNodeCode;
 
@@ -19,6 +20,8 @@ namespace OculusDB
         public static bool debugging = false;
         public static Config config = new ();
         public static ScrapingNodeConfig scrapingNodeConfig = new ();
+        public static CommandLineCommandContainer cla;
+
         public static string userAgent { get
             {
                 return "OculusDB/" + updater.version;
