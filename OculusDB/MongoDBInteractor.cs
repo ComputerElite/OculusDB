@@ -306,9 +306,9 @@ namespace OculusDB
             return activityCollection.CountDocuments(new BsonDocument());
         }
 
-        public static List<DBApplication> GetApplicationByPackageName(string packageName)
+        public static List<DBApplication> GetApplicationByPackageName(string packageName, string currency)
         {
-            return applicationCollection.Find(x => x.packageName == packageName).ToList();
+            return applicationCollection.Find(x => x.packageName == packageName).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
         }
 
         public static List<DBApplication> GetBestReviews(int skip, int take)
@@ -534,12 +534,16 @@ namespace OculusDB
             return blockedAppsCache.Contains(id);
         }
 
-        public static DLCLists GetDLCs(string parentAppId)
+        public static DLCLists GetDLCs(string parentAppId, string currency)
         {
             if (IsApplicationBlocked(parentAppId)) return new DLCLists();
             DLCLists l = new();
             l.dlcs = dlcCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcPacks = dlcPackCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
+            
+            l.dlcs.ConvertAll(x => GetCorrectDLCEntry(x, currency));
+            l.dlcPacks.ConvertAll(x => GetCorrectDLCPackEntry(x, currency));
+            
             return l;
         }
 
