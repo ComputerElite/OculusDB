@@ -407,17 +407,29 @@ namespace OculusDB
 
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
         {
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => x["id"] == id)
+                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
         
         public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
         {
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => x["id"] == id && x["currency"] == currency)
+                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             //Logger.Log("Checking currency " + currency + " for " + id, LoggingType.Important);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
 		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
 		{
+            // Check queue
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity
+                .Where(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated ||
+                                                       x["__OculusDBType"] == DBDataTypes.ActivityNewVersion))
+                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
 			return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
 		}
 
@@ -433,6 +445,11 @@ namespace OculusDB
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId, string currency)
         {
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
+                x["parentApplication"]["id"] == appId &&
+                x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged &&
+                x["currency"] == currency).OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && 
                                                                         x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged && 
                                                                         x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
