@@ -440,7 +440,7 @@ public class ScrapingManaging
                 else ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
             }
 
-            DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id).FirstOrDefault());
+            DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id, 1, a.currency).FirstOrDefault());
             ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
             if (old != null)
             {
@@ -460,7 +460,7 @@ public class ScrapingManaging
                     || old.release_date != a.release_date
                     || old.publisher_name != a.publisher_name
                     || old.website_url != a.website_url
-                    || String.Join(", ", old.supported_hmd_platforms_enum) != String.Join(", ", a.supported_hmd_platforms_enum)
+                    || (String.Join(", ", old.supported_hmd_platforms_enum) != String.Join(", ", a.supported_hmd_platforms_enum) && a.hmd == old.hmd)
                     || old.appHasTrial != a.appHasTrial)
                 {
                     // Application updated
