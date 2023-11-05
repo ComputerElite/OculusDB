@@ -446,6 +446,7 @@ namespace OculusDB
         public static BsonDocument GetLastPriceChangeOfApp(string appId, string currency)
         {
             BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
+                x.Contains("parentApplication") &&
                 x["parentApplication"]["id"] == appId &&
                 x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged &&
                 x["currency"] == currency).OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
