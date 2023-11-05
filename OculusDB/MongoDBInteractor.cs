@@ -407,7 +407,8 @@ namespace OculusDB
 
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
         {
-            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => x["id"] == id)
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => 
+                    x.Contains("id") && x["id"] == id)
                 .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
             if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
@@ -415,7 +416,8 @@ namespace OculusDB
         
         public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
         {
-            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => x["id"] == id && x["currency"] == currency)
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
+                    x.Contains("id") && x.Contains("currency") && x["id"] == id && x["currency"] == currency)
                 .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
             if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             //Logger.Log("Checking currency " + currency + " for " + id, LoggingType.Important);
@@ -426,7 +428,8 @@ namespace OculusDB
 		{
             // Check queue
             BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity
-                .Where(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated ||
+                .Where(x => x.Contains("id")
+                                        && x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated ||
                                                        x["__OculusDBType"] == DBDataTypes.ActivityNewVersion))
                 .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
             if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
