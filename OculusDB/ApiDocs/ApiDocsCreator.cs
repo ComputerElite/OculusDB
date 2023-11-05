@@ -18,8 +18,9 @@ public class ApiDocsCreator
             
             string path = FrontendServer.config.publicAddress + apiDocsRoot.endpoints[i].exampleUrl.Substring(1);
             Logger.Log("Generating example response for " + path);
+            string res;
             try {
-                string res = webClient.DownloadString(path);
+                res = webClient.DownloadString(path);
             } catch(Exception e) {
                 Logger.Log("Error while getting example request" + e);
                 continue;
