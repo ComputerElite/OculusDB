@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ComputerUtils.CommandLine;
 using ComputerUtils.Updating;
 using OculusDB.ScrapingNodeCode;
 
@@ -12,13 +13,15 @@ namespace OculusDB
 {
     public class OculusDBEnvironment
     {
-        public static Updater updater = new ("1.1.29", "https://github.com/ComputerElite/OculusDB", "OculusDB", "OculusDB.dll");
+        public static Updater updater = new ("1.1.32", "https://github.com/ComputerElite/OculusDB", "OculusDB", "OculusDB.dll");
         public static string workingDir = "";
         public static string dataDir = "";
         // Set to false if not in dev mode
         public static bool debugging = false;
         public static Config config = new ();
         public static ScrapingNodeConfig scrapingNodeConfig = new ();
+        public static CommandLineCommandContainer cla;
+
         public static string userAgent { get
             {
                 return "OculusDB/" + updater.version;

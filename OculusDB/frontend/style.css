@@ -684,7 +684,6 @@ select:active {
 
 input[type=button] {
     color: var(--brightHoverColor);
-    height: fit-content;
     width: fit-content;
     font-size: .8em;
 }

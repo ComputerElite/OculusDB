@@ -36,7 +36,7 @@
     <None Update="frontend\api.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="frontend\api.json">
+    <None Update="frontend\api_raw.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="frontend\applicationspecific\2448060205267927.html">

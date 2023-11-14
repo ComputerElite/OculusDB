@@ -306,9 +306,9 @@ namespace OculusDB
             return activityCollection.CountDocuments(new BsonDocument());
         }
 
-        public static List<DBApplication> GetApplicationByPackageName(string packageName)
+        public static List<DBApplication> GetApplicationByPackageName(string packageName, string currency)
         {
-            return applicationCollection.Find(x => x.packageName == packageName).ToList();
+            return applicationCollection.Find(x => x.packageName == packageName).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
         }
 
         public static List<DBApplication> GetBestReviews(int skip, int take)
@@ -407,17 +407,32 @@ namespace OculusDB
 
         public static BsonDocument GetLastEventWithIDInDatabase(string id)
         {
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => 
+                    x.Contains("id") && x["id"] == id)
+                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
         
         public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
         {
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
+                    x.Contains("id") && x.Contains("currency") && x["id"] == id && x["currency"] == currency)
+                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             //Logger.Log("Checking currency " + currency + " for " + id, LoggingType.Important);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
         }
 
 		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
 		{
+            // Check queue
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity
+                .Where(x => x.Contains("id")
+                                        && x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated ||
+                                                       x["__OculusDBType"] == DBDataTypes.ActivityNewVersion))
+                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
 			return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
 		}
 
@@ -433,6 +448,12 @@ namespace OculusDB
 
         public static BsonDocument GetLastPriceChangeOfApp(string appId, string currency)
         {
+            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
+                x.Contains("parentApplication") &&
+                x["parentApplication"]["id"] == appId &&
+                x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged &&
+                x["currency"] == currency).OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
+            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
             return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && 
                                                                         x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged && 
                                                                         x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
@@ -534,12 +555,16 @@ namespace OculusDB
             return blockedAppsCache.Contains(id);
         }
 
-        public static DLCLists GetDLCs(string parentAppId)
+        public static DLCLists GetDLCs(string parentAppId, string currency)
         {
             if (IsApplicationBlocked(parentAppId)) return new DLCLists();
             DLCLists l = new();
             l.dlcs = dlcCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcPacks = dlcPackCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
+            
+            l.dlcs.ConvertAll(x => GetCorrectDLCEntry(x, currency));
+            l.dlcPacks.ConvertAll(x => GetCorrectDLCPackEntry(x, currency));
+            
             return l;
         }
 

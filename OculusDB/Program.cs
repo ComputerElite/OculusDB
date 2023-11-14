@@ -20,6 +20,7 @@ namespace OculusDB
             Logger.displayLogInConsole = true;
             Logger.saveOutputInVariable = true;
             CommandLineCommandContainer cla = new CommandLineCommandContainer(args);
+            OculusDBEnvironment.cla = cla;
             cla.AddCommandLineArgument(new List<string> { "--workingdir" }, false, "Sets the working Directory for OculusDB", "directory", "");
             cla.AddCommandLineArgument(new List<string> { "update", "--update", "-U" }, true, "Starts in update mode (use with caution. It's best to let it do on it's own)");
             cla.AddCommandLineArgument(new List<string> { "--displayMasterToken", "--dmt" }, true, "Outputs the master token without starting the server");
@@ -47,7 +48,7 @@ namespace OculusDB
             OculusDBEnvironment.AddVariablesDependentOnVariablesAndFixAllOtherVariables();
             if (cla.HasArgument("update"))
             {
-                Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
+                Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), cla);
             }
             OculusDBEnvironment.config = Config.LoadConfig();
             OculusDBEnvironment.scrapingNodeConfig = ScrapingNodeConfig.LoadConfig();
