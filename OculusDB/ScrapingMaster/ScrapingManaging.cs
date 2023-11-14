@@ -531,11 +531,11 @@ public class ScrapingManaging
             // Send message on Discord
             ScrapingMasterServer.SendMasterWebhookMessage("OAuth Exception", "OAuth Exception on scraping node " + scrapingNodeAuthenticationResult.scrapingNode + ". This node should update its Token!", 0xFF0000);
         }
-        ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
+        if(!heartBeat.identification.isPriorityScrape) ScrapingNodeMongoDBManager.UpdateScrapingNodeStats(stats);
         return new ScrapingNodeHeartBeatProcessed();
     }
 
-    public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    public static void OnNodeStarted(ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ScrapingNodeIdentification scrapingNodeIdentification)
     {
         // If node was responsible for something that locks other nodes from doing it, unlock it
         string currency = scrapingNodeAuthenticationResult.scrapingNode.currency;
@@ -545,6 +545,7 @@ public class ScrapingManaging
         }
         ScrapingNodeStats s =
             ScrapingNodeMongoDBManager.GetScrapingNodeStats(scrapingNodeAuthenticationResult.scrapingNode);
+        if (scrapingNodeIdentification.isPriorityScrape) return;
         if (s == null)
         {
             return;
