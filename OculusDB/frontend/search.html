@@ -42,6 +42,11 @@
                 <span class="checkmark"></span>
             </label>
             <label class="checkmarkContainer">
+                <div>PANTHER</div>
+                <input id="panther" type='checkbox' onclick='Update()'>
+                <span class="checkmark"></span>
+            </label>
+            <label class="checkmarkContainer">
                 <div>GearVR</div>
                 <input id="gearvr" type='checkbox' onclick='Update()'>
                 <span class="checkmark"></span>
@@ -73,6 +78,7 @@
             const seacliff = document.getElementById("seacliff")
             const gearvr = document.getElementById("gearvr")
             const pacific = document.getElementById("pacific")
+            const panther = document.getElementById("panther")
 
             var query = params.get("query")
 
@@ -120,6 +126,9 @@
                 ],
                 "pacific": [
                     "PACIFIC"
+                ],
+                "panther": [
+                    "PANTHER"
                 ]
             }
 

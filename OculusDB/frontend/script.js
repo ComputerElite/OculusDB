@@ -229,7 +229,7 @@ function SetCheckboxesBasedOnValue(options, value) {
         }
     } else {
         for (const [key, value] of Object.entries(options)) {
-            document.getElementById(key).checked = localStorage.isQAVS ? key == "monterey" ||  key == "hollywood" || key == "seacliff" || key == "eureka" : true
+            document.getElementById(key).checked = localStorage.isQAVS ? key == "monterey" || key == "panther" ||  key == "hollywood" || key == "seacliff" || key == "eureka" : true
         }
         Update(false)
     }
@@ -389,6 +389,8 @@ function GetHeadsetName(headset) {
             return "Quest 2";
         case "EUREKA":
             return "Quest 3";
+        case "PANTHER":
+            return "PANTHER";
         case "GEARVR":
             return "GearVR";
         case "PACIFIC":
@@ -413,6 +415,8 @@ function GetHeadsetNameEnum(headset) {
             return "Quest 2";
         case 7:
             return "Quest 3";
+        case 8:
+            return "PANTHER";
         case 6:
             return "Quest Pro";
         case 3:
@@ -447,6 +451,8 @@ function GetLogicalHeadsetNameEnum(headset) {
             return "Quest 1, 2, 3 and Pro";
         case 7:
             return "Quest 1, 2, 3 and Pro";
+        case 8:
+            return "Quest 1, 2, 3, Pro and PANTHER";
         case 3:
             return "GearVR";
         case 4:
@@ -464,42 +470,23 @@ function GetLogicalHeadsetCodeNameEnum(headset) {
         case "1":
             return "MONTEREY";
         case "2":
-            return "MONTEREY";
+            return "HOLLYWOOD";
         case "3":
             return "GEARVR";
         case "4":
             return "PACIFIC";
         case "5":
-            return "RIFT";
+            return "LAGUNA";
         case "6":
             return "SEACLIFF";
+        case "7":
+            return "EUREKA";
+        case "8":
+            return "PANTHER";
         default:
             return "unknown";
     }
 }
-
-function GetHeadsetNameOD(headset) {
-    switch (headset)
-    {
-        case "RIFT":
-            return "Rift";
-        case "LAGUNA":
-            return "Rift";
-        case "MONTEREY":
-            return "Quest";
-        case "HOLLYWOOD":
-            return "Quest";
-        case "SEACLIFF":
-            return "Quest";
-        case "GEARVR":
-            return "GearVR";
-        case "PACIFIC":
-            return "Go";
-        default:
-            return "unknown";
-    }
-}
-
 function SendDataToParent(data) {
     window.top.postMessage(data, "*")
 }
