@@ -121,6 +121,7 @@ public class ScrapingNodeScraper
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.GEARVR));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.PACIFIC));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.SEACLIFF));
+                        taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.PANTHER));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeFromApplab());
                     }
                     catch (Exception e)
