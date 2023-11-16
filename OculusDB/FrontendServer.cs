@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -889,12 +890,17 @@ public class FrontendServer
         server.AddRouteFile("/assets/discord.svg", frontend + "discord.svg", true, true, true, accessCheck);
         server.AddRoute("GET", "/fonts/OpenSans", request =>
         {
-            Proxy("https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic", request);
+            ProxyChangeFontUrl("https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic", request);
             return true;
         }, false, true, true, true, 3600, true, 0);
         server.AddRoute("GET", "/cdn/flag.svg", request =>
         {
             Proxy("https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg", request);
+            return true;
+        }, false, true, true, true, 3600, true, 0);
+        server.AddRoute("GET", "/proxy", request =>
+        {
+            Proxy(request.queryString.Get("url"), request);
             return true;
         }, false, true, true, true, 3600, true, 0);
 
@@ -930,18 +936,38 @@ public class FrontendServer
         server.AddRouteFile("/cdn/BS2.jpg", frontend + "assets" + Path.DirectorySeparatorChar + "BS2.jpg", true, true, true, accessCheck);
     }
 
-    private void Proxy(string url, ServerRequest request)
+    private void ProxyChangeFontUrl(string url, ServerRequest request)
     {
-        byte[] data = new byte[0];
         HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
         webRequest.Method = "GET";
         
         // Send get request
         HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-        data = new byte[webResponse.ContentLength];
-        webResponse.GetResponseStream().Read(data, 0, (int)webResponse.ContentLength);
+        MemoryStream ms = new MemoryStream();
+        webResponse.GetResponseStream().CopyTo(ms);
+        byte[] cssData = ms.ToArray();
+        string cssString = Encoding.Default.GetString(cssData);
+        Logger.Log(cssString);
+        Regex r = new Regex(@"url([^)]*)");
+        foreach (Match match in r.Matches(cssString))
+        {
+            cssString = cssString.Replace(match.Value, "url(/proxy?url=" + match.Value.Substring(4));
+        }
+        request.SendString(cssString, webResponse.ContentType);
         webResponse.Close();
-        request.SendData(data, webResponse.ContentType);
+    }
+
+    private void Proxy(string url, ServerRequest request)
+    {
+        HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+        webRequest.Method = "GET";
+        
+        // Send get request
+        HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+        MemoryStream ms = new MemoryStream();
+        webResponse.GetResponseStream().CopyTo(ms);
+        request.SendData(ms.ToArray(), webResponse.ContentType);
+        webResponse.Close();
     }
 
     private bool DoesTokenHaveAccess(ServerRequest request, Permission p)
