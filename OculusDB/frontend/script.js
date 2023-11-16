@@ -7,11 +7,11 @@
 
 const params = new URLSearchParams(window.location.search)
 
-document.head.innerHTML += `<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic" rel="stylesheet" type="text/css">`
+document.head.innerHTML += `<link href="/fonts/OpenSans" rel="stylesheet" type="text/css">`
 
 if(!params.get("nonavbar")) document.body.innerHTML = document.body.innerHTML + `<div class="navBar">
 <div class="navBarInnerLeft websitename anim" style="cursor: pointer;" onclick="window.location.href = '/'">
-    <img alt="ComputerElite icon. Wooden background featuring a windows logo, oculus logo and a piano" class="navBarElement" src="https://computerelite.github.io/assets/CE_512px.png" style="height: 100%;">
+    <img alt="ComputerElite icon. Wooden background featuring a windows logo, oculus logo and a piano" class="navBarElement" src="/logo" style="height: 100%;">
     <div class="navBarElement title anim">
         OculusDB
     </div>

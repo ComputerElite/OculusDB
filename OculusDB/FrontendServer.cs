@@ -887,7 +887,16 @@ public class FrontendServer
         server.AddRouteFile("/guide/quest/sqq", frontend + "guidequest_SQQ.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/assets/sq.png", frontend + "sq.png", true, true, true, accessCheck);
         server.AddRouteFile("/assets/discord.svg", frontend + "discord.svg", true, true, true, accessCheck);
-
+        server.AddRoute("GET", "/fonts/OpenSans", request =>
+        {
+            Proxy("https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic", request);
+            return true;
+        }, false, true, true, true, 3600, true, 0);
+        server.AddRoute("GET", "/cdn/flag.svg", request =>
+        {
+            Proxy("https://upload.wikimedia.org/wikipedia/commons/f/fd/LGBTQ%2B_rainbow_flag_Quasar_%22Progress%22_variant.svg", request);
+            return true;
+        }, false, true, true, true, 3600, true, 0);
 
         server.AddRouteFile("/guide/rift", frontend + "guiderift.html", replace, true, true, true, accessCheck);
         server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
@@ -919,6 +928,20 @@ public class FrontendServer
         server.AddRouteFile("/cdn/modem.ogg", frontend + "assets" + Path.DirectorySeparatorChar + "modem.ogg", true, true, true, accessCheck);
 
         server.AddRouteFile("/cdn/BS2.jpg", frontend + "assets" + Path.DirectorySeparatorChar + "BS2.jpg", true, true, true, accessCheck);
+    }
+
+    private void Proxy(string url, ServerRequest request)
+    {
+        byte[] data = new byte[0];
+        HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+        webRequest.Method = "GET";
+        
+        // Send get request
+        HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+        data = new byte[webResponse.ContentLength];
+        webResponse.GetResponseStream().Read(data, 0, (int)webResponse.ContentLength);
+        webResponse.Close();
+        request.SendData(data, webResponse.ContentType);
     }
 
     private bool DoesTokenHaveAccess(ServerRequest request, Permission p)
