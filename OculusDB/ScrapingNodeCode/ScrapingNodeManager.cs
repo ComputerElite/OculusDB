@@ -231,7 +231,7 @@ public class ScrapingNodeManager
             scrapingNodeVersion = OculusDBEnvironment.updater.version,
             tokenCount = config.oculusTokens.Count,
             currency = scraper.GetCurrency(),
-            isPriorityScrape = config.isPriorityScrape
+            isPriorityScrape = config.doForceScrape
         };
     }
 
