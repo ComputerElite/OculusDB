@@ -56,7 +56,7 @@ public class ScrapingMasterServer
                 request.SendString(JsonSerializer.Serialize(r), "application/json", 403);
                 return true;
             }
-            ScrapingManaging.OnNodeStarted(r);
+            ScrapingManaging.OnNodeStarted(r, scrapingNodeIdentification);
             request.SendString(JsonSerializer.Serialize(r), "application/json");
             return true;
         });

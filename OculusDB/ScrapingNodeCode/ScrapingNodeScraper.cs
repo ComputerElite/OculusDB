@@ -121,6 +121,7 @@ public class ScrapingNodeScraper
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.GEARVR));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.PACIFIC));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.SEACLIFF));
+                        taskResult.appsToScrape.AddRange(CollectAppsToScrapeForHeadset(Headset.PANTHER));
                         taskResult.appsToScrape.AddRange(CollectAppsToScrapeFromApplab());
                     }
                     catch (Exception e)
@@ -319,7 +320,8 @@ public class ScrapingNodeScraper
                 newDLC.displayName = dlc.node.display_name;
                 newDLC.displayShortDescription = dlc.node.display_short_description;
                 newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
-                newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
+                if(dlc.node.current_offer != null && dlc.node.current_offer.price != null)
+                    newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
                 
                 // Skip dlc if it's free. Most likely indicates a bought DLC for which I do not figure out the correct price
                 if (newDLC.priceOffsetNumerical <= 0) continue;

@@ -48,6 +48,11 @@
                     "value": 7,
                     "enumName": "EUREKA",
                     "description": "Quest 3"
+                },
+                {
+                    "value": 8,
+                    "enumName": "PANTHER",
+                    "description": "Quest mini?"
                 }
             ]
         },
