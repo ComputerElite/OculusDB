@@ -206,7 +206,14 @@ public class ScrapingNodeScraper
             throw new Exception("Application is null");
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
-		if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
+		// Oculus fucked up, Rift stuff's removed from Rift games. I'm manually adding it for now
+        if (a.platform == "PC")
+        {
+            if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT)) a.supported_hmd_platforms.Add(Headset.RIFT.ToString());
+            if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Add(Headset.LAGUNA.ToString());
+            app.headset = Headset.RIFT;
+        }
+        //if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = -1;
         // Get price
         string currency = "";
