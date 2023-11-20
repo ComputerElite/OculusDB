@@ -208,7 +208,7 @@ public class ScrapingNodeScraper
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		// Oculus fucked up, Rift stuff's removed from Rift games. I'm manually adding it for now
-        if (a.platform == "PC")
+        if (a.latest_supported_binary != null && a.latest_supported_binary.Platform == "PC")
         {
             if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT)) a.supported_hmd_platforms.Add(Headset.RIFT.ToString());
             if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Add(Headset.LAGUNA.ToString());
