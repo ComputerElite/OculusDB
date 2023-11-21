@@ -214,7 +214,7 @@ public class ScrapingNodeScraper
             if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Add(Headset.LAGUNA.ToString());
             app.headset = Headset.RIFT;
         }
-        //if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
+        if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = -1;
         // Get price
         string currency = "";
