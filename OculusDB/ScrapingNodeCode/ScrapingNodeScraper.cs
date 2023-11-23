@@ -208,11 +208,14 @@ public class ScrapingNodeScraper
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		// Oculus fucked up, Rift stuff's removed from Rift games. I'm manually adding it for now
+        bool headsetsWereFixed = false; // tmp
         if (a.latest_supported_binary != null && a.latest_supported_binary.typename_enum == OculusTypeName.PCBinary)
         {
             if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT)) a.supported_hmd_platforms.Insert(0, Headset.RIFT.ToString());
             if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Insert(0, Headset.LAGUNA.ToString());
+            if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT) && !a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) 
             app.headset = Headset.RIFT;
+            
         }
         if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
         long priceNumerical = -1;
@@ -267,7 +270,7 @@ public class ScrapingNodeScraper
 
                 if (!addedApplication)
                 {
-                    AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, currency);
+                    AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, currency, headsetsWereFixed);
                     addedApplication = true;
                 }
 
@@ -412,9 +415,10 @@ public class ScrapingNodeScraper
         return currency;
     }
 
-    public void AddApplication(Application a, Headset h, string image, string packageName, long correctPrice, string currency)
+    public void AddApplication(Application a, Headset h, string image, string packageName, long correctPrice, string currency, bool headsetsWereFixed)
     {
         DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
+        dba.supportedHeadsetsGotFixed = headsetsWereFixed; // tmp, remove after fixing your shit you dumbass
         dba.hmd = h;
         dba.img = image;
         if (a.latest_supported_binary != null)

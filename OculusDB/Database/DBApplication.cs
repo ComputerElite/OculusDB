@@ -15,6 +15,7 @@ namespace OculusDB.Database
         public DateTime __lastUpdated { get; set; } = DateTime.Now;
         public string __OculusDBType { get; set; } = DBDataTypes.Application;
         public Headset hmd { get; set; } = Headset.RIFT;
+        public bool supportedHeadsetsGotFixed { get; set; } = false;
         /// <summary>
         /// Scraping node ID
         /// </summary>
