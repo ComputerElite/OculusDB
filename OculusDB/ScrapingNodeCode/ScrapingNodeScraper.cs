@@ -208,7 +208,7 @@ public class ScrapingNodeScraper
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		// Oculus fucked up, Rift stuff's removed from Rift games. I'm manually adding it for now
-        if (a.latest_supported_binary != null && a.latest_supported_binary.Platform == "PC")
+        if (a.latest_supported_binary != null && a.latest_supported_binary.typename_enum == OculusTypeName.PCBinary)
         {
             if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT)) a.supported_hmd_platforms.Add(Headset.RIFT.ToString());
             if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Add(Headset.LAGUNA.ToString());
@@ -327,7 +327,7 @@ public class ScrapingNodeScraper
                 if (newDLC.priceOffsetNumerical <= 0) continue;
                 if (a.current_offer == null || a.current_offer.price == null) continue; // Price not available
 
-                if (dlc.node.IsIAPItem())
+                if (dlc.node.typename_enum == OculusTypeName.IAPItem)
                 {
                     AddDLC(dlc.node, app.headset);
                 }
