@@ -221,7 +221,7 @@ function ContextMenuEnabled(event, initiator) {
     wrapper.innerHTML = contextMenu
     document.body.appendChild(wrapper.firstElementChild)
     var menu = document.getElementById("contextMenu")
-    menu.style.top = event.pageY + "px"
+    menu.style.top = (event.pageY - 80) + "px"
     menu.style.left= event.pageX + "px"
 
     i = 0
@@ -408,6 +408,12 @@ function GetHeadsetName(headset) {
     return h.displayName
 }
 
+function GetHeadsetInfo(headset) {
+    h = headsets.find(x => x.codename == headset)
+    if(!h) return "Unknown"
+    return h.info
+}
+
 function GetHeadsetNameEnum(headset) {
     h = headsets.find(x => x.headset == headset)
     if(!h) return "Unknown"
@@ -417,7 +423,10 @@ function GetHeadsetNameEnum(headset) {
 function GetHeadsetNames(headsets) {
     var names = []
     headsets.forEach(x => {
-        names.push(GetHeadsetName(x))
+        info = GetHeadsetInfo(x)
+        names.push(`<span class="tooltip">${GetHeadsetName(x)}
+                      ${info ? `<span class="tooltiptext">${info}</span>` : ``}
+                    </span>`)
     })
     return names.join(", ")
 }

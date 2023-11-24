@@ -508,7 +508,7 @@ public class ScrapingNodeScraper
 
             if (data.Length > 500 * 1024)
             {
-                Logger.Log("Converted image larger than 400 KB. Skipping", LoggingType.Warning);
+                Logger.Log("Converted image larger than 500 KB. Skipping", LoggingType.Warning);
                 return null;
             }
             DBAppImage dbi = new DBAppImage();
