@@ -390,6 +390,18 @@ public class ScrapingNodeScraper
     {
         DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
         dbv.parentApplication.id = app.id;
+        switch (a.typename_enum)
+        {
+            case OculusTypeName.PCBinary:
+                dbv.binaryType = HeadsetBinaryType.PCBinary;
+                break;
+            case OculusTypeName.AndroidBinary:
+                dbv.binaryType = HeadsetBinaryType.AndroidBinary;
+                break;
+            default:
+                dbv.binaryType = HeadsetBinaryType.Unknown;
+                break;
+        }
         dbv.binary_release_channels = new Nodes<ReleaseChannelWithoutLatestSupportedBinary>();
         dbv.binary_release_channels.nodes =
             a.binary_release_channels.nodes.ConvertAll(x => (ReleaseChannelWithoutLatestSupportedBinary)x);

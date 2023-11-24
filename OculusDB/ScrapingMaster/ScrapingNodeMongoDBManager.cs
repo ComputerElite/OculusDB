@@ -47,6 +47,16 @@ public class ScrapingNodeMongoDBManager
                 MongoDBInteractor.applicationCollection.ReplaceOne(x => x.id == a.id, a);
             }
         }
+        
+        foreach (DBVersion v in MongoDBInteractor.versionsCollection.Find(x => true).ToEnumerable())
+        {
+            if (v.binaryType == HeadsetBinaryType.Unknown)
+            {
+                v.binaryType = v.parentApplication.binaryType;
+                Logger.Log("Updating " + v.id);
+                MongoDBInteractor.versionsCollection.ReplaceOne(x => x.id == v.id, v);
+            }
+        }
     }
 
     public static void CheckActivityCollection()

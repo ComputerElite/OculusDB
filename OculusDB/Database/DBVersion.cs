@@ -17,6 +17,8 @@ namespace OculusDB.Database
         /// Scraping node ID
         /// </summary>
         public string __sn { get; set; } = "";
+
+        public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
 
         // AndroidBinary
@@ -24,7 +26,6 @@ namespace OculusDB.Database
         public string version { get; set; } = "";
 		public string alias { get; set; } = null;
 		public string changeLog { get; set; } = null;
-        public string platform { get; set; } = "";
         public string file_name { get; set; } = "";
         public long versionCode { get; set; } = 0;
         public long created_date { get; set; } = 0;
