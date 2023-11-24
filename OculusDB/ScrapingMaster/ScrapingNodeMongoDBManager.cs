@@ -37,6 +37,7 @@ public class ScrapingNodeMongoDBManager
 
     public static void UpdateAllExistingAppsWithGroupAndBinaryType()
     {
+        if (OculusDBEnvironment.config.serverType != OculusDBServerType.ScrapeMaster) return; // return if not master
         foreach (DBApplication a in MongoDBInteractor.applicationCollection.Find(x => true).ToEnumerable())
         {
             if (a.binaryType == HeadsetBinaryType.Unknown && a.group == HeadsetGroup.Unknown)
