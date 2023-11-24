@@ -37,6 +37,7 @@ public class FrontendServer
         {"{oculusloginlink}", "https://developer.oculus.com/manage/" },
         {"{BSLGDC}", "https://discord.gg/MrwMx5e" },
         {"{OculusDBDC}", "https://discord.gg/zwRfHQN2UY" },
+        {"{headsetjson}", JsonSerializer.Serialize(HeadsetIndex.entries)}
     };
     public static string apiError = "An internal server error occurred. If possible report the issue on the <a href=\"https://discord.gg/zwRfHQN2UY\">OculusDB Discord server</a>. We are sorry for the inconvenience.";
 
@@ -640,12 +641,30 @@ public class FrontendServer
             try
             {
                 List<Headset> headsets = new List<Headset>();
-                foreach (string h in (request.queryString.Get("headsets") ?? "MONTEREY,RIFT,PACIFIC,GEARVR").Split(','))
+                List<HeadsetGroup> headsetGroups = new List<HeadsetGroup>();
+                if (request.queryString.Get("groups") != null)
                 {
-                    Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
-                    if (conv != Headset.INVALID) headsets.Add(conv);
+                    foreach (string h in request.queryString.Get("groups").Split(','))
+                    {
+                        HeadsetGroup conv = HeadsetIndex.ParseGroup(h);
+                        if (conv != HeadsetGroup.Unknown) headsetGroups.Add(conv);
+                    }
+                } else if (request.queryString.Get("headsets") != null)
+                {
+                    foreach (string h in (request.queryString.Get("headsets")).Split(','))
+                    {
+                        Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
+                        if (conv != Headset.INVALID) headsets.Add(conv);
+                    }
                 }
-                List<DBApplication> d = MongoDBInteractor.SearchApplication(HttpUtility.UrlDecode(request.pathDiff), headsets, request.queryString.Get("quick") == null ? false : true);
+                else
+                {
+                    headsetGroups.Add(HeadsetGroup.Quest);
+                    headsetGroups.Add(HeadsetGroup.PCVR);
+                    headsetGroups.Add(HeadsetGroup.GearVR);
+                    headsetGroups.Add(HeadsetGroup.Go);
+                }
+                List<DBApplication> d = MongoDBInteractor.SearchApplication(HttpUtility.UrlDecode(request.pathDiff), headsets, headsetGroups, request.queryString.Get("quick") == null ? false : true);
                 if (d.Count <= 0)
                 {
                     request.SendString("[]", "application/json", 200);
@@ -830,6 +849,13 @@ public class FrontendServer
             else request.SendData(img.data, img.mimeType);
             return true;
         }), true, true, true, true, 1800, true); // 30 mins
+        
+        server.AddRoute("GET", "/api/v1/headsets", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            request.SendString(JsonSerializer.Serialize(HeadsetIndex.entries));
+            return true;
+        }));
         ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
         Func<ServerRequest, bool> accessCheck = null;
         /*

@@ -6,6 +6,26 @@
 }
 
 const params = new URLSearchParams(window.location.search)
+headsets = {headsetjson}
+
+function GetHeadsetGroups() {
+    var groups = []
+    for(const e of headsets) {
+        if(groups.includes(e.groupString)) continue;
+        groups.push(e.groupString)
+    }
+    return groups
+}
+
+function GetHeadsetsOfGroup(groupString) {
+    var h = []
+    for(const e of headsets) {
+        console.log(e.codename)
+        if(e.groupString != groupString) continue;
+        h.push(e)
+    }
+    return h
+}
 
 document.head.innerHTML += `<link href="/fonts/OpenSans" rel="stylesheet" type="text/css">`
 
@@ -229,10 +249,16 @@ function SetCheckboxesBasedOnValue(options, value) {
         }
     } else {
         for (const [key, value] of Object.entries(options)) {
-            document.getElementById(key).checked = localStorage.isQAVS ? key == "monterey" || key == "panther" ||  key == "hollywood" || key == "seacliff" || key == "eureka" : true
+            document.getElementById(key).checked = localStorage.isQAVS ? IsInQuestGroup(key) : true
         }
         Update(false)
     }
+}
+
+function IsInQuestGroup(headset) {
+    var h = headsets.find(x => x.codename.toLowerCase() == headset.toLowerCase())
+    if(h == null) return false
+    return h.groupString == "Quest"
 }
 
 function GetValuesOFCheckboxes(options) {
@@ -270,9 +296,9 @@ function ClosePopUp(e = {target: {id: "popup"}}) {
     }
 }
 
-function IsHeadsetAndroid(h) {
-    if(h == 0 || h == 5) return false;
-    return true
+function IsHeadsetAndroid(binaryType) {
+    if(binaryType == 1) return true;
+    return false
 }
 
 function openTab(evt, tab) {
@@ -372,60 +398,20 @@ function OpenRecentActivity(id) {
     OpenLocation(location.origin + '/recentactivity?application=' + id)
 }
 
-function GetOculusLink(id, hmd) {
+function GetOculusLink(id) {
     return "https://meta.com/en-gb/experiences/" + id;
 }
 
 function GetHeadsetName(headset) {
-    switch (headset)
-    {
-        case "RIFT":
-            return "Rift";
-        case "LAGUNA":
-            return "Rift S";
-        case "MONTEREY":
-            return "Quest 1";
-        case "HOLLYWOOD":
-            return "Quest 2";
-        case "EUREKA":
-            return "Quest 3";
-        case "PANTHER":
-            return "PANTHER";
-        case "GEARVR":
-            return "GearVR";
-        case "PACIFIC":
-            return "Go";
-        case "SEACLIFF":
-            return "Quest Pro";
-        default:
-            return "unknown";
-    }
+    h = headsets.find(x => x.codename == headset)
+    if(!h) return "Unknown"
+    return h.displayName
 }
 
 function GetHeadsetNameEnum(headset) {
-    switch (headset)
-    {
-        case 0:
-            return "Rift";
-        case 5:
-            return "Rift S";
-        case 1:
-            return "Quest 1";
-        case 2:
-            return "Quest 2";
-        case 7:
-            return "Quest 3";
-        case 8:
-            return "PANTHER";
-        case 6:
-            return "Quest Pro";
-        case 3:
-            return "GearVR";
-        case 4:
-            return "Go";
-        default:
-            return "unknown";
-    }
+    h = headsets.find(x => x.headset == headset)
+    if(!h) return "Unknown"
+    return h.displayName
 }
 
 function GetHeadsetNames(headsets) {
@@ -437,55 +423,15 @@ function GetHeadsetNames(headsets) {
 }
 
 function GetLogicalHeadsetNameEnum(headset) {
-    switch (headset)
-    {
-        case 0:
-            return "Rift and Rift S";
-        case 5:
-            return "Rift and Rift S";
-        case 1:
-            return "Quest 1, 2, 3 and Pro";
-        case 2:
-            return "Quest 1, 2, 3 and Pro";
-        case 6:
-            return "Quest 1, 2, 3 and Pro";
-        case 7:
-            return "Quest 1, 2, 3 and Pro";
-        case 8:
-            return "Quest 1, 2, 3, Pro and PANTHER";
-        case 3:
-            return "GearVR";
-        case 4:
-            return "Go";
-        default:
-            return "unknown";
-    }
+    h = headsets.find(x => x.headset == headset)
+    if(!h) return "Unknown"
+    return h.groupString
 }
 
 function GetLogicalHeadsetCodeNameEnum(headset) {
-    switch (headset)
-    {
-        case "0":
-            return "RIFT";
-        case "1":
-            return "MONTEREY";
-        case "2":
-            return "HOLLYWOOD";
-        case "3":
-            return "GEARVR";
-        case "4":
-            return "PACIFIC";
-        case "5":
-            return "LAGUNA";
-        case "6":
-            return "SEACLIFF";
-        case "7":
-            return "EUREKA";
-        case "8":
-            return "PANTHER";
-        default:
-            return "unknown";
-    }
+    h = headsets.find(x => x.headset == headset)
+    if(!h) return "Unknown"
+    return h.codename
 }
 function SendDataToParent(data) {
     window.top.postMessage(data, "*")
@@ -535,7 +481,7 @@ function AddApplicationSpecific(id) {
 
 function DownloadVersionPopUp(version, id) {
     GetVersion(version, id).then(v => {
-        if(IsHeadsetAndroid(v.parentApplication.hmd)) {
+        if(IsHeadsetAndroid(v.parentApplication.binaryType)) {
             PopUp(`<div>Do you want to Download version ${version}.</div>
                     <div style="display: flex;">
                         <input type="button" onclick="AndroidDownload('${v.id}', '${v.parentApplication.id}', '${v.parentApplication.displayName.replace("'", "\\'")}', '${v.version}', false)" value="Yes">
@@ -891,7 +837,7 @@ function UpdateStarredForId(id, element, event) {
 }
 
 function FormatApplication(application, htmlId = "", expanded = false) {
-    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))" cmon-1="Copy Oculus link" cmov-1="Copy('${GetOculusLink(application.id, application.hmd)}')">
+    return `<div class="application" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy link" cmov-0="Copy(GetIdLink('${application.id}'))" cmon-1="Copy Oculus link" cmov-1="Copy('${GetOculusLink(application.id)}')">
     <div class="info">
         <div class="flex outside">
             <div class="buttons">
@@ -932,7 +878,7 @@ function FormatApplication(application, htmlId = "", expanded = false) {
                 <tr><td class="label">Release time</td><td class="value">${new Date(application.releaseDate).toLocaleString()}</td></tr>
                 <tr><td class="label">Package name</td><td class="value">${application.packageName ? application.packageName : "Not available"}</td></tr>
                 <tr><td class="label">Canonical name</td><td class="value">${application.canonicalName}</td></tr>
-                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id, application.hmd)}">${GetOculusLink(application.id, application.hmd)}</a></td></tr>
+                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(application.id)}">${GetOculusLink(application.id)}</a></td></tr>
                 <tr><td class="label">Id</td><td class="value">${application.id}</td></tr>
                 <tr><td class="label">Scraped by</td><td class="value">${application.__sn}</td></tr>
             </table>
@@ -1029,7 +975,7 @@ function FormatApplicationActivity(a, htmlid) {
                 <tr><td class="label">Supported Headsets</td><td class="value">${GetHeadsets(a.supportedHmdPlatforms)}</td></tr>
                 <tr><td class="label">Publisher</td><td class="value">${a.publisherName}</td></tr>
                 <tr><td class="label">Release time</td><td class="value">${new Date(a.releaseDate).toLocaleString()}</td></tr>
-                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(a.id, a.hmd)}">${GetOculusLink(a.id, a.hmd)}</a></td></tr>
+                <tr><td class="label">Link to Oculus</td><td class="value"><a href="${GetOculusLink(a.id)}">${GetOculusLink(a.id)}</a></td></tr>
                 <tr><td class="label">Application id</td><td class="value">${a.id}</td></tr>
                 <tr><td class="label">Activity id</td><td class="value">${a.__id}</td></tr>
                 <tr><td class="label">Scraped by</td><td class="value">${a.__sn}</td></tr>
@@ -1091,7 +1037,7 @@ function GetObbs(downloadable, obb, v) {
         <div class="info">
             <div class="flex outside">
             <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, o.id, v.parentApplication.hmd, v.parentApplication, v.version, true)}
+                ${GetDownloadButtonVersion(downloadable, o.id, v.parentApplication.hmd, v.parentApplication.binaryType, v.parentApplication, v.version, true)}
             </div>
                 <div class="flex header" onclick="RevealDescription('${v.id}_${o.id}')">
                     <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${v.id}_${o.id}_trigger" class="anim noselect">&gt;</div>
@@ -1130,7 +1076,7 @@ function FormatVersion(v, htmlid = "") {
         <div id="anchor" style="height: 0;"></div>
         <div class="flex outside">
             <div class="buttons">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version, false, v.obbList ? v.obbList.map(x => x.id).join(",") : "", v.obbList ? v.obbList.map(x => x.file_name).join("/") : "")}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication.binaryType, v.parentApplication, v.version, false, v.obbList ? v.obbList.map(x => x.id).join(",") : "", v.obbList ? v.obbList.map(x => x.file_name).join("/") : "")}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div style="padding: 15px; font-weight: bold; color: var(--highlightedColor);" id="${htmlid}_trigger" class="anim noselect">&gt;</div>
@@ -1175,7 +1121,7 @@ function FormatVersionActivity(v, htmlid) {
         <div class="flex outside">
             <div class="buttons">
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
-                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+                ${GetDownloadButtonVersion(downloadable, v.id, v.parentApplication.hmd, v.parentApplication.binaryType, v.parentApplication, v.version)}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(v.__lastUpdated)}</div>
@@ -1217,7 +1163,7 @@ function FormatChangelogActivity(v, htmlid) {
         <div class="flex outside">
             <div class="buttons">
                 <input type="button" value="Details" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) OpenActivity('${v.__id}')">
-                ${GetDownloadButtonVersion(v.downloadable, v.id, v.parentApplication.hmd, v.parentApplication, v.version)}
+                ${GetDownloadButtonVersion(v.downloadable, v.id, v.parentApplication.hmd, v.parentApplication.binaryType, v.parentApplication, v.version)}
             </div>
             <div class="flex header" onclick="RevealDescription('${htmlid}')">
                 <div>${GetTimeString(v.__lastUpdated)}</div>
@@ -1370,7 +1316,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     } else {
         PopUp(`
         <div>
-            To download games you must be logged in on <a href="{oculusloginlink}">{oculusloginlink}</a> with an account which owns the game! If you aren't logged in, you won't be able to download games.
+            To download games you must be logged in on <a href="{oculusloginlink}" target="_blank">{oculusloginlink}</a> with an account which owns the game! If you aren't logged in, you won't be able to download games.
             <br>
             <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
             <div class="textbox" id="downloadTextBox"></div>
@@ -1422,8 +1368,8 @@ function ObbDownloadPopUp() {
     }))
 }
 
-function GetDownloadButtonVersion(downloadable, id, hmd, parentApplication, version, isObb = false, obbIds = "", obbNames = "") {
-    if(IsHeadsetAndroid(hmd)) {
+function GetDownloadButtonVersion(downloadable, id, hmd, binaryType, parentApplication, version, isObb = false, obbIds = "", obbNames = "") {
+    if(IsHeadsetAndroid(binaryType)) {
         if(localStorage.isOculusDowngrader) {
             return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')" oncontextmenu="ContextMenuEnabled(event, this)">`
         }

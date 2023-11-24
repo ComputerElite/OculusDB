@@ -696,6 +696,12 @@ input[type=checkbox] {
     width: 0;
 }
 
+.checkboxGrid {
+    display: grid;
+    grid-gap: 0 30px;
+    grid-template-columns: max-content max-content;
+}
+
 .checkmarkContainer {
     display: block;
     position: relative;

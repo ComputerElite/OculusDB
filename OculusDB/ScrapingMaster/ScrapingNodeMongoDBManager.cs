@@ -32,6 +32,21 @@ public class ScrapingNodeMongoDBManager
         scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
 
         CleanAppsScraping();
+        UpdateAllExistingAppsWithGroupAndBinaryType();
+    }
+
+    public static void UpdateAllExistingAppsWithGroupAndBinaryType()
+    {
+        foreach (DBApplication a in MongoDBInteractor.applicationCollection.Find(x => true).ToEnumerable())
+        {
+            if (a.binaryType == HeadsetBinaryType.Unknown && a.group == HeadsetGroup.Unknown)
+            {
+                a.binaryType = HeadsetIndex.GetHeadsetBinaryType(a.hmd);
+                a.group = HeadsetIndex.GetHeadsetGroup(a.hmd);
+                Logger.Log("Updating " + a.id);
+                MongoDBInteractor.applicationCollection.ReplaceOne(x => x.id == a.id, a);
+            }
+        }
     }
 
     public static void CheckActivityCollection()

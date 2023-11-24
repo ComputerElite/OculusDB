@@ -23,8 +23,9 @@ public class ScrapingMasterServer
         bool createdNodeZip = false;
         bool creatingNodeZip = false;
         string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
-        ScrapingNodeMongoDBManager.Init();
+        
         MongoDBInteractor.Initialize();
+        ScrapingNodeMongoDBManager.Init();
         
         ScrapingNodeMongoDBManager.CheckActivityCollection();
         Thread nodeStatusThread = new Thread(() =>

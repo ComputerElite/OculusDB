@@ -208,16 +208,16 @@ public class ScrapingNodeScraper
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
 		// Oculus fucked up, Rift stuff's removed from Rift games. I'm manually adding it for now
-        bool headsetsWereFixed = false; // tmp
         if (a.latest_supported_binary != null && a.latest_supported_binary.typename_enum == OculusTypeName.PCBinary)
         {
             if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT)) a.supported_hmd_platforms.Insert(0, Headset.RIFT.ToString());
             if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Insert(0, Headset.LAGUNA.ToString());
-            if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT) && !a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) 
             app.headset = Headset.RIFT;
-            
         }
         if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
+        
+        // Get default binary type
+        HeadsetBinaryType headsetBinaryType = HeadsetIndex.GetHeadsetBinaryType(app.headset);
         long priceNumerical = -1;
         // Get price
         string currency = "";
@@ -262,6 +262,18 @@ public class ScrapingNodeScraper
                     }
                 }
 
+                switch (b.typename_enum)
+                {
+                    case OculusTypeName.AndroidBinary:
+                        headsetBinaryType = HeadsetBinaryType.AndroidBinary;
+                        break;
+                    case OculusTypeName.PCBinary:
+                        headsetBinaryType = HeadsetBinaryType.PCBinary;
+                        break;
+                    default:
+                        headsetBinaryType = HeadsetBinaryType.Unknown;
+                        break;
+                }
                 if (packageName == "")
                 {
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
@@ -270,7 +282,7 @@ public class ScrapingNodeScraper
 
                 if (!addedApplication)
                 {
-                    AddApplication(a, app.headset, app.imageUrl, packageName, priceNumerical, currency, headsetsWereFixed);
+                    AddApplication(a, app.headset, HeadsetIndex.GetHeadsetGroup(app.headset), headsetBinaryType, app.imageUrl, packageName, priceNumerical, currency);
                     addedApplication = true;
                 }
 
@@ -415,11 +427,12 @@ public class ScrapingNodeScraper
         return currency;
     }
 
-    public void AddApplication(Application a, Headset h, string image, string packageName, long correctPrice, string currency, bool headsetsWereFixed)
+    public void AddApplication(Application a, Headset hmd, HeadsetGroup group, HeadsetBinaryType binaryType, string image, string packageName, long correctPrice, string currency)
     {
         DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
-        dba.supportedHeadsetsGotFixed = headsetsWereFixed; // tmp, remove after fixing your shit you dumbass
-        dba.hmd = h;
+        dba.binaryType = binaryType;
+        dba.group = group;
+        dba.hmd = hmd;
         dba.img = image;
         if (a.latest_supported_binary != null)
         {
@@ -493,7 +506,7 @@ public class ScrapingNodeScraper
                 return null;
             }
 
-            if (data.Length > 400 * 1024)
+            if (data.Length > 500 * 1024)
             {
                 Logger.Log("Converted image larger than 400 KB. Skipping", LoggingType.Warning);
                 return null;

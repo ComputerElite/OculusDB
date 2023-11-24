@@ -1,6 +1,64 @@
 {
     "enums": [
         {
+            "name": "Headset Binary Type",
+            "description": "Type of binary the headset supports",
+            "usedOn": [
+                "binaryType"
+            ],
+            "values": [
+                {
+                    "value": -1,
+                    "enumName": "Unknown",
+                    "description": "Unknown Binary type"
+                },
+                {
+                    "value": 0,
+                    "enumName": "AndroidBinary",
+                    "description": "Usually apks and obbs"
+                },
+                {
+                    "value": 1,
+                    "enumName": "PCBinary",
+                    "description": "PC way to download games via manifest"
+                }
+            ]
+        },
+        {
+            "name": "Headset Group",
+            "description": "Group of headsets the application belongs to",
+            "usedOn": [
+                "group"
+            ],
+            "values": [
+                {
+                    "value": -1,
+                    "enumName": "Unknown",
+                    "description": "Unknown group"
+                },
+                {
+                    "value": 0,
+                    "enumName": "Quest",
+                    "description": "Quest headsets"
+                },
+                {
+                    "value": 1,
+                    "enumName": "PCVR",
+                    "description": "PCVR headsets (e. g. Rift) and link"
+                },
+                {
+                    "value": 2,
+                    "enumName": "Go",
+                    "description": "Oculus Go"
+                },
+                {
+                    "value": 3,
+                    "enumName": "GearVR",
+                    "description": "Gear VR"
+                }
+            ]
+        },
+        {
             "name": "Headset",
             "description": "Headset",
             "usedOn": [
@@ -319,7 +377,7 @@
             "exampleResponse": {}
         },
         {
-            "url": "/api/v1/search/<query>?headsets=<headsets>&currency=<currency>",
+            "url": "/api/v1/search/<query>?headsets=<headsets>&groups=<groups>&currency=<currency>",
             "method": "GET",
             "description": "Performs an query on the database",
             "parameters": [
@@ -334,12 +392,17 @@
                     "required": false
                 },
                 {
+                    "name": "groups",
+                    "description": "Groups to search for, seperated by commas. Overrides headsets. If not specified, all headsets will be searched",
+                    "required": false
+                },
+                {
                     "name": "currency",
                     "description": "Preferred currency",
                     "required": false
                 }
             ],
-            "exampleUrl": "/api/v1/search/beat%20saber?headsets=RIFT,LAGUNA,MONTEREY,HOLLYWOOD,SEACLIFF,EUREKA,GEARVR,PACIFIC",
+            "exampleUrl": "/api/v1/search/beat%20saber?groups=Quest,PCVR",
             "exampleResponse": {}
         },
         {
@@ -440,6 +503,14 @@
             "description": "Gets details about the database",
             "parameters": [],
             "exampleUrl": "/api/v1/database",
+            "exampleResponse": {}
+        },
+        {
+            "url": "/api/v1/headsets",
+            "method": "GET",
+            "description": "Gives you a list of headsets with various properties OculusDB uses",
+            "parameters": [],
+            "exampleUrl": "/api/v1/headsets",
             "exampleResponse": {}
         },
         {

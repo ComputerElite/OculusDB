@@ -573,18 +573,27 @@ namespace OculusDB
             return applicationCollection.Find(x => true).SortByDescending(x => x.__lastUpdated).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
         }
 
-        public static List<DBApplication> SearchApplication(string query, List<Headset> headsets, bool quick)
+        public static List<DBApplication> SearchApplication(string query, List<Headset> headsets, List<HeadsetGroup> headsetGroups, bool quick)
         {
             if (query == "") return new List<DBApplication>();
-            if (headsets.Count <= 0) return new List<DBApplication>();
+            // If headset groups are given, ignore headsets
+            if(headsetGroups.Count > 0) headsets = new List<Headset>();
+            if (headsets.Count <= 0 && headsetGroups.Count <= 0) return new List<DBApplication>();
+            /*
+            BsonArray b = new BsonArray();
+            foreach (HeadsetGroup h in headsetGroups) b.Add(new BsonDocument("$or", new BsonArray
+            {
+                new BsonDocument("group", h)
+            }));
             BsonArray a = new BsonArray();
             foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
             {
                 new BsonDocument("hmd", h),
                 new BsonDocument("supported_hmd_platforms_enum", h)
             }));
+            */
             Regex r = new Regex(".*" + query.Replace(" ", ".*") + ".*", RegexOptions.IgnoreCase);
-            return applicationCollection.Find(x => (r.IsMatch(x.display_name) ||r.IsMatch(x.canonicalName) ||r.IsMatch(x.id) || r.IsMatch(x.publisher_name) || r.IsMatch(x.packageName))).ToList().Where(x => x.supported_hmd_platforms_enum.Any(x => headsets.Contains(x))).ToList();
+            return applicationCollection.Find(x => (r.IsMatch(x.display_name) ||r.IsMatch(x.canonicalName) ||r.IsMatch(x.id) || r.IsMatch(x.publisher_name) || r.IsMatch(x.packageName))).ToList().Where(x => headsetGroups.Contains(x.group) || x.supported_hmd_platforms_enum.Any(x => headsets.Contains(x))).ToList();
         }
 
 		internal static void CleanDB()

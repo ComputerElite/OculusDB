@@ -15,11 +15,7 @@
             <h3>1. Type in the games name</h3>
             <div class="navBarElement">
                 <input type="text" placeholder="Game name" id="game">
-                <select id="headset">
-                    <option value="HOLLYWOOD,MONTEREY,SEACLIFF">Quest</option>
-                    <option value="RIFT,LAGUNA">Rift/Oculus Link</option>
-                    <option value="GEARVR">GearVR</option>
-                    <option value="PACIFIC">Go</option>
+                <select id="group">
                 </select>
             </div>
             <br>
@@ -56,7 +52,10 @@
         <script>
             document.getElementById("game").value = params.get("game") ?? ""
             document.getElementById("version").value = params.get("version") ?? ""
-            document.getElementById("headset").value = params.get("headset") ?? "HOLLYWOOD,MONTEREY,SEACLIFF"
+            for(const group of GetHeadsetGroups()) {
+                document.getElementById("group").innerHTML += `<option value="${group}">${group}</option>`
+            }
+            document.getElementById("group").value = params.get("group") ?? "Quest"
             if( params.get("game") && params.get("version")) {
                 SearchVersion()
             }
@@ -68,7 +67,7 @@
                     var app = null
                     HideTextBox("text")
                     document.getElementById("res").innerHTML = loader
-                    fetch("/api/v1/search/" + game + "?headsets=" + document.getElementById("headset").value).then(res => {
+                    fetch("/api/v1/search/" + game + "?groups=" + document.getElementById("group").value).then(res => {
                         if(res.status != 200) {
                             res.text().then(text => {
                                 TextBoxError("text", text)
