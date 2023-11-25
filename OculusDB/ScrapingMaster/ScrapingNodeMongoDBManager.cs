@@ -32,11 +32,12 @@ public class ScrapingNodeMongoDBManager
         scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
 
         CleanAppsScraping();
-        UpdateAllExistingAppsWithGroupAndBinaryType();
+        //UpdateAllExistingAppsWithGroupAndBinaryType();
     }
 
     public static void UpdateAllExistingAppsWithGroupAndBinaryType()
     {
+        return;
         if (OculusDBEnvironment.config.serverType != OculusDBServerType.ScrapeMaster) return; // return if not master
         foreach (DBApplication a in MongoDBInteractor.applicationCollection.Find(x => true).ToEnumerable())
         {
