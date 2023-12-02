@@ -1,63 +1,79 @@
-﻿using ComputerUtils.VarUtils;
+using ComputerUtils.VarUtils;
 using MongoDB.Bson.Serialization.Attributes;
+using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OculusDB.Database
+namespace OculusDB.Database;
+
+public class DBVersion : DBBase
 {
-    public class DBVersion
+    public override string __OculusDBType { get; set; } = DBDataTypes.Version;
+    public DBParentApplication parentApplication { get; set; } = null;
+    public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
+    [OculusField("id")]
+    public string id { get; set; } = "";
+    [OculusField("version")]
+    public string version { get; set; } = "";
+    
+    [BsonIgnore]
+    public string? alias { get; set; } = "";
+    
+    [OculusField("versionCode")]
+    public long versionCode { get; set; } = 0;
+    
+    [OculusField("changeLog")]
+    public string changelog { get; set; } = "";
+    
+    [OculusField("created_date_datetime")]
+    public DateTime uploadedDate { get; set; } = DateTime.MinValue;
+    
+    [OculusField("size_numerical")]
+    public long size { get; set; } = 0;
+
+    [BsonIgnore]
+    public string sizeFormatted
     {
-        public DateTime __lastUpdated { get; set; } = DateTime.Now;
-        public string __OculusDBType { get; set; } = DBDataTypes.Version;
-        /// <summary>
-        /// Scraping node ID
-        /// </summary>
-        public string __sn { get; set; } = "";
-
-        public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
-        public ParentApplication parentApplication { get; set; } = new ParentApplication();
-
-        // OculusBinary
-        public string id { get; set; } = "";
-        public string version { get; set; } = "";
-		public string alias { get; set; } = null;
-		public string changeLog { get; set; } = null;
-        public string file_name { get; set; } = "";
-        public long versionCode { get; set; } = 0;
-        public long created_date { get; set; } = 0;
-        public DateTime lastScrape { get; set; } = DateTime.MinValue;
-        public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
-        public List<OBBBinary> obbList { get; set; } = null;
-        public Nodes<ReleaseChannelWithoutLatestSupportedBinary> binary_release_channels { get; set; } = null;
-        [BsonIgnore]
-        public bool downloadable { get
-            {
-                return binary_release_channels != null && binary_release_channels.nodes.Count > 0;
-            } }
-        public Edges<Node<AppItemBundle>> firstIapItems { get; set; } = new Edges<Node<AppItemBundle>>();
-    }
-
-    public class OBBBinary
-    {
-        public string file_name { get; set; } = "";
-        public string uri { get; set; } = "";
-        public string size { get; set; } = "0";
-        public string id { get; set; } = "";
-        public bool is_required { get; set; } = false;
-        public long sizeNumerical
+        get
         {
-            get { return long.Parse(size); }
-        }
-        public string sizeString
-        {
-            get
-            {
-                return SizeConverter.ByteSizeToString(sizeNumerical);
-            }
+            return SizeConverter.ByteSizeToString(size);
         }
     }
+    
+    [OculusField("required_space_numerical")]
+    public long requiredSpace { get; set; } = 0;
+
+    [BsonIgnore]
+    public string requiredSpaceFormatted
+    {
+        get
+        {
+            return SizeConverter.ByteSizeToString(requiredSpace);
+        }
+    }
+
+    [OculusField("file_name")]
+    public string filename { get; set; } = "";
+    
+    [OculusField("targeted_devices")]
+    public List<string> targetedDevices { get; set; } = new List<string>();
+    
+    [OculusField("targeted_devices_enum")]
+    public List<Headset> targetedDevicesEnum { get; set; } = new List<Headset>();
+    
+    [OculusField("permissions")]
+    public List<string> permissions { get; set; } = new List<string>();
+    
+    [OculusField("is_pre_download_enabled")]
+    public bool preDownloadEnabled { get; set; } = false;
+    
+    [OculusField("package_name")]
+    public string packageName { get; set; } = "";
+    
+    [OculusField("status")]
+    public string binaryStatus { get; set; } = "";
+    [OculusField("status_enum")]
+    public BinaryStatus binaryStatusEnum { get; set; } = BinaryStatus.UNKNOWN;
+    
+    public List<DBReleaseChannel> releaseChannels { get; set; } = new List<DBReleaseChannel>();
+    public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
 }

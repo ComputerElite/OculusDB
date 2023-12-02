@@ -201,7 +201,8 @@ public class ScrapingManaging
                 Logger.Log("Skipping " + v + " because the parent application isn't in the scraping results");
                 continue;
             }
-            BsonDocument lastActivity = MongoDBInteractor.GetLastEventWithIDInDatabaseVersion(v.id);
+
+            BsonDocument lastActivity = null;
             if (!versionLookup.ContainsKey(v.parentApplication.id))
             {
                 // Add versions to VersionLookup
@@ -210,52 +211,7 @@ public class ScrapingManaging
 
             DBVersion oldEntry = versionLookup[v.parentApplication.id].FirstOrDefault(x => x.id == v.id);
             
-            // Create activity entry
-            DBActivityNewVersion newVersion = new DBActivityNewVersion();
-            newVersion.id = v.id;
-            newVersion.changeLog = v.changeLog;
-            newVersion.parentApplication.id = parentApplication.id;
-            newVersion.parentApplication.hmd = parentApplication.hmd;
-            newVersion.parentApplication.canonicalName = parentApplication.canonicalName;
-            newVersion.parentApplication.displayName = parentApplication.displayName;
-            newVersion.releaseChannels = v.binary_release_channels.nodes;
-            newVersion.version = v.version;
-            newVersion.versionCode = v.versionCode;
-            newVersion.uploadedTime = TimeConverter.UnixTimeStampToDateTime(v.created_date);
             
-            // Changelog updated
-            if(v.changeLog != "" && v.changeLog != null)
-            {
-				DBActivityVersionChangelogAvailable e = ObjectConverter.ConvertCopy<DBActivityVersionChangelogAvailable, DBActivityNewVersion>(newVersion);
-                if (oldEntry == null || oldEntry.changeLog == "")
-				{
-					// Changelog is most likely new
-					e.__OculusDBType = DBDataTypes.ActivityVersionChangelogAvailable;
-					ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), ref scrapingContribution);
-				}
-				else if(oldEntry != null && oldEntry.changeLog != v.changeLog)
-				{
-					// Changelog got most likely updated
-					e.__OculusDBType = DBDataTypes.ActivityVersionChangelogUpdated;
-					ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(ObjectConverter.ConvertCopy<DBActivityVersionChangelogUpdated, DBActivityVersionChangelogAvailable>(e).ToBsonDocument(), ref scrapingContribution);
-				}
-			}
-
-			if (lastActivity == null)
-            {
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newVersion.ToBsonDocument(), ref scrapingContribution);
-            }
-            else
-            {
-                DBActivityVersionUpdated oldUpdate = lastActivity["__OculusDBType"] == DBDataTypes.ActivityNewVersion ? ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(ObjectConverter.ConvertToDBType(lastActivity)) : ObjectConverter.ConvertToDBType(lastActivity);
-                if (oldUpdate.changeLog != newVersion.changeLog && newVersion.changeLog != null && newVersion.changeLog != "" || String.Join(',', oldUpdate.releaseChannels.Select(x => x.channel_name).ToArray()) != String.Join(',', newVersion.releaseChannels.Select(x => x.channel_name).ToArray()))
-                {
-                    DBActivityVersionUpdated toAdd = ObjectConverter.ConvertCopy<DBActivityVersionUpdated, DBActivityNewVersion>(newVersion);
-                    toAdd.__OculusDBType = DBDataTypes.ActivityVersionUpdated;
-                    toAdd.__lastEntry = lastActivity["_id"].ToString();
-                    ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(toAdd.ToBsonDocument(), ref scrapingContribution);
-                }
-            }
             // Update contributions
             ScrapingNodeMongoDBManager.AddVersion(v, ref scrapingContribution);
             r.processedCount++;
@@ -274,35 +230,7 @@ public class ScrapingManaging
                 Logger.Log("Skipping " + d + " because the parent application isn't in the scraping results");
                 continue;
             }
-            DBActivityNewDLC newDLC = new DBActivityNewDLC();
-            newDLC.id = d.id;
-            newDLC.parentApplication.id = parentApplication.id;
-            newDLC.parentApplication.hmd = parentApplication.hmd;
-            newDLC.parentApplication.canonicalName = parentApplication.canonicalName;
-            newDLC.parentApplication.displayName = parentApplication.displayName;
-            newDLC.displayName = d.display_name;
-            newDLC.displayShortDescription = d.display_short_description;
-            newDLC.latestAssetFileId = d.latest_supported_asset_file != null ? d.latest_supported_asset_file.id : "";
-            newDLC.priceOffset = d.current_offer.price.offset_amount;
-            newDLC.currency = d.current_offer.price.currency;
             
-            // Skip dlc pack if it's free
-            if(newDLC.priceOffsetNumerical == 0) continue;
-            
-            BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id, newDLC.currency);
-            //Logger.Log(oldDLC.ToJson());
-            ScrapingNodeMongoDBManager.AddDLC(d, ref scrapingContribution);
-            if (oldDLC == null)
-            {
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLC.ToBsonDocument(), ref scrapingContribution);
-            }
-            else if (!oldDLC.Contains("latestAssetFileId") || oldDLC["latestAssetFileId"] != newDLC.latestAssetFileId || !oldDLC.Contains("priceOffset") ||  oldDLC["priceOffset"] != newDLC.priceOffset || !oldDLC.Contains("displayName") || oldDLC["displayName"] != newDLC.displayName || !oldDLC.Contains("displayShortDescription") || oldDLC["displayShortDescription"] != newDLC.displayShortDescription)
-            {
-                DBActivityDLCUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCUpdated, DBActivityNewDLC>(newDLC);
-                updated.__lastEntry = oldDLC["_id"].ToString();
-                updated.__OculusDBType = DBDataTypes.ActivityDLCUpdated;
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
-            }
             r.processedCount++;
         }
         stats.dlcProcessTime = sw.Elapsed;
@@ -325,48 +253,7 @@ public class ScrapingManaging
             {
                 dlcsInDB.Add(parentApplication.id, ScrapingNodeMongoDBManager.GetDLCs(parentApplication.id));
             }
-            DBActivityNewDLCPack newDLCPack = new DBActivityNewDLCPack();
-            newDLCPack.id = d.id;
-            newDLCPack.parentApplication.id = parentApplication.id;
-            newDLCPack.parentApplication.hmd = parentApplication.hmd;
-            newDLCPack.parentApplication.canonicalName = parentApplication.canonicalName;
-            newDLCPack.parentApplication.displayName = parentApplication.displayName;
-            newDLCPack.displayName = d.display_name;
-            newDLCPack.displayShortDescription = d.display_short_description;
-            newDLCPack.priceOffset = d.current_offer.price.offset_amount;
-            newDLCPack.currency = d.current_offer.price.currency;
             
-            // Skip dlc pack if it's free
-            if(newDLCPack.priceOffsetNumerical == 0) continue;
-            
-            BsonDocument oldDLC = MongoDBInteractor.GetLastEventWithIDInDatabase(d.id, newDLCPack.currency);
-            ScrapingNodeMongoDBManager.AddDLCPack(d, ref scrapingContribution);
-            newDLCPack.__OculusDBType = DBDataTypes.ActivityNewDLCPack;
-            foreach (DBItemId item in d.bundle_items)
-            {
-                DBIAPItem matching = taskResult.scraped.dlcs.FirstOrDefault(x => x.id == item.id);
-                if (matching == null)
-                {
-                    matching = dlcsInDB[parentApplication.id].FirstOrDefault(x => x.id == item.id);
-                    if(matching == null) continue;
-                }
-                DBActivityNewDLCPackDLC dlcItem = new DBActivityNewDLCPackDLC();
-                dlcItem.id = matching.id;
-                dlcItem.displayName = matching.display_name;
-                dlcItem.displayShortDescription = matching.display_short_description;
-                newDLCPack.includedDLCs.Add(dlcItem);
-            }
-            if (oldDLC == null)
-            {
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(newDLCPack.ToBsonDocument(), ref scrapingContribution);
-            }
-            else if (!oldDLC.Contains("priceOffset") || oldDLC["priceOffset"] != newDLCPack.priceOffset|| !oldDLC.Contains("displayName") || oldDLC["displayName"] != newDLCPack.displayName || !oldDLC.Contains("displayShortDescription") || oldDLC["displayShortDescription"] != newDLCPack.displayShortDescription || String.Join(',', BsonSerializer.Deserialize<DBActivityNewDLCPack>(oldDLC).includedDLCs.Select(x => x.id).ToArray()) != String.Join(',', newDLCPack.includedDLCs.Select(x => x.id).ToArray()))
-            {
-                DBActivityDLCPackUpdated updated = ObjectConverter.ConvertCopy<DBActivityDLCPackUpdated, DBActivityNewDLCPack>(newDLCPack);
-                updated.__lastEntry = oldDLC["_id"].ToString();
-                updated.__OculusDBType = DBDataTypes.ActivityDLCPackUpdated;
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
-            }
             r.processedCount++;
         }
         stats.dlcPackProcessTime = sw.Elapsed;
@@ -385,90 +272,9 @@ public class ScrapingManaging
             }
             // New Application activity
             bool isNew = false;
-            BsonDocument lastEvent = MongoDBInteractor.GetLastEventWithIDInDatabase(a.id);
-            if (lastEvent == null)
-            {
-                DBActivityNewApplication e = new DBActivityNewApplication();
-                e.id = a.id;
-                e.hmd = a.hmd;
-                e.publisherName = a.publisher_name;
-                e.displayName = a.displayName;
-                e.priceOffsetNumerical = a.priceOffsetNumerical;
-                e.currency = a.currency;
-                e.displayLongDescription = a.display_long_description;
-                e.releaseDate = TimeConverter.UnixTimeStampToDateTime(a.release_date);
-                e.supportedHmdPlatforms = a.supported_hmd_platforms;
-                ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(e.ToBsonDocument(), ref scrapingContribution);
-                isNew = true;
-            }
-
-            if (a.baseline_offer == null && a.current_offer != null)
-            {
-                // If there is no baseline offer set the baseline offer to the current offer for consistency
-                a.baseline_offer = a.current_offer;
-            }
             
-            
-            // Price Change activity
-            DBActivityPriceChanged lastPriceChange = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetLastPriceChangeOfApp(a.id, a.currency));
-            DBActivityPriceChanged priceChange = new DBActivityPriceChanged();
-            priceChange.parentApplication.id = a.id;
-            priceChange.parentApplication.hmd = a.hmd;
-            priceChange.parentApplication.canonicalName = a.canonicalName;
-            priceChange.parentApplication.displayName = a.displayName;
-            priceChange.newPriceOffsetNumerical = a.priceOffsetNumerical;
-            priceChange.currency = a.currency;
-            if (lastPriceChange != null)
-            {
-                if (lastPriceChange.newPriceOffset != priceChange.newPriceOffset)
-                {
-                    priceChange.oldPriceOffset = lastPriceChange.newPriceOffset;
-                    priceChange.__lastEntry = lastPriceChange.__id;
-                    ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
-                }
-            }
-            else
-            {
-                if (priceChange == null)
-                {
-                    ReportErrorWithDiscordMessage("Price change is null. Responsible node is " + scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, "nullError");
-                }
-                else if (scrapingContribution == null)
-                {
-                    ReportErrorWithDiscordMessage("Scraping Contribution is null. Responsible node is " + scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId, "nullError");
-                }
-                else ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(priceChange.ToBsonDocument(), ref scrapingContribution);
-            }
-
-            DBApplication old = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(a.id, 1, a.currency).FirstOrDefault());
             ScrapingNodeMongoDBManager.AddApplication(a, ref scrapingContribution);
-            if (old != null)
-            {
-                DBActivityApplicationUpdated updated = new DBActivityApplicationUpdated();
-                updated.oldApplication = old;
-                updated.newApplication = a;
-                updated.id = a.id;
-                if (old.canonicalName != a.canonicalName
-                    || old.has_in_app_ads != a.has_in_app_ads
-                    || old.is_approved != a.is_approved
-                    || old.is_concept != a.is_concept
-                    || old.display_long_description != a.display_long_description
-                    || old.display_name != a.display_name
-                    || String.Join(", ", old.genre_names) != String.Join(", ", a.genre_names)
-                    || old.organization.id != a.organization.id
-                    || old.platform != a.platform
-                    || old.release_date != a.release_date
-                    || old.publisher_name != a.publisher_name
-                    || old.website_url != a.website_url
-                    || (String.Join(", ", old.supported_hmd_platforms_enum) != String.Join(", ", a.supported_hmd_platforms_enum) && a.hmd == old.hmd)
-                    || old.appHasTrial != a.appHasTrial)
-                {
-                    // Application updated
-                    updated.__OculusDBType = DBDataTypes.ActivityApplicationUpdated;
-                    updated.__lastEntry = lastEvent == null ? null : lastEvent["_id"].ToString();
-                    ScrapingNodeMongoDBManager.AddBsonDocumentToActivityCollection(updated.ToBsonDocument(), ref scrapingContribution);
-                }
-            }
+            
             r.processedCount++;
         }
         stats.appProcessTime = sw.Elapsed;

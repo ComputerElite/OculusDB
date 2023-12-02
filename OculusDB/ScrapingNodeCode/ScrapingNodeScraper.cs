@@ -7,6 +7,7 @@ using ComputerUtils.Webserver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using OculusDB.Database;
+using OculusDB.ObjectConverters;
 using OculusDB.ScrapingMaster;
 using OculusDB.Users;
 using OculusGraphQLApiLib;
@@ -305,7 +306,7 @@ public class ScrapingNodeScraper
                 // - If not priority scrape enter changelog and obb of most recent versions
                 if ((!doPriorityForThisVersion || wasNull) && oldEntry != null)
                 {
-                    bin.changeLog = oldEntry.changeLog;
+                    bin.changeLog = oldEntry.changelog;
                 }
 
                 AddVersion(bin, a, app.headset, doPriorityForThisVersion ? null : oldEntry,
@@ -326,20 +327,6 @@ public class ScrapingNodeScraper
                 dlc.node.parentApplication.id = a.id;
                 
                 // DBActivityNewDLC is needed as I use it for the price offset
-                DBActivityNewDLC newDLC = new DBActivityNewDLC();
-                newDLC.id = dlc.node.id;
-                newDLC.parentApplication.id = a.id;
-                newDLC.parentApplication.hmd = app.headset;
-                newDLC.parentApplication.canonicalName = a.canonicalName;
-                newDLC.parentApplication.displayName = a.displayName;
-                newDLC.displayName = dlc.node.display_name;
-                newDLC.displayShortDescription = dlc.node.display_short_description;
-                newDLC.latestAssetFileId = dlc.node.latest_supported_asset_file != null ? dlc.node.latest_supported_asset_file.id : "";
-                if(dlc.node.current_offer != null && dlc.node.current_offer.price != null)
-                    newDLC.priceOffset = dlc.node.current_offer.price.offset_amount;
-                
-                // Skip dlc if it's free. Most likely indicates a bought DLC for which I do not figure out the correct price
-                if (newDLC.priceOffsetNumerical <= 0) continue;
                 if (a.current_offer == null || a.current_offer.price == null) continue; // Price not available
 
                 if (dlc.node.typename_enum == OculusTypeName.IAPItem)
@@ -358,78 +345,18 @@ public class ScrapingNodeScraper
     public void AddDLCPack(AppItemBundle a, Headset h, Application app)
     {
         DBIAPItemPack dbdlcp = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
-        dbdlcp.parentApplication.hmd = h;
-        dbdlcp.parentApplication.displayName = app.displayName;
-        if(dbdlcp.current_offer != null && dbdlcp.current_offer.price != null)
-        {
-            dbdlcp.current_offer.price.currency = GetOverrideCurrency(dbdlcp.current_offer.price.currency);
-        }
-        foreach(Node<IAPItem> i in a.bundle_items.edges)
-        {
-            DBItemId id = new DBItemId();
-            id.id = i.node.id;
-            dbdlcp.bundle_items.Add(id);
-        }
-        
         taskResult.scraped.dlcPacks.Add(dbdlcp);
     }
 
     public void AddDLC(AppItemBundle a, Headset h)
     {
         DBIAPItem dbdlc = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
-        dbdlc.parentApplication.hmd = h;
-        dbdlc.latestAssetFileId = a.latest_supported_asset_file != null ? a.latest_supported_asset_file.id : "";
-        if (dbdlc.current_offer != null && dbdlc.current_offer.price != null)
-        {
-            dbdlc.current_offer.price.currency = GetOverrideCurrency(dbdlc.current_offer.price.currency);
-        }
         taskResult.scraped.dlcs.Add(dbdlc);
     }
 
     public void AddVersion(OculusBinary a, Application app, Headset h, DBVersion oldEntry, bool isPriorityScrape)
     {
         DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, OculusBinary>(a);
-        dbv.parentApplication.id = app.id;
-        switch (a.typename_enum)
-        {
-            case OculusTypeName.PCBinary:
-                dbv.binaryType = HeadsetBinaryType.PCBinary;
-                break;
-            case OculusTypeName.AndroidBinary:
-                dbv.binaryType = HeadsetBinaryType.AndroidBinary;
-                break;
-            default:
-                dbv.binaryType = HeadsetBinaryType.Unknown;
-                break;
-        }
-        dbv.binary_release_channels = new Nodes<ReleaseChannelWithoutLatestSupportedBinary>();
-        dbv.binary_release_channels.nodes =
-            a.binary_release_channels.nodes.ConvertAll(x => (ReleaseChannelWithoutLatestSupportedBinary)x);
-        dbv.parentApplication.hmd = h;
-        dbv.parentApplication.displayName = app.displayName;
-        dbv.parentApplication.canonicalName = app.canonicalName;
-        dbv.__lastUpdated = DateTime.UtcNow;
-            
-        if(oldEntry == null)
-        {
-            if (a.obb_binary != null)
-            {
-                if (dbv.obbList == null) dbv.obbList = new List<OBBBinary>();
-                dbv.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(a.obb_binary));
-            }
-            foreach (AssetFile f in a.asset_files.nodes)
-            {
-                if (dbv.obbList == null) dbv.obbList = new List<OBBBinary>();
-                if (f.is_required) dbv.obbList.Add(ObjectConverter.ConvertCopy<OBBBinary, AssetFile>(f));
-            }
-        } else
-        {
-            dbv.obbList = oldEntry.obbList;
-            dbv.lastPriorityScrape = oldEntry.lastPriorityScrape;
-        }
-        dbv.lastScrape = DateTime.UtcNow;
-        if(isPriorityScrape) dbv.lastPriorityScrape = DateTime.UtcNow;
-        
         taskResult.scraped.versions.Add(dbv);
     }
 
@@ -442,30 +369,7 @@ public class ScrapingNodeScraper
     public void AddApplication(Application a, Headset hmd, HeadsetGroup group, HeadsetBinaryType binaryType, string image, string packageName, long correctPrice, string currency)
     {
         DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
-        dba.binaryType = binaryType;
-        dba.group = group;
-        dba.hmd = hmd;
-        dba.img = image;
-        if (a.latest_supported_binary != null)
-        {
-            dba.total_installed_space = a.latest_supported_binary.total_installed_space_numerical;
-            dba.required_space_adjusted = a.latest_supported_binary.required_space_adjusted_numerical;
-        }
-        dba.priceOffsetNumerical = correctPrice;
-        dba.packageName = packageName;
-        dba.currency = GetOverrideCurrency(currency);
-        if (dba.baseline_offer != null && dba.baseline_offer.price != null)
-        {
-            dba.baseline_offer.price.currency = GetOverrideCurrency(dba.baseline_offer.price.currency);
-        }
-        if (dba.current_offer != null && dba.current_offer.price != null)
-        {
-            dba.current_offer.price.currency = GetOverrideCurrency(dba.current_offer.price.currency);
-        }
-        if(dba.current_gift_offer != null && dba.current_gift_offer.price != null)
-        {
-            dba.current_gift_offer.price.currency = GetOverrideCurrency(dba.current_gift_offer.price.currency);
-        }
+        
         taskResult.scraped.applications.Add(dba);
         DBAppImage dbi = DownloadImage(dba);
         if (dbi != null)
@@ -479,11 +383,11 @@ public class ScrapingNodeScraper
         //Logger.Log("Downloading image of " + a.id + " from " + a.img);
         try
         {
-            string ext = Path.GetExtension(a.img.Split('?')[0]);
-            if (a.img == "") return null;
+            string ext = Path.GetExtension(a.oculusImageUrl.Split('?')[0]);
+            if (a.oculusImageUrl == "") return null;
             WebClient c = new WebClient();
             c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
-            byte[] data = c.DownloadData(a.img);
+            byte[] data = c.DownloadData(a.oculusImageUrl);
             // Try converting image to webp format
             try
             {
@@ -526,7 +430,7 @@ public class ScrapingNodeScraper
             DBAppImage dbi = new DBAppImage();
             dbi.data = data;
             dbi.mimeType = HttpServer.GetContentTpe("image" + ext);
-            dbi.appId = a.id;
+            dbi.parentApplication = OculusConverter.ParentApplication(a);
             return dbi;
         } catch(Exception e)
         {

@@ -69,75 +69,9 @@ namespace OculusDB
             return converted;
         }
 
-        public static dynamic ConvertToDBType(BsonDocument d)
+        public static dynamic ConvertToDBType(object o)
         {
-            if (d == null) return null;
-            string type = d.GetValue("__OculusDBType").ToString();
-            if(type == DBDataTypes.Application)
-            {
-                return BsonSerializer.Deserialize<DBApplication>(d);
-            }
-            else if (type == DBDataTypes.IAPItem)
-            {
-                return BsonSerializer.Deserialize<DBIAPItem>(d);
-            }
-            else if (type == DBDataTypes.IAPItemPack)
-            {
-                return BsonSerializer.Deserialize<DBIAPItemPack>(d);
-            }
-            else if (type == DBDataTypes.Version)
-            {
-                return BsonSerializer.Deserialize<DBVersion>(d);
-            }
-            else if (type == DBDataTypes.ActivityNewApplication)
-            {
-                return BsonSerializer.Deserialize<DBActivityNewApplication>(d);
-            }
-            else if (type == DBDataTypes.ActivityApplicationUpdated)
-            {
-                return BsonSerializer.Deserialize<DBActivityApplicationUpdated>(d);
-            }
-            else if (type == DBDataTypes.ActivityNewVersion)
-            {
-                return BsonSerializer.Deserialize<DBActivityNewVersion>(d);
-            }
-            else if (type == DBDataTypes.ActivityVersionUpdated)
-            {
-                return BsonSerializer.Deserialize<DBActivityVersionUpdated>(d);
-            }
-            else if (type == DBDataTypes.ActivityPriceChanged)
-            {
-                return BsonSerializer.Deserialize<DBActivityPriceChanged>(d);
-            }
-            else if (type == DBDataTypes.ActivityNewDLC)
-            {
-                return BsonSerializer.Deserialize<DBActivityNewDLC>(d);
-            }
-            else if (type == DBDataTypes.ActivityNewDLCPack)
-            {
-                return BsonSerializer.Deserialize<DBActivityNewDLCPack>(d);
-            }
-            else if (type == DBDataTypes.ActivityDLCUpdated)
-            {
-                return BsonSerializer.Deserialize<DBActivityDLCUpdated>(d);
-            }
-            else if (type == DBDataTypes.ActivityDLCPackUpdated)
-            {
-                return BsonSerializer.Deserialize<DBActivityDLCPackUpdated>(d);
-            }
-            else if (type == DBDataTypes.ActivityVersionDownloadable)
-            {
-                return BsonSerializer.Deserialize<DBActivityVersionUpdated>(d);
-			}
-			else if (type == DBDataTypes.ActivityVersionChangelogAvailable)
-			{
-				return BsonSerializer.Deserialize<DBActivityVersionChangelogAvailable>(d);
-			}
-			else if (type == DBDataTypes.ActivityVersionChangelogUpdated)
-			{
-				return BsonSerializer.Deserialize<DBActivityVersionChangelogUpdated>(d);
-			}
-			return d;
+            return null;
         }
     }
 }

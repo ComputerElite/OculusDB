@@ -103,6 +103,9 @@ namespace OculusDB
                 return;
             }
 
+            OculusDBTest.Test();
+            return;
+
             if (cla.HasArgument("--fp"))
             {
                 OculusDBEnvironment.scrapingNodeConfig.doForceScrape = true;

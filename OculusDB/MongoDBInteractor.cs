@@ -104,38 +104,12 @@ namespace OculusDB
             RemoveIdRemap<OculusBinary>();
             RemoveIdRemap<AppStoreOffer>();
             RemoveIdRemap<DBVersion>();
-            RemoveIdRemap<DBActivityNewApplication>();
-            RemoveIdRemap<DBActivityApplicationUpdated>();
-            RemoveIdRemap<DBActivityNewVersion>();
-            RemoveIdRemap<DBActivityVersionUpdated>();
-            RemoveIdRemap<DBActivityPriceChanged>();
-            RemoveIdRemap<DBActivityNewDLC>();
-            RemoveIdRemap<DBActivityNewDLCPack>();
-            RemoveIdRemap<DBActivityNewDLCPackDLC>();
-            RemoveIdRemap<DBActivityDLCUpdated>();
-            RemoveIdRemap<DBActivityDLCPackUpdated>();
-			RemoveIdRemap<DBActivityVersionChangelogAvailable>();
-			RemoveIdRemap<DBActivityVersionChangelogUpdated>();
+            RemoveIdRemap<DBAppImage>();
+            RemoveIdRemap<DBReleaseChannel>();
+            RemoveIdRemap<DBPrice>();
 			RemoveIdRemap<DBReleaseChannel>();
             RemoveIdRemap<DBApplication>();
             RemoveIdRemap<DBIAPItem>();
-
-            BsonClassMap.RegisterClassMap<ReleaseChannel>(cm =>
-            {
-                cm.AutoMap();
-                cm.UnmapProperty(x => x.latest_supported_binary); // Remove OculusBinary
-            });
-            BsonClassMap.RegisterClassMap<IAPItem>(cm =>
-            {
-                cm.AutoMap();
-                cm.UnmapProperty(x => x.parent_application);
-                cm.UnmapProperty(x => x.latest_supported_asset_file);
-                cm.UnmapProperty(x => x.id);
-                cm.MapMember(x => x.id)
-                    .SetElementName("id")
-                    .SetOrder(0) //specific to your needs
-                    .SetIsRequired(true); // again specific to your needs
-            });
             
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
@@ -311,26 +285,6 @@ namespace OculusDB
             return applicationCollection.Find(x => x.packageName == packageName).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
         }
 
-        public static List<DBApplication> GetBestReviews(int skip, int take)
-        {
-            return applicationCollection.Find(x => true).SortByDescending(x => x.quality_rating_aggregate).Skip(skip).Limit(take).ToList();
-        }
-
-        public static List<DBApplication> GetName(int skip, int take)
-        {
-            return applicationCollection.Find(x => true).SortByDescending(x => x.display_name).Skip(skip).Limit(take).ToList();
-        }
-
-        public static List<DBApplication> GetPub(int skip, int take)
-        {
-            return applicationCollection.Find(x => true).SortByDescending(x => x.publisher_name).Skip(skip).Limit(take).ToList();
-        }
-
-        public static List<DBApplication> GetRelease(int skip, int take)
-        {
-            return applicationCollection.Find(x => true).SortByDescending(x => x.release_date).Skip(skip).Limit(take).ToList();
-        }
-
         public static List<BsonDocument> MongoDBFilterMiddleware(List<BsonDocument> toFilter)
         {
             List<BsonDocument> toReturn = new List<BsonDocument>();
@@ -400,88 +354,15 @@ namespace OculusDB
 
 			return MongoDBFilterMiddleware(activityCollection.Find(q).SortByDescending(x => x["__lastUpdated"]).Skip(skip).Limit(count).ToList());
         }
-        public static List<BsonDocument> GetActivityById(string id)
-        {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["_id"] == new ObjectId(id)).ToList());
-        }
-
-        public static BsonDocument GetLastEventWithIDInDatabase(string id)
-        {
-            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x => 
-                    x.Contains("id") && x["id"] == id)
-                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
-            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
-        }
-        
-        public static BsonDocument GetLastEventWithIDInDatabase(string id, string currency)
-        {
-            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
-                    x.Contains("id") && x.Contains("currency") && x["id"] == id && x["currency"] == currency)
-                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
-            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
-            //Logger.Log("Checking currency " + currency + " for " + id, LoggingType.Important);
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
-        }
-
-		public static BsonDocument GetLastEventWithIDInDatabaseVersion(string id)
-		{
-            // Check queue
-            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity
-                .Where(x => x.Contains("id")
-                                        && x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated ||
-                                                       x["__OculusDBType"] == DBDataTypes.ActivityNewVersion))
-                .OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
-            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
-			return MongoDBFilterMiddleware(activityCollection.Find(x => x["id"] == id && (x["__OculusDBType"] == DBDataTypes.ActivityVersionUpdated || x["__OculusDBType"] == DBDataTypes.ActivityNewVersion)).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
-		}
-
-		public static List<BsonDocument> GetLatestActivities(DateTime after)
-        {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["__lastUpdated"] >= after).SortByDescending(x => x["__lastUpdated"]).ToList());
-        }
 
         public static List<ActivityWebhook> GetWebhooks()
         {
             return webhookCollection.Find(new BsonDocument()).ToList();
         }
-
-        public static BsonDocument GetLastPriceChangeOfApp(string appId, string currency)
-        {
-            BsonDocument fromQueue = ScrapingNodeMongoDBManager.queuedActivity.Where(x =>
-                x.Contains("parentApplication") &&
-                x["parentApplication"]["id"] == appId &&
-                x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged &&
-                x["currency"] == currency).OrderByDescending(x => x["__lastUpdated"]).FirstOrDefault();
-            if (fromQueue != null) return MongoDBFilterMiddleware(fromQueue);
-            return MongoDBFilterMiddleware(activityCollection.Find(x => x["parentApplication"]["id"] == appId && 
-                                                                        x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged && 
-                                                                        x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).FirstOrDefault());
-        }
-
-        public static List<BsonDocument> GetPriceChanges(string id, string currency)
-        {
-            return MongoDBFilterMiddleware(activityCollection.Find(x => (x["id"] == id || x["parentApplication"]["id"] == id && x["__OculusDBType"] == DBDataTypes.ActivityPriceChanged) && x["currency"] == currency).SortByDescending(x => x["__lastUpdated"]).ToList());
-        }
         
         public static List<BsonDocument> GetByID(string id, int history = 1, string currency = "")
         {
-            List<DBVersion> versions = versionsCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList();
-            if (versions.Count > 0)
-            {
-                for(int i = 0; i < versions.Count; i++)
-                {
-                    VersionAlias a = GetVersionAlias(versions[i].id);
-                    versions[i].alias = a == null ? "" : a.alias;
-                }
-                return MongoDBFilterMiddleware(ToBsonDocumentList(versions));
-            }
-            List<DBApplication> apps = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
-            if (apps.Count > 0) return ToBsonDocumentList(apps);
-            List<DBIAPItem> dlcs = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList().ConvertAll(x => GetCorrectDLCEntry(x, currency));
-            if (dlcs.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcs));
-            List<DBIAPItemPack> dlcPacks = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).Limit(history).ToList().ConvertAll(x => GetCorrectDLCPackEntry(x, currency));
-            if (dlcPacks.Count > 0) return MongoDBFilterMiddleware(ToBsonDocumentList(dlcPacks));
+            
             return new();
         }
 
@@ -579,65 +460,9 @@ namespace OculusDB
             // If headset groups are given, ignore headsets
             if(headsetGroups.Count > 0) headsets = new List<Headset>();
             if (headsets.Count <= 0 && headsetGroups.Count <= 0) return new List<DBApplication>();
-            /*
-            BsonArray b = new BsonArray();
-            foreach (HeadsetGroup h in headsetGroups) b.Add(new BsonDocument("$or", new BsonArray
-            {
-                new BsonDocument("group", h)
-            }));
-            BsonArray a = new BsonArray();
-            foreach (Headset h in headsets) a.Add(new BsonDocument("$or", new BsonArray
-            {
-                new BsonDocument("hmd", h),
-                new BsonDocument("supported_hmd_platforms_enum", h)
-            }));
-            */
             Regex r = new Regex(".*" + query.Replace(" ", ".*") + ".*", RegexOptions.IgnoreCase);
-            return applicationCollection.Find(x => (r.IsMatch(x.display_name) ||r.IsMatch(x.canonicalName) ||r.IsMatch(x.id) || r.IsMatch(x.publisher_name) || r.IsMatch(x.packageName))).ToList().Where(x => headsetGroups.Contains(x.group) || x.supported_hmd_platforms_enum.Any(x => headsets.Contains(x))).ToList();
+            return null;
         }
-
-		internal static void CleanDB()
-		{
-            /*
-            //Remove all duplicate apps
-            List<string> ids = applicationCollection.Distinct(x => x.id, x => true).ToList();
-            Logger.Log("Cleaning " + ids.Count + " applications");
-            int i = 0;
-            foreach(string id in ids)
-            {
-                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " applications)");
-                DBApplication newest = applicationCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).First();
-                applicationCollection.DeleteMany(x => x.id == id);
-                applicationCollection.InsertOne(newest);
-				i++;
-			}
-			*/
-            //Remove all duplicate dlcs
-            List<string> ids = dlcCollection.Distinct(x => x.id, x => true).ToList();
-            Logger.Log("Cleaning " + ids.Count + " dlcs");
-            int i = 0;
-            foreach(string id in ids)
-            {
-                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " dlcs)");
-                DBIAPItem newest = dlcCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).First();
-                dlcCollection.DeleteMany(x => x.id == id);
-                dlcCollection.InsertOne(newest);
-                i++;
-            }
-            
-            //Remove all duplicate dlcPacks
-            ids = dlcPackCollection.Distinct(x => x.id, x => true).ToList();
-            Logger.Log("Cleaning " + ids.Count + " dlcPacks");
-            i = 0;
-            foreach(string id in ids)
-            {
-                Logger.Log("Cleaning " + id + "(" + i + "/" + ids.Count + " dlcPacks)");
-                DBIAPItemPack newest = dlcPackCollection.Find(x => x.id == id).SortByDescending(x => x.__lastUpdated).First();
-                dlcPackCollection.DeleteMany(x => x.id == id);
-                dlcPackCollection.InsertOne(newest);
-                i++;
-            }
-		}
 
         public static long GetAppCount()
         {
@@ -655,7 +480,7 @@ namespace OculusDB
         public static List<DBVersion> GetVersions(string appId, bool onlyDownloadableVersions)
         {
             if (IsApplicationBlocked(appId)) return new List<DBVersion>();
-            if (onlyDownloadableVersions) return versionsCollection.Find(x => x.parentApplication.id == appId && x.binary_release_channels.nodes.Count > 0).SortByDescending(x => x.versionCode).ToList();
+            if (onlyDownloadableVersions) return versionsCollection.Find(x => x.parentApplication.id == appId && x.releaseChannels.Count > 0).SortByDescending(x => x.versionCode).ToList();
             return versionsCollection.Find(x => x.parentApplication.id == appId).SortByDescending(x => x.versionCode).ToList();
         }
 
@@ -685,7 +510,7 @@ namespace OculusDB
 
         public static DBAppImage GetAppImage(string appId)
         {
-            return appImages.Find(x => x.appId == appId).FirstOrDefault();
+            return appImages.Find(x => x.parentApplication.id == appId).FirstOrDefault();
         }
     }
 

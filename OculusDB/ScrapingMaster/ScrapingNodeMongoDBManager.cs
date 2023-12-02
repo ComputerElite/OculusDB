@@ -37,73 +37,12 @@ public class ScrapingNodeMongoDBManager
 
     public static void UpdateAllExistingAppsWithGroupAndBinaryType()
     {
-        return;
-        if (OculusDBEnvironment.config.serverType != OculusDBServerType.ScrapeMaster) return; // return if not master
-        foreach (DBApplication a in MongoDBInteractor.applicationCollection.Find(x => true).ToEnumerable())
-        {
-            if (a.binaryType == HeadsetBinaryType.Unknown && a.group == HeadsetGroup.Unknown)
-            {
-                a.binaryType = HeadsetIndex.GetHeadsetBinaryType(a.hmd);
-                a.group = HeadsetIndex.GetHeadsetGroup(a.hmd);
-                Logger.Log("Updating " + a.id);
-                MongoDBInteractor.applicationCollection.ReplaceOne(x => x.id == a.id, a);
-            }
-        }
         
-        foreach (DBVersion v in MongoDBInteractor.versionsCollection.Find(x => true).ToEnumerable())
-        {
-            if (v.binaryType == HeadsetBinaryType.Unknown)
-            {
-                v.binaryType = v.parentApplication.binaryType;
-                Logger.Log("Updating " + v.id);
-                MongoDBInteractor.versionsCollection.ReplaceOne(x => x.id == v.id, v);
-            }
-        }
     }
 
     public static void CheckActivityCollection()
     {
-        return;
-        Logger.Log("Performing query...");
-        List<string> ids = MongoDBInteractor.activityCollection.Distinct<string>("id",
-            Builders<BsonDocument>.Filter.Eq("__OculusDBType", DBDataTypes.ActivityDLCUpdated)).ToList();
-        Logger.Log("Id count: " + ids.Count);
-        int i = 0;
-        List<BsonDocument> toDelete = new List<BsonDocument>();
-        foreach (string id in ids)
-        {
-            long count = MongoDBInteractor.activityCollection.CountDocuments(x => x["id"] == id);
-            if (count >= 2)
-            {
-                List<BsonDocument> activities =
-                    MongoDBInteractor.activityCollection.Find(x => x["id"] == id).ToList();
-                activities = activities.OrderBy(x => x["__lastUpdated"].ToUniversalTime()).ToList();
-                foreach (BsonDocument activity in activities)
-                {
-                    bool added = false;
-                    if(activity["__OculusDBType"].AsString != "ActivityDLCUpdated") continue;
-                    //Logger.Log(activity.ToJson());
-                    if (activity["changeLog"].IsBsonNull)
-                    {
-                        toDelete.Add(activity);
-                    }
-                }
-                Logger.Log("Deleting " + toDelete.Count + " activities of " + activities.Count + " activities");
-            }
-
-            i++;
-            Logger.Log(i + "/" + ids.Count + "  (" + (i * 100.0 / ids.Count) + "%)");
-            if (toDelete.Count >= 200)
-            {
-                Logger.Log("Deleting...");
-                Logger.Log("deleted: " + MongoDBInteractor.activityCollection.DeleteMany(Builders<BsonDocument>.Filter.In("_id", toDelete.Select(x => x["_id"]))).DeletedCount);
-                toDelete.Clear();
-            }
-        }
-        Logger.Log("Deleting...");
-        Logger.Log("deleted: " + MongoDBInteractor.activityCollection.DeleteMany(Builders<BsonDocument>.Filter.In("_id", toDelete.Select(x => x["_id"]))).DeletedCount);
-        toDelete.Clear();
-        Environment.Exit(0);
+        
     }
 
     public static string GetRC(BsonDocument d)
@@ -448,12 +387,7 @@ public class ScrapingNodeMongoDBManager
                 MongoDBInteractor.dlcCollection.InsertMany(items);
                 addedIds.AddRange(ids);
             
-                // add to locale dlcs thing for future access to it
-                foreach (DBIAPItem d in items)
-                {
-                    GetLocaleDLCsCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
-                    GetLocaleDLCsCollection(d.current_offer.price.currency).InsertOne(d);
-                }
+                
             }
             iapitemsTmp.RemoveRange(0, Math.Min(iapitemsTmp.Count, batchSize));
         }
@@ -479,11 +413,7 @@ public class ScrapingNodeMongoDBManager
                 addedIds.AddRange(ids);
             
                 // add to locale dlcs thing for future access to it
-                foreach (DBIAPItemPack d in items)
-                {
-                    GetLocaleDLCPacksCollection(d.current_offer.price.currency).DeleteMany(x => x.id == d.id);
-                    GetLocaleDLCPacksCollection(d.current_offer.price.currency).InsertOne(d);
-                }
+               
             }
             dlcPacksTmp.RemoveRange(0, Math.Min(dlcPacksTmp.Count, batchSize));
         }
@@ -508,11 +438,7 @@ public class ScrapingNodeMongoDBManager
                 addedIds.AddRange(ids);
             
                 // add to locale application thing for future access to it
-                foreach (DBApplication a in items)
-                {
-                    GetLocaleAppsCollection(a.currency).DeleteMany(x => x.id == a.id);
-                    GetLocaleAppsCollection(a.currency).InsertOne(a);
-                }
+                
             }
             
             appsTmp.RemoveRange(0, Math.Min(appsTmp.Count, batchSize));
@@ -526,8 +452,6 @@ public class ScrapingNodeMongoDBManager
         {
             // Bulk do work in batches of batchSize
             List<DBAppImage> items = imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null).ToList();
-            ids = items.Select(x => x.appId).ToArray();
-            MongoDBInteractor.appImages.DeleteMany(x => ids.Contains(x.appId));
             if(items.Count > 0) MongoDBInteractor.appImages.InsertMany(items);
             imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
         }

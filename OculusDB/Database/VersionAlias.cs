@@ -13,9 +13,9 @@ using OculusGraphQLApiLib;
 namespace OculusDB.Database
 {
 	[BsonIgnoreExtraElements]
-	public class VersionAlias
+	public class VersionAlias : DBBase
 	{
-		public string __OculusDBType { get; set; } = DBDataTypes.VersionAlias;
+		public override string __OculusDBType { get; set; } = DBDataTypes.VersionAlias;
 		public string alias { get; set; } = "";
 		public string appId { get; set; } = "";
 		public string appName { get; set; } = "";

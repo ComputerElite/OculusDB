@@ -438,21 +438,6 @@ public class FrontendServer
             try
             {
                 List<DBApplication> results = new ();
-                switch (sorting)
-                {
-                    case "reviews":
-                        results = MongoDBInteractor.GetBestReviews(skip, count);
-                        break;
-                    case "name":
-                        results = MongoDBInteractor.GetName(skip, count);
-                        break;
-                    case "publisher":
-                        results = MongoDBInteractor.GetPub(skip, count);
-                        break;
-                    case "releasetime":
-                        results = MongoDBInteractor.GetRelease(skip, count);
-                        break;
-                }
                 request.SendString(JsonSerializer.Serialize(results), "application/json");
             }
             catch (Exception e)
@@ -594,7 +579,7 @@ public class FrontendServer
                     AppToScrape s = new AppToScrape
                     {
                         appId = a.id,
-                        headset = a.hmd,
+                        headset = Headset.MONTEREY,
                         priority = true
                     };
                     ScrapingNodeMongoDBManager.AddApp(s);
@@ -621,7 +606,7 @@ public class FrontendServer
                     AppToScrape s = new AppToScrape
                     {
                         appId = a.id,
-                        headset = a.hmd,
+                        headset = Headset.MONTEREY,
                         priority = true
                     };
                     ScrapingNodeMongoDBManager.AddApp(s);
@@ -640,37 +625,7 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                List<Headset> headsets = new List<Headset>();
-                List<HeadsetGroup> headsetGroups = new List<HeadsetGroup>();
-                if (request.queryString.Get("groups") != null)
-                {
-                    foreach (string h in request.queryString.Get("groups").Split(','))
-                    {
-                        HeadsetGroup conv = HeadsetIndex.ParseGroup(h);
-                        if (conv != HeadsetGroup.Unknown) headsetGroups.Add(conv);
-                    }
-                } else if (request.queryString.Get("headsets") != null)
-                {
-                    foreach (string h in (request.queryString.Get("headsets")).Split(','))
-                    {
-                        Headset conv = HeadsetTools.GetHeadsetFromCodeName(h);
-                        if (conv != Headset.INVALID) headsets.Add(conv);
-                    }
-                }
-                else
-                {
-                    headsetGroups.Add(HeadsetGroup.Quest);
-                    headsetGroups.Add(HeadsetGroup.PCVR);
-                    headsetGroups.Add(HeadsetGroup.GearVR);
-                    headsetGroups.Add(HeadsetGroup.Go);
-                }
-                List<DBApplication> d = MongoDBInteractor.SearchApplication(HttpUtility.UrlDecode(request.pathDiff), headsets, headsetGroups, request.queryString.Get("quick") == null ? false : true);
-                if (d.Count <= 0)
-                {
-                    request.SendString("[]", "application/json", 200);
-                    return true;
-                }
-                request.SendString(JsonSerializer.Serialize(d), "application/json");
+                
             }
             catch (Exception e)
             {
@@ -685,7 +640,6 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetDLCs(request.pathDiff, request.queryString.Get("currency") ?? "")), "application/json");
             }
             catch (Exception e)
             {
@@ -700,10 +654,7 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                List<dynamic> changes = new List<dynamic>();
-                string currency = request.queryString.Get("currency") ?? "";
-                foreach (BsonDocument d in MongoDBInteractor.GetPriceChanges(request.pathDiff, currency)) changes.Add(ObjectConverter.ConvertToDBType(d));
-                request.SendString(JsonSerializer.Serialize(changes), "application/json");
+                
             }
             catch (Exception e)
             {
@@ -764,13 +715,7 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                List<BsonDocument> d = MongoDBInteractor.GetActivityById(request.pathDiff);
-                if (d.Count <= 0)
-                {
-                    request.SendString("{}", "application/json", 404);
-                    return true;
-                }
-                request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+                
             }
             catch (Exception e)
             {

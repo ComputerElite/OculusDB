@@ -18,7 +18,7 @@ namespace OculusDB.Users
             {
                 List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
                 if (activityWebhooks.Count <= 0) return;
-                List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(start);
+                List<BsonDocument> activities = null;
                 foreach (ActivityWebhook activityWebhook in activityWebhooks)
                 {
                     foreach (BsonDocument activity in activities)
