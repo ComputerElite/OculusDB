@@ -241,7 +241,7 @@ public class ScrapingNodeScraper
         if (versions.data != null && versions.data.node != null && versions.data.node.primary_binaries != null &&
             versions.data.node.primary_binaries.nodes != null)
         {
-            foreach (AndroidBinary b in versions.data.node.primary_binaries.nodes)
+            foreach (OculusBinary b in versions.data.node.primary_binaries.nodes)
             {
                 bool doPriorityForThisVersion = app.priority;
                 DBVersion oldEntry = connected.FirstOrDefault(x => x.id == b.id);
@@ -291,7 +291,7 @@ public class ScrapingNodeScraper
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
                 }
 
-                AndroidBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                OculusBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
                 bool wasNull = false;
                 if (bin == null)
                 {
@@ -386,9 +386,9 @@ public class ScrapingNodeScraper
         taskResult.scraped.dlcs.Add(dbdlc);
     }
 
-    public void AddVersion(AndroidBinary a, Application app, Headset h, DBVersion oldEntry, bool isPriorityScrape)
+    public void AddVersion(OculusBinary a, Application app, Headset h, DBVersion oldEntry, bool isPriorityScrape)
     {
-        DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, AndroidBinary>(a);
+        DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, OculusBinary>(a);
         dbv.parentApplication.id = app.id;
         switch (a.typename_enum)
         {

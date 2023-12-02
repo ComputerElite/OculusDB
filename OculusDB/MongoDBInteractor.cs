@@ -101,7 +101,7 @@ namespace OculusDB
             // Don't ask. It's important stuff to reduce DB size and fix a lot of errors
             RemoveIdRemap<Application>();
             RemoveIdRemap<ParentApplication>();
-            RemoveIdRemap<AndroidBinary>();
+            RemoveIdRemap<OculusBinary>();
             RemoveIdRemap<AppStoreOffer>();
             RemoveIdRemap<DBVersion>();
             RemoveIdRemap<DBActivityNewApplication>();
@@ -123,7 +123,7 @@ namespace OculusDB
             BsonClassMap.RegisterClassMap<ReleaseChannel>(cm =>
             {
                 cm.AutoMap();
-                cm.UnmapProperty(x => x.latest_supported_binary); // Remove AndroidBinary
+                cm.UnmapProperty(x => x.latest_supported_binary); // Remove OculusBinary
             });
             BsonClassMap.RegisterClassMap<IAPItem>(cm =>
             {

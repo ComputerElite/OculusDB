@@ -21,7 +21,7 @@ namespace OculusDB.Database
         public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
         public ParentApplication parentApplication { get; set; } = new ParentApplication();
 
-        // AndroidBinary
+        // OculusBinary
         public string id { get; set; } = "";
         public string version { get; set; } = "";
 		public string alias { get; set; } = null;
