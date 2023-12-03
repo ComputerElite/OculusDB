@@ -45,11 +45,6 @@ public class ScrapingNodeMongoDBManager
         
     }
 
-    public static string GetRC(BsonDocument d)
-    {
-        return String.Join(',', d["releaseChannels"].AsBsonArray.Select(x => x["channel_name"].AsString).ToArray());
-    }
-
     public static void AddScrapingProcessingStat(ScrapingProcessingStats scrapingProcessingStat)
     {
         scrapingProcessingStats.InsertOne(scrapingProcessingStat);
@@ -237,7 +232,7 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBVersion> versions = new ();
-    public static void AddVersion(DBVersion v, ref ScrapingContribution contribution)
+    public static void AddVersion(DBVersion? v, ref ScrapingContribution contribution)
     {
         if (v == null) return;
         contribution.AddContribution(v.__OculusDBType, 1);
@@ -246,7 +241,7 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBIAPItem> iapItems = new ();
-    public static void AddDLC(DBIAPItem d, ref ScrapingContribution contribution)
+    public static void AddDLC(DBIAPItem? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
@@ -255,7 +250,7 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBIAPItemPack> dlcPacks = new ();
-    public static void AddDLCPack(DBIAPItemPack d, ref ScrapingContribution contribution)
+    public static void AddDLCPack(DBIAPItemPack? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
@@ -264,7 +259,7 @@ public class ScrapingNodeMongoDBManager
     }
     
     public static List<DBApplication> apps = new ();
-    public static void AddApplication(DBApplication a, ref ScrapingContribution contribution)
+    public static void AddApplication(DBApplication? a, ref ScrapingContribution contribution)
     {
         if(a == null) return;
         contribution.AddContribution(a.__OculusDBType, 1);
@@ -273,7 +268,7 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<BsonDocument> queuedActivity = new List<BsonDocument>();
-    public static BsonDocument AddBsonDocumentToActivityCollection(BsonDocument d, ref ScrapingContribution contribution)
+    public static BsonDocument? AddBsonDocumentToActivityCollection(BsonDocument? d, ref ScrapingContribution contribution)
     {
         if (d == null) return null;
         contribution.AddContribution(d["__OculusDBType"].AsString, 1);
@@ -305,7 +300,7 @@ public class ScrapingNodeMongoDBManager
         appsScraping.DeleteMany(x => x.sentToScrapeTime < DateTime.UtcNow.AddMinutes(-60));
     }
 
-    public static void AddApp(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
+    public static void AddAppToScrape(AppToScrape appToScrape, AppScrapePriority s = AppScrapePriority.Low)
     {
         appToScrape.scrapePriority = s;
 
@@ -317,11 +312,11 @@ public class ScrapingNodeMongoDBManager
             return;
         }
         
-        MongoDBInteractor.appsToScrape.InsertOne(appToScrape);
+        MongoDBInteractor.appsToScrape?.InsertOne(appToScrape);
     }
 
     public static List<DBAppImage> images = new ();
-    public static void AddImage(DBAppImage img, ref ScrapingContribution contribution)
+    public static void AddImage(DBAppImage? img, ref ScrapingContribution contribution)
     {
         if (img == null) return;
         contribution.AddContribution(img.__OculusDBType, 1);
@@ -329,180 +324,12 @@ public class ScrapingNodeMongoDBManager
         images.Add(img);
     }
 
-    public static TimeDependantBool flushing = new TimeDependantBool();
     public static void Flush()
     {
-        if (flushing.IsTrueAndValid()) return;
-        const int batchSize = 20;
         
-        flushing.Set(true, TimeSpan.FromMinutes(20), "");
-        List<DBVersion> versionsTmp = new List<DBVersion>(versions);
-        int count = versionsTmp.Count;
-        // Remove all old ids from versions list
-        List<string> addedIds = new List<string>();
-        Logger.Log("Adding " + versionsTmp.Count + " versions to database.");
-        for (int i = versionsTmp.Count - 1; i >= 0; i--)
-        {
-            try
-            {
-                if (versionsTmp[i] == null || versionsTmp[i].id == null || addedIds.Contains(versionsTmp[i].id))
-                {
-                    versionsTmp.RemoveAt(i);
-                    continue;
-                }
-                addedIds.Add(versionsTmp[i].id);
-            } catch (Exception e)
-            {
-                versionsTmp.RemoveAt(i);
-            }
-        }
-        Logger.Log(versionsTmp.Count + " versions left after removing duplicates.");
-        string[] ids = new string[batchSize];
-        while (versionsTmp.Count > 0)
-        {
-            // Bulk do work in batches of batchSize
-            List<DBVersion> items = versionsTmp.Take(Math.Min(versionsTmp.Count, batchSize)).Where(x => x != null).ToList();
-            ids = items.Select(x => x.id).ToArray();
-            MongoDBInteractor.versionsCollection.DeleteMany(x => ids.Contains(x.id));
-            if(items.Count > 0) MongoDBInteractor.versionsCollection.InsertMany(items); 
-            versionsTmp.RemoveRange(0, Math.Min(versionsTmp.Count, batchSize));
-        }
-        versions.RemoveRange(0, Math.Min(count, versions.Count));
-        
-
-        List<DBIAPItem> iapitemsTmp = new List<DBIAPItem>(iapItems);
-        count = iapitemsTmp.Count;
-        Logger.Log("Adding " + iapitemsTmp.Count + " dlcs to database.");
-        addedIds = new ();
-        while (iapitemsTmp.Count > 0)
-        {
-            // Bulk do work in batches of batchSize
-            List<DBIAPItem> items = iapitemsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(iapitemsTmp.Count, batchSize)).Where(x => x != null).ToList();
-            
-            ids = items.Select(x => x.id).ToArray();
-            // Add to main DB for search
-            MongoDBInteractor.dlcCollection.DeleteMany(x => ids.Contains(x.id));
-            if (items.Count > 0)
-            {
-                MongoDBInteractor.dlcCollection.InsertMany(items);
-                addedIds.AddRange(ids);
-            
-                
-            }
-            iapitemsTmp.RemoveRange(0, Math.Min(iapitemsTmp.Count, batchSize));
-        }
-        iapItems.RemoveRange(0, count);
-        
-        
-
-        List<DBIAPItemPack> dlcPacksTmp = new List<DBIAPItemPack>(dlcPacks);
-        count = dlcPacksTmp.Count;
-        Logger.Log("Adding " + dlcPacksTmp.Count + " dlc packs to database.");
-        addedIds.Clear();
-        while (dlcPacksTmp.Count > 0)
-        {
-            // Bulk do work in batches of batchSize
-            List<DBIAPItemPack> items = dlcPacksTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(dlcPacksTmp.Count, batchSize)).Where(x => x != null).ToList();
-            
-            ids = items.Select(x => x.id).ToArray();
-            // Add to main db for search
-            MongoDBInteractor.dlcPackCollection.DeleteMany(x => ids.Contains(x.id));
-            if (items.Count > 0)
-            {
-                MongoDBInteractor.dlcPackCollection.InsertMany(items);
-                addedIds.AddRange(ids);
-            
-                // add to locale dlcs thing for future access to it
-               
-            }
-            dlcPacksTmp.RemoveRange(0, Math.Min(dlcPacksTmp.Count, batchSize));
-        }
-        dlcPacks.RemoveRange(0, count);
-        
-        List<DBApplication> appsTmp = new List<DBApplication>(apps);
-        count = appsTmp.Count;
-        Logger.Log("Adding " + appsTmp.Count + " apps to database.");
-        addedIds.Clear();
-        while (appsTmp.Count > 0)
-        {
-            // Bulk do work in batches of batchSize
-           
-            List<DBApplication> items = appsTmp.Where(x => !addedIds.Contains(x.id)).Take(Math.Min(appsTmp.Count, batchSize)).Where(x => x != null)
-                .ToList();
-            ids = items.Select(x => x.id).ToArray();
-            // Add to main db for search
-            MongoDBInteractor.applicationCollection.DeleteMany(x => ids.Contains(x.id));
-            if (items.Count > 0)
-            {
-                MongoDBInteractor.applicationCollection.InsertMany(items);
-                addedIds.AddRange(ids);
-            
-                // add to locale application thing for future access to it
-                
-            }
-            
-            appsTmp.RemoveRange(0, Math.Min(appsTmp.Count, batchSize));
-        }
-        apps.RemoveRange(0, count);
-        
-        List<DBAppImage> imagesTmp = new List<DBAppImage>(images);
-        count = imagesTmp.Count;
-        Logger.Log("Adding " + imagesTmp.Count + " images to database.");
-        while (imagesTmp.Count > 0)
-        {
-            // Bulk do work in batches of batchSize
-            List<DBAppImage> items = imagesTmp.Take(Math.Min(imagesTmp.Count, batchSize)).Where(x => x != null).ToList();
-            if(items.Count > 0) MongoDBInteractor.appImages.InsertMany(items);
-            imagesTmp.RemoveRange(0, Math.Min(imagesTmp.Count, batchSize));
-        }
-        images.RemoveRange(0, count);
-        
-        List<BsonDocument> queuedActivityTmp = new List<BsonDocument>(queuedActivity);
-        count = queuedActivityTmp.Count;
-        Logger.Log("Adding " + queuedActivityTmp.Count + " activities to database and sending webhooks.");
-        while (queuedActivityTmp.Count > 0)
-        {
-            // Bulk do work in batches of batchSize
-            List<BsonDocument> docs = queuedActivityTmp.Take(Math.Min(queuedActivityTmp.Count, batchSize)).Where(x => x != null).ToList();
-            for (int i = 0; i < docs.Count; i++)
-            {
-                docs[i]["_id"] = ObjectId.GenerateNewId();
-                docs[i]["__id"] = docs[i]["_id"].AsObjectId;
-            }
-            if (docs.Count > 0)
-            {
-                MongoDBInteractor.activityCollection.InsertMany(docs);
-                for (int i = 0; i < docs.Count; i++)
-                {
-                    Logger.Log("Sending activity " + docs[i]["__id"]);
-                    DiscordWebhookSender.SendActivity(docs[i]);
-                }
-            }
-            queuedActivityTmp.RemoveRange(0, Math.Min(queuedActivityTmp.Count, batchSize));
-        }
-        queuedActivity.RemoveRange(0, count);
-        Logger.Log("Flushed queue");
-
-        flushing.Set(false, TimeSpan.FromMinutes(0), "");
-        CleanAppsScraping();
     }
 
-    public static IMongoCollection<DBIAPItem> GetLocaleDLCsCollection(string currency)
-    {
-        return MongoDBInteractor.oculusDBDatabase.GetCollection<DBIAPItem>("dlcs-" + currency);
-    }
-    
-    public static IMongoCollection<DBIAPItemPack> GetLocaleDLCPacksCollection(string currency)
-    {
-        return MongoDBInteractor.oculusDBDatabase.GetCollection<DBIAPItemPack>("dlcPacks-" + currency);
-    }
-
-    public static IMongoCollection<DBApplication> GetLocaleAppsCollection(string currency)
-    {
-        return MongoDBInteractor.oculusDBDatabase.GetCollection<DBApplication>("apps-" + currency);
-    }
-
-    public static string CreateScrapingNode(string id, string? name)
+    public static string CreateScrapingNode(string id, string name)
     {
         ScrapingNode n = new ScrapingNode();
         n.scrapingNodeToken = RandomExtension.CreateToken();
@@ -511,11 +338,6 @@ public class ScrapingNodeMongoDBManager
         n.expires = DateTime.UtcNow.AddYears(10);
         scrapingNodes.InsertOne(n);
         return n.scrapingNodeToken;
-    }
-
-    public static List<DBIAPItem> GetDLCs(string appId)
-    {
-        return MongoDBInteractor.dlcCollection.Find(x => x.parentApplication.id == appId).ToList();
     }
 
     public static ScrapingError AddErrorReport(ScrapingError error, ScrapingNodeAuthenticationResult r)

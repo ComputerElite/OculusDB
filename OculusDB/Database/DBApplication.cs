@@ -9,6 +9,16 @@ namespace OculusDB.Database;
 public class DBApplication : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.Application;
+
+    [BsonIgnore]
+    public bool blocked
+    {
+        get
+        {
+            return MongoDBInteractor.blockedAppsCache.Contains(id);
+        }
+    }
+
     [OculusField("id")]
     public string id { get; set; } = "";
     public HeadsetGroup group { get; set; } = HeadsetGroup.Unknown;

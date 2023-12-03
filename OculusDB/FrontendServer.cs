@@ -144,10 +144,15 @@ public class FrontendServer
         });
         server.AddRoute("POST", "/api/v1/createscrapingnode", request =>
         {
-            string id = request.queryString.Get("id");
-            string name = request.queryString.Get("name");
+            string id = request.queryString.Get("id") ?? "";
+            string name = request.queryString.Get("name") ?? "";
             if (!DoesTokenHaveAccess(request, Permission.CreateScrapingNode))
             {
+                return true;
+            }
+            if(id == "" || name == "")
+            {
+                request.SendString("id and name must be supplied", "text/plain", 400);
                 return true;
             }
             request.SendString(ScrapingNodeMongoDBManager.CreateScrapingNode(id, name), "application/json");
@@ -155,9 +160,14 @@ public class FrontendServer
         });
         server.AddRoute("POST", "/api/v1/blocked/blockapp", request =>
         {
-            string id = request.queryString.Get("id");
+            string id = request.queryString.Get("id") ?? "";
             if (!DoesTokenHaveAccess(request, Permission.BlockApps))
             {
+                return true;
+            }
+            if(id == "")
+            {
+                request.SendString("id must be supplied", "text/plain", 400);
                 return true;
             }
             MongoDBInteractor.BlockApp(id);
@@ -174,7 +184,7 @@ public class FrontendServer
             try
             {
                 // Create scraping node for scraping, start that node and supply one task to it
-                ScrapingNodeMongoDBManager.AddApp(s, AppScrapePriority.High);
+                ScrapingNodeMongoDBManager.AddAppToScrape(s, AppScrapePriority.High);
                 request.SendString("Added scrape to queue as first to be scraped. No idea if it'll scrape or not but a scraping node will defo try.");
             }
             catch (Exception e)
