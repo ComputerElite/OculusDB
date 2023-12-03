@@ -384,7 +384,7 @@ namespace OculusDB
             if (IsApplicationBlocked(applicationId)) return new ConnectedList();
             l.versions = versionsCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.versionCode).ToList();
             l.applications = applicationCollection.Find(x => x.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
-            l.dlcs = dlcCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
+            //l.dlcs = dlcCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcPacks = dlcPackCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.__lastUpdated).ToList();
 
             l.applications.ConvertAll(x => GetCorrectApplicationEntry(x, currency));
@@ -440,7 +440,7 @@ namespace OculusDB
         {
             if (IsApplicationBlocked(parentAppId)) return new DLCLists();
             DLCLists l = new();
-            l.dlcs = dlcCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
+            //l.dlcs = dlcCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
             l.dlcPacks = dlcPackCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
             
             l.dlcs.ConvertAll(x => GetCorrectDLCEntry(x, currency));

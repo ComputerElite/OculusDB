@@ -41,5 +41,26 @@ namespace OculusDB
                 s = GraphQLClient.AllApps(headset, cursor);
             }
         }
+        
+        public static IEnumerable<IAPItem> EnumerateAllDLCs(string groupingId)
+        {
+            Data<ApplicationGrouping?> s = GraphQLClient.GetDLCsDeveloper(groupingId);
+            int i = 0;
+            if(s.data.node == null)
+            {
+                throw new Exception("Could not get data to enumerate dlcs.");
+            }
+            while (true)
+            {
+                foreach (Node<IAPItem> e in s.data.node.add_ons.edges)
+                {
+                    i++;
+                    yield return e.node;
+                }
+
+                if (!s.data.node.add_ons.page_info.has_next_page) break;
+                s = GraphQLClient.GetDLCsDeveloper(groupingId, s.data.node.add_ons.page_info.end_cursor);
+            }
+        }
     }
 }

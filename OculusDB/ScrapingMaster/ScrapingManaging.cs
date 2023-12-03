@@ -224,7 +224,7 @@ public class ScrapingManaging
         foreach (DBIAPItem d in taskResult.scraped.dlcs)
         {
             DBApplication parentApplication =
-                taskResult.scraped.applications.FirstOrDefault(x => x.id == d.parentApplication.id);
+                null;
             if (parentApplication == null)
             {
                 Logger.Log("Skipping " + d + " because the parent application isn't in the scraping results");

@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using ComputerUtils.Logging;
 using OculusDB.Database;
 using OculusGraphQLApiLib;
@@ -135,12 +136,47 @@ public class OculusConverter
         return parentApplication;
     }
     
+    public static DBParentApplication ParentApplication(BinaryApplication application, DBApplication dbApp)
+    {
+        DBParentApplication parentApplication = new DBParentApplication();
+        parentApplication.id = application.id;
+        parentApplication.displayName = dbApp.displayName;
+        return parentApplication;
+    }
+    
     public static DBParentApplication ParentApplication(DBApplication application)
     {
         DBParentApplication parentApplication = new DBParentApplication();
         parentApplication.id = application.id;
         parentApplication.displayName = application.displayName;
         return parentApplication;
+    }
+
+    public static DBIAPItem IAPItem(IAPItem dlc, DBApplication dbApplication)
+    {
+        DBIAPItem db = FromOculusToDB<IAPItem, DBIAPItem>(dlc);
+        db.grouping = ParentApplicationGrouping(dlc.app_grouping);
+        foreach (AssetFile assetFile in dlc.asset_files.nodes)
+        {
+            db.assetFiles.Add(AssetFile(assetFile, dbApplication));
+        }
+        // To get the offer id we need to get the msrp_offers->nodes[0]->id from the specific developer IAP request
+        Logger.Log(JsonSerializer.Serialize(GraphQLClient.GetAddOnDeveloper(db.id, dbApplication.id)));
+        IAPItem specificDlc = GraphQLClient.GetAddOnDeveloper(db.id, dbApplication.id).data.node?.grouping.add_ons.nodes[0];
+        db = FromOculusToDBAlternate(specificDlc, db);
+        if (specificDlc != null && specificDlc.msrp_offers.nodes.Count > 0)
+        {
+            db.offerId = specificDlc.msrp_offers.nodes[0].id;
+        }
+        return db;
+    }
+
+    public static DBAssetFile AssetFile(AssetFile assetFile, DBApplication dbApplication)
+    {
+        DBAssetFile db = FromOculusToDB<AssetFile, DBAssetFile>(assetFile);
+        db.parentApplication = ParentApplication(assetFile.binary_application, dbApplication);
+        db.group = OculusPlatformToHeadsetGroup(assetFile.platform_enum);
+        return db;
     }
     
     /// <summary>
@@ -173,17 +209,8 @@ public class OculusConverter
         // Get share capabilities
         Application? shareCapabilitiesApplication = GraphQLClient.GetAppSharingCapabilities(application.id).data.node;
         db.shareCapabilities = shareCapabilitiesApplication.share_capabilities_enum;
-        
-        // Set application group
-        switch (application.platform_enum)
-        {
-            case OculusPlatform.PC:
-                db.group = HeadsetGroup.PCVR;
-                break;
-            case OculusPlatform.ANDROID_6DOF:
-                db.group = HeadsetGroup.Quest;
-                break;
-        }
+
+        db.group = OculusPlatformToHeadsetGroup(application.platform_enum);
         
         // Add translations
         db.defaultLocale = metadataToUse.application.default_locale;
@@ -199,10 +226,29 @@ public class OculusConverter
         }
         return db;
     }
+
+    public static HeadsetGroup OculusPlatformToHeadsetGroup(OculusPlatform platform)
+    {
+        // Set application group
+        switch (platform)
+        {
+            case OculusPlatform.PC:
+                return HeadsetGroup.PCVR;
+            case OculusPlatform.ANDROID_6DOF:
+                return HeadsetGroup.Quest;
+        }
+
+        return HeadsetGroup.Unknown;
+    }
     
     public static DBApplicationGrouping ApplicationGrouping(ApplicationGrouping grouping)
     {
         DBApplicationGrouping db = FromOculusToDB<ApplicationGrouping, DBApplicationGrouping>(grouping);
+        return db;
+    }
+    public static DBParentApplicationGrouping ParentApplicationGrouping(ApplicationGrouping grouping)
+    {
+        DBParentApplicationGrouping db = FromOculusToDB<ApplicationGrouping, DBParentApplicationGrouping>(grouping);
         return db;
     }
 
