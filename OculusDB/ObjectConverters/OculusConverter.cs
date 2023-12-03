@@ -8,6 +8,61 @@ namespace OculusDB.ObjectConverters;
 
 public class OculusConverter
 {
+
+    public static T AddScrapingNodeName<T>(T toAlter, string scrapingNodeName)
+    {
+        List<PropertyInfo> toSet = typeof(T).GetProperties().Where(x => x.Name == "__sn").ToList();
+        if (toSet.Count >= 1)
+        {
+            foreach (PropertyInfo sn in toSet)
+            {
+                Logger.Log("setting " + sn.Name);
+                sn.SetValue(toAlter, scrapingNodeName);
+            }
+        }
+        
+        // Recursively go through all fields which could have __sn
+        // the objects
+        IEnumerable<PropertyInfo> properties = typeof(T).GetProperties()
+            .Where(prop => prop.IsDefined(typeof(ObjectScrapingNodeFieldPresent), false));
+        MethodInfo addScrapingNodeNameMethodInfo = typeof(OculusConverter).GetMethod("AddScrapingNodeName");
+        foreach (PropertyInfo property in properties)
+        {
+            
+            object childObject = property.GetValue(toAlter);
+            if(childObject == null) continue;
+            
+            object convertedValue = addScrapingNodeNameMethodInfo.MakeGenericMethod(property.PropertyType).Invoke(null, new object[] {childObject, scrapingNodeName});
+            property.SetValue(toAlter, convertedValue);
+        }
+        
+        
+        // Recursively go through all fields which could have __sn
+        // And the lists
+        properties = typeof(T).GetProperties()
+            .Where(prop => prop.IsDefined(typeof(ListScrapingNodeFieldPresent), false));
+        foreach (PropertyInfo property in properties)
+        {
+            object list = property.GetValue(toAlter);
+            if(list == null) continue;
+            
+            Type elementType = property.PropertyType.GetGenericArguments()[0];
+            // Use reflection to get the Count property and iterate through the list
+            PropertyInfo countProperty = property.PropertyType.GetProperty("Count");
+            int count = (int)countProperty.GetValue(list);
+
+            // Iterate through the list elements
+            for (int i = 0; i < count; i++)
+            {
+                object listItem = property.PropertyType.GetProperty("Item").GetValue(list, new object[] { i });
+                object convertedValue = addScrapingNodeNameMethodInfo.MakeGenericMethod(elementType).Invoke(null, new object[] {listItem, scrapingNodeName});
+                property.PropertyType.GetProperty("Item").SetValue(list, convertedValue, new object[] { i });
+            }
+        }
+
+        return toAlter;
+    }
+
     public static DBType FromOculusToDBAlternate<OculusType, DBType>(OculusType oculus, DBType toPopulate) where DBType : new()
     {
         IEnumerable<PropertyInfo> properties = typeof(DBType).GetProperties()
@@ -96,6 +151,8 @@ public class OculusConverter
     public static DBApplication Application(Application application)
     {
         DBApplication db = FromOculusToDB<Application, DBApplication>(application);
+        
+        // Get latest public metadata revision
         PDPMetadata metadataToUse = application.firstRevision.nodes[0].pdp_metadata;
         foreach (ApplicationRevision revision in application.revisionsIncludingVariantMetadataRevisions.nodes)
         {
@@ -108,9 +165,16 @@ public class OculusConverter
         }
         db = FromOculusToDBAlternate(metadataToUse, db); // populate db with info from PDPMetadata
         db.isFirstParty = metadataToUse.application.is_first_party;
+        
         db.grouping = ApplicationGrouping(application.grouping);
+        
         db.offerId = application.baseline_offer != null ? application.baseline_offer.id : null;
-        db.defaultLocale = metadataToUse.application.default_locale;
+        
+        // Get share capabilities
+        Application? shareCapabilitiesApplication = GraphQLClient.GetAppSharingCapabilities(application.id).data.node;
+        db.shareCapabilities = shareCapabilitiesApplication.share_capabilities_enum;
+        
+        // Set application group
         switch (application.platform_enum)
         {
             case OculusPlatform.PC:
@@ -120,6 +184,9 @@ public class OculusConverter
                 db.group = HeadsetGroup.Quest;
                 break;
         }
+        
+        // Add translations
+        db.defaultLocale = metadataToUse.application.default_locale;
         foreach (ApplicationTranslation translation in metadataToUse.translations.nodes)
         {
             foreach (OculusImage img in translation.imagesExcludingScreenshotsAndMarkdown.nodes)

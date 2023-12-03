@@ -512,11 +512,10 @@ public class FrontendServer
             AppToScrape s = new AppToScrape
             {
                 appId = appId,
-                headset = h,
                 scrapePriority = AppScrapePriority.High,
                 priority = false
             };
-			ScrapingNodeMongoDBManager.AddApp(s);
+			ScrapingNodeMongoDBManager.AddAppToScrape(s);
 
 			request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
 			return true;
@@ -557,10 +556,9 @@ public class FrontendServer
                         AppToScrape s = new AppToScrape
                         {
                             appId = request.pathDiff,
-                            headset = h,
                             priority = true
                         };
-                        ScrapingNodeMongoDBManager.AddApp(s);
+                        ScrapingNodeMongoDBManager.AddAppToScrape(s);
                     }
                     return true;
 				}
@@ -589,10 +587,9 @@ public class FrontendServer
                     AppToScrape s = new AppToScrape
                     {
                         appId = a.id,
-                        headset = Headset.MONTEREY,
                         priority = true
                     };
-                    ScrapingNodeMongoDBManager.AddApp(s);
+                    ScrapingNodeMongoDBManager.AddAppToScrape(s);
                 }
             }
             catch (Exception e)
@@ -616,10 +613,9 @@ public class FrontendServer
                     AppToScrape s = new AppToScrape
                     {
                         appId = a.id,
-                        headset = Headset.MONTEREY,
                         priority = true
                     };
-                    ScrapingNodeMongoDBManager.AddApp(s);
+                    ScrapingNodeMongoDBManager.AddAppToScrape(s);
                 }
             }
             catch (Exception e)

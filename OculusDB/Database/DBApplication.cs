@@ -154,6 +154,20 @@ public class DBApplication : DBBase
             return formatted;
         }
     }
+    public List<ShareCapability> shareCapabilities { get; set; } = new List<ShareCapability>();
+    [BsonIgnore]
+    public List<string> shareCapabilitiesFormatted
+    {
+        get
+        {
+            List<string> formatted = new List<string>();
+            foreach (ShareCapability capability in shareCapabilities)
+            {
+                formatted.Add(OculusConverter.FormatOculusEnumString(capability.ToString()));
+            }
+            return formatted;
+        }
+    }
     
     [OculusFieldAlternate("play_area_enum")]
     public PlayArea playArea { get; set; } = PlayArea.UNKNOWN;
@@ -213,7 +227,9 @@ public class DBApplication : DBBase
     [BsonIgnore]
     public List<DBPrice> prices { get; set; } = new List<DBPrice>();
     
-    public DBApplicationGrouping grouping { get; set; } = new DBApplicationGrouping();
+    [ObjectScrapingNodeFieldPresent]
+    public DBApplicationGrouping? grouping { get; set; } = null;
+    [ListScrapingNodeFieldPresent]
     public List<DBApplicationTranslation> translations { get; set; } = new List<DBApplicationTranslation>();
     public string defaultLocale { get; set; } = "";
     [OculusFieldAlternate("recommended_graphics")]

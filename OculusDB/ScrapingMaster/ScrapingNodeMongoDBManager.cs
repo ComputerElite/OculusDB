@@ -351,4 +351,9 @@ public class ScrapingNodeMongoDBManager
     {
         return scrapingErrors.Find(x => x._id == id).FirstOrDefault();
     }
+
+    public static List<DBIAPItem> GetDLCs(string parentApplicationId)
+    {
+        throw new NotImplementedException();
+    }
 }

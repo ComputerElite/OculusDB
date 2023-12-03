@@ -201,24 +201,15 @@ public class ScrapingNodeScraper
     public void Scrape(AppToScrape app)
     {
         taskResult.altered = true;
-        Application a = GraphQLClient.GetAppDetail(app.appId, app.headset).data.item;
+        Application a = GraphQLClient.AppDetailsDeveloperAll(app.appId).data.node;
         if (a == null)
         {
             errorTracker.AddError();
             throw new Exception("Application is null");
         }
         currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
-		// Oculus fucked up, Rift stuff's removed from Rift games. I'm manually adding it for now
-        if (a.latest_supported_binary != null && a.latest_supported_binary.typename_enum == OculusTypeName.PCBinary)
-        {
-            if(!a.supported_hmd_platforms_enum.Contains(Headset.RIFT)) a.supported_hmd_platforms.Insert(0, Headset.RIFT.ToString());
-            if(!a.supported_hmd_platforms_enum.Contains(Headset.LAGUNA)) a.supported_hmd_platforms.Insert(0, Headset.LAGUNA.ToString());
-            app.headset = Headset.RIFT;
-        }
-        if (!a.supported_hmd_platforms_enum.Contains(app.headset) && a.supported_hmd_platforms_enum.Count > 0) app.headset = a.supported_hmd_platforms_enum[0];
-        
+
         // Get default binary type
-        HeadsetBinaryType headsetBinaryType = HeadsetIndex.GetHeadsetBinaryType(app.headset);
         long priceNumerical = -1;
         // Get price
         string currency = "";
@@ -263,18 +254,6 @@ public class ScrapingNodeScraper
                     }
                 }
 
-                switch (b.typename_enum)
-                {
-                    case OculusTypeName.AndroidBinary:
-                        headsetBinaryType = HeadsetBinaryType.AndroidBinary;
-                        break;
-                    case OculusTypeName.PCBinary:
-                        headsetBinaryType = HeadsetBinaryType.PCBinary;
-                        break;
-                    default:
-                        headsetBinaryType = HeadsetBinaryType.Unknown;
-                        break;
-                }
                 if (packageName == "")
                 {
                     PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
@@ -283,7 +262,6 @@ public class ScrapingNodeScraper
 
                 if (!addedApplication)
                 {
-                    AddApplication(a, app.headset, HeadsetIndex.GetHeadsetGroup(app.headset), headsetBinaryType, app.imageUrl, packageName, priceNumerical, currency);
                     addedApplication = true;
                 }
 
@@ -309,8 +287,6 @@ public class ScrapingNodeScraper
                     bin.changeLog = oldEntry.changelog;
                 }
 
-                AddVersion(bin, a, app.headset, doPriorityForThisVersion ? null : oldEntry,
-                    doPriorityForThisVersion);
             }
         }
         else
@@ -328,15 +304,6 @@ public class ScrapingNodeScraper
                 
                 // DBActivityNewDLC is needed as I use it for the price offset
                 if (a.current_offer == null || a.current_offer.price == null) continue; // Price not available
-
-                if (dlc.node.typename_enum == OculusTypeName.IAPItem)
-                {
-                    AddDLC(dlc.node, app.headset);
-                }
-                else
-                {
-                    AddDLCPack(dlc.node, app.headset, a);
-                }
             }
         }
         Logger.Log("Scraped " + app.appId + (app.priority ? " (priority)" : ""));
@@ -447,7 +414,7 @@ public class ScrapingNodeScraper
         return JsonSerializer.Deserialize<List<DBVersion>>(json);
     }
 
-    public UserEntitlement GetEntitlementStatusOfAppOrDLC(string appId, string dlcId = null, string dlcName = "")
+    public UserEntitlement GetEntitlementStatusOfAppOrDlc(string appId, string dlcId = null, string dlcName = "")
     {
         if (userEntitlements.Count <= 0) return UserEntitlement.FAILED;
         foreach(Entitlement entitlement in userEntitlements)
@@ -503,7 +470,7 @@ public class ScrapingNodeScraper
             foreach (Application a in OculusInteractor.EnumerateAllApplications(h))
             {
                 apps++;
-                appsToScrape.Add(new AppToScrape { currency = GetCurrency(), headset = h, appId = a.id, priority = false, imageUrl = a.cover_square_image.uri });
+                appsToScrape.Add(new AppToScrape { currency = GetCurrency(), appId = a.id, priority = false, canonicalName = a.canonicalName});
             }
         } catch(Exception e)
         {
@@ -532,7 +499,7 @@ public class ScrapingNodeScraper
             string id = a.oculus_url.Replace("/?utm_source=sidequest", "").Replace("?utm_source=sq_pdp&utm_medium=sq_pdp&utm_campaign=sq_pdp&channel=sq_pdp", "").Replace("https://www.oculus.com/experiences/quest/", "").Replace("/", "");
             if (id.Length <= 16)
             {
-                appsToScrape.Add(new AppToScrape { currency = GetCurrency(), appId = id, imageUrl = a.image_url, priority = false, headset = Headset.HOLLYWOOD });
+                appsToScrape.Add(new AppToScrape { currency = GetCurrency(), appId = id, priority = false });
             }
         }
 

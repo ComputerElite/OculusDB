@@ -17,3 +17,13 @@ public class OculusFieldAlternate : Attribute
         fieldName = name;
     }
 }
+
+public class ObjectScrapingNodeFieldPresent : Attribute
+{
+    
+}
+
+public class ListScrapingNodeFieldPresent : Attribute
+{
+    
+}

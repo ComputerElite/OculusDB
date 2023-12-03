@@ -5,7 +5,8 @@ namespace OculusDB.Database;
 public class DBApplicationTranslation : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.ApplicationTranslation;
-    public DBParentApplication parentApplication { get; set; } = null;
+    [ObjectScrapingNodeFieldPresent]
+    public DBParentApplication? parentApplication { get; set; } = null;
     [OculusField("id")]
     public string id { get; set; } = "";
     [OculusField("locale")]

@@ -8,7 +8,8 @@ namespace OculusDB.Database;
 public class DBVersion : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.Version;
-    public DBParentApplication parentApplication { get; set; } = null;
+    [ObjectScrapingNodeFieldPresent]
+    public DBParentApplication? parentApplication { get; set; } = null;
     public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
     [OculusField("id")]
     public string id { get; set; } = "";
@@ -73,7 +74,7 @@ public class DBVersion : DBBase
     public string binaryStatus { get; set; } = "";
     [OculusField("status_enum")]
     public BinaryStatus binaryStatusEnum { get; set; } = BinaryStatus.UNKNOWN;
-    
+    [ListScrapingNodeFieldPresent]
     public List<DBReleaseChannel> releaseChannels { get; set; } = new List<DBReleaseChannel>();
     public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
 }
