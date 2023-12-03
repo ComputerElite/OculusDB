@@ -3,6 +3,7 @@ using OculusDB.Database;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -72,6 +73,25 @@ namespace OculusDB
             foreach (AchievementDefinition e in s.data.node.grouping.achievement_definitions.nodes)
             {
                 yield return e;
+            }
+        }
+
+        public static IEnumerable<OculusBinary> EnumerateAllVersions(string appId)
+        {
+            Data<EdgesPrimaryBinaryApplication> s = GraphQLClient.AllVersionOfAppCursor(appId);
+            if(s.data.node == null)
+            {
+                throw new Exception("Could not get data to enumerate dlcs.");
+            }
+            while (true)
+            {
+                foreach (Node<OculusBinary> e in s.data.node.primary_binaries.edges)
+                {
+                    yield return e.node;
+                }
+
+                if (!s.data.node.primary_binaries.page_info.has_next_page) break;
+                s = GraphQLClient.AllVersionOfAppCursor(appId, s.data.node.primary_binaries.page_info.end_cursor);
             }
         }
     }

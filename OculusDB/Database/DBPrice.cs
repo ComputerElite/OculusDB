@@ -1,12 +1,14 @@
+using OculusDB.ObjectConverters;
+
 namespace OculusDB.Database;
 
 public class DBPrice : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.Price;
-    [ObjectScrapingNodeFieldPresent]
-    public DBParentApplication? parentApplication { get; set; } = new DBParentApplication();
+    [TrackChanges]
     public string currency { get; set; } = "";
-    public string formattedPrice { get; set; } = "";
+    [TrackChanges]
+    public string priceFormatted { get; set; } = "";
+    [TrackChanges]
     public long price { get; set; } = 0;
-    public string offerId { get; set; } = "";
 }

@@ -1,20 +1,26 @@
+using System.Linq.Expressions;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib.Results;
 
 namespace OculusDB.Database;
 
-public class DBAchievement : DBBase
+public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.Achievement;
     [ObjectScrapingNodeFieldPresent]
+    [TrackChanges]
     public DBParentApplicationGrouping? grouping { get; set; } = null;
     [OculusField("id")]
+    [TrackChanges]
     public string id { get; set; } = "";
     
     [OculusField("api_name")]
+    [TrackChanges]
     public string apiName { get; set; } = "";
     [OculusFieldAlternate("achievement_type_enum")]
+    [TrackChanges]
     public AchievementType achievementType { get; set; } = AchievementType.UNKNOWN;
     [BsonIgnore]
     public string achievementTypeFormatted
@@ -25,6 +31,7 @@ public class DBAchievement : DBBase
         }
     }
     [OculusFieldAlternate("achievement_write_policy_enum")]
+    [TrackChanges]
     public AchievementWritePolicy achievementWritePolicy { get; set; } = AchievementWritePolicy.UNKNOWN;
     [BsonIgnore]
     public string achievementWritePolicyFormatted
@@ -35,12 +42,16 @@ public class DBAchievement : DBBase
         }
     }
     [OculusField("is_draft")]
+    [TrackChanges]
     public bool isDraft { get; set; } = false;
     [OculusField("is_secret")]
+    [TrackChanges]
     public bool isSecret { get; set; } = false;
     [OculusField("is_archived")]
+    [TrackChanges]
     public bool isArchived { get; set; } = false;
     [ListScrapingNodeFieldPresent]
+    [TrackChanges]
     public List<DBAchievementTranslation> translations { get; set; } = new List<DBAchievementTranslation>();
     [BsonIgnore]
     public string? title
@@ -65,5 +76,15 @@ public class DBAchievement : DBBase
         {
             return translations.FirstOrDefault()?.unlockedDescription ?? null;
         }
+    }
+
+    public DBAchievement GetEntryForDiffGeneration(IMongoCollection<DBAchievement> collection)
+    {
+        return collection.Find(x => x.id == this.id).FirstOrDefault();
+    }
+
+    public void AddOrUpdateEntry(IMongoCollection<DBAchievement> collection)
+    {
+        collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions { IsUpsert = true });
     }
 }

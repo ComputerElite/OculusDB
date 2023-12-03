@@ -139,8 +139,8 @@ namespace OculusDB
 
         public static List<VersionAlias> GetVersionAliases(string appId)
         {
-			return versionAliases.Find(x => x.appId == appId).ToList();
-		}
+            return new List<VersionAlias>();
+        }
 
 		public static List<VersionAlias> GetApplicationsWithAliases()
 		{

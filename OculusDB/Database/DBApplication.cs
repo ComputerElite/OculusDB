@@ -1,12 +1,13 @@
 using System.Text.Json.Serialization;
 using ComputerUtils.VarUtils;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib.Results;
 
 namespace OculusDB.Database;
 
-public class DBApplication : DBBase
+public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.Application;
 
@@ -36,17 +37,13 @@ public class DBApplication : DBBase
     [JsonIgnore]
     [BsonIgnore]
     public string oculusImageUrl { get; set; } = "";
-    [BsonIgnore]
-    [JsonIgnore]
-    private List<string> _genres = new List<string>();
     [OculusFieldAlternate("genres")]
+    private List<string> _genres { get; set; } = new List<string>();
     public List<string> genres {
         get
         {
             return _genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
         }
-        set => _genres = value;
-        
     }
     
     [OculusField("has_in_app_ads")]
@@ -234,9 +231,9 @@ public class DBApplication : DBBase
     public string defaultLocale { get; set; } = "";
     [OculusFieldAlternate("recommended_graphics")]
     public string? recommendedGraphics { get; set; } = null;
-    [OculusFieldAlternate("recommended_memory_gb")]
-    public string? recommendedProcessor { get; set; } = null;
     [OculusFieldAlternate("recommended_processor")]
+    public string? recommendedProcessor { get; set; } = null;
+    [OculusFieldAlternate("recommended_memory_gb")]
     public double? recommendedMemoryGB { get; set; } = null;
     [BsonIgnore]
     public string? recommendedMemoryGBFormatted
@@ -246,5 +243,16 @@ public class DBApplication : DBBase
             if(recommendedGraphics == null) return null;
             return SizeConverter.GigaByteSizeToString(recommendedMemoryGB.Value);
         }
+    }
+    
+    public bool hasUnpublishedMetadataInQueue { get; set; } = false;
+    public DBApplication GetEntryForDiffGeneration(IMongoCollection<DBApplication> collection)
+    {
+        return collection.Find(x => x.id == this.id).FirstOrDefault();
+    }
+
+    public void AddOrUpdateEntry(IMongoCollection<DBApplication> collection)
+    {
+        collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
 }

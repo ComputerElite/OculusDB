@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Security.AccessControl;
 using System.Text.Json;
 using ComputerUtils.Logging;
 using OculusDB.Database;
@@ -17,7 +18,6 @@ public class OculusConverter
         {
             foreach (PropertyInfo sn in toSet)
             {
-                Logger.Log("setting " + sn.Name);
                 sn.SetValue(toAlter, scrapingNodeName);
             }
         }
@@ -72,6 +72,7 @@ public class OculusConverter
         {
             OculusFieldAlternate oculusField = (OculusFieldAlternate)property.GetCustomAttribute(typeof(OculusFieldAlternate), false);
             // try to get value from oculus
+            Logger.Log(oculusField.fieldName);
             PropertyInfo oculusProperty = typeof(OculusType).GetProperty(oculusField.fieldName);
             object? rawValue = oculusProperty.GetValue(oculus);
             property.SetValue(toPopulate, rawValue);
@@ -115,6 +116,11 @@ public class OculusConverter
             });
         }
 
+        if (binary.obb_binary != null)
+        {
+            version.obbBinary = OBBBinary(binary.obb_binary);
+        }
+
         switch (binary.typename_enum)
         {
             case OculusTypeName.AndroidBinary:
@@ -127,7 +133,13 @@ public class OculusConverter
         version.alias = appAliases.Find(a => a.versionId == version.id)?.alias;
         return version;
     }
-    
+
+    public static DBOBBBinary OBBBinary(AssetFile obbAsset)
+    {
+        DBOBBBinary obbBinary = FromOculusToDB<AssetFile, DBOBBBinary>(obbAsset);
+        return obbBinary;
+    }
+
     public static DBParentApplication ParentApplication(Application application)
     {
         DBParentApplication parentApplication = new DBParentApplication();
@@ -170,6 +182,33 @@ public class OculusConverter
         }
         return db;
     }
+
+    public static DBOffer? Price(AppStoreOffer? offer, DBApplication parentApplication)
+    {
+        if (offer == null) return null;
+        DBOffer db = new DBOffer();
+        db.id = offer.id;
+        db.parentApplication = ParentApplication(parentApplication);
+        if (offer.price != null)
+        {
+            DBPrice price = new DBPrice();
+            price.currency = offer.price.currency;
+            price.price = offer.price.offset_amount_numerical;
+            price.priceFormatted = offer.price.formatted;
+            db.price = price;
+            db.currency = offer.price.currency;
+        }
+        if (offer.strikethrough_price != null)
+        {
+            DBPrice strikethroughPrice = new DBPrice();
+            strikethroughPrice.currency = offer.strikethrough_price.currency;
+            strikethroughPrice.price = offer.strikethrough_price.offset_amount_numerical;
+            strikethroughPrice.priceFormatted = offer.strikethrough_price.formatted;
+            db.strikethroughPrice = strikethroughPrice;
+        }
+        db.currency = offer.price.currency;
+        return db;
+    }
     
     public static DBAchievement Achievement(AchievementDefinition achievement, DBApplication dbApplication)
     {
@@ -203,17 +242,18 @@ public class OculusConverter
     /// </summary>
     /// <param name="application"></param>
     /// <returns></returns>
-    public static DBApplication Application(Application application)
+    public static DBApplication Application(Application applicationFromDeveloper, Application applicationFromStore)
     {
-        DBApplication db = FromOculusToDB<Application, DBApplication>(application);
+        DBApplication db = FromOculusToDB<Application, DBApplication>(applicationFromDeveloper);
         
         // Get latest public metadata revision
-        PDPMetadata metadataToUse = application.firstRevision.nodes[0].pdp_metadata;
-        foreach (ApplicationRevision revision in application.revisionsIncludingVariantMetadataRevisions.nodes)
+        PDPMetadata metadataToUse = applicationFromDeveloper.firstRevision.nodes[0].pdp_metadata;
+        foreach (ApplicationRevision revision in applicationFromDeveloper.revisionsIncludingVariantMetadataRevisions.nodes)
         {
             if (revision.release_status_enum == ReleaseStatus.RELEASED)
             {
                 if (metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
+                db.hasUnpublishedMetadataInQueue = true;
                 metadataToUse = GraphQLClient.PDPMetadata(revision.pdp_metadata.id).data.node; // fetch released metadata entry from Oculus
                 break;
             }
@@ -221,15 +261,15 @@ public class OculusConverter
         db = FromOculusToDBAlternate(metadataToUse, db); // populate db with info from PDPMetadata
         db.isFirstParty = metadataToUse.application.is_first_party;
         
-        db.grouping = ApplicationGrouping(application.grouping);
+        db.grouping = ApplicationGrouping(applicationFromDeveloper.grouping);
         
-        db.offerId = application.baseline_offer != null ? application.baseline_offer.id : null;
+        db.offerId = applicationFromStore.current_offer != null ? applicationFromStore.current_offer.id : null;
         
         // Get share capabilities
-        Application? shareCapabilitiesApplication = GraphQLClient.GetAppSharingCapabilities(application.id).data.node;
+        Application? shareCapabilitiesApplication = GraphQLClient.GetAppSharingCapabilities(applicationFromDeveloper.id).data.node;
         db.shareCapabilities = shareCapabilitiesApplication.share_capabilities_enum;
 
-        db.group = OculusPlatformToHeadsetGroup(application.platform_enum);
+        db.group = OculusPlatformToHeadsetGroup(applicationFromDeveloper.platform_enum);
         
         // Add translations
         db.defaultLocale = metadataToUse.application.default_locale;
@@ -240,7 +280,7 @@ public class OculusConverter
                 if(img.image_type_enum == ImageType.APP_IMG_COVER_SQUARE) db.oculusImageUrl = img.uri;    
             }
             DBApplicationTranslation dbTranslation = FromOculusToDB<ApplicationTranslation, DBApplicationTranslation>(translation);
-            dbTranslation.parentApplication = ParentApplication(application);
+            dbTranslation.parentApplication = ParentApplication(applicationFromDeveloper);
             db.translations.Add(dbTranslation);
         }
         return db;
@@ -270,6 +310,12 @@ public class OculusConverter
         DBParentApplicationGrouping db = FromOculusToDB<ApplicationGrouping, DBParentApplicationGrouping>(grouping);
         return db;
     }
+    public static DBParentApplicationGrouping ParentApplicationGrouping(DBApplicationGrouping grouping)
+    {
+        DBParentApplicationGrouping db = new DBParentApplicationGrouping();
+        db.id = grouping.id;
+        return db;
+    }
 
     public static string FormatOculusEnumString(string enumString)
     {
@@ -279,6 +325,46 @@ public class OculusConverter
             words[i] = words[i].ToLower();
         }
         words[0] = words[0][0].ToString().ToUpper() + words[0].Substring(1); // capitalize first letter
+        return String.Join(' ', words);
+    }
+
+    public static DBIAPItemPack IAPItemPack(AppItemBundle dlc, DBApplicationGrouping grouping)
+    {
+        
+        DBIAPItemPack db = FromOculusToDB<AppItemBundle, DBIAPItemPack>(dlc);
+        if(dlc.current_offer != null) db.offerId = dlc.current_offer.id;
+        db.grouping = ParentApplicationGrouping(grouping);
+        foreach (Node<IAPItem> iapItem in dlc.bundle_items.edges)
+        {
+            db.items.Add(IAPItemChild(iapItem.node));
+        }
+        return db;
+    }
+    
+    public static DBIAPItemId IAPItemChild(IAPItem iapItem)
+    {
+        DBIAPItemId db = FromOculusToDB<IAPItem, DBIAPItemId>(iapItem);
+        return db;
+    }
+
+    public static string FormatDBEnumString(string toString)
+    {
+        // split by capital letters
+        List<string> words = new List<string>();
+        string currentWord = "";
+        foreach (char c in toString)
+        {
+            if (Char.IsUpper(c))
+            {
+                if (currentWord.Length > 0) words.Add(currentWord);
+                currentWord = c.ToString();
+            }
+            else
+            {
+                currentWord += c;
+            }
+        }
+        if (currentWord.Length > 0) words.Add(currentWord);
         return String.Join(' ', words);
     }
 }
