@@ -18,6 +18,8 @@ public class DiffTest
     [TrackChanges]
     public List<DiffTestChild> list { get; set; } = new List<DiffTestChild>();
     [TrackChanges]
+    public List<string> list2 { get; set; } = new List<string>();
+    [TrackChanges]
     public long? l { get; set; } = 0;
     [TrackChanges]
     public Headset h { get; set; } = Headset.INVALID;
@@ -39,8 +41,8 @@ public class OculusDBTest
     {
         GraphQLClient.log = false;
         string appId = "2448060205267927";
-        Scrape(appId);
-        return;
+        //Scrape(appId);
+        //return;
         DiffTest diffTestA = new DiffTest
         {
             appId = "",
@@ -53,6 +55,7 @@ public class OculusDBTest
                     t = "b"
                 }
             },
+            list2 = new List<string> {"1", "2"},
             l = 1,
             h = Headset.RIFT,
             d = DateTime.MinValue,
@@ -73,6 +76,7 @@ public class OculusDBTest
                     t = "a"
                 }
             },
+            list2 = new List<string> {"1", "2", "3"},
             l = null,
             h = Headset.RIFT,
             d = DateTime.MaxValue,
@@ -81,7 +85,7 @@ public class OculusDBTest
                 t = "a"
             }
         };
-        Logger.Log(JsonSerializer.Serialize(DiffMaker.GetDifference(diffTestA, diffTestB), new JsonSerializerOptions
+        Console.WriteLine(JsonSerializer.Serialize(DiffMaker.GetDifference(diffTestA, diffTestB), new JsonSerializerOptions
         {
             WriteIndented = true
         }));
