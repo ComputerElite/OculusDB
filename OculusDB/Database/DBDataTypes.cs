@@ -22,6 +22,9 @@ namespace OculusDB.Database
 		public const string ApplicationGrouping = "ApplicationGrouping";
 		public const string ParentApplicationGrouping = "ParentApplicationGrouping";
 		public const string AssetFile = "AssetFile";
+		public const string IAPItemChild = "IAPItemChild";
+		public const string Achievement = "Achievement";
+		public const string AchievementTranslation = "AchievementTranslation";
 		public const string Unknown = "Unknown";
 		
         // not a DB property. Gets resolved on runtime for webhooks

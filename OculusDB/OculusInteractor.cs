@@ -45,7 +45,6 @@ namespace OculusDB
         public static IEnumerable<IAPItem> EnumerateAllDLCs(string groupingId)
         {
             Data<ApplicationGrouping?> s = GraphQLClient.GetDLCsDeveloper(groupingId);
-            int i = 0;
             if(s.data.node == null)
             {
                 throw new Exception("Could not get data to enumerate dlcs.");
@@ -54,12 +53,25 @@ namespace OculusDB
             {
                 foreach (Node<IAPItem> e in s.data.node.add_ons.edges)
                 {
-                    i++;
                     yield return e.node;
                 }
 
                 if (!s.data.node.add_ons.page_info.has_next_page) break;
                 s = GraphQLClient.GetDLCsDeveloper(groupingId, s.data.node.add_ons.page_info.end_cursor);
+            }
+        }
+        
+        public static IEnumerable<AchievementDefinition> EnumerateAllAchievements(string appId)
+        {
+            Data<Application?> s = GraphQLClient.GetAchievements(appId);
+            Logger.Log(JsonSerializer.Serialize(s));
+            if(s.data.node == null)
+            {
+                throw new Exception("Could not get data to enumerate achievements.");
+            }
+            foreach (AchievementDefinition e in s.data.node.grouping.achievement_definitions.nodes)
+            {
+                yield return e;
             }
         }
     }

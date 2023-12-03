@@ -170,6 +170,25 @@ public class OculusConverter
         }
         return db;
     }
+    
+    public static DBAchievement Achievement(AchievementDefinition achievement, DBApplication dbApplication)
+    {
+        DBAchievement db = FromOculusToDB<AchievementDefinition, DBAchievement>(achievement);
+        AchievementDefinition specificAchievement = GraphQLClient.GetAchievement(db.id).data.node;
+        db = FromOculusToDBAlternate(specificAchievement, db);
+        db.grouping = ParentApplicationGrouping(specificAchievement.application_grouping);
+        for (int i = 0; i < specificAchievement.title_locale_map.Count; i++)
+        {
+            DBAchievementTranslation translation = new DBAchievementTranslation();
+            translation.title = specificAchievement.title_locale_map[i].translation;
+            translation.description = specificAchievement.description_locale_map[i].translation;
+            translation.unlockedDescription =
+                specificAchievement.unlocked_description_override_locale_map[i].translation;
+            translation.locale = specificAchievement.title_locale_map[i].locale;
+            db.translations.Add(translation);
+        }
+        return db;
+    }
 
     public static DBAssetFile AssetFile(AssetFile assetFile, DBApplication dbApplication)
     {

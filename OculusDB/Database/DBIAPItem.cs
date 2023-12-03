@@ -36,4 +36,6 @@ public class DBIAPItem : DBBase
     
     // Specific Developer IAP request -> msrp_offers->nodes[0]->id
     public string? offerId { get; set; } = null;
+    [BsonIgnore]
+    public List<DBPrice>? prices { get; set; } = null;
 }
