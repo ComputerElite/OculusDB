@@ -38,7 +38,9 @@ public class OculusDBTest
     public static void Test()
     {
         GraphQLClient.log = false;
-        string appId = "1304877726278670";
+        string appId = "2448060205267927";
+        Scrape(appId);
+        return;
         DiffTest diffTestA = new DiffTest
         {
             appId = "",
@@ -98,6 +100,7 @@ public class OculusDBTest
         // Add application
         Application applicationFromDeveloper = GraphQLClient.AppDetailsDeveloperAll(appId).data.node;
         Application applicationFromStore = GraphQLClient.AppDetailsMetaStore(appId).data.item;
+        
         DBApplication dbApp = OculusConverter.AddScrapingNodeName(OculusConverter.Application(applicationFromDeveloper, applicationFromStore), scrapingNodeName);
 
         List<DBOffer> offers = new List<DBOffer>();
@@ -149,6 +152,11 @@ public class OculusDBTest
             Logger.Log(v.versionCode.ToString());
             versions.Add(v);
         }
+
+        // Add application packageName
+        
+        DBVersion? versionToGiveApplication = versions.Count > 0 ? versions[0] : null;
+        dbApp.packageName = versionToGiveApplication?.packageName ?? "";
         
         
         // Add Achievements

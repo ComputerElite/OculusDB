@@ -260,6 +260,7 @@ public class OculusConverter
         }
         db = FromOculusToDBAlternate(metadataToUse, db); // populate db with info from PDPMetadata
         db.isFirstParty = metadataToUse.application.is_first_party;
+        db.canonicalName = applicationFromStore.canonicalName;
         
         db.grouping = ApplicationGrouping(applicationFromDeveloper.grouping);
         

@@ -21,12 +21,16 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
 
     [OculusField("id")]
+    [TrackChanges]
     public string id { get; set; } = "";
+    [TrackChanges]
     public HeadsetGroup group { get; set; } = HeadsetGroup.Unknown;
     
     [OculusFieldAlternate("category_enum")]
+    [TrackChanges]
     public Category category { get; set; } = Category.UNKNOWN;
     [BsonIgnore]
+    [TrackChanges]
     public string categoryFormatted
     {
         get
@@ -38,6 +42,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [BsonIgnore]
     public string oculusImageUrl { get; set; } = "";
     [OculusFieldAlternate("genres")]
+    [TrackChanges]
     private List<string> _genres { get; set; } = new List<string>();
     public List<string> genres {
         get
@@ -47,38 +52,52 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
     
     [OculusField("has_in_app_ads")]
+    [TrackChanges]
     public bool hasInAppAds { get; set; } = false;
     
     [OculusField("is_concept")]
+    [TrackChanges]
     public bool isAppLab { get; set; } = false;
     
     [OculusField("is_quest_for_business")]
+    [TrackChanges]
     public bool isQuestForBusiness { get; set; } = false;
     
     [OculusField("is_test")]
+    [TrackChanges]
     public bool isTest { get; set; } = false;
     
     [OculusField("is_blocked_by_verification")]
+    [TrackChanges]
     public bool isBlockedByVerification { get; set; } = false;
     
     [OculusField("is_for_oculus_keys_only")]
+    [TrackChanges]
     public bool isForOculusKeysOnly { get; set; } = false;
+    [TrackChanges]
     public bool isFirstParty { get; set; } = false;
     
     [OculusField("releaseDate")]
+    [TrackChanges]
     public DateTime releaseTime { get; set; } = DateTime.MinValue;
     
     [OculusFieldAlternate("publisher_name")]
+    [TrackChanges]
     public string publisherName { get; set; } = "";
     [OculusFieldAlternate("support_website_url")]
+    [TrackChanges]
     public string? supportWebsiteUrl { get; set; } = null;
     [OculusFieldAlternate("developer_terms_of_service_url")]
+    [TrackChanges]
     public string? developerTermOfServiceUrl { get; set; } = null;
     [OculusFieldAlternate("developer_privacy_policy_url")]
+    [TrackChanges]
     public string? developerPrivacyPolicyUrl { get; set; } = null;
     [OculusFieldAlternate("website_url")]
+    [TrackChanges]
     public string? websiteUrl { get; set; } = null;
     [OculusFieldAlternate("external_subscription_type_enum")]
+    [TrackChanges]
     public ExternalSubscriptionType externalSubscriptionType { get; set; } = ExternalSubscriptionType.UNKNOWN;
     [BsonIgnore]
     public string externalSubscriptionTypeFormatted
@@ -90,6 +109,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
 
     [OculusFieldAlternate("comfort_rating_enum")]
+    [TrackChanges]
     public ComfortRating comfortRating { get; set; } = ComfortRating.UNKNOWN;
     
     [BsonIgnore]
@@ -101,10 +121,13 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
         }
     }
     
+    [TrackChanges]
     public string? offerId { get; set; } = null;
     [OculusFieldAlternate("supported_in_app_languages")]
+    [TrackChanges]
     public List<string> supportedInAppLanguages { get; set; } = new List<string>();
     [OculusFieldAlternate("supported_input_devices_enum")]
+    [TrackChanges]
     public List<SupportedInputDevice> supportedInputDevices { get; set; } = new List<SupportedInputDevice>();
     [BsonIgnore]
     public List<string> supportedInputDevicesFormatted
@@ -121,6 +144,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
     
     [OculusFieldAlternate("supported_player_modes_enum")]
+    [TrackChanges]
     public List<SupportedPlayerMode> supportedPlayerModes { get; set; } = new List<SupportedPlayerMode>();
     [BsonIgnore]
     public List<string> supportedPlayerModesFormatted
@@ -137,6 +161,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
     
     [OculusFieldAlternate("user_interaction_modes_enum")]
+    [TrackChanges]
     public List<UserInteractionMode> userInteractionModes { get; set; } = new List<UserInteractionMode>();
     [BsonIgnore]
     public List<string> userInteractionModesFormatted
@@ -151,6 +176,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
             return formatted;
         }
     }
+    [TrackChanges]
     public List<ShareCapability> shareCapabilities { get; set; } = new List<ShareCapability>();
     [BsonIgnore]
     public List<string> shareCapabilitiesFormatted
@@ -167,6 +193,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
     
     [OculusFieldAlternate("play_area_enum")]
+    [TrackChanges]
     public PlayArea playArea { get; set; } = PlayArea.UNKNOWN;
     [BsonIgnore]
     public string playAreaFormatted
@@ -218,22 +245,30 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
         }
     }
     
-    
+    [TrackChanges]
     public string packageName { get; set; } = "";
+    [TrackChanges]
+    public string canonicalName { get; set; } = "";
 
     [BsonIgnore]
     public List<DBPrice> prices { get; set; } = new List<DBPrice>();
     
     [ObjectScrapingNodeFieldPresent]
+    [TrackChanges]
     public DBApplicationGrouping? grouping { get; set; } = null;
     [ListScrapingNodeFieldPresent]
+    [TrackChanges]
     public List<DBApplicationTranslation> translations { get; set; } = new List<DBApplicationTranslation>();
+    [TrackChanges]
     public string defaultLocale { get; set; } = "";
     [OculusFieldAlternate("recommended_graphics")]
+    [TrackChanges]
     public string? recommendedGraphics { get; set; } = null;
     [OculusFieldAlternate("recommended_processor")]
+    [TrackChanges]
     public string? recommendedProcessor { get; set; } = null;
     [OculusFieldAlternate("recommended_memory_gb")]
+    [TrackChanges]
     public double? recommendedMemoryGB { get; set; } = null;
     [BsonIgnore]
     public string? recommendedMemoryGBFormatted
@@ -245,6 +280,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
         }
     }
     
+    [TrackChanges]
     public bool hasUnpublishedMetadataInQueue { get; set; } = false;
     public DBApplication GetEntryForDiffGeneration(IMongoCollection<DBApplication> collection)
     {
