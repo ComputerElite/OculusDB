@@ -10,5 +10,6 @@ namespace OculusDB.Database
     {
         public List<DBApplication> applications { get; set; } = new List<DBApplication>();
         public List<DBVersion> versions { get; set; } = new List<DBVersion>();
+        public List<DBAchievement> achievements { get; set; } = new List<DBAchievement>();
     }
 }

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ComputerUtils.Logging;
+using OculusDB.Constants;
 using OculusDB.Database;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib;
@@ -39,10 +40,52 @@ public class OculusDBTest
 {
     public static void Test()
     {
+        
         GraphQLClient.log = false;
-        string appId = "2448060205267927";
-        //Scrape(appId);
-        //return;
+        /*
+        Console.WriteLine("{");
+        foreach (Application application in OculusInteractor.EnumerateAllApplications(Headset.GEARVR))
+        {
+            Console.Write("\"" + application.id + "\",");
+            //
+        }
+        Console.WriteLine("}");
+        return;
+        */
+
+        /*
+         // Check for custom items
+        while (appIds.Count > 0)
+        {
+            ApplicationGrouping g = GraphQLClient.GetCustomItems(appIds[0]).data.node;
+            if (g.worlds_custom_developer_item_definitions.edges.Count > 0) Console.WriteLine(appIds[0]);
+            appIds.RemoveAt(0);
+            if(appIds.Count % 100 == 0) Console.WriteLine(appIds.Count);
+        }
+        return;
+        */
+        List<string> appIds = AppIdList.appIdsGearVR;
+        if(!File.Exists("appIds.json")) File.WriteAllText("appIds.json", JsonSerializer.Serialize(appIds));
+        appIds = JsonSerializer.Deserialize<List<string>>(File.ReadAllText("appIds.json"));
+        Console.Write(appIds.Count);
+        while (appIds.Count > 0)
+        {
+            Scrape(appIds[0]);
+            appIds.RemoveAt(0);
+            File.WriteAllText("appIds.json", JsonSerializer.Serialize(appIds));
+        }
+
+        return;
+        /*
+        Console.WriteLine("{");
+        foreach (Application application in OculusInteractor.EnumerateAllApplications(Headset.HOLLYWOOD))
+        {
+            Console.Write("\"" + application.id + "\",");
+            //
+        }
+        
+        Console.WriteLine("}");
+        */
         DiffTest diffTestA = new DiffTest
         {
             appId = "",
@@ -108,18 +151,29 @@ public class OculusDBTest
         DBApplication dbApp = OculusConverter.AddScrapingNodeName(OculusConverter.Application(applicationFromDeveloper, applicationFromStore), scrapingNodeName);
 
         List<DBOffer> offers = new List<DBOffer>();
+        offers.Add(OculusConverter.Price(applicationFromStore.current_offer, dbApp));
         List<DBIAPItemPack> dlcPacks = new List<DBIAPItemPack>();
         // Get DLC Packs and prices
         // Add DLCs
         List<DBIAPItem> iapItems = new List<DBIAPItem>();
         int i = 0;
-        foreach (IAPItem iapItem in OculusInteractor.EnumerateAllDLCs(dbApp.grouping.id))
+        if (dbApp.grouping != null)
         {
-            Logger.Log(i.ToString());
-            i++;
-            iapItems.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItem(iapItem, dbApp), scrapingNodeName));
+            foreach (IAPItem iapItem in OculusInteractor.EnumerateAllDLCs(dbApp.grouping.id))
+            {
+                Logger.Log(i.ToString());
+                i++;
+                iapItems.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItem(iapItem, dbApp), scrapingNodeName));
+            }
         }
-        
+        else
+        {
+            dbApp.errors.Add(new DBError
+            {
+                type = DBErrorType.CouldNotScrapeIaps,
+                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown
+            });
+        }
         Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
         if (dlcApplication.data.node != null && dlcApplication.data.node.latest_supported_binary != null && dlcApplication.data.node.latest_supported_binary.firstIapItems != null)
         {
@@ -132,9 +186,13 @@ public class OculusDBTest
                     {
                         iapItems.FirstOrDefault(x => x.id == dlc.node.id).displayShortDescription = dlc.node.display_short_description;
                     }
+                    else
+                    {
+                        throw new Exception("DLC not found in DLCs");
+                    }
                     offers.Add(
                         OculusConverter.AddScrapingNodeName(OculusConverter.Price(dlc.node.current_offer, dbApp),
-                        scrapingNodeName));
+                            scrapingNodeName));
                 }
                 else
                 {
@@ -147,27 +205,41 @@ public class OculusDBTest
             }
         }
         
+        
         // Get Versions
         List<DBVersion> versions = new List<DBVersion>();
         List<VersionAlias> versionAliases = MongoDBInteractor.GetVersionAliases(dbApp.id);
+        
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper, versionAliases), scrapingNodeName);
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper, versionAliases,dbApp), scrapingNodeName);
             Logger.Log(v.versionCode.ToString());
             versions.Add(v);
         }
+        
+        
 
         // Add application packageName
         
         DBVersion? versionToGiveApplication = versions.Count > 0 ? versions[0] : null;
-        dbApp.packageName = versionToGiveApplication?.packageName ?? "";
+        dbApp.packageName = versionToGiveApplication?.packageName ?? null;
         
         
         // Add Achievements
         List<DBAchievement> achievements = new List<DBAchievement>();
-        foreach (AchievementDefinition achievement in OculusInteractor.EnumerateAllAchievements(dbApp.id))
+        try
         {
-            achievements.Add(OculusConverter.AddScrapingNodeName(OculusConverter.Achievement(achievement, dbApp), scrapingNodeName));
+            foreach (AchievementDefinition achievement in OculusInteractor.EnumerateAllAchievements(dbApp.id))
+            {
+                achievements.Add(OculusConverter.AddScrapingNodeName(OculusConverter.Achievement(achievement, dbApp), scrapingNodeName));
+            }
+        } catch (Exception e)
+        {
+            dbApp.errors.Add(new DBError
+            {
+                type = DBErrorType.CouldNotScrapeAchievements,
+                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown
+            });
         }
         Logger.Log(JsonSerializer.Serialize(achievements));
         File.WriteAllText("/home/computerelite/Downloads/full_scrape_" + appId + ".json", JsonSerializer.Serialize(new Dictionary<string, dynamic>

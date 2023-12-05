@@ -50,6 +50,12 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     [OculusField("is_archived")]
     [TrackChanges]
     public bool isArchived { get; set; } = false;
+    [OculusFieldAlternate("bitfield_length")]
+    [TrackChanges]
+    public long? bitfieldLength { get; set; } = null;
+    [OculusFieldAlternate("target_numerical")]
+    [TrackChanges]
+    public long? bitfieldTarget { get; set; } = null;
     [ListScrapingNodeFieldPresent]
     [TrackChanges]
     public List<DBAchievementTranslation> translations { get; set; } = new List<DBAchievementTranslation>();

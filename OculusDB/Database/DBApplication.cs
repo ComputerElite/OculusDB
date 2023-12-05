@@ -76,6 +76,8 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public bool isForOculusKeysOnly { get; set; } = false;
     [TrackChanges]
     public bool isFirstParty { get; set; } = false;
+    [TrackChanges]
+    public bool cloudBackupEnabled { get; set; } = false;
     
     [OculusField("releaseDate")]
     [TrackChanges]
@@ -246,7 +248,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
     
     [TrackChanges]
-    public string packageName { get; set; } = "";
+    public string? packageName { get; set; } = null;
     [TrackChanges]
     public string canonicalName { get; set; } = "";
 
@@ -275,13 +277,16 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     {
         get
         {
-            if(recommendedGraphics == null) return null;
+            if(recommendedMemoryGB == null) return null;
             return SizeConverter.GigaByteSizeToString(recommendedMemoryGB.Value);
         }
     }
     
     [TrackChanges]
     public bool hasUnpublishedMetadataInQueue { get; set; } = false;
+    
+    public List<DBError> errors { get; set; } = new List<DBError>();
+    
     public DBApplication GetEntryForDiffGeneration(IMongoCollection<DBApplication> collection)
     {
         return collection.Find(x => x.id == this.id).FirstOrDefault();

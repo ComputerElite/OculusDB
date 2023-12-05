@@ -66,6 +66,7 @@ public class OculusConverter
 
     public static DBType FromOculusToDBAlternate<OculusType, DBType>(OculusType oculus, DBType toPopulate) where DBType : new()
     {
+        if (oculus == null) throw new Exception("Cannot convert null object");
         IEnumerable<PropertyInfo> properties = typeof(DBType).GetProperties()
             .Where(prop => prop.IsDefined(typeof(OculusFieldAlternate), false));
         foreach (PropertyInfo property in properties)
@@ -87,6 +88,7 @@ public class OculusConverter
     }
     public static DBType FromOculusToDB<OculusType, DBType>(OculusType oculus) where DBType : new()
     {
+        if (oculus == null) throw new Exception("Cannot convert null object");
         DBType db = new DBType();
         IEnumerable<PropertyInfo> properties = typeof(DBType).GetProperties()
             .Where(prop => prop.IsDefined(typeof(OculusField), false));
@@ -103,7 +105,7 @@ public class OculusConverter
         return db;
     }
 
-    public static DBVersion Version(OculusBinary binary, Application parent, List<VersionAlias> appAliases)
+    public static DBVersion Version(OculusBinary binary, Application parent, List<VersionAlias> appAliases, DBApplication dbApplication)
     {
         DBVersion version = FromOculusToDB<OculusBinary, DBVersion>(binary);
         version.parentApplication = ParentApplication(parent);
@@ -129,6 +131,12 @@ public class OculusConverter
             case OculusTypeName.PCBinary:
                 version.binaryType = HeadsetBinaryType.PCBinary;
                 break;
+        }
+
+        if (dbApplication.group == HeadsetGroup.GoAndGearVr)
+        {
+            // GearVR and Go report wrong headsets as targeted devices, so let's just override them for now
+            version.targetedDevicesEnum = new List<Headset> {Headset.GEARVR, Headset.PACIFIC};
         }
         version.alias = appAliases.Find(a => a.versionId == version.id)?.alias;
         return version;
@@ -221,7 +229,7 @@ public class OculusConverter
             DBAchievementTranslation translation = new DBAchievementTranslation();
             translation.title = specificAchievement.title_locale_map[i].translation;
             translation.description = specificAchievement.description_locale_map[i].translation;
-            translation.unlockedDescription =
+            if(specificAchievement.unlocked_description_override_locale_map.Count > i) translation.unlockedDescription =
                 specificAchievement.unlocked_description_override_locale_map[i].translation;
             translation.locale = specificAchievement.title_locale_map[i].locale;
             db.translations.Add(translation);
@@ -245,6 +253,8 @@ public class OculusConverter
     public static DBApplication Application(Application applicationFromDeveloper, Application applicationFromStore)
     {
         DBApplication db = FromOculusToDB<Application, DBApplication>(applicationFromDeveloper);
+        Application applicationCloudStorage = GraphQLClient.AppDetailsCloudStorageEnabled(applicationFromDeveloper.id).data.node;
+        db.cloudBackupEnabled = applicationCloudStorage.cloud_backup_enabled;
         
         // Get latest public metadata revision
         PDPMetadata metadataToUse = applicationFromDeveloper.firstRevision.nodes[0].pdp_metadata;
@@ -252,8 +262,9 @@ public class OculusConverter
         {
             if (revision.release_status_enum == ReleaseStatus.RELEASED)
             {
-                if (metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
+                if (metadataToUse != null && metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
                 db.hasUnpublishedMetadataInQueue = true;
+                if(revision.pdp_metadata == null) continue;
                 metadataToUse = GraphQLClient.PDPMetadata(revision.pdp_metadata.id).data.node; // fetch released metadata entry from Oculus
                 break;
             }
@@ -296,13 +307,16 @@ public class OculusConverter
                 return HeadsetGroup.PCVR;
             case OculusPlatform.ANDROID_6DOF:
                 return HeadsetGroup.Quest;
+            case OculusPlatform.ANDROID:
+                return HeadsetGroup.GoAndGearVr;
         }
 
-        return HeadsetGroup.Unknown;
+        return HeadsetGroup.Unknown;    
     }
     
-    public static DBApplicationGrouping ApplicationGrouping(ApplicationGrouping grouping)
+    public static DBApplicationGrouping? ApplicationGrouping(ApplicationGrouping? grouping)
     {
+        if (grouping == null) return null;
         DBApplicationGrouping db = FromOculusToDB<ApplicationGrouping, DBApplicationGrouping>(grouping);
         return db;
     }

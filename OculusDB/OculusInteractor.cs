@@ -24,22 +24,24 @@ namespace OculusDB
 
         public static IEnumerable<Application> EnumerateAllApplications(Headset headset)
         {
-            Data<AppStoreAllAppsSection> s = GraphQLClient.AllApps(headset);
-            int i = 0;
+            Data<AppStoreAllAppsSection> s = GraphQLClient.AllApps(headset, null, 100);
+            File.WriteAllText("/home/computerelite/Downloads/test.json", JsonSerializer.Serialize(s));
             if(s.data.node == null)
             {
                 throw new Exception("Could not get data to enumerate applications.");
             }
-            while (i < s.data.node.all_items.count)
+
+            string cursor = null;
+            while (s.data.node.all_items.edges.Count > 0)
             {
-                string cursor = "";
                 foreach (Node<Application> e in s.data.node.all_items.edges)
                 {
                     cursor = e.cursor;
-                    i++;
                     yield return e.node;
                 }
-                s = GraphQLClient.AllApps(headset, cursor);
+
+                //if (s.data.node.all_items.page_info.has_next_page) break;
+                s = GraphQLClient.AllApps(headset, cursor, 100);
             }
         }
         
@@ -66,7 +68,7 @@ namespace OculusDB
         {
             Data<Application?> s = GraphQLClient.GetAchievements(appId);
             Logger.Log(JsonSerializer.Serialize(s));
-            if(s.data.node == null)
+            if(s.data.node == null || s.data.node.grouping == null)
             {
                 throw new Exception("Could not get data to enumerate achievements.");
             }

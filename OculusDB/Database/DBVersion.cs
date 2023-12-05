@@ -105,6 +105,15 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
             return releaseChannels.Count > 0;
         }
     }
+    [OculusField("max_android_sdk_version")]
+    [TrackChanges]
+    public int? maxAndroidSdkVersion { get; set; } = null;
+    [OculusField("min_android_sdk_version")]
+    [TrackChanges]
+    public int? minAndroidSdkVersion { get; set; } = null;
+    [OculusField("target_android_sdk_version")]
+    [TrackChanges]
+    public int? targetAndroidSdkVersion { get; set; } = null;
     public DBOBBBinary? obbBinary { get; set; } = null;
     public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
     public DBVersion GetEntryForDiffGeneration(IMongoCollection<DBVersion> collection)
