@@ -1,4 +1,7 @@
+using System.Text.Json.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib.Results;
 
@@ -19,5 +22,12 @@ public class DBApplicationGrouping : DBBase
         {
             return OculusConverter.FormatOculusEnumString(reportMethod.ToString());
         }
+    }
+
+    public static List<string> GetApplicationIdsFromGrouping(string? groupingId)
+    { 
+        if(groupingId == null) return new List<string>();
+        return OculusDBDatabase.applicationCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList()
+            .ConvertAll(x => x.id);
     }
 }

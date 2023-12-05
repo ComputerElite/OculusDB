@@ -32,4 +32,8 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
+    public override List<string> GetApplicationIds()
+    {
+        return DBApplicationGrouping.GetApplicationIdsFromGrouping(grouping?.id ?? null);
+    }
 }

@@ -30,4 +30,10 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     {
         collection.ReplaceOne(x => x.currency == this.currency && x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
+    
+    public override List<string> GetApplicationIds()
+    {
+        if (parentApplication == null) return new List<string>();
+        return new List<string>() { parentApplication.id };
+    }
 }

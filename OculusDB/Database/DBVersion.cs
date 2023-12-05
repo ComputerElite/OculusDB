@@ -125,4 +125,9 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
+    public override List<string> GetApplicationIds()
+    {
+        if (parentApplication == null) return new List<string>();
+        return new List<string>() { parentApplication.id };
+    }
 }

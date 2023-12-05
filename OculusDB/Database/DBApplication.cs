@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using ComputerUtils.VarUtils;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib.Results;
 
@@ -295,5 +296,25 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public void AddOrUpdateEntry(IMongoCollection<DBApplication> collection)
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
+    }
+
+    /// <summary>
+    /// Gets an DB application by id from the database
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static DBApplication? ById(string appid)
+    {
+        return OculusDBDatabase.applicationCollection.Find(x => x.id == appid).FirstOrDefault();
+    }
+    
+    public static DBApplication? ByPackageName(string packageName)
+    {
+        return OculusDBDatabase.applicationCollection.Find(x => x.packageName == packageName).FirstOrDefault();
+    }
+
+    public override List<string> GetApplicationIds()
+    {
+        return new List<string> { id };
     }
 }
