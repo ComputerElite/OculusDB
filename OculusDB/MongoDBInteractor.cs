@@ -124,7 +124,11 @@ namespace OculusDB
             
             // Step 1: Get the object by id.
             DBBase? foundObject = OculusDBDatabase.GetDocument(id);
-            return null;
+            if(foundObject == null) return null;
+            List<string> appIds = foundObject.GetApplicationIds();
+            
+            // Get population context with stuff needed for multiple entries to populate themselves. Just using one query per type instead of multiple per id
+            PopulationContext context = PopulationContext.GetForApplications(appIds);
 
             return l;
         }
