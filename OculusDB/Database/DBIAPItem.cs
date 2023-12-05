@@ -1,5 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib.Results;
 
@@ -51,7 +52,7 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     [TrackChanges]
     public string? offerId { get; set; } = null;
     [BsonIgnore]
-    public List<DBPrice>? prices { get; set; } = null;
+    public List<DBOffer>? offers { get; set; } = null;
 
     public DBIAPItem GetEntryForDiffGeneration(IMongoCollection<DBIAPItem> collection)
     {
@@ -63,8 +64,13 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
     
-    public override List<string> GetApplicationIds()
+    public override ApplicationContext GetApplicationIds()
     {
-        return DBApplicationGrouping.GetApplicationIdsFromGrouping(grouping?.id ?? null);
+        return ApplicationContext.FromGroupingId(grouping?.id ?? null);
+    }
+
+    public override void PopulateSelf(PopulationContext context)
+    {
+        offers = context.GetOffers(offerId);
     }
 }

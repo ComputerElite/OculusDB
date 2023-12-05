@@ -1,4 +1,5 @@
 using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 
 namespace OculusDB.Database;
@@ -31,9 +32,8 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
         collection.ReplaceOne(x => x.currency == this.currency && x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
     
-    public override List<string> GetApplicationIds()
+    public override ApplicationContext GetApplicationIds()
     {
-        if (parentApplication == null) return new List<string>();
-        return new List<string>() { parentApplication.id };
+        return ApplicationContext.FromAppId(parentApplication?.id ?? null);
     }
 }

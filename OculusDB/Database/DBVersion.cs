@@ -1,6 +1,7 @@
 using ComputerUtils.VarUtils;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
@@ -125,9 +126,13 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
-    public override List<string> GetApplicationIds()
+    public override ApplicationContext GetApplicationIds()
     {
-        if (parentApplication == null) return new List<string>();
-        return new List<string>() { parentApplication.id };
+        return ApplicationContext.FromAppId(parentApplication?.id ?? null);
+    }
+
+    public override void PopulateSelf(PopulationContext context)
+    {
+        alias = context.GetVersionAlias(id)?.alias ?? null;
     }
 }

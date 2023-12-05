@@ -10,9 +10,9 @@ public class DBBase
     public virtual string __OculusDBType { get; set; } = DBDataTypes.Unknown;
     public string __sn { get; set; } = "";
 
-    public virtual List<string> GetApplicationIds()
+    public virtual ApplicationContext GetApplicationIds()
     {
-        return new List<string>();
+        return new ApplicationContext();
     }
     
     public virtual void PopulateSelf(PopulationContext context)

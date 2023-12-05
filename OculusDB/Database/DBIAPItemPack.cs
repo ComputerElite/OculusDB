@@ -1,4 +1,6 @@
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 
 namespace OculusDB.Database;
@@ -14,6 +16,9 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     public string id { get; set; } = "";
     [TrackChanges]
     public string offerId { get; set; } = "";
+    [BsonIgnore]
+    public List<DBOffer>? offers { get; set; } = null;
+    
     [OculusField("display_name")]
     [TrackChanges]
     public string displayName { get; set; } = "";
@@ -32,8 +37,13 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
-    public override List<string> GetApplicationIds()
+    public override ApplicationContext GetApplicationIds()
     {
-        return DBApplicationGrouping.GetApplicationIdsFromGrouping(grouping?.id ?? null);
+        return ApplicationContext.FromGroupingId(grouping?.id ?? null);
+    }
+
+    public override void PopulateSelf(PopulationContext context)
+    {
+        offers = context.GetOffers(offerId);
     }
 }

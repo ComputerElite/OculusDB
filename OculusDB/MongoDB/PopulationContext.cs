@@ -3,6 +3,9 @@ using OculusDB.Database;
 
 namespace OculusDB.MongoDB;
 
+/// <summary>
+/// Class for caching data when populating multiple objects of an app. This aggregates all offers and version aliases once for an application.
+/// </summary>
 public class PopulationContext
 {
     public List<VersionAlias> versionAliases { get; set; } = new List<VersionAlias>();
@@ -53,6 +56,10 @@ public class PopulationContext
         PopulationContext context = new PopulationContext();
         context.versionAliases = OculusDBDatabase.versionAliases.Find(x => appIds.Contains(x.appId)).ToList();
         context.offers = OculusDBDatabase.offerCollection.Find(x => x.parentApplication != null && appIds.Contains(x.parentApplication.id)).ToList();
-        
+    }
+
+    public static PopulationContext GetForApplicationContext(ApplicationContext context)
+    {
+        return GetForApplications(context.appIds);
     }
 }

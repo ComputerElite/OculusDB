@@ -254,7 +254,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public string canonicalName { get; set; } = "";
 
     [BsonIgnore]
-    public List<DBPrice> prices { get; set; } = new List<DBPrice>();
+    public List<DBOffer> offers { get; set; } = null;
     
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
@@ -313,8 +313,13 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
         return OculusDBDatabase.applicationCollection.Find(x => x.packageName == packageName).FirstOrDefault();
     }
 
-    public override List<string> GetApplicationIds()
+    public override ApplicationContext GetApplicationIds()
     {
-        return new List<string> { id };
+        return ApplicationContext.FromAppId(id);
+    }
+
+    public override void PopulateSelf(PopulationContext context)
+    {
+        offers = context.GetOffers(offerId);
     }
 }
