@@ -135,4 +135,19 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     {
         alias = context.GetVersionAlias(id)?.alias ?? null;
     }
+    
+    public static List<DBVersion> GetVersionsOfAppId(string applicationId)
+    {
+        return OculusDBDatabase.versionCollection.Find(x => x.parentApplication.id == applicationId).SortByDescending(x => x.versionCode).ToList();
+    }
+
+    public static List<DBVersion> GetVersionsOfAppIds(List<string> applicationIds)
+    {
+        List<DBVersion> versions = new List<DBVersion>();
+        foreach (string appId in applicationIds)
+        {
+            versions.AddRange(GetVersionsOfAppId(appId));
+        }
+        return versions;
+    }
 }

@@ -27,7 +27,7 @@ public class OculusDBDatabase
         public static IMongoCollection<DBAppImage>? appImages;
         public static IMongoCollection<DBIAPItem>? iapItemCollection;
         public static IMongoCollection<DBIAPItemPack>? iapItemPackCollection;
-        public static IMongoCollection<DBVersion>? versionsCollection;
+        public static IMongoCollection<DBVersion>? versionCollection;
         public static IMongoCollection<DBAchievement>? achievementCollection;
         public static IMongoCollection<DBOffer>? offerCollection;
         

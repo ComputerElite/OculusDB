@@ -99,4 +99,10 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     {
         return ApplicationContext.FromGroupingId(grouping?.id ?? null);
     }
+
+    public static List<DBAchievement> GetAllForApplicationGrouping(string? groupingId)
+    {
+        if (groupingId == null) return new List<DBAchievement>();
+        return OculusDBDatabase.achievementCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
+    }
 }

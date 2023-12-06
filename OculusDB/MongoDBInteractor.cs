@@ -129,7 +129,15 @@ namespace OculusDB
             
             // Get population context with stuff needed for multiple entries to populate themselves. Just using one query per type instead of multiple per id
             PopulationContext context = PopulationContext.GetForApplicationContext(applicationContext);
-
+            
+            // Step 2: Get all the connected objects
+            l.applications = OculusDBDatabase.applicationCollection.Find(x => applicationContext.appIds.Contains(x.id)).ToList();
+            l.iapItems = DBIAPItem.GetAllForApplicationGrouping(applicationContext.groupingId);
+            l.iapItemPacks = DBIAPItemPack.GetAllForApplicationGrouping(applicationContext.groupingId);
+            l.achievements = DBAchievement.GetAllForApplicationGrouping(applicationContext.groupingId);
+            l.versions = DBVersion.GetVersionsOfAppIds(applicationContext.appIds);
+            
+            l.PopulateAll(context);
             return l;
         }
 

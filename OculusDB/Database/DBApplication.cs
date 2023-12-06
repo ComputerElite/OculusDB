@@ -303,13 +303,15 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     /// </summary>
     /// <param name="app"></param>
     /// <returns></returns>
-    public static DBApplication? ById(string appid)
+    public static DBApplication? ById(string? appid)
     {
+        if (appid == null) return null;
         return OculusDBDatabase.applicationCollection.Find(x => x.id == appid).FirstOrDefault();
     }
     
-    public static DBApplication? ByPackageName(string packageName)
+    public static DBApplication? ByPackageName(string? packageName)
     {
+        if(packageName == null) return null;
         return OculusDBDatabase.applicationCollection.Find(x => x.packageName == packageName).FirstOrDefault();
     }
 

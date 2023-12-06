@@ -46,4 +46,10 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     {
         offers = context.GetOffers(offerId);
     }
+
+    public static List<DBIAPItemPack> GetAllForApplicationGrouping(string? groupingId)
+    {
+        if (groupingId == null) return new List<DBIAPItemPack>();
+        return OculusDBDatabase.iapItemPackCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
+    }
 }
