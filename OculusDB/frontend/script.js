@@ -1323,6 +1323,11 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
         }
         if(isObb && !sendToParent) ObbInfoPopup()
     } else {
+PopUp(`
+<div>
+        Due to a change in Meta's authentication methods it is currently not possible to download games from OculusDB. We're investigating the issue and will keep you posted on <a href="{OculusDBDC}">the OculusDB discord server</a>.
+</div>`)
+/*
         PopUp(`
         <div>
             To download games you must be logged in on <a href="{oculusloginlink}" target="_blank">{oculusloginlink}</a> with an account which owns the game! If you aren't logged in, you won't be able to download games.
@@ -1335,6 +1340,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
             </div>
         </div>
     `)
+    */
     }
    
 }
