@@ -44,8 +44,8 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public string oculusImageUrl { get; set; } = "";
     [OculusFieldAlternate("genres")]
     [TrackChanges]
-    private List<string> _genres { get; set; } = new List<string>();
-    public List<string> genres {
+    public List<string> genres { get; set; } = new List<string>();
+    public List<string> genresFormatted {
         get
         {
             return _genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
