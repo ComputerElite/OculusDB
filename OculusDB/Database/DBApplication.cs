@@ -48,7 +48,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public List<string> genresFormatted {
         get
         {
-            return _genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
+            return genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
         }
     }
     
