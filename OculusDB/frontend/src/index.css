@@ -1,0 +1,67 @@
+body{
+  background: url('https://cdn.phazed.xyz/flag.svg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+html{
+  width: 100%;
+  height: 100%;
+}
+
+.button{
+  display: inline-block;
+  padding: 10px 20px;
+  background: #0005;
+  border-radius: 5px;
+  user-select: none;
+  cursor: pointer;
+  margin: 5px;
+  transition: 0.25s;
+  border: 2px solid #111;
+}
+
+.button-selected{
+  border: 2px solid #35a9b8;
+}
+
+.button:hover{
+  border: 2px solid #63fac3;
+}
+
+.dropdown{
+  background: #202324;
+  height: 50px;
+  padding: 10px;
+  transition: 0.5s;
+}
+
+.dropdown-heading{
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.5s;
+}
+
+.dropdown-heading:hover{
+  color: #63fac3;
+}
+
+.dropdown-contents{
+  display: none;
+  opacity: 0;
+  transition: 0.5s;
+  height: 0;
+}
+
+.dropdown i{
+  transition: 0.25s;
+}

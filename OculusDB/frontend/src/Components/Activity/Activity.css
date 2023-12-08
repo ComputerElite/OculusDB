@@ -1,0 +1,39 @@
+#show-updates-toggle:checked ~ label[for="show-updates-toggle"] > div {
+  border: 2px solid #35a9b8;
+}
+
+#show-apps-toggle:checked ~ label[for="show-apps-toggle"] > div {
+  border: 2px solid #35a9b8;
+}
+
+#show-price-toggle:checked ~ label[for="show-price-toggle"] > div {
+  border: 2px solid #35a9b8;
+}
+
+#show-dlc-toggle:checked ~ label[for="show-dlc-toggle"] > div {
+  border: 2px solid #35a9b8;
+}
+
+.card{
+  display: inline-block;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  background: #333738b9;
+  width: calc(33% - 40px);
+  height: 400px;
+  box-shadow: 0 0 10px #0005;
+  backdrop-filter: blur(20px);
+}
+
+.card-header{
+  background: #333738;
+  margin: -10px;
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 10px #0005;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+}
