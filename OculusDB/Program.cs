@@ -103,8 +103,8 @@ namespace OculusDB
                 return;
             }
 
-            OculusDBTest.Test();
-            return;
+            //OculusDBTest.Test();
+            //return;
 
             if (cla.HasArgument("--fp"))
             {

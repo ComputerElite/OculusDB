@@ -17,6 +17,8 @@ using MongoDB.Driver.Core.WireProtocol.Messages;
 using OculusDB.Analytics;
 using OculusDB.ApiDocs;
 using OculusDB.Database;
+using OculusDB.MongoDB;
+using OculusDB.ObjectConverters;
 using OculusDB.QAVS;
 using OculusDB.ScrapingMaster;
 using OculusDB.ScrapingNodeCode;
@@ -103,7 +105,7 @@ public class FrontendServer
 
         
         Logger.Log("Initializing MongoDB");
-		MongoDBInteractor.Initialize();
+		OculusDBDatabase.Initialize();
         ScrapingNodeMongoDBManager.Init();
 
         Logger.Log("Setting up routes");
@@ -128,7 +130,7 @@ public class FrontendServer
         
         server.AddRoute("GET", "/api/v1/blocked/blockedapps", request =>
         {
-            request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetBlockedApps()), "application/json");
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.GetBlockedApps()), "application/json");
             return true;
         });
         server.AddRoute("DELETE", "/api/v1/blocked/unblockapp", request =>
@@ -138,7 +140,7 @@ public class FrontendServer
             {
                 return true;
             }
-            MongoDBInteractor.UnblockApp(id);
+            OculusDBDatabase.UnblockApp(id);
             request.SendString("unblocked " + id, "application/json");
             return true;
         });
@@ -170,7 +172,7 @@ public class FrontendServer
                 request.SendString("id must be supplied", "text/plain", 400);
                 return true;
             }
-            MongoDBInteractor.BlockApp(id);
+            OculusDBDatabase.BlockApp(id);
             request.SendString("blocked " + id, "application/json");
             return true;
         });
@@ -198,7 +200,7 @@ public class FrontendServer
         ////////////////// Aliases
         server.AddRoute("GET", "/api/v1/aliases/applications", new Func<ServerRequest, bool>(request =>
         {
-            request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetApplicationsWithAliases()));
+            request.SendString(JsonSerializer.Serialize(VersionAlias.GetApplicationsWithAliases()));
             return true;
         }));
 		server.AddRoute("POST", "/api/v1/aliases/", new Func<ServerRequest, bool>(request =>
@@ -207,7 +209,7 @@ public class FrontendServer
             List<VersionAlias> aliases = JsonSerializer.Deserialize<List<VersionAlias>>(request.bodyString);
             foreach(VersionAlias a in aliases)
             {
-                MongoDBInteractor.AddVersionAlias(a);
+                VersionAlias.AddVersionAlias(a);
             }
             request.SendString("Added aliases");
 			return true;
@@ -333,12 +335,12 @@ public class FrontendServer
 		server.AddRoute("POST", "/api/v1/qavsreport", new Func<ServerRequest, bool>(request =>
 		{
             QAVSReport report = JsonSerializer.Deserialize<QAVSReport>(request.bodyString);
-            request.SendString(MongoDBInteractor.AddQAVSReport(report));
+            request.SendString(QAVSReport.AddQAVSReport(report));
 			return true;
 		}));
 		server.AddRoute("GET", "/api/v1/qavsreport/", new Func<ServerRequest, bool>(request =>
 		{
-			request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetQAVSReport(request.pathDiff.ToUpper())), "application/json");
+			request.SendString(JsonSerializer.Serialize(QAVSReport.GetQAVSReport(request.pathDiff.ToUpper())), "application/json");
 			return true;
 		}), true);
 		server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
@@ -478,8 +480,7 @@ public class FrontendServer
         server.AddRoute("GET", "/api/v1/allapps", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
-            string currency = request.queryString.Get("currency") ?? "";
-            List<DBApplication> apps = MongoDBInteractor.GetAllApplications(currency);
+            List<DBApplication> apps = OculusDBDatabase.GetAllApplications();
             request.SendString(JsonSerializer.Serialize(apps), "application/json");
             return true;
         }), false, true, true, true);
@@ -526,13 +527,13 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                List<DBApplication> d = MongoDBInteractor.GetApplicationByPackageName(request.pathDiff, request.queryString.Get("currency") ?? "");
-                if (d.Count <= 0)
+                DBApplication? d = DBApplication.ByPackageName(request.pathDiff);
+                if (d == null)
                 {
                     request.SendString("{}", "application/json", 404);
                     return true;
                 }
-                request.SendString(JsonSerializer.Serialize(d.First()), "application/json");
+                request.SendString(JsonSerializer.Serialize(d), "application/json");
             } catch(Exception e)
             {
                 request.SendString(apiError, "text/plain", 500);
@@ -546,8 +547,8 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                List<BsonDocument> d = MongoDBInteractor.GetByID(request.pathDiff, 1, request.queryString.Get("currency") ?? "");
-                if (d.Count <= 0)
+                DBBase? d = OculusDBDatabase.GetDocument(request.pathDiff);
+                if (d == null)
 				{
 					request.SendString("{}", "application/json", 404);
                     if(request.queryString.Get("noscrape") == null)
@@ -562,7 +563,7 @@ public class FrontendServer
                     }
                     return true;
 				}
-				request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d.First())), "application/json");
+				request.SendString(JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(d)), "application/json");
             }
             catch (Exception e)
             {
@@ -578,7 +579,7 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff, request.queryString.Get("currency") ?? "");
+                ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
                 request.SendString(JsonSerializer.Serialize(connected), "application/json");
 
                 // Requests a priority scrape for every app
@@ -607,12 +608,12 @@ public class FrontendServer
                 List<DBVersion> versions = MongoDBInteractor.GetVersions(request.pathDiff, request.queryString.Get("onlydownloadable") != null && request.queryString.Get("onlydownloadable").ToLower() != "false");
                 request.SendString(JsonSerializer.Serialize(versions), "application/json");
 
-                if (versions.Count > 0)
+                if (versions.Count > 0 && versions[0].parentApplication != null)
                 {
-                    DBApplication a = ObjectConverter.ConvertToDBType(MongoDBInteractor.GetByID(versions[0].parentApplication.id)[0]);
+                    
                     AppToScrape s = new AppToScrape
                     {
-                        appId = a.id,
+                        appId = versions[0].parentApplication?.id ?? "",
                         priority = true
                     };
                     ScrapingNodeMongoDBManager.AddAppToScrape(s);
@@ -700,13 +701,8 @@ public class FrontendServer
             }
             try
             {
-                List<BsonDocument> activities = MongoDBInteractor.GetLatestActivities(count, skip, typeConstraint, application, currency);
-                List<dynamic> asObjects = new List<dynamic>();
-                foreach (BsonDocument activity in activities)
-                {
-                    asObjects.Add(ObjectConverter.ConvertToDBType(activity));
-                }
-                request.SendString(JsonSerializer.Serialize(asObjects), "application/json");
+                List<DBDifference> diffs = MongoDBInteractor.GetLatestDiffs(count, skip, typeConstraint, application, currency);
+                request.SendString(JsonSerializer.Serialize(diffs), "application/json");
             }
             catch (Exception e)
             {
@@ -763,12 +759,7 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                DBInfo info = new DBInfo();
-                info.dataDocuments = MongoDBInteractor.CountDataDocuments();
-                info.activityDocuments = MongoDBInteractor.CountActivityDocuments();
-                info.scrapingStatusPageUrl = config.scrapingMasterUrl;
-                info.appCount = MongoDBInteractor.GetAppCount();
-				request.SendString(JsonSerializer.Serialize(info));
+				request.SendString(JsonSerializer.Serialize(OculusDBDatabase.GetDbInfo()));
             }
             catch (Exception e)
             {
@@ -795,7 +786,7 @@ public class FrontendServer
                 return true;
             }
 
-            DBAppImage img = MongoDBInteractor.GetAppImage(request.pathDiff);
+            DBAppImage? img = DBAppImage.ById(request.pathDiff);
             if(img == null) request.Send404();
             else request.SendData(img.data, img.mimeType);
             return true;

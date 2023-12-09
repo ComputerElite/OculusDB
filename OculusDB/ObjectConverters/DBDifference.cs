@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using OculusDB.Database;
 
@@ -12,9 +13,25 @@ public enum DifferenceType
     ObjectRemoved = 2,
 }
 
+public enum DifferenceName
+{
+    Unknown = -1,
+}
+
 public class DBDifference : DBBase
 {
+    [BsonId]
+    public ObjectId _id { get; set; }
     public override string __OculusDBType { get; set; } = DBDataTypes.Difference;
+    public DifferenceName differenceNameEnum { get; set; } = DifferenceName.Unknown;
+
+    public string differenceNameFormatted
+    {
+        get
+        {
+            return OculusConverter.FormatOculusEnumString(differenceNameEnum.ToString());
+        }
+    }
 
     [BsonIgnore]
     public bool isSame

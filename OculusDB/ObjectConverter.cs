@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using OculusDB.ObjectConverters;
 
 namespace OculusDB
 {
@@ -69,9 +70,28 @@ namespace OculusDB
             return converted;
         }
 
-        public static dynamic ConvertToDBType(object o)
+        public static dynamic? ConvertToDBType(DBBase o)
         {
-            return null;
+            switch (o.__OculusDBType)
+            {
+                case DBDataTypes.Application:
+                    return (DBApplication)o;
+                case DBDataTypes.Version:
+                    return (DBVersion)o;
+                case DBDataTypes.IAPItem:
+                    return (DBIAPItem)o;
+                case DBDataTypes.IAPItemPack:
+                    return (DBIAPItemPack)o;
+                case DBDataTypes.AppImage:
+                    return (DBAppImage)o;
+                case DBDataTypes.Achievement:
+                    return (DBAchievement)o;
+                case DBDataTypes.Offer:
+                    return (DBAchievement)o;
+                case DBDataTypes.Difference:
+                    return (DBDifference)o;
+            }
+            return o;
         }
     }
 }

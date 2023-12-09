@@ -17,7 +17,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     {
         get
         {
-            return MongoDBInteractor.blockedAppsCache.Contains(id);
+            return OculusDBDatabase.blockedAppsCache.Contains(id);
         }
     }
 

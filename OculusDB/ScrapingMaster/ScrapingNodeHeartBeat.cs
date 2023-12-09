@@ -16,8 +16,10 @@ public class ScrapingNodeHeartBeat
     {
         snapshot.queuedDocuments[DBDataTypes.Application] = taskResult.scraped.applications.Count;
         snapshot.queuedDocuments[DBDataTypes.Version] = taskResult.scraped.versions.Count;
-        snapshot.queuedDocuments[DBDataTypes.IAPItem] = taskResult.scraped.dlcs.Count;
-        snapshot.queuedDocuments[DBDataTypes.IAPItemPack] = taskResult.scraped.dlcPacks.Count;
+        snapshot.queuedDocuments[DBDataTypes.IAPItem] = taskResult.scraped.iapItems.Count;
+        snapshot.queuedDocuments[DBDataTypes.IAPItemPack] = taskResult.scraped.iapItemPacks.Count;
         snapshot.queuedDocuments[DBDataTypes.AppImage] = taskResult.scraped.imgs.Count;
+        snapshot.queuedDocuments[DBDataTypes.Achievement] = taskResult.scraped.achievements.Count;
+        snapshot.queuedDocuments[DBDataTypes.Offer] = taskResult.scraped.offers.Count;
     }
 }

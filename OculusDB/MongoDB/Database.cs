@@ -8,6 +8,7 @@ using OculusDB.Analytics;
 using OculusDB.Database;
 using OculusDB.ObjectConverters;
 using OculusDB.QAVS;
+using OculusDB.ScrapingMaster;
 using OculusDB.Users;
 
 namespace OculusDB.MongoDB;
@@ -35,11 +36,20 @@ public class OculusDBDatabase
 
 		public static IMongoCollection<QAVSReport>? qAVSReports;
         
+
+        public static IMongoCollection<ScrapingNode> scrapingNodes;
+        public static IMongoCollection<ScrapingNodeStats> scrapingNodeStats;
+        public static IMongoCollection<ScrapingContribution> scrapingNodeContributions;
+        public static IMongoCollection<ScrapingProcessingStats> scrapingProcessingStats;
+        public static IMongoCollection<AppToScrape> appsScraping;
+        public static IMongoCollection<ScrapingNodeOverrideSettings> scrapingNodeOverrideSettingses;
+        public static IMongoCollection<ScrapingError> scrapingErrors;
+        
         
         public static List<string> blockedAppsCache = new List<string>();
-        
         public static void Initialize()
         {
+            if (mongoClient != null) return; // only init if we didn't already
             BsonChunkPool.Default = new BsonChunkPool(512, 1024 * 64);
             ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
@@ -52,7 +62,7 @@ public class OculusDBDatabase
             webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
             analyticsCollection = oculusDBDatabase.GetCollection<Analytic>("analytics");
             
-            versionsCollection = oculusDBDatabase.GetCollection<DBVersion>("versions");
+            versionCollection = oculusDBDatabase.GetCollection<DBVersion>("versions");
             applicationCollection = oculusDBDatabase.GetCollection<DBApplication>("apps");
             iapItemCollection = oculusDBDatabase.GetCollection<DBIAPItem>("iapItems");
             iapItemPackCollection = oculusDBDatabase.GetCollection<DBIAPItemPack>("iapItemPacks");
@@ -66,6 +76,14 @@ public class OculusDBDatabase
             qAVSReports = oculusDBDatabase.GetCollection<QAVSReport>("QAVSReports");
             versionAliases = oculusDBDatabase.GetCollection<VersionAlias>("versionAliases");
             blockedApps = oculusDBDatabase.GetCollection<DBApplication>("blockedApps");
+            
+            scrapingNodes = oculusDBDatabase.GetCollection<ScrapingNode>("scrapingNodes");
+            scrapingNodeStats = oculusDBDatabase.GetCollection<ScrapingNodeStats>("scrapingStats");
+            scrapingNodeContributions = oculusDBDatabase.GetCollection<ScrapingContribution>("scrapingContributions");
+            scrapingProcessingStats = oculusDBDatabase.GetCollection<ScrapingProcessingStats>("scrapingProcessingStats");
+            appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
+            scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
+            scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
             
             RemoveIdRemap<DBAchievement>();
             RemoveIdRemap<DBAchievementTranslation>();
@@ -90,6 +108,32 @@ public class OculusDBDatabase
             RemoveIdRemap<QAVSReport>();
 
             UpdateBlockedAppsCache();
+        }
+        
+        public static bool IsApplicationBlocked(string id)
+        {
+            return blockedAppsCache.Contains(id);
+        }
+        public static void BlockApp(string id)
+        {
+            DBApplication app = applicationCollection.Find(x => x.id == id).First();
+            blockedApps.InsertOne(app);
+            UpdateBlockedAppsCache();
+        }
+        
+        public static void UnblockApp(string id)
+        {
+            blockedApps.DeleteOne(x => x.id == id);
+            UpdateBlockedAppsCache();
+        }
+        public static List<DBApplication> GetBlockedApps()
+        {
+            UpdateBlockedAppsCache();
+            return blockedApps.Find(x => true).ToList();
+        }
+        public static List<DBApplication> GetAllApplications()
+        {
+            return applicationCollection.Find(x => true).SortByDescending(x => x.__lastUpdated).ToList();
         }
         
         public static void UpdateBlockedAppsCache()
@@ -124,7 +168,7 @@ public class OculusDBDatabase
             });
         }
 
-        public DBInfo GetDbInfo()
+        public static DBInfo GetDbInfo()
         {
             return new DBInfo
             {
@@ -132,7 +176,7 @@ public class OculusDBDatabase
                 counts = new Dictionary<string, long>
                 {
                     { DBDataTypes.Application, applicationCollection.CountDocuments(x => true) },
-                    { DBDataTypes.Version, versionsCollection.CountDocuments(x => true) },
+                    { DBDataTypes.Version, versionCollection.CountDocuments(x => true) },
                     { DBDataTypes.IAPItem, iapItemCollection.CountDocuments(x => true) },
                     { DBDataTypes.IAPItemPack, iapItemPackCollection.CountDocuments(x => true) },
                     { DBDataTypes.Achievement, achievementCollection.CountDocuments(x => true) },
@@ -149,7 +193,7 @@ public class OculusDBDatabase
             DBBase? document = applicationCollection.Find(x => x.id == id).FirstOrDefault();
             
             if (document != null) return document;
-            document = versionsCollection.Find(x => x.id == id).FirstOrDefault();
+            document = versionCollection.Find(x => x.id == id).FirstOrDefault();
             if (document != null) return document;
             document = iapItemCollection.Find(x => x.id == id).FirstOrDefault();
             if (document != null) return document;

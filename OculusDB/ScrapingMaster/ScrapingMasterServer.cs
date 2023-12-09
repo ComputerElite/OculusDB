@@ -24,8 +24,6 @@ public class ScrapingMasterServer
         
         OculusDBDatabase.Initialize();
         ScrapingNodeMongoDBManager.Init();
-        
-        ScrapingNodeMongoDBManager.CheckActivityCollection();
         Thread nodeStatusThread = new Thread(() =>
         {
             MonitorNodes();

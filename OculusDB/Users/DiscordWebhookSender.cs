@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OculusDB.ObjectConverters;
 using OculusDB.ScrapingMaster;
 
 namespace OculusDB.Users
@@ -18,20 +19,20 @@ namespace OculusDB.Users
             {
                 List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
                 if (activityWebhooks.Count <= 0) return;
-                List<BsonDocument> activities = null;
+                List<DBDifference> diffs = new List<DBDifference>(); // ToDo: Get all diffs after start
                 foreach (ActivityWebhook activityWebhook in activityWebhooks)
                 {
-                    foreach (BsonDocument activity in activities)
+                    foreach (DBDifference diff in diffs)
                     {
                         try
                         {
                             switch(activityWebhook.type)
                             {
                                 case ActivityWebhookType.Discord:
-                                    activityWebhook.SendDiscordWebhook(activity);
+                                    activityWebhook.SendDiscordWebhook(diff);
                                     break;
                                 case ActivityWebhookType.OculusDB:
-                                    activityWebhook.SendOculusDBWebhook(activity);
+                                    activityWebhook.SendOculusDBWebhook(diff);
                                     break;
                             }
                             
@@ -47,16 +48,16 @@ namespace OculusDB.Users
             t.Start();
         }
 
-        public static void SendActivity(List<BsonDocument> activities)
+        public static void SendActivity(List<DBDifference> diffs)
         {
-            Logger.Log("Sending " + activities.Count + " activities via Discord webhooks");
+            Logger.Log("Sending " + diffs.Count + " activities via Discord webhooks");
             Thread t = new Thread(() =>
             {
                 List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
                 if (activityWebhooks.Count <= 0) return;
                 foreach (ActivityWebhook activityWebhook in activityWebhooks)
                 {
-                    foreach (BsonDocument activity in activities)
+                    foreach (DBDifference activity in diffs)
                     {
                         try
                         {
@@ -95,7 +96,7 @@ namespace OculusDB.Users
             return webhooks;
         }
         
-        public static void SendActivity(BsonDocument activity)
+        public static void SendActivity(DBDifference diff)
         {
             List<ActivityWebhook> activityWebhooks = GetWebhooks();
             if (activityWebhooks.Count <= 0) return;
@@ -106,10 +107,10 @@ namespace OculusDB.Users
                     switch (activityWebhook.type)
                     {
                         case ActivityWebhookType.Discord:
-                            activityWebhook.SendDiscordWebhook(activity);
+                            activityWebhook.SendDiscordWebhook(diff);
                             break;
                         case ActivityWebhookType.OculusDB:
-                            activityWebhook.SendOculusDBWebhook(activity);
+                            activityWebhook.SendOculusDBWebhook(diff);
                             break;
                     }
 

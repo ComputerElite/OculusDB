@@ -11,6 +11,7 @@ using OculusGraphQLApiLib;
 using System.Net;
 using ComputerUtils.Logging;
 using System.Text.Json;
+using OculusDB.ObjectConverters;
 
 namespace OculusDB.Users
 {
@@ -27,17 +28,12 @@ namespace OculusDB.Users
         public ActivityWebhookType type { get; set; } = ActivityWebhookType.Discord;
         public List<string> activities { get; set; } = new List<string>();
 
-        public void SendOculusDBWebhook(BsonDocument activity)
+        public void SendOculusDBWebhook(DBDifference difference)
         {
-            if (!SendWebhook(activity)) return;
-            string type = activity["__OculusDBType"].ToString();
-            if(CheckDownloadableType(activity))
-            {
-                activity["__OculusDBType"] = DBDataTypes.ActivityVersionDownloadable;
-            }
+            if (!SendWebhook(difference)) return;
             WebClient c = new WebClient();
             c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
-            c.UploadString(url, "POST", JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(activity)));
+            c.UploadString(url, "POST", JsonSerializer.Serialize(difference));
         }
 
         public bool CheckDownloadableType(BsonDocument activity)
@@ -46,18 +42,16 @@ namespace OculusDB.Users
             return false;
         }
 
-        public bool SendWebhook(BsonDocument activity)
+        public bool SendWebhook(DBDifference difference)
         {
-            string type = activity["__OculusDBType"].ToString();
-            if (!activities.Contains(type) && !CheckDownloadableType(activity)) return false;
-            string id;
+            
             return true;
         }
 
-        public void SendDiscordWebhook(BsonDocument activity)
+        public void SendDiscordWebhook(DBDifference difference)
         {
-            if (!SendWebhook(activity)) return;
-            string type = activity["__OculusDBType"].ToString();
+            if (!SendWebhook(difference)) return;
+            DifferenceName type = difference.differenceNameEnum;
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
             string websiteUrl = config.publicAddress;
@@ -68,7 +62,7 @@ namespace OculusDB.Users
             {
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
             }
-            embed.description += "**Activity link:** " + websiteUrl + "activity/" + activity["_id"].ToString();
+            embed.description += "**Activity link:** " + websiteUrl + "activity/" + difference._id;
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1200);
         }

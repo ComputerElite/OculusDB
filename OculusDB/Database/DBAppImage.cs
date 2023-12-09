@@ -1,5 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 
@@ -14,13 +15,18 @@ public class DBAppImage : DBBase, IDBObjectOperations<DBAppImage>
     public DBParentApplication parentApplication { get; set; } = new DBParentApplication();
     public string mimeType { get; set; } = "image/webp";
     public byte[] data { get; set; } = new byte[0];
-    public DBAppImage GetEntryForDiffGeneration(IMongoCollection<DBAppImage> collection)
+    public DBAppImage? GetEntryForDiffGeneration(IEnumerable<DBAppImage> collection)
     {
-        return collection.Find(x => x.parentApplication.id == this.parentApplication.id).FirstOrDefault();
+        return collection.FirstOrDefault(x => x.parentApplication.id == this.parentApplication.id);
     }
 
     public void AddOrUpdateEntry(IMongoCollection<DBAppImage> collection)
     {
         collection.ReplaceOne(x => x.parentApplication.id == this.parentApplication.id, this, new ReplaceOptions() { IsUpsert = true });
+    }
+
+    public static DBAppImage? ById(string appId)
+    {
+        return OculusDBDatabase.appImages.Find(x => x.parentApplication.id == appId).FirstOrDefault();
     }
 }

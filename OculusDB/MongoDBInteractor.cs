@@ -115,7 +115,7 @@ namespace OculusDB
             return OculusDBDatabase.webhookCollection.Find(new BsonDocument()).ToList();
         }
 
-        public static ConnectedList? GetConnected(string id)
+        public static ConnectedList GetConnected(string id)
         {
             ConnectedList l = new ConnectedList();
             // Gets everything connected with any type
@@ -167,31 +167,6 @@ namespace OculusDB
             if(currency == "") return dbApplication;
             return null;
         }
-        
-        
-
-        private static bool IsApplicationBlocked(string id)
-        {
-            return blockedAppsCache.Contains(id);
-        }
-
-        public static DLCLists GetDLCs(string parentAppId, string currency)
-        {
-            if (IsApplicationBlocked(parentAppId)) return new DLCLists();
-            DLCLists l = new();
-            //l.dlcs = dlcCollection.Find(x => x.parentApplication.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
-            l.dlcPacks = dlcPackCollection.Find(x => x.grouping.id == parentAppId).SortByDescending(x => x.__lastUpdated).ToList();
-            
-            l.dlcs.ConvertAll(x => GetCorrectDLCEntry(x, currency));
-            l.dlcPacks.ConvertAll(x => GetCorrectDLCPackEntry(x, currency));
-            
-            return l;
-        }
-
-        public static List<DBApplication> GetAllApplications(string currency)
-        {
-            return applicationCollection.Find(x => true).SortByDescending(x => x.__lastUpdated).ToList().ConvertAll(x => GetCorrectApplicationEntry(x, currency));
-        }
 
         public static List<DBApplication> SearchApplication(string query, List<Headset> headsets, List<HeadsetGroup> headsetGroups, bool quick)
         {
@@ -203,53 +178,16 @@ namespace OculusDB
             return null;
         }
 
-        public static long GetAppCount()
-        {
-            return applicationCollection.CountDocuments(x => true);
-        }
-
-        public static ScrapeStatus GetScrapeStatus()
-        {
-            return new ScrapeStatus
-            {
-                appsToScrape = appsToScrape.Find(x => true).ToList()
-            };
-        }
-
         public static List<DBVersion> GetVersions(string appId, bool onlyDownloadableVersions)
         {
-            if (IsApplicationBlocked(appId)) return new List<DBVersion>();
-            if (onlyDownloadableVersions) return versionsCollection.Find(x => x.parentApplication.id == appId && x.releaseChannels.Count > 0).SortByDescending(x => x.versionCode).ToList();
-            return versionsCollection.Find(x => x.parentApplication.id == appId).SortByDescending(x => x.versionCode).ToList();
+            if (OculusDBDatabase.IsApplicationBlocked(appId)) return new List<DBVersion>();
+            if (onlyDownloadableVersions) return OculusDBDatabase.versionCollection.Find(x => x.parentApplication != null && x.parentApplication.id == appId && x.releaseChannels.Count > 0).SortByDescending(x => x.versionCode).ToList();
+            return OculusDBDatabase.versionCollection.Find(x => x.parentApplication != null && x.parentApplication.id == appId).SortByDescending(x => x.versionCode).ToList();
         }
 
-        public static List<DBApplication> GetBlockedApps()
+        public static List<DBDifference> GetLatestDiffs(int count, int skip, string typeConstraint, string application, string currency)
         {
-            UpdateBlockedAppsCache();
-            return blockedApps.Find(x => true).ToList();
-        }
-
-        public static void BlockApp(string id)
-        {
-            DBApplication app = applicationCollection.Find(x => x.id == id).First();
-            blockedApps.InsertOne(app);
-            UpdateBlockedAppsCache();
-        }
-        
-        public static void UnblockApp(string id)
-        {
-            blockedApps.DeleteOne(x => x.id == id);
-            UpdateBlockedAppsCache();
-        }
-
-        public static bool GetBlockedStatusForApp(string id)
-        {
-            return blockedAppsCache.Contains(id);
-        }
-
-        public static DBAppImage GetAppImage(string appId)
-        {
-            return appImages.Find(x => x.parentApplication.id == appId).FirstOrDefault();
+            throw new NotImplementedException();
         }
     }
 

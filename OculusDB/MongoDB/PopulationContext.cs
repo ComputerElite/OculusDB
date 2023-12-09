@@ -49,6 +49,7 @@ public class PopulationContext
         PopulationContext context = new PopulationContext();
         context.versionAliases = OculusDBDatabase.versionAliases.Find(x => x.appId == appId).ToList();
         context.offers = OculusDBDatabase.offerCollection.Find(x => x.parentApplication != null && x.parentApplication.id == appId).ToList();
+        return context;
     }
     
     public static PopulationContext GetForApplications(List<string> appIds)
@@ -56,6 +57,7 @@ public class PopulationContext
         PopulationContext context = new PopulationContext();
         context.versionAliases = OculusDBDatabase.versionAliases.Find(x => appIds.Contains(x.appId)).ToList();
         context.offers = OculusDBDatabase.offerCollection.Find(x => x.parentApplication != null && appIds.Contains(x.parentApplication.id)).ToList();
+        return context;
     }
 
     public static PopulationContext GetForApplicationContext(ApplicationContext context)
