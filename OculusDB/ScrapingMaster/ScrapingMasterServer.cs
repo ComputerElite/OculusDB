@@ -5,6 +5,7 @@ using ComputerUtils.Logging;
 using ComputerUtils.Webserver;
 using Ionic.Zip;
 using OculusDB.Database;
+using OculusDB.MongoDB;
 using OculusDB.ScrapingNodeCode;
 using ZipFile = System.IO.Compression.ZipFile;
 
@@ -21,7 +22,7 @@ public class ScrapingMasterServer
         bool creatingNodeZip = false;
         string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         
-        MongoDBInteractor.Initialize();
+        OculusDBDatabase.Initialize();
         ScrapingNodeMongoDBManager.Init();
         
         ScrapingNodeMongoDBManager.CheckActivityCollection();

@@ -288,9 +288,13 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     
     public List<DBError> errors { get; set; } = new List<DBError>();
     
-    public DBApplication GetEntryForDiffGeneration(IMongoCollection<DBApplication> collection)
+    public DBApplication GetEntryForDiffGeneration(IEnumerable<DBApplication> collection)
     {
-        return collection.Find(x => x.id == this.id).FirstOrDefault();
+        return collection.FirstOrDefault(x => x.id == this.id);
+    }
+    public DBApplication GetEntryForDiffGenerationFromDB()
+    {
+        return OculusDBDatabase.applicationCollection.Find(x => x.id == this.id).FirstOrDefault();
     }
 
     public void AddOrUpdateEntry(IMongoCollection<DBApplication> collection)

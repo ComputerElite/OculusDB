@@ -117,9 +117,9 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     public int? targetAndroidSdkVersion { get; set; } = null;
     public DBOBBBinary? obbBinary { get; set; } = null;
     public DateTime lastPriorityScrape { get; set; } = DateTime.MinValue;
-    public DBVersion GetEntryForDiffGeneration(IMongoCollection<DBVersion> collection)
+    public DBVersion? GetEntryForDiffGeneration(IEnumerable<DBVersion> collection)
     {
-        return collection.Find(x => x.id == this.id).FirstOrDefault();
+        return collection.FirstOrDefault(x => x.id == this.id);
     }
 
     public void AddOrUpdateEntry(IMongoCollection<DBVersion> collection)
@@ -149,5 +149,10 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
             versions.AddRange(GetVersionsOfAppId(appId));
         }
         return versions;
+    }
+
+    public static DBVersion? ById(string id)
+    {
+        return OculusDBDatabase.versionCollection.Find(x => x.id == id).FirstOrDefault();
     }
 }

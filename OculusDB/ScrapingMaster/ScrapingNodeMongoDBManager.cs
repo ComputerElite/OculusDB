@@ -3,6 +3,7 @@ using ComputerUtils.RandomExtensions;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OculusDB.Database;
+using OculusDB.ObjectConverters;
 using OculusDB.Users;
 
 namespace OculusDB.ScrapingMaster;
@@ -241,7 +242,7 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBIAPItem> iapItems = new ();
-    public static void AddDLC(DBIAPItem? d, ref ScrapingContribution contribution)
+    public static void AddIapItem(DBIAPItem? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
@@ -250,12 +251,28 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBIAPItemPack> dlcPacks = new ();
-    public static void AddDLCPack(DBIAPItemPack? d, ref ScrapingContribution contribution)
+    public static void AddIapItemPack(DBIAPItemPack? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = contribution.scrapingNode.scrapingNodeId;
         dlcPacks.Add(d);
+    }
+    public static List<DBOffer> offers = new ();
+    public static void AddOffer(DBOffer? d, ref ScrapingContribution contribution)
+    {
+        if (d == null) return;
+        contribution.AddContribution(d.__OculusDBType, 1);
+        d.__sn = contribution.scrapingNode.scrapingNodeId;
+        offers.Add(d);
+    }
+    public static List<DBAchievement> achievements = new ();
+    public static void AddAchievement(DBAchievement? d, ref ScrapingContribution contribution)
+    {
+        if (d == null) return;
+        contribution.AddContribution(d.__OculusDBType, 1);
+        d.__sn = contribution.scrapingNode.scrapingNodeId;
+        achievements.Add(d);
     }
     
     public static List<DBApplication> apps = new ();
@@ -263,18 +280,15 @@ public class ScrapingNodeMongoDBManager
     {
         if(a == null) return;
         contribution.AddContribution(a.__OculusDBType, 1);
-        a.__sn = contribution.scrapingNode.scrapingNodeId;
         apps.Add(a);
     }
 
-    public static List<BsonDocument> queuedActivity = new List<BsonDocument>();
-    public static BsonDocument? AddBsonDocumentToActivityCollection(BsonDocument? d, ref ScrapingContribution contribution)
+    public static List<DBDifference> differences = new List<DBDifference>();
+    public static void AddDiff(DBDifference d, ref ScrapingContribution contribution)
     {
-        if (d == null) return null;
-        contribution.AddContribution(d["__OculusDBType"].AsString, 1);
-        d["__sn"] = contribution.scrapingNode.scrapingNodeId;
-        queuedActivity.Add(d);
-        return d;
+        if (d.isSame) return;
+        contribution.AddContribution(d.__OculusDBType, 1);
+        differences.Add(d);
     }
 
     public static List<ScrapingNodeStats> GetScrapingNodes()

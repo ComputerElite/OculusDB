@@ -28,9 +28,9 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     [TrackChanges]
     public List<DBIAPItemId> items { get; set; } = new List<DBIAPItemId>();
 
-    public DBIAPItemPack GetEntryForDiffGeneration(IMongoCollection<DBIAPItemPack> collection)
+    public DBIAPItemPack? GetEntryForDiffGeneration(IEnumerable<DBIAPItemPack> collection)
     {
-        return collection.Find(x => x.id == this.id).FirstOrDefault();
+        return collection.FirstOrDefault(x => x.id == this.id);
     }
 
     public void AddOrUpdateEntry(IMongoCollection<DBIAPItemPack> collection)
@@ -51,5 +51,9 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     {
         if (groupingId == null) return new List<DBIAPItemPack>();
         return OculusDBDatabase.iapItemPackCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
+    }
+    public static DBIAPItemPack? ById(string id)
+    {
+        return OculusDBDatabase.iapItemPackCollection.Find(x =>x.id == id).FirstOrDefault();
     }
 }

@@ -29,7 +29,15 @@ public class ScrapingNodeScraper
     public int totalTasks = 0;
     public int tasksDone = 0;
     public bool oAuthException = false;
-    
+
+    public string scrapingNodeId
+    {
+        get
+        {
+            return scrapingNodeManager.config.scrapingNode.scrapingNodeId;
+        }
+    }
+
     public ScrapingNodeScraperErrorTracker errorTracker { get; set; } = new ScrapingNodeScraperErrorTracker();
 
 
@@ -198,151 +206,141 @@ public class ScrapingNodeScraper
     public TimeSpan timeBetweenScrapes = new TimeSpan(2, 0, 0, 0);
 
     public string currentlyScraping = "";
+    
     public void Scrape(AppToScrape app)
     {
         taskResult.altered = true;
-        Application a = GraphQLClient.AppDetailsDeveloperAll(app.appId).data.node;
-        if (a == null)
+        // Add application
+        Application? applicationFromDeveloper = GraphQLClient.AppDetailsDeveloperAll(app.appId).data.node;
+        Application? applicationFromStore = GraphQLClient.AppDetailsMetaStore(app.appId).data.item;
+
+        if (applicationFromStore == null && applicationFromDeveloper == null)
         {
             errorTracker.AddError();
-            throw new Exception("Application is null");
         }
-        currentlyScraping = a.displayName + (app.priority ? " (Priority)" : "");
+        currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : "");
 
-        // Get default binary type
-        long priceNumerical = -1;
-        // Get price
-        string currency = "";
-        if (a.current_offer != null && a.current_offer.price != null)
-        {
-            priceNumerical = a.current_offer.price.offset_amount_numerical;
-            currency = a.current_offer.price.currency;
-        }
-        else if(a.baseline_offer != null && a.baseline_offer.price != null)
-        {
-            priceNumerical = a.baseline_offer.price.offset_amount_numerical;
-            currency = a.baseline_offer.price.currency;
-        }
         
+        DBApplication dbApp = OculusConverter.AddScrapingNodeName(OculusConverter.Application(applicationFromDeveloper, applicationFromStore), scrapingNodeId);
         
-        Data<Application> d = GraphQLClient.GetDLCs(a.id);
-        string packageName = "";
-        List<DBVersion> connected = GetVersionsOfApp(a.id);
-        bool addedApplication = false;
-        Data<NodesPrimaryBinaryApplication> versions = GraphQLClient.AllVersionsOfApp(a.id);
-        if (versions.data != null && versions.data.node != null && versions.data.node.primary_binaries != null &&
-            versions.data.node.primary_binaries.nodes != null)
+        List<DBOffer> offers = new List<DBOffer>();
+        offers.Add(OculusConverter.Price(applicationFromStore.current_offer, dbApp));
+        List<DBIAPItemPack> dlcPacks = new List<DBIAPItemPack>();
+        // Get DLC Packs and prices
+        // Add DLCs
+        List<DBIAPItem> iapItems = new List<DBIAPItem>();
+        int i = 0;
+        if (dbApp.grouping != null)
         {
-            foreach (OculusBinary b in versions.data.node.primary_binaries.nodes)
+            foreach (IAPItem iapItem in OculusInteractor.EnumerateAllDLCs(dbApp.grouping.id))
             {
-                bool doPriorityForThisVersion = app.priority;
-                DBVersion oldEntry = connected.FirstOrDefault(x => x.id == b.id);
-                if (doPriorityForThisVersion)
-                {
-                    if (oldEntry != null)
-                    {
-                        // Only do priority scrape if last scrape is older than 2 days
-                        if (DateTime.UtcNow - oldEntry.lastPriorityScrape < timeBetweenScrapes)
-                        {
-                            doPriorityForThisVersion = false;
-                            Logger.Log(
-                                "Skipping priority scrape of " + a.id + " v " + b.version +
-                                " because last priority scrape was " +
-                                (DateTime.UtcNow - oldEntry.lastPriorityScrape).TotalDays + " days ago",
-                                LoggingType.Debug);
-                        }
-                    }
-                }
-
-                if (packageName == "")
-                {
-                    PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
-                    if (info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
-                }
-
-                if (!addedApplication)
-                {
-                    addedApplication = true;
-                }
-
-                if (b != null && doPriorityForThisVersion)
-                {
-                    Logger.Log("Scraping v " + b.version, LoggingType.Important);
-                }
-
-                OculusBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
-                bool wasNull = false;
-                if (bin == null)
-                {
-                    if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
-                    wasNull = true;
-                    bin = b;
-                }
-
-                // Preserve changelogs and obbs across scrapes by:
-                // - Don't delete versions after scrape
-                // - If not priority scrape enter changelog and obb of most recent versions
-                if ((!doPriorityForThisVersion || wasNull) && oldEntry != null)
-                {
-                    bin.changeLog = oldEntry.changelog;
-                }
-
+                Logger.Log(i.ToString());
+                i++;
+                iapItems.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItem(iapItem, dbApp), scrapingNodeId));
             }
         }
         else
         {
-            Logger.Log("No versions found for " + a.id + " " + a.displayName, LoggingType.Warning);
-        }
-
-        if (d.data != null && d.data.node != null && d.data.node.latest_supported_binary != null && d.data.node.latest_supported_binary.firstIapItems != null)
-        {
-            foreach (Node<AppItemBundle> dlc in d.data.node.latest_supported_binary.firstIapItems.edges)
+            dbApp.errors.Add(new DBError
             {
-                // For whatever reason Oculus sets parentApplication wrong. e. g. Beat Saber for Rift: it sets Beat Saber for quest
-                dlc.node.parentApplication.canonicalName = a.canonicalName;
-                dlc.node.parentApplication.id = a.id;
-                
-                // DBActivityNewDLC is needed as I use it for the price offset
-                if (a.current_offer == null || a.current_offer.price == null) continue; // Price not available
+                type = DBErrorType.CouldNotScrapeIaps,
+                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
+                message = "Couldn't scrape DLCs because grouping is null"
+            });
+        }
+        Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
+        if (dlcApplication.data.node != null && dlcApplication.data.node.latest_supported_binary != null && dlcApplication.data.node.latest_supported_binary.firstIapItems != null)
+        {
+            foreach (Node<AppItemBundle> dlc in dlcApplication.data.node.latest_supported_binary.firstIapItems.edges)
+            {
+                if (dlc.node.typename_enum == OculusTypeName.IAPItem)
+                {
+                    // dlc, extract price and add short description
+                    if (iapItems.Any(x => x.id == dlc.node.id))
+                    {
+                        iapItems.FirstOrDefault(x => x.id == dlc.node.id).displayShortDescription = dlc.node.display_short_description;
+                    }
+                    else
+                    {
+                        dbApp.errors.Add(new DBError
+                        {
+                            type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
+                            reason = DBErrorReason.DlcNotInDlcList,
+                            message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
+                        });
+                    }
+                    offers.Add(
+                        OculusConverter.AddScrapingNodeName(OculusConverter.Price(dlc.node.current_offer, dbApp),
+                            scrapingNodeId));
+                }
+                else
+                {
+                    offers.Add(
+                        OculusConverter.AddScrapingNodeName(OculusConverter.Price(dlc.node.current_offer, dbApp),
+                            scrapingNodeId));
+                    dlcPacks.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItemPack(dlc.node, dbApp.grouping), scrapingNodeId));
+                    // dlc pack, extract dlc pack and price
+                }
             }
         }
-        Logger.Log("Scraped " + app.appId + (app.priority ? " (priority)" : ""));
-    }
+        
+        
+        // Get Versions
+        List<DBVersion> versions = new List<DBVersion>();
+        List<VersionAlias> versionAliases = VersionAlias.GetVersionAliases(dbApp.id);
+        
+        foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
+        {
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper, versionAliases,dbApp), scrapingNodeId);
+            Logger.Log(v.versionCode.ToString());
+            versions.Add(v);
+        }
+        
+        
 
-    public void AddDLCPack(AppItemBundle a, Headset h, Application app)
-    {
-        DBIAPItemPack dbdlcp = ObjectConverter.ConvertCopy<DBIAPItemPack, AppItemBundle, IAPItem>(a);
-        taskResult.scraped.dlcPacks.Add(dbdlcp);
-    }
-
-    public void AddDLC(AppItemBundle a, Headset h)
-    {
-        DBIAPItem dbdlc = ObjectConverter.ConvertCopy<DBIAPItem, IAPItem>(a);
-        taskResult.scraped.dlcs.Add(dbdlc);
-    }
-
-    public void AddVersion(OculusBinary a, Application app, Headset h, DBVersion oldEntry, bool isPriorityScrape)
-    {
-        DBVersion dbv = ObjectConverter.ConvertCopy<DBVersion, OculusBinary>(a);
-        taskResult.scraped.versions.Add(dbv);
+        // Add application packageName
+        
+        DBVersion? versionToGiveApplication = versions.Count > 0 ? versions[0] : null;
+        dbApp.packageName = versionToGiveApplication?.packageName ?? null;
+        
+        
+        // Add Achievements
+        List<DBAchievement> achievements = new List<DBAchievement>();
+        try
+        {
+            foreach (AchievementDefinition achievement in OculusInteractor.EnumerateAllAchievements(dbApp.id))
+            {
+                achievements.Add(OculusConverter.AddScrapingNodeName(OculusConverter.Achievement(achievement, dbApp), scrapingNodeId));
+            }
+        } catch (Exception e)
+        {
+            dbApp.errors.Add(new DBError
+            {
+                type = DBErrorType.CouldNotScrapeAchievements,
+                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
+                message =e.ToString()
+            });
+        }
+        
+        
+        DBAppImage dbi = DownloadImage(dbApp);
+        if (dbi != null)
+        {
+            taskResult.scraped.imgs.Add(dbi);
+        }
+        
+        taskResult.scraped.offers.AddRange(offers);
+        taskResult.scraped.iapItemPacks.AddRange(dlcPacks);
+        taskResult.scraped.iapItems.AddRange(iapItems);
+        taskResult.scraped.versions.AddRange(versions);
+        taskResult.scraped.achievements.AddRange(achievements);
+        taskResult.scraped.applications.Add(dbApp);
     }
 
     public string GetOverrideCurrency(string currency)
     {
         if (scrapingNodeManager.config.overrideCurrency != "") return scrapingNodeManager.config.overrideCurrency;
         return currency;
-    }
-
-    public void AddApplication(Application a, Headset hmd, HeadsetGroup group, HeadsetBinaryType binaryType, string image, string packageName, long correctPrice, string currency)
-    {
-        DBApplication dba = ObjectConverter.ConvertCopy<DBApplication, Application>(a);
-        
-        taskResult.scraped.applications.Add(dba);
-        DBAppImage dbi = DownloadImage(dba);
-        if (dbi != null)
-        {
-            taskResult.scraped.imgs.Add(dbi);
-        }
     }
 
     public DBAppImage DownloadImage(DBApplication a)
@@ -412,27 +410,6 @@ public class ScrapingNodeScraper
         string json = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/versions/" + appId,
             JsonSerializer.Serialize(scrapingNodeManager.GetIdentification())).json;
         return JsonSerializer.Deserialize<List<DBVersion>>(json);
-    }
-
-    public UserEntitlement GetEntitlementStatusOfAppOrDlc(string appId, string dlcId = null, string dlcName = "")
-    {
-        if (userEntitlements.Count <= 0) return UserEntitlement.FAILED;
-        foreach(Entitlement entitlement in userEntitlements)
-        {
-            if(entitlement.item.id == appId)
-            {
-                if(dlcId == null) return UserEntitlement.OWNED;
-                foreach(IAPEntitlement dlc in entitlement.item.active_dlc_entitlements)
-                {
-                    if(dlc.item.id == dlcId ||dlc.item.display_name == dlcName)
-                    {
-                        return UserEntitlement.OWNED;
-                    }
-                }
-                return UserEntitlement.NOTOWNED;
-            }
-        }
-        return UserEntitlement.NOTOWNED;
     }
 
     Stopwatch sw = Stopwatch.StartNew();

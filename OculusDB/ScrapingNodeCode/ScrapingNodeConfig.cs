@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using ComputerUtils.Logging;
 using MongoDB.Bson.Serialization.Attributes;
+using OculusDB.ScrapingMaster;
 
 namespace OculusDB.ScrapingNodeCode;
 
@@ -32,7 +33,9 @@ public class ScrapingNodeConfig
     public bool isPriorityScrape = false;
     [JsonIgnore]
     public string appId = "";
-    
+    [JsonIgnore]
+    public ScrapingNode scrapingNode;
+
     public static ScrapingNodeConfig LoadConfig()
     {
         Logger.Log("Loading scraping node config");

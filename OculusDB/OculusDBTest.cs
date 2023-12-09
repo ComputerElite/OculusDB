@@ -171,7 +171,8 @@ public class OculusDBTest
             dbApp.errors.Add(new DBError
             {
                 type = DBErrorType.CouldNotScrapeIaps,
-                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown
+                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
+                message = "Couldn't scrape DLCs because grouping is null"
             });
         }
         Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
@@ -188,7 +189,12 @@ public class OculusDBTest
                     }
                     else
                     {
-                        throw new Exception("DLC not found in DLCs");
+                        dbApp.errors.Add(new DBError
+                        {
+                            type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
+                            reason = DBErrorReason.DlcNotInDlcList,
+                            message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
+                        });
                     }
                     offers.Add(
                         OculusConverter.AddScrapingNodeName(OculusConverter.Price(dlc.node.current_offer, dbApp),
@@ -208,7 +214,7 @@ public class OculusDBTest
         
         // Get Versions
         List<DBVersion> versions = new List<DBVersion>();
-        List<VersionAlias> versionAliases = MongoDBInteractor.GetVersionAliases(dbApp.id);
+        List<VersionAlias> versionAliases = VersionAlias.GetVersionAliases(dbApp.id);
         
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
@@ -238,10 +244,10 @@ public class OculusDBTest
             dbApp.errors.Add(new DBError
             {
                 type = DBErrorType.CouldNotScrapeAchievements,
-                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown
+                reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
+                message =e.ToString()
             });
         }
-        Logger.Log(JsonSerializer.Serialize(achievements));
         File.WriteAllText("/home/computerelite/Downloads/full_scrape_" + appId + ".json", JsonSerializer.Serialize(new Dictionary<string, dynamic>
         {
             {"offers", offers},

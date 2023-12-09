@@ -54,9 +54,9 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     [BsonIgnore]
     public List<DBOffer>? offers { get; set; } = null;
 
-    public DBIAPItem GetEntryForDiffGeneration(IMongoCollection<DBIAPItem> collection)
+    public DBIAPItem? GetEntryForDiffGeneration(IEnumerable<DBIAPItem> collection)
     {
-        return collection.Find(x => x.id == this.id).FirstOrDefault();
+        return collection.FirstOrDefault(x => x.id == this.id);
     }
 
     public void AddOrUpdateEntry(IMongoCollection<DBIAPItem> collection)
@@ -78,5 +78,10 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     {
         if (groupingId == null) return new List<DBIAPItem>();
         return OculusDBDatabase.iapItemCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
+    }
+
+    public static DBIAPItem? ById(string dId)
+    {
+        return OculusDBDatabase.iapItemCollection.Find(x => x.id == dId).FirstOrDefault();
     }
 }

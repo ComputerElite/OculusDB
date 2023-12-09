@@ -85,9 +85,9 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
         }
     }
 
-    public DBAchievement GetEntryForDiffGeneration(IMongoCollection<DBAchievement> collection)
+    public DBAchievement? GetEntryForDiffGeneration(IEnumerable<DBAchievement> collection)
     {
-        return collection.Find(x => x.id == this.id).FirstOrDefault();
+        return collection.FirstOrDefault(x => x.id == this.id);
     }
 
     public void AddOrUpdateEntry(IMongoCollection<DBAchievement> collection)
@@ -104,5 +104,10 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     {
         if (groupingId == null) return new List<DBAchievement>();
         return OculusDBDatabase.achievementCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
+    }
+
+    public static DBAchievement? ById(string dId)
+    {
+        return OculusDBDatabase.achievementCollection.Find(x => x.id == dId).FirstOrDefault();
     }
 }
