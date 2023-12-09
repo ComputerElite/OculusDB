@@ -3,7 +3,8 @@ import Application from "../../../Classes/Application"
 import limitStringLength from "../../../util/limitStringLength"
 
 class ResultProps{
-  app!: Application
+  app!: Application;
+  setCurrentTab!: ( tab: string ) => string;
 }
 
 const comfortRatingIcons = [
@@ -13,7 +14,7 @@ const comfortRatingIcons = [
   'https://cdn.phazed.xyz/odbicons/norate.svg',
 ]
 
-let Result = ( { app }: ResultProps ) => {
+let Result = ( { app, setCurrentTab }: ResultProps ) => {
   return (
     <div class="result">
     <div class="result-icon" style={{ background: 'url(\'https://oculusdb.rui2015.me/cdn/images/' + app.id + '\')' }}></div>
@@ -41,7 +42,7 @@ let Result = ( { app }: ResultProps ) => {
             </Match>
           </Switch>
         </div>
-        <div class="button">Details</div>
+        <div class="button" onClick={() => setCurrentTab('/id/'+app.id)}>Details</div>
       </div>
     </div>
   )

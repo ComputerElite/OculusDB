@@ -163,6 +163,7 @@ let SearchPage = ( props: SearchPageProps ) => {
           app.comfortRatingFormatted = d.application.comfortRatingFormatted;
           app.shortDescription = d.application.shortDescription;
           app.longDescription = d.application.longDescription;
+          app.comfortRating = d.application.comfortRating;
 
           if(!d.offers[0])
             addToList = false;
@@ -178,22 +179,6 @@ let SearchPage = ( props: SearchPageProps ) => {
             }
           }
 
-          app.comfortRating = 0;
-
-          switch(app.comfortRatingFormatted){
-            case 'Comfortable for most':
-              app.comfortRating = 0;
-              break;
-            case 'Comfortable for some':
-              app.comfortRating = 1;
-              break;
-            case 'Comfortable for few':
-              app.comfortRating = 2;
-              break;
-            default:
-              app.comfortRating = 3;
-              break;
-          }
 
           if(addToList)
             tempApps.push(app);
@@ -213,6 +198,12 @@ let SearchPage = ( props: SearchPageProps ) => {
         <For each={searchTypes}>
           {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item }</div> }
         </For>
+
+        <select class="currency-selection">
+          <option>Currency 1</option>
+          <option>Currency 2</option>
+          <option>Currency 3</option>
+        </select>
       </div>
 
       <div class="result-columns">
@@ -238,15 +229,15 @@ let SearchPage = ( props: SearchPageProps ) => {
         <div class="results-page">
           <h2 style={{ margin: '10px', 'margin-top': '0', "text-align": 'center' }}>Results for: { props.currentSearch() }</h2>
 
-          <div class="result" ref={( el ) => loadingIndicator = el }>
-            <div style={{ width: '100%', "text-align": 'center' }}>
+          <div class="result" ref={( el ) => loadingIndicator = el } style={{ "align-items": 'center' }}>
+            <div style={{ width: '100%', "text-align": 'center', height: 'fit-content' }}>
               <span>Searching...</span><br />
               <div class="loader"></div>
             </div>
           </div>
 
           <For each={apps()}>
-            {( item ) => <Result app={item} /> }
+            {( item ) => <Result app={item} setCurrentTab={props.setCurrentTab} /> }
           </For>
         </div>
       </div>

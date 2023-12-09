@@ -55,7 +55,10 @@ let NavBar = ( props: NavBarProps ) => {
           </div>
 
           <div class="navbar-search">
-            <input placeholder='Search...' onChange={( el ) => el.currentTarget.value !== '' ? props.setCurrentTab('/search/' + el.currentTarget.value) : null }  />
+            <input placeholder='Search...' onChange={( el ) => {
+              el.currentTarget.value !== '' ? props.setCurrentTab('/search/' + el.currentTarget.value) : null;
+              el.currentTarget.value = ''
+            }} />
             <i class="fa-solid fa-magnifying-glass"></i>
           </div>
         </div>
