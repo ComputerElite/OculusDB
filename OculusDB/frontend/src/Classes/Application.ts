@@ -10,6 +10,10 @@ class Application{
   keywords: Array<string> = [];
   shortDescription: string = 'None.';
   longDescription: string = 'None.';
+  priceFormatted: string = '£0';
+  offerPriceFormatted: string = '£0';
+  priceOffer: boolean = false;
+  rawPrice: number = 0;
 }
 
 export default Application
