@@ -1,0 +1,19 @@
+iframe{
+  border: none;
+  width: clamp(0px, 89vh, 100vw);
+  height: 50vh;
+}
+
+#help-dropdown-1:checked ~ .dropdown{
+  height: fit-content;
+}
+
+#help-dropdown-1:checked ~ .dropdown > .dropdown-contents{
+  display: block;
+  height: fit-content;
+  opacity: 1;
+}
+
+#help-dropdown-1:checked ~ .dropdown i{
+  rotate: 90deg;
+}
