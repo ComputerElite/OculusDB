@@ -1317,7 +1317,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
 
     PopUp(`
 <div>
-        Due to a change in Meta's authentication methods it is currently not possible to download games from OculusDB. We're investigating the issue and will keep you posted on <a href="{OculusDBDC}">the OculusDB discord server</a>.
+        Due to a change in Meta's authentication methods it is currently not possible to download games from OculusDB. To downgrade Beat Saber you can use QuestAppVersionSwitcher in the meantime. We're investigating the issue and will keep you posted on <a href="{OculusDBDC}">the OculusDB discord server</a>.
 </div>`)
 return;
     // Not in iframe which supports downloads
