@@ -479,7 +479,7 @@ public class FrontendServer
                 if (d == null)
 				{
 					request.SendString("{}", "application/json", 404);
-                    if(request.queryString.Get("noscrape") == null)
+                    if(request.queryString.Get("noscrape") == null && new Regex(@"^[0-9]+$").IsMatch(request.pathDiff))
 					{
                         AppToScrape s = new AppToScrape
                         {

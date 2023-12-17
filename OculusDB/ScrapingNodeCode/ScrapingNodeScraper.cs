@@ -218,7 +218,7 @@ public class ScrapingNodeScraper
         {
             errorTracker.AddError();
         }
-        currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : "");
+        currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : ""); // throw an error here on purpose
 
         
         DBApplication dbApp = OculusConverter.AddScrapingNodeName(OculusConverter.Application(applicationFromDeveloper, applicationFromStore), scrapingNodeId);
