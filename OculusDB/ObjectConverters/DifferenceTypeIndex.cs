@@ -20,7 +20,7 @@ public class DifferenceTypeIndex
 
     public static string AllEnumNames()
     {
-        return String.Join(",", differenceTypes);
+        return String.Join(",", differenceTypes.Select(x => x.enumName));
     }
     
     public static DifferenceNameType ParseEnum(string enumName)

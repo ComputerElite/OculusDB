@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Driver;
 using OculusDB.Database;
 using OculusDB.MongoDB;
@@ -47,8 +48,9 @@ public enum DifferenceNameType
 
 public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
 {
-    [BsonId]
-    public ObjectId _id { get; set; }
+    [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string __id { get; set; }
     public override string __OculusDBType { get; set; } = DBDataTypes.Difference;
     public string entryId { get; set; } = "";
     public string entryOculusDBType { get; set; } = "";
@@ -206,7 +208,7 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
 
     public static DBDifference? ById(string objectId)
     {
-        return OculusDBDatabase.differenceCollection.Find(x => x._id.ToString() == objectId).FirstOrDefault();
+        return OculusDBDatabase.differenceCollection.Find(x => x.__id == objectId).FirstOrDefault();
     }
 }
 
