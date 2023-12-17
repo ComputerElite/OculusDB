@@ -25,7 +25,6 @@ namespace OculusDB
         public static IEnumerable<Application> EnumerateAllApplications(Headset headset)
         {
             Data<AppStoreAllAppsSection> s = GraphQLClient.AllApps(headset, null, 100);
-            File.WriteAllText("/home/computerelite/Downloads/test.json", JsonSerializer.Serialize(s));
             if(s.data.node == null)
             {
                 throw new Exception("Could not get data to enumerate applications.");
