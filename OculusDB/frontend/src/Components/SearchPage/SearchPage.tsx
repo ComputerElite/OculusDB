@@ -148,22 +148,22 @@ let SearchPage = ( props: SearchPageProps ) => {
     loadingIndicator.style.display = 'flex';
     console.log(search, type);
 
-    fetch('http://localhost:3000/')
+    fetch(`/api/v2/search?q=${encodeURIComponent(search)}`)
       .then(data => data.json())
       .then(data => {
         loadingIndicator.style.display = 'none';
         let tempApps: Array<Application> = [];
 
-        data.forEach(( d: any ) => {
+        data.results.forEach(( d: any ) => {
           let app = new Application();
           let addToList = true;
 
-          app.id = d.application.id;
-          app.name = d.application.displayName;
-          app.comfortRatingFormatted = d.application.comfortRatingFormatted;
-          app.shortDescription = d.application.shortDescription;
-          app.longDescription = d.application.longDescription;
-          app.comfortRating = d.application.comfortRating;
+          app.id = d.id;
+          app.name = d.displayName;
+          app.comfortRatingFormatted = d.comfortRatingFormatted;
+          app.shortDescription = d.shortDescription;
+          app.longDescription = d.longDescription;
+          app.comfortRating = d.comfortRating;
 
           if(!d.offers[0])
             addToList = false;
