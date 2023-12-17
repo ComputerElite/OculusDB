@@ -693,8 +693,8 @@ public class FrontendServer
             }
             return true;
         }));
-        /// CDN
-        server.AddRoute("GET", "/cdn/images/", new Func<ServerRequest, bool>(request =>
+        /// application images
+        server.AddRoute("GET", "/assets/app/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             if (!(new Regex(@"^[0-9]+$").IsMatch(request.pathDiff)))
@@ -739,20 +739,9 @@ public class FrontendServer
             server.AddRouteFile("/assets/" + Path.GetFileName(file), file, replace, true, true, true, accessCheck);
         }
         
-        server.AddRouteFile("/cdn/logo.png", frontend + "logo.png", true, true, true, accessCheck);
-        server.AddRouteFile("/cdn/notfound.jpg", frontend + "notfound.jpg", true, true, true, accessCheck);
         server.AddRouteFile("/favicon.ico", frontend + "favicon.png", true, true, true, accessCheck);
-        server.AddRouteFile("/privacy", frontend + "privacy.html", replace, true, true, true, accessCheck);
-        
-        server.AddRouteFile("/style.css", frontend + "style.css", replace, true, true, true, 0, true);
-        
-        server.AddRouteFile("/script.js", frontend + "script.js", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/api/docs", frontend + "api.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/jsonview.js", frontend + "jsonview.js", replace, true, true, true, accessCheck);
 		server.AddRouteFile("/qavslogs", frontend + "qavsloganalyser.html", replace, true, true, true, accessCheck);
 
-        server.AddRouteFile("/assets/sq.png", frontend + "sq.png", true, true, true, accessCheck);
-        server.AddRouteFile("/assets/discord.svg", frontend + "discord.svg", true, true, true, accessCheck);
         server.AddRoute("GET", "/fonts/OpenSans", request =>
         {
             ProxyChangeFontUrl("https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic", request);

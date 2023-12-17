@@ -24,6 +24,23 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [OculusField("id")]
     [TrackChanges]
     public string id { get; set; } = "";
+
+    [BsonIgnore]
+    public string imgUrl
+    {
+        get
+        {
+            return "/assets/app/" + id;
+        }
+    }
+    [BsonIgnore]
+    public string imgUrlAbsolute
+    {
+        get
+        {
+            return OculusDBEnvironment.config.publicAddress + "/assets/app/" + id;
+        }
+    }
     [TrackChanges]
     public HeadsetGroup group { get; set; } = HeadsetGroup.Unknown;
     
