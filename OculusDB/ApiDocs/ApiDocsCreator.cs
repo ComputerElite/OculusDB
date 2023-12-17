@@ -9,7 +9,7 @@ public class ApiDocsCreator
     public static void UpdateApiDocs()
     {
         ApiDocsRoot apiDocsRoot =
-            JsonSerializer.Deserialize<ApiDocsRoot>(File.ReadAllText(FrontendServer.frontend + "api_raw.json"));
+            JsonSerializer.Deserialize<ApiDocsRoot>(File.ReadAllText(FrontendServer.frontend + "../ApiDocs/api_raw.json"));
         Logger.Log(JsonSerializer.Serialize(apiDocsRoot));
         WebClient webClient = new WebClient();
         for (int i = 0; i < apiDocsRoot.endpoints.Count; i++)

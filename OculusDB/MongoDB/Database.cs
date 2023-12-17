@@ -181,8 +181,8 @@ public class OculusDBDatabase
                 {
                     { DBDataTypes.Application, applicationCollection.CountDocuments(x => true) },
                     { DBDataTypes.Version, versionCollection.CountDocuments(x => true) },
-                    { DBDataTypes.IAPItem, iapItemCollection.CountDocuments(x => true) },
-                    { DBDataTypes.IAPItemPack, iapItemPackCollection.CountDocuments(x => true) },
+                    { DBDataTypes.IapItem, iapItemCollection.CountDocuments(x => true) },
+                    { DBDataTypes.IapItemPack, iapItemPackCollection.CountDocuments(x => true) },
                     { DBDataTypes.Achievement, achievementCollection.CountDocuments(x => true) },
                     { DBDataTypes.Offer, offerCollection.CountDocuments(x => true) },
                     { DBDataTypes.AppImage, appImages.CountDocuments(x => true) },
@@ -196,17 +196,21 @@ public class OculusDBDatabase
         {
             DBBase? document = applicationCollection.Find(x => x.id == id).FirstOrDefault();
             
-            if (document != null) return document;
-            document = versionCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = iapItemCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = iapItemPackCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = achievementCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = offerCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
+            if (document == null)
+                document = versionCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null) 
+                document = iapItemCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null)
+                document = iapItemPackCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null)
+                document = achievementCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null)
+                document = offerCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document != null)
+            {
+                document.PopulateSelf(new PopulationContext());
+                return document;
+            }
             return null;
         }
 }

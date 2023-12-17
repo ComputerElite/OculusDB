@@ -23,6 +23,7 @@ using OculusDB.ObjectConverters;
 using OculusDB.QAVS;
 using OculusDB.ScrapingMaster;
 using OculusDB.ScrapingNodeCode;
+using OculusDB.Search;
 using OculusDB.Users;
 using OculusGraphQLApiLib;
 
@@ -566,7 +567,7 @@ public class FrontendServer
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                request.SendString("The search endpoint is not implemented yet", "text/plain", 501);
+                request.SendString(JsonSerializer.Serialize(SearchQueryExecutor.ExecuteQuery(SearchQuery.FromRequest(request))), "application/json");
             }
             catch (Exception e)
             {
@@ -607,53 +608,19 @@ public class FrontendServer
             return true;
         }), true, true, true, true, 360); // 6 mins
         AddDeprecatedRoute("GET", "/api/v1/activity", true);
-        server.AddRoute("GET", "/api/v2/difference/latest", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            int count = 50;
-            int skip = 0;
-            string typeConstraint = "";
-			string application = "";
-            string currency = "";
-			try
-            {
-                count = Convert.ToInt32(request.queryString.Get("count") ?? "50");
-                if(count > 1000) count = 1000;
-                if(count < 0)
-                {
-                    request.SendString("[]", "application/json");
-                    return true;
-                }
-                skip = Convert.ToInt32(request.queryString.Get("skip") ?? "0");
-                if (skip < 0) skip = 0;
-                typeConstraint = request.queryString.Get("typeconstraint") ?? "";
-				application = request.queryString.Get("application") ?? "";
-                currency = request.queryString.Get("currency") ?? "";
-			}
-            catch (Exception ex)
-            {
-                Logger.Log(ex.ToString(), LoggingType.Warning);
-                request.SendString("count and skip must be numerical values", "text/plain", 400);
-            }
-            try
-            {
-                List<DBDifference> diffs = MongoDBInteractor.GetLatestDiffs(count, skip, typeConstraint, application, currency);
-                request.SendString(JsonSerializer.Serialize(diffs), "application/json");
-            }
-            catch (Exception e)
-            {
-                request.SendString(apiError, "text/plain", 500);
-                Logger.Log(e.ToString(), LoggingType.Error);
-            }
-            return true;
-        }), false, true, true, true, 30); // 0.5 mins
         AddDeprecatedRoute("GET", "/api/v1/activityid/", true);
         server.AddRoute("GET", "/api/v2/difference/id/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                
+                DBDifference? d = DBDifference.ById(request.pathDiff);
+                if (d == null)
+                {
+                    request.SendString("{}", "application/json", 404);
+                    return true;
+                }
+                request.SendString(JsonSerializer.Serialize(d), "application/json");
             }
             catch (Exception e)
             {
@@ -714,6 +681,18 @@ public class FrontendServer
         {
             if (!DoesUserHaveAccess(request)) return true;
             request.SendString(JsonSerializer.Serialize(HeadsetIndex.entries));
+            return true;
+        }));
+        server.AddRoute("GET", "/api/v2/lists/differencetypes", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            request.SendString(JsonSerializer.Serialize(DifferenceTypeIndex.differenceTypes));
+            return true;
+        }));
+        server.AddRoute("GET", "/api/v2/lists/differencetypes", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            request.SendString(JsonSerializer.Serialize(DifferenceTypeIndex.differenceTypes));
             return true;
         }));
         ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED

@@ -165,6 +165,9 @@
     <None Update="frontend\dist\index.html">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Update="ApiDocs\api_raw.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

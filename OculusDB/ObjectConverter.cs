@@ -78,9 +78,9 @@ namespace OculusDB
                     return (DBApplication)o;
                 case DBDataTypes.Version:
                     return (DBVersion)o;
-                case DBDataTypes.IAPItem:
+                case DBDataTypes.IapItem:
                     return (DBIAPItem)o;
-                case DBDataTypes.IAPItemPack:
+                case DBDataTypes.IapItemPack:
                     return (DBIAPItemPack)o;
                 case DBDataTypes.AppImage:
                     return (DBAppImage)o;

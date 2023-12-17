@@ -234,6 +234,7 @@ public class OculusConverter
             translation.locale = specificAchievement.title_locale_map[i].locale;
             db.translations.Add(translation);
         }
+        db.searchTitle = db.title ?? "";
         return db;
     }
 
@@ -295,6 +296,8 @@ public class OculusConverter
             dbTranslation.parentApplication = ParentApplication(applicationFromDeveloper);
             db.translations.Add(dbTranslation);
         }
+
+        db.searchDisplayName = db.displayName;
         return db;
     }
 

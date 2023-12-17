@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using OculusDB.Database;
+using OculusGraphQLApiLib.Results;
 
 namespace OculusDB.MongoDB;
 
@@ -11,6 +12,7 @@ public class PopulationContext
     public List<VersionAlias> versionAliases { get; set; } = new List<VersionAlias>();
     public List<DBOffer> offers { get; set; } = new List<DBOffer>();
     public List<string> alreadySearchedIds { get; set; } = new List<string>();
+    public Dictionary<string, DBParentApplication?> parentApplications { get; set; } = new Dictionary<string, DBParentApplication?>();
     public Dictionary<string, List<string>> applicationGroupings { get; set; } = new Dictionary<string, List<string>>();
 
     public VersionAlias? GetVersionAlias(string? versionId)
@@ -42,6 +44,37 @@ public class PopulationContext
 
         applicationGroupings.Add(groupingId, DBApplicationGrouping.GetApplicationIdsFromGrouping(groupingId));
         return applicationGroupings[groupingId];
+    }
+
+    public DBParentApplication? GetParentApplication(string id)
+    {
+        if (!parentApplications.ContainsKey(id))
+        {
+            DBApplication? app = DBApplication.ById(id);
+            if (app != null)
+            {
+                DBParentApplication? parentApp = new DBParentApplication();
+                parentApp.__lastUpdated = app.__lastUpdated;
+                parentApp.id = app.id;
+                parentApp.displayName = app.displayName;
+                parentApplications.Add(id, parentApp);
+            }
+            else
+            {
+                parentApplications.Add(id, null);
+            }
+        }
+        return parentApplications[id];
+    }
+    
+    public List<DBParentApplication> GetParentApplicationInApplicationGrouping(string groupingId)
+    {
+        List<DBParentApplication> parentApps = new List<DBParentApplication>();
+        foreach(string appId in GetAppsInApplicationGrouping(groupingId))
+        {
+            parentApps.Add(GetParentApplication(appId));
+        }
+        return parentApps;
     }
 
     public static PopulationContext GetForApplication(string appId)

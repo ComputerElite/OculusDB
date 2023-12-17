@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using OculusDB.MongoDB;
@@ -60,6 +61,9 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     [ListScrapingNodeFieldPresent]
     [TrackChanges]
     public List<DBAchievementTranslation> translations { get; set; } = new List<DBAchievementTranslation>();
+
+    [JsonIgnore]
+    public string? searchTitle { get; set; } = null;
     [BsonIgnore]
     public string? title
     {
@@ -98,6 +102,12 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromGroupingId(grouping?.id ?? null);
+    }
+    
+    public override void PopulateSelf(PopulationContext context)
+    {
+        if (grouping == null) return;
+        grouping.applications = context.GetParentApplicationInApplicationGrouping(grouping.id);
     }
 
     public static List<DBAchievement> GetAllForApplicationGrouping(string? groupingId)

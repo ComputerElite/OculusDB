@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
+using OculusDB.ObjectConverters;
 using OculusDB.ScrapingMaster;
 using OculusDB.ScrapingNodeCode;
 
@@ -55,6 +56,7 @@ namespace OculusDB
             OculusDBEnvironment.scrapingNodeConfig = ScrapingNodeConfig.LoadConfig();
             if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
             OculusDBEnvironment.config.Save();
+            DifferenceTypeIndex.Init();
             //Logger.SetLogFile(workingDir + "Log.log");
 
             if (cla.HasArgument("-dmt"))

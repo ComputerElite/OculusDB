@@ -16,8 +16,9 @@ public class DiffMaker
             DBBase dbBase = (DBBase)newObject;
             diff.entryId = dbBase.GetId();
             diff.entryOculusDBType = dbBase.__OculusDBType;
+            diff.entryParentApplicationIds = dbBase.GetApplicationIds().appIds; // This is slow!!! It will run on every difference object and do 1 database query
         }
-
+        diff.PopulateDifferenceName();
         return diff;
     }
     public static DBDifference GetDifference(object? oldObject, object? newObject, int depth = 0)

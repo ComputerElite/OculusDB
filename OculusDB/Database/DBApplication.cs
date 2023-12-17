@@ -223,7 +223,8 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
             return OculusConverter.FormatOculusEnumString(playArea.ToString());
         }
     }
-
+    [JsonIgnore]
+    public string searchDisplayName { get; set; } = "";
     [BsonIgnore]
     public string displayName
     {

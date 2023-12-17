@@ -8,4 +8,5 @@ public class DBParentApplicationGrouping : DBBase
     [OculusField("id")]
     [TrackChanges]
     public string id { get; set; } = "";
+    public List<DBParentApplication> applications { get; set; } = new List<DBParentApplication>();
 }

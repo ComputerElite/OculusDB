@@ -19,6 +19,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ComputerUtils.Webserver;
 using MongoDB.Bson.IO;
 using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
@@ -91,9 +92,9 @@ namespace OculusDB
         /// </summary>
         /// <param name="toFilter">Array to filter</param>
         /// <returns>Filtered List</returns>
-        public static List<dynamic> MongoDBFilterMiddleware(List<dynamic> toFilter)
+        public static List<object> MongoDBFilterMiddleware(List<object> toFilter)
         {
-            List<dynamic> toReturn = new List<dynamic>();
+            List<object> toReturn = new List<object>();
             foreach (dynamic d in toFilter)
             {
                 string json = JsonSerializer.Serialize(d);
@@ -166,53 +167,18 @@ namespace OculusDB
             return l;
         }
 
-        /// <summary>
-        /// Returns the DLC pack in the correct currency if it exists, otherwise returns the original DLC pack
-        /// </summary>
-        private static DBIAPItemPack GetCorrectDLCPackEntry(DBIAPItemPack dbDlcPack, string currency)
-        {
-            if(currency == "") return dbDlcPack;
-            return null;
-        }
-
-        /// <summary>
-        /// Return the DLC in the correct currency if it exists, otherwise returns the original DLC
-        /// </summary>
-        private static DBIAPItem GetCorrectDLCEntry(DBIAPItem dbDlc, string currency)
-        {
-            if(currency == "") return dbDlc;
-            return null;
-        }
         
-        /// <summary>
-        /// Return the application in the correct currency if it exists, otherwise returns the original application
-        /// </summary>
-        private static DBApplication GetCorrectApplicationEntry(DBApplication dbApplication, string currency)
-        {
-            if(currency == "") return dbApplication;
-            return null;
-        }
-
-        public static List<DBApplication> SearchApplication(string query, List<Headset> headsets, List<HeadsetGroup> headsetGroups, bool quick)
-        {
-            if (query == "") return new List<DBApplication>();
-            // If headset groups are given, ignore headsets
-            if(headsetGroups.Count > 0) headsets = new List<Headset>();
-            if (headsets.Count <= 0 && headsetGroups.Count <= 0) return new List<DBApplication>();
-            Regex r = new Regex(".*" + query.Replace(" ", ".*") + ".*", RegexOptions.IgnoreCase);
-            return null;
-        }
 
         public static List<DBVersion> GetVersions(string appId, bool onlyDownloadableVersions)
         {
             if (OculusDBDatabase.IsApplicationBlocked(appId)) return new List<DBVersion>();
             if (onlyDownloadableVersions) return OculusDBDatabase.versionCollection.Find(x => x.parentApplication != null && x.parentApplication.id == appId && x.releaseChannels.Count > 0).SortByDescending(x => x.versionCode).ToList();
-            return OculusDBDatabase.versionCollection.Find(x => x.parentApplication != null && x.parentApplication.id == appId).SortByDescending(x => x.versionCode).ToList();
-        }
-
-        public static List<DBDifference> GetLatestDiffs(int count, int skip, string typeConstraint, string application, string currency)
-        {
-            throw new NotImplementedException();
+            List<DBVersion> versions = OculusDBDatabase.versionCollection
+                .Find(x => x.parentApplication != null && x.parentApplication.id == appId)
+                .SortByDescending(x => x.versionCode).ToList();
+            PopulationContext c = new PopulationContext();
+            versions.ForEach(x => x.PopulateSelf(c));
+            return versions;
         }
 
         public static Dictionary<string, List<DBOffer>> GetFormerPricesOfId(string id)
@@ -245,11 +211,5 @@ namespace OculusDB
 
             return priceChanges;
         }
-    }
-
-    public class ScrapeStatus
-    {
-        public List<AppToScrape> appsScraping { get; set; } = new();
-        public List<AppToScrape> appsToScrape { get; set; } = new();
     }
 }

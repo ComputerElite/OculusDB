@@ -8,7 +8,7 @@ namespace OculusDB.Database;
 
 public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
 {
-    public override string __OculusDBType { get; set; } = DBDataTypes.IAPItem;
+    public override string __OculusDBType { get; set; } = DBDataTypes.IapItem;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
     public DBParentApplicationGrouping? grouping { get; set; } = null;
@@ -72,6 +72,8 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     public override void PopulateSelf(PopulationContext context)
     {
         offers = context.GetOffers(offerId);
+        if (grouping == null) return;
+        grouping.applications = context.GetParentApplicationInApplicationGrouping(grouping.id);
     }
 
     public static List<DBIAPItem> GetAllForApplicationGrouping(string? groupingId)
