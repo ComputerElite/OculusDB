@@ -106,14 +106,13 @@ class SearchPageProps{
 }
 
 let SearchPage = ( props: SearchPageProps ) => {
-  let [ _searchType, setSearchType ] = createSignal(1);
+  let [ searchType, setSearchType ] = createSignal(0);
+  let [ apps, setApps ] = createSignal<Array<Application>>([]);
 
   let selectorButtons: Array<HTMLElement> = [];
   let headsetButtons: Array<HTMLElement> = [];
 
   let loadingIndicator: HTMLElement;
-
-  let apps: Array<Application> = [];
 
   onMount(() => {
     selectorButtons[0].classList.add('button-selected');
@@ -142,65 +141,107 @@ let SearchPage = ( props: SearchPageProps ) => {
 
   createEffect(() => {
     let search = props.currentSearch();
-    apps = [];
+    let type = searchType();
+
+    setApps([]);
 
     loadingIndicator.style.display = 'flex';
-    console.log(search);
+    console.log(search, type);
 
-    // Do app search stuff here
-    setTimeout(() => {
-      loadingIndicator.style.display = 'none';
-    }, 1000)
+    fetch('http://localhost:3000/')
+      .then(data => data.json())
+      .then(data => {
+        loadingIndicator.style.display = 'none';
+        let tempApps: Array<Application> = [];
+
+        data.forEach(( d: any ) => {
+          let app = new Application();
+          let addToList = true;
+
+          app.id = d.application.id;
+          app.name = d.application.displayName;
+          app.comfortRatingFormatted = d.application.comfortRatingFormatted;
+          app.shortDescription = d.application.shortDescription;
+          app.longDescription = d.application.longDescription;
+          app.comfortRating = d.application.comfortRating;
+
+          if(!d.offers[0])
+            addToList = false;
+          else{
+            app.priceFormatted = d.offers[0].price.priceFormatted;
+            app.rawPrice = d.offers[0].price.price;
+
+            if(d.offers[0].strikethroughPrice){
+              app.priceOffer = true;
+              app.offerPriceFormatted = d.offers[0].price.priceFormatted;
+              app.priceFormatted = d.offers[0].strikethroughPrice.priceFormatted;
+              app.rawPrice = d.offers[0].strikethroughPrice.price;
+            }
+          }
+
+
+          if(addToList)
+            tempApps.push(app);
+          else
+            console.log(app);
+        })
+
+        setApps(tempApps);
+      })
   })
 
   return (
-    <>
-      <div class="search-page">
-        <Search value={ props.currentSearch } setCurrentTab={props.setCurrentTab} />
+    <div class="search-page">
+      <Search value={ props.currentSearch } setCurrentTab={props.setCurrentTab} />
 
-        <div class="type-filter">
-          <For each={searchTypes}>
-            {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item }</div> }
+      <div class="type-filter">
+        <For each={searchTypes}>
+          {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item }</div> }
+        </For>
+
+        <select class="currency-selection">
+          <option>Currency 1</option>
+          <option>Currency 2</option>
+          <option>Currency 3</option>
+        </select>
+      </div>
+
+      <div class="result-columns">
+        <div class="more-filters">
+          <h2><b>Filters</b></h2>
+
+          <h3>Headsets</h3>
+          <p>
+            Click to toggle selection.<br />
+            Shift + Click to select only the one you clicked on.
+          </p>
+
+          <For each={headsetTypes}>
+            {( item, index ) =>  <>
+              <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
+                { item }
+              </div>
+              <br />
+            </> }
           </For>
         </div>
 
-        <div class="result-columns">
-          <div class="more-filters">
-            <h2><b>Filters</b></h2>
+        <div class="results-page">
+          <h2 style={{ margin: '10px', 'margin-top': '0', "text-align": 'center' }}>Results for: { props.currentSearch() }</h2>
 
-            <h3>Headsets</h3>
-            <p>
-              Click to toggle selection.<br />
-              Shift + Click to select only the one you clicked on.
-            </p>
-
-            <For each={headsetTypes}>
-              {( item, index ) =>  <>
-                <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
-                  { item }
-                </div>
-                <br />
-              </> }
-            </For>
-          </div>
-
-          <div class="results-page">
-            <h2 style={{ margin: '10px', 'margin-top': '0', "text-align": 'center' }}>Results for: { props.currentSearch() }</h2>
-
-            <div class="result" ref={( el ) => loadingIndicator = el }>
-              <div style={{ width: '100%', "text-align": 'center' }}>
-                <span>Searching...</span><br />
-                <div class="loader"></div>
-              </div>
+          <div class="result" ref={( el ) => loadingIndicator = el } style={{ "align-items": 'center' }}>
+            <div style={{ width: '100%', "text-align": 'center', height: 'fit-content' }}>
+              <span>Searching...</span><br />
+              <div class="loader"></div>
             </div>
-
-            <For each={apps}>
-              {( item ) => <Result app={item} /> }
-            </For>
           </div>
+
+          <For each={apps()}>
+            {( item ) => <Result app={item} setCurrentTab={props.setCurrentTab} /> }
+          </For>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

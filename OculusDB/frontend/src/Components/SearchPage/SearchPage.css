@@ -64,8 +64,81 @@
   height: 100px;
   margin-bottom: 10px;
   display: flex;
-  justify-content: center;
+  box-shadow: #000 0 0 0px;
+  transition: 0.1s;
+}
+
+.result-icon{
+  height: calc(100% + 20px);
+  width: 200px;
+  background-position: center !important;
+  background-size: cover !important;
+  margin: -10px;
+  margin-right: 10px;
+  border-radius: 10px;
+  mask-image: linear-gradient(to right, #000, #0005);
+}
+
+.result:hover > .result-icon{
+  mask-image: linear-gradient(to right, #000, #000);
+}
+
+.result:hover{
+  box-shadow: #000 0 0 10px;
+}
+
+.rating-format{
+  display: inline-flex;
   align-items: center;
+  width: calc(100% - 230px);
+}
+
+.result-desc{
+  color: #aaa;
+  font-size: 14px;
+  height: 50px;
+}
+
+.result-title{
+  font-size: 20px;
+}
+
+.result-branding{
+  width: calc(100% - 200px);
+}
+
+.result-price{
+  width: 100px;
+  text-align: center;
+  display: inline-block;
+  transform: translateY(-10px);
+}
+
+.result-branding .button{
+  width: 75px;
+  text-align: center;
+  transform: translateY(-20px);
+}
+
+.currency-selection{
+  display: inline-block;
+  padding: 10px 20px;
+  background: #0005;
+  border-radius: 5px;
+  user-select: none;
+  cursor: pointer;
+  margin: 5px;
+  transition: 0.25s;
+  border: 2px solid #111;
+  color: white;
+  font-size: 15px;
+  font-size: 15px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+}
+
+.currency-selection:hover{
+  border: 2px solid #63fac3;
 }
 
 .loader {
