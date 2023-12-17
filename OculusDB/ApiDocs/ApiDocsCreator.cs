@@ -16,7 +16,7 @@ public class ApiDocsCreator
         {
             if (apiDocsRoot.endpoints[i].exampleUrl == "" || apiDocsRoot.endpoints[i].method != "GET") continue;
             
-            string path = FrontendServer.config.publicAddress + apiDocsRoot.endpoints[i].exampleUrl.Substring(1);
+            string path = FrontendServer.config.publicAddress + apiDocsRoot.endpoints[i].exampleUrl;
             Logger.Log("Generating example response for " + path);
             string res;
             try {
