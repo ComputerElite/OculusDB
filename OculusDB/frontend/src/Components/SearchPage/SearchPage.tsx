@@ -148,7 +148,7 @@ let SearchPage = ( props: SearchPageProps ) => {
     loadingIndicator.style.display = 'flex';
     console.log(search, type);
 
-    fetch(`/api/v2/search?q=${encodeURIComponent(search)}`)
+    fetch(`/api/v2/search?q=${search}`)
       .then(data => data.json())
       .then(data => {
         loadingIndicator.style.display = 'none';
