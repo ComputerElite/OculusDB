@@ -140,7 +140,7 @@ let SearchPage = ( props: SearchPageProps ) => {
   }
 
   createEffect(() => {
-    let search = props.currentSearch();
+    let search = decodeURIComponent(props.currentSearch());
     let type = searchType();
 
     setApps([]);
@@ -148,7 +148,7 @@ let SearchPage = ( props: SearchPageProps ) => {
     loadingIndicator.style.display = 'flex';
     console.log(search, type);
 
-    fetch(`/api/v2/search?q=${search}`)
+    fetch(`/api/v2/search?q=${encodeURIComponent(search)}`)
       .then(data => data.json())
       .then(data => {
         loadingIndicator.style.display = 'none';
