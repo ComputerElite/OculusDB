@@ -44,7 +44,7 @@ function App() {
   if(currentTab() === '')setCurrentTab('/home');
 
   if(currentUrl.startsWith('/search/'))
-    setCurrentSearch(currentUrl.replace('/search/', ''));
+    setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
 
   createEffect(() => {
     let tab = currentTab();

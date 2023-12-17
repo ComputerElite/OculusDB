@@ -686,13 +686,13 @@ public class FrontendServer
         server.AddRoute("GET", "/api/v2/lists/differencetypes", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
-            request.SendString(JsonSerializer.Serialize(DifferenceTypeIndex.differenceTypes));
+            request.SendString(JsonSerializer.Serialize(EnumIndex.differenceNameTypes));
             return true;
         }));
-        server.AddRoute("GET", "/api/v2/lists/differencetypes", new Func<ServerRequest, bool>(request =>
+        server.AddRoute("GET", "/api/v2/lists/searchcategories", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
-            request.SendString(JsonSerializer.Serialize(DifferenceTypeIndex.differenceTypes));
+            request.SendString(JsonSerializer.Serialize(EnumIndex.searchEntryTypes));
             return true;
         }));
         ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED

@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using ComputerUtils.Webserver;
+using OculusDB.Api;
 using OculusDB.ObjectConverters;
 
 namespace OculusDB.Search;
@@ -40,10 +41,10 @@ public class SearchQuery
             if(g == "") continue;
             q.headsetGroups.Add(HeadsetIndex.ParseGroup(g));
         }
-        string differenceTypes = request.queryString.Get("differenceTypes") ?? DifferenceTypeIndex.AllEnumNames();
+        string differenceTypes = request.queryString.Get("differenceNameTypes") ?? EnumIndex.AllEnumNamesDifferenceNameTypes();
         foreach (string type in differenceTypes.Split(','))
         {
-            q.differenceNameTypes.Add(DifferenceTypeIndex.ParseEnum(type));
+            q.differenceNameTypes.Add(EnumIndex.parseEnumDifferenceNameType(type));
         }
         return q;
     }
