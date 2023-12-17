@@ -110,7 +110,7 @@ public class FrontendServer
         ScrapingNodeMongoDBManager.Init();
 
         Logger.Log("Setting up routes");
-        frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
+        frontend = OculusDBEnvironment.debugging ? @"../../../frontend/" : "frontend" + Path.DirectorySeparatorChar;
         
         ////////////////// Admin
         server.AddRouteRedirect("GET", "/api/config", "/api/v2/admin/config");
@@ -724,57 +724,33 @@ public class FrontendServer
             return DoesUserHaveAccess(request);
         });
         */
-
-        server.AddRouteFile("/", frontend + "home.html", replace, true, true, true, accessCheck);
-		server.AddRouteFile("/alias", frontend + "alias.html", replace, true, true, true, accessCheck);
-		server.AddRouteFile("/recentactivity", frontend + "recentactivity.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/server", frontend + "server.html", replace, true, true, true, accessCheck);
+        byte[] indexHtml = File.ReadAllBytes(frontend + "index.html");
+        /// Redirect all other queries to index.html
+        server.notFoundHandler = request =>
+        {
+            string path = request.path.ToLower();
+            if (path.StartsWith("/")) path = path.Substring(1);
+            if (path.StartsWith("cdn") || path.StartsWith("api")) return false;
+            request.SendData(indexHtml, "text/html");
+            return true;
+        };
+        foreach (string file in Directory.GetFiles(frontend + "assets"))
+        {
+            server.AddRouteFile("/assets/" + Path.GetFileName(file), file, replace, true, true, true, accessCheck);
+        }
         
-        server.AddRouteFile("/downloadstats", frontend + "downloadstats.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/search", frontend + "search.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/logo", frontend + "logo.png", true, true, true, accessCheck);
-        server.AddRouteFile("/notfound.jpg", frontend + "notfound.jpg", true, true, true, accessCheck);
+        server.AddRouteFile("/cdn/logo.png", frontend + "logo.png", true, true, true, accessCheck);
+        server.AddRouteFile("/cdn/notfound.jpg", frontend + "notfound.jpg", true, true, true, accessCheck);
         server.AddRouteFile("/favicon.ico", frontend + "favicon.png", true, true, true, accessCheck);
         server.AddRouteFile("/privacy", frontend + "privacy.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/saved", frontend + "saved.html", replace, true, true, true, accessCheck);
         
-        server.AddRouteFile("/login", frontend + "login.html", replace, true, true, true, 0, true);
         server.AddRouteFile("/style.css", frontend + "style.css", replace, true, true, true, 0, true);
         
-        server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            if (!IsUserAdmin(request)) return true;
-            request.SendStringReplace(File.ReadAllText(frontend + "console.html"), "text/html", 200, replace);
-            return true;
-        }), true, true, true);
-        server.AddRoute("GET", "/id/", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            request.SendStringReplace(File.ReadAllText(frontend + "id.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
-            return true;
-        }), true, true, true, true);
-        server.AddRoute("GET", "/activity", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            request.SendStringReplace(File.ReadAllText(frontend + "activity.html").Replace("{0}", request.pathDiff), "text/html", 200, replace);
-            return true;
-        }), true, true, true, true);
-        server.AddRouteFile("/explore", frontend + "explore.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/script.js", frontend + "script.js", replace, true, true, true, accessCheck);
         server.AddRouteFile("/api/docs", frontend + "api.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/jsonview.js", frontend + "jsonview.js", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/guide", frontend + "guide.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/supportus", frontend + "supportus.html", replace, true, true, true, accessCheck);
 		server.AddRouteFile("/qavslogs", frontend + "qavsloganalyser.html", replace, true, true, true, accessCheck);
 
-		// for all the annoying people out there4
-		server.AddRouteRedirect("GET", "/idiot", "/guide/quest");
-
-        server.AddRouteFile("/guide/quest", frontend + "guidequest.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/guide/quest/pc", frontend + "guidequest_PC.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/guide/quest/qavs", frontend + "guidequest_QAVS.html", replace, true, true, true, accessCheck);
-        server.AddRouteFile("/guide/quest/sqq", frontend + "guidequest_SQQ.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/assets/sq.png", frontend + "sq.png", true, true, true, accessCheck);
         server.AddRouteFile("/assets/discord.svg", frontend + "discord.svg", true, true, true, accessCheck);
         server.AddRoute("GET", "/fonts/OpenSans", request =>
@@ -792,15 +768,7 @@ public class FrontendServer
             Proxy(request.queryString.Get("url"), request);
             return true;
         }, false, true, true, true, 3600, true, 0);
-
-        server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
-        {
-            if (!IsUserAdmin(request)) return true;
-            request.SendStringReplace(File.ReadAllText(frontend + "admin.html"), "text/html", 200, replace);
-            return true;
-        }), true, true, true);
-        server.AddRouteFile("/utils", frontend + "utils.html", replace);
-        server.AddRouteFile("/guide/rift", frontend + "guiderift.html", replace, true, true, true, accessCheck);
+        
         server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;

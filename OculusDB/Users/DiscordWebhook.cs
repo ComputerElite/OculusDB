@@ -51,7 +51,6 @@ namespace OculusDB.Users
         public void SendDiscordWebhook(DBDifference difference)
         {
             if (!SendWebhook(difference)) return;
-            DifferenceName type = difference.differenceNameEnum;
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
             string websiteUrl = config.publicAddress;

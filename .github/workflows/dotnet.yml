@@ -23,8 +23,24 @@ jobs:
     - run: cd OculusDB
     - name: Restore dependencies
       run: dotnet restore
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - uses: pnpm/actions-setup@v2
+      with:
+        version: 8
+    - name: Build frontend
+      run: |
+        cd OculusDB/frontend
+        pnpm install
+        pnpm build
+        cd ../../
     - name: Build
       run: dotnet build
+    - name: Copy frontend
+      run: |
+        cp -r OculusDB/frontend/dist/* OculusDB/bin/Debug/net6.0/frontend
+        cp -r OculusDB/frontend/dist/* OculusDB/bin/Release/net6.0/frontend
     - name: Upload Debug net6.0.zip
       uses: actions/upload-artifact@v3
       with:
