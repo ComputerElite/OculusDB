@@ -72,7 +72,7 @@ public class ScrapingManaging
         // There are enough apps to scrape or app adding is running. Send scraping tasks.
         List<ScrapingTask> scrapingTasks = new();
         // Add 20 non-priority apps to scrape and 3 priority apps to scrape
-        scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(false, 2, scrapingNodeAuthenticationResult.scrapingNode)));
+        scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(false, 20, scrapingNodeAuthenticationResult.scrapingNode)));
         scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(true, 3, scrapingNodeAuthenticationResult.scrapingNode)));
 
         return scrapingTasks;

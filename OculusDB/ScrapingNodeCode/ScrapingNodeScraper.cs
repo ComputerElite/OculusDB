@@ -290,9 +290,9 @@ public class ScrapingNodeScraper
         
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            //DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeId);
-            //Logger.Log(v.versionCode.ToString());
-            //versions.Add(v);
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeId);
+            Logger.Log(v.versionCode.ToString());
+            versions.Add(v);
         }
         
         
