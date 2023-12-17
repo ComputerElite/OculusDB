@@ -39,6 +39,8 @@ jobs:
       run: dotnet build
     - name: Copy frontend
       run: |
+        mkdir -p OculusDB/bin/Debug/net6.0/frontend
+        mkdir -p OculusDB/bin/Release/net6.0/frontend
         cp -r OculusDB/frontend/dist/* OculusDB/bin/Debug/net6.0/frontend
         cp -r OculusDB/frontend/dist/* OculusDB/bin/Release/net6.0/frontend
     - name: Upload Debug net6.0.zip
