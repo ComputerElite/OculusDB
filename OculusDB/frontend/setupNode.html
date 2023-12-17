@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css" >
+    <style>
+        .content {
+            margin-top: 0;
+        }
+    </style>
+    <title>Scraping Master - OculusDB Scraping Master</title>
+    <meta name="title" content="Scraping Master - OculusDB Scraping Master">
+    <meta name="description" content="Get the status of scraping nodes">
+</head>
+<body>
+<noscript>This page relies on javascript. Please enable javascript on your browser</noscript>
+<div class="content">
+    <h1>Setup an OculusDB scraping node</h1>
+    <h2>1. Download the node files</h2>
+    You can download the node zip file from <a href="/cdn/node.zip">here</a>
+
+    <h2>2. Extract the zip file</h2>
+    Extract the zip file to a directory of your choice.
+
+    <h2>3. Install dotnet 6</h2>
+    You can download dotnet 6 from <a href="https://dotnet.microsoft.com/download/dotnet/6.0">here</a>
+    <br>
+    or
+    <br>
+    You can install dotnet 6 using the following command:
+    <br>
+    <code>sudo dnf install dotnet-runtime-6.0</code>
+
+    <h2>4. Configure the node</h2>
+    <h3>4.1 Get credentials</h3>
+    First you'll have to contact ComputerElite on discord to get the login credentials for the node.
+    <br>
+    Contact him via the <a href="{OculusDBDC}">OculusDB discord server</a>
+
+    <h3>4.2 Get your Oculus token</h3>
+    First you'll need to get your Oculus token. It'll be used for authentication on Oculus' GraphQL Api.
+    <br>
+    Follow <a href="https://computerelite.github.io/tools/Oculus/ObtainToken.html">this guide</a> to get the token.
+
+    <h3>4.3 Configure the node</h3>
+    In your terminal go to the directory where you extracted the node files.
+    <br>
+    Then run the following commands:
+    <br>
+    <code>dotnet OculusDB.dll --type node</code> (Sets the OculusDB server type to scraping node)
+    <br>
+    <code>dotnet OculusDB.dll --sm <div style="display: inline" id="url"></div></code> (Sets the target server for the node to submit results to)
+    <br>
+    <code>dotnet OculusDB.dll --st (scraping node token)</code> (Sets the node's credentials)
+    <br>
+    <code>dotnet OculusDB.dll --so (Oculus token)</code> (Sets the node's Oculus token)
+    <br>
+    <br>
+    <i>Replace the text in parentheses with the corresponding login information</i>
+
+    <h2>5. Run the node</h2>
+    Run the following command:
+    <br>
+    <code>dotnet OculusDB.dll</code>
+    <br>
+    <br>
+    The node will now start scraping games and submitting the results to the scraping master.
+    <br>
+    Your node should show up <a href="/">here</a> after a few seconds
+    <br>
+    <br>
+    <i>It's recommended to run the node in a screen or tmux session</i>
+    <br>
+    <br>
+    For any further questions contact ComputerElite
+</div>
+<script>
+    document.getElementById("url").innerText = location.protocol + "//" + location.host;
+</script>
+</body>
+</html>
