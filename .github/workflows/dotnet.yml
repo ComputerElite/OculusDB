@@ -3,9 +3,9 @@ name: .NET
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, OculusDB-rewrite ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, OculusDB-rewrite ]
 
 jobs:
   build:
