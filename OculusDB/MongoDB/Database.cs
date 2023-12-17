@@ -59,6 +59,29 @@ public class OculusDBDatabase
 
             // Don't ask. It's important stuff to reduce DB size and fix a lot of errors
             
+            
+            RemoveIdRemap<DBAchievement>();
+            RemoveIdRemap<DBAchievementTranslation>();
+            RemoveIdRemap<DBAppImage>();
+            RemoveIdRemap<DBApplication>();
+            RemoveIdRemap<DBApplicationGrouping>();
+            RemoveIdRemap<DBApplicationTranslation>();
+            RemoveIdRemap<DBAssetFile>();
+            RemoveIdRemap<DBBase>();
+            RemoveIdRemap<DBError>();
+            RemoveIdRemap<DBIAPItem>();
+            RemoveIdRemap<DBIAPItemId>();
+            RemoveIdRemap<DBIAPItemPack>();
+            RemoveIdRemap<DBOBBBinary>();
+            RemoveIdRemap<DBOffer>();
+            RemoveIdRemap<DBParentApplication>();
+            RemoveIdRemap<DBParentApplicationGrouping>();
+            RemoveIdRemap<DBPrice>();
+            RemoveIdRemap<DBReleaseChannel>();
+            RemoveIdRemap<DBVersion>();
+            RemoveIdRemap<VersionAlias>();
+            RemoveIdRemap<QAVSReport>();
+            
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
             webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
@@ -87,29 +110,8 @@ public class OculusDBDatabase
             scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
             scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
             
-            /*
-            RemoveIdRemap<DBAchievement>();
-            RemoveIdRemap<DBAchievementTranslation>();
-            RemoveIdRemap<DBAppImage>();
-            RemoveIdRemap<DBApplication>();
-            RemoveIdRemap<DBApplicationGrouping>();
-            RemoveIdRemap<DBApplicationTranslation>();
-            RemoveIdRemap<DBAssetFile>();
-            RemoveIdRemap<DBBase>();
-            RemoveIdRemap<DBError>();
-            RemoveIdRemap<DBIAPItem>();
-            RemoveIdRemap<DBIAPItemId>();
-            RemoveIdRemap<DBIAPItemPack>();
-            RemoveIdRemap<DBOBBBinary>();
-            RemoveIdRemap<DBOffer>();
-            RemoveIdRemap<DBParentApplication>();
-            RemoveIdRemap<DBParentApplicationGrouping>();
-            RemoveIdRemap<DBPrice>();
-            RemoveIdRemap<DBReleaseChannel>();
-            RemoveIdRemap<DBVersion>();
-            RemoveIdRemap<VersionAlias>();
-            RemoveIdRemap<QAVSReport>();
-            */
+            
+            
 
             UpdateBlockedAppsCache();
         }
