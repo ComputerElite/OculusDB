@@ -223,12 +223,12 @@ public class ScrapingNodeScraper
         
         DBApplication dbApp = OculusConverter.AddScrapingNodeName(OculusConverter.Application(applicationFromDeveloper, applicationFromStore), scrapingNodeId);
         
-        List<DBOffer> offers = new List<DBOffer>();
-        offers.Add(OculusConverter.Price(applicationFromStore.current_offer, dbApp));
-        List<DBIAPItemPack> dlcPacks = new List<DBIAPItemPack>();
+        List<DBOffer?> offers = new List<DBOffer?>();
+        offers.Add(OculusConverter.AddScrapingNodeName(OculusConverter.Price(applicationFromStore.current_offer, dbApp), scrapingNodeId));
+        List<DBIAPItemPack?> dlcPacks = new List<DBIAPItemPack?>();
         // Get DLC Packs and prices
         // Add DLCs
-        List<DBIAPItem> iapItems = new List<DBIAPItem>();
+        List<DBIAPItem?> iapItems = new List<DBIAPItem?>();
         int i = 0;
         if (dbApp.grouping != null)
         {
@@ -286,14 +286,13 @@ public class ScrapingNodeScraper
         
         
         // Get Versions
-        List<DBVersion> versions = new List<DBVersion>();
-        List<VersionAlias> versionAliases = VersionAlias.GetVersionAliases(dbApp.id);
+        List<DBVersion?> versions = new List<DBVersion?>();
         
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper, versionAliases,dbApp), scrapingNodeId);
-            Logger.Log(v.versionCode.ToString());
-            versions.Add(v);
+            //DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeId);
+            //Logger.Log(v.versionCode.ToString());
+            //versions.Add(v);
         }
         
         
@@ -305,7 +304,7 @@ public class ScrapingNodeScraper
         
         
         // Add Achievements
-        List<DBAchievement> achievements = new List<DBAchievement>();
+        List<DBAchievement?> achievements = new List<DBAchievement?>();
         try
         {
             foreach (AchievementDefinition achievement in OculusInteractor.EnumerateAllAchievements(dbApp.id))
@@ -323,17 +322,17 @@ public class ScrapingNodeScraper
         }
         
         
-        DBAppImage dbi = DownloadImage(dbApp);
+        DBAppImage? dbi = DownloadImage(dbApp);
         if (dbi != null)
         {
             taskResult.scraped.imgs.Add(dbi);
         }
         
-        taskResult.scraped.offers.AddRange(offers);
-        taskResult.scraped.iapItemPacks.AddRange(dlcPacks);
-        taskResult.scraped.iapItems.AddRange(iapItems);
-        taskResult.scraped.versions.AddRange(versions);
-        taskResult.scraped.achievements.AddRange(achievements);
+        taskResult.scraped.offers.AddRange(offers.Where(x => x != null).ToList().ConvertAll(x => (DBOffer)x));
+        taskResult.scraped.iapItemPacks.AddRange(dlcPacks.Where(x => x != null).ToList().ConvertAll(x => (DBIAPItemPack)x));
+        taskResult.scraped.iapItems.AddRange(iapItems.Where(x => x != null).ToList().ConvertAll(x => (DBIAPItem)x));
+        taskResult.scraped.versions.AddRange(versions.Where(x => x != null).ToList().ConvertAll(x => (DBVersion)x));
+        taskResult.scraped.achievements.AddRange(achievements.Where(x => x != null).ToList().ConvertAll(x => (DBAchievement)x));
         taskResult.scraped.applications.Add(dbApp);
     }
 
@@ -343,7 +342,7 @@ public class ScrapingNodeScraper
         return currency;
     }
 
-    public DBAppImage DownloadImage(DBApplication a)
+    public DBAppImage? DownloadImage(DBApplication a)
     {
         //Logger.Log("Downloading image of " + a.id + " from " + a.img);
         try

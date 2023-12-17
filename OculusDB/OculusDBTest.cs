@@ -214,11 +214,10 @@ public class OculusDBTest
         
         // Get Versions
         List<DBVersion> versions = new List<DBVersion>();
-        List<VersionAlias> versionAliases = VersionAlias.GetVersionAliases(dbApp.id);
         
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper, versionAliases,dbApp), scrapingNodeName);
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeName);
             Logger.Log(v.versionCode.ToString());
             versions.Add(v);
         }

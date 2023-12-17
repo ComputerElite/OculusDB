@@ -21,4 +21,9 @@ public class DBAssetFile : DBBase
     public DateTime uploadDate { get; set; } = DateTime.MinValue;
     [TrackChanges]
     public HeadsetGroup? group { get; set; } = null;
+
+    public override string GetId()
+    {
+        return id;
+    }
 }

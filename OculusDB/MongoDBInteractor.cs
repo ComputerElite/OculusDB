@@ -114,8 +114,33 @@ namespace OculusDB
         {
             return OculusDBDatabase.webhookCollection.Find(new BsonDocument()).ToList();
         }
+        
+        
 
-        public static ConnectedList GetConnected(string id)
+        public static DLCLists? GetDlcs(string id)
+        {
+            DLCLists l = new DLCLists();
+            // Gets everything connected with any type
+            // If the id just has an application group we will return everything for all applications
+            // If the id has an application we will just return everything for that application
+            
+            // Step 1: Get the object by id.
+            DBBase? foundObject = OculusDBDatabase.GetDocument(id);
+            if(foundObject == null) return null;
+            ApplicationContext applicationContext = foundObject.GetApplicationIds();
+            
+            // Get population context with stuff needed for multiple entries to populate themselves. Just using one query per type instead of multiple per id
+            PopulationContext context = PopulationContext.GetForApplicationContext(applicationContext);
+            
+            // Step 2: Get all the connected objects
+            l.iapItems = DBIAPItem.GetAllForApplicationGrouping(applicationContext.groupingId);
+            l.iapItemPacks = DBIAPItemPack.GetAllForApplicationGrouping(applicationContext.groupingId);
+            
+            l.PopulateAll(context);
+            return l;
+        }
+
+        public static ConnectedList? GetConnected(string id)
         {
             ConnectedList l = new ConnectedList();
             // Gets everything connected with any type
@@ -131,7 +156,7 @@ namespace OculusDB
             PopulationContext context = PopulationContext.GetForApplicationContext(applicationContext);
             
             // Step 2: Get all the connected objects
-            l.applications = OculusDBDatabase.applicationCollection.Find(x => applicationContext.appIds.Contains(x.id)).ToList();
+            l.applications = OculusDBDatabase.applicationCollection.Find(x => applicationContext.appIds.Contains(x.id) || (x.grouping != null && x.grouping.id == applicationContext.groupingId)).ToList();
             l.iapItems = DBIAPItem.GetAllForApplicationGrouping(applicationContext.groupingId);
             l.iapItemPacks = DBIAPItemPack.GetAllForApplicationGrouping(applicationContext.groupingId);
             l.achievements = DBAchievement.GetAllForApplicationGrouping(applicationContext.groupingId);
@@ -188,6 +213,37 @@ namespace OculusDB
         public static List<DBDifference> GetLatestDiffs(int count, int skip, string typeConstraint, string application, string currency)
         {
             throw new NotImplementedException();
+        }
+
+        public static Dictionary<string, List<DBOffer>> GetFormerPricesOfId(string id)
+        {
+            ConnectedList l = new ConnectedList();
+            // Gets everything connected with any type
+            // If the id just has an application group we will return everything for all applications
+            // If the id has an application we will just return everything for that application
+            
+            // Step 1: Get the object by id.
+            DBBase? foundObject = OculusDBDatabase.GetDocument(id);
+            if(foundObject == null) return null;
+            
+            // 1. Get all former offer ids
+            Dictionary<string, List<DBOffer>> priceChanges = new Dictionary<string, List<DBOffer>>();
+            List<DBDifference> applicationDifferences = OculusDBDatabase.differenceCollection.Find(x => x.entryId == id).ToList();
+            applicationDifferences = applicationDifferences.Where(x =>
+                x.differenceType == DifferenceType.ObjectAdded || x.entries.Any(x => x.name == "offerId")).ToList();
+            // Get distinct offer ids
+            List<string> offerIds = applicationDifferences.Select(x => ((DBApplication)x.newObject).offerId).Distinct().ToList();
+            // 2. Get all former offers
+            List<DBDifference> offerDifferences = OculusDBDatabase.differenceCollection.Find(x => offerIds.Contains(x.entryId)).ToList();
+            List<DBOffer?> dbOffers = offerDifferences.Select(x => (DBOffer?)x.newObject).ToList();
+            // 3. Get all former prices grouped by currency
+            foreach (DBOffer offer in dbOffers.OrderByDescending(x => x.__lastUpdated))
+            {
+                if(!priceChanges.ContainsKey(offer.currency)) priceChanges[offer.currency] = new List<DBOffer>();
+                priceChanges[offer.currency].Add(offer);
+            }
+
+            return priceChanges;
         }
     }
 

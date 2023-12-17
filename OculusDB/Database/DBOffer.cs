@@ -21,6 +21,9 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
     public DBPrice? strikethroughPrice { get; set; } = null;
+    
+    [TrackChanges]
+    public List<string> presentOn { get; set; } = new List<string>();
 
     public DBOffer? GetEntryForDiffGeneration(IEnumerable<DBOffer> collection)
     {
@@ -45,5 +48,10 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     public static List<DBOffer> ById(string id)
     {
         return OculusDBDatabase.offerCollection.Find(x => x.id == id).ToList();
+    }
+
+    public override string GetId()
+    {
+        return id;
     }
 }

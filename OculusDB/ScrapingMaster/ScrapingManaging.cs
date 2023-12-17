@@ -4,6 +4,7 @@ using ComputerUtils.Logging;
 using ComputerUtils.VarUtils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
 using OculusDB.Database;
 using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
@@ -71,7 +72,7 @@ public class ScrapingManaging
         // There are enough apps to scrape or app adding is running. Send scraping tasks.
         List<ScrapingTask> scrapingTasks = new();
         // Add 20 non-priority apps to scrape and 3 priority apps to scrape
-        scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(false, 20, scrapingNodeAuthenticationResult.scrapingNode)));
+        scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(false, 2, scrapingNodeAuthenticationResult.scrapingNode)));
         scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(true, 3, scrapingNodeAuthenticationResult.scrapingNode)));
 
         return scrapingTasks;
@@ -186,6 +187,7 @@ public class ScrapingManaging
     {
         ulong taskId = processTaskId;
         processTaskId++;
+        string scrapingNodeId = scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId;
         ScrapingContribution scrapingContribution = new ScrapingContribution();
         scrapingContribution.scrapingNode = scrapingNodeAuthenticationResult.scrapingNode;
         // Process Versions
@@ -209,7 +211,7 @@ public class ScrapingManaging
             }
 
             DBVersion? oldEntry = v.GetEntryForDiffGeneration(versionLookup[v.parentApplication.id]);
-            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, v), ref scrapingContribution);
+            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, v, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
             ScrapingNodeMongoDBManager.AddVersion(v, ref scrapingContribution);
@@ -237,7 +239,7 @@ public class ScrapingManaging
             }
 
             DBIAPItem? oldEntry = d.GetEntryForDiffGeneration(iapItemLookup[parentGrouping ?? ""]);
-            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d), ref scrapingContribution);
+            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
             ScrapingNodeMongoDBManager.AddIapItem(d, ref scrapingContribution);
@@ -265,7 +267,7 @@ public class ScrapingManaging
             }
 
             DBIAPItemPack? oldEntry = d.GetEntryForDiffGeneration(iapItemPackLookup[parentGrouping ?? ""]);
-            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d), ref scrapingContribution);
+            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
             ScrapingNodeMongoDBManager.AddIapItemPack(d, ref scrapingContribution);
@@ -290,9 +292,9 @@ public class ScrapingManaging
                 List<DBOffer> found = DBOffer.ById(d.id);
                 offerLookup[""].AddRange(found);
             }
-
+            d.presentOn = GetOfferPresentOn(d, ref taskResult);
             DBOffer? oldEntry = d.GetEntryForDiffGeneration(offerLookup[parentApp ?? ""]);
-            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d), ref scrapingContribution);
+            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
             ScrapingNodeMongoDBManager.AddOffer(d, ref scrapingContribution);
@@ -321,7 +323,7 @@ public class ScrapingManaging
             }
 
             DBAchievement? oldEntry = d.GetEntryForDiffGeneration(achievementLoopup[parentGrouping ?? ""]);
-            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d), ref scrapingContribution);
+            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
             ScrapingNodeMongoDBManager.AddAchievement(d, ref scrapingContribution);
@@ -336,10 +338,11 @@ public class ScrapingManaging
         foreach (DBApplication d in taskResult.scraped.applications)
         {
             DBApplication? oldEntry = d.GetEntryForDiffGenerationFromDB();
-            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d), ref scrapingContribution);
+            ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
             ScrapingNodeMongoDBManager.AddApplication(d, ref scrapingContribution);
+            ScrapingNodeMongoDBManager.RemoveAppFromAppsScraping(d);
             r.processedCount++;
         }
         
@@ -358,6 +361,23 @@ public class ScrapingManaging
         Logger.Log("# " + taskId + " flushing");
         ScrapingNodeMongoDBManager.Flush();
         Logger.Log("# " + taskId + " flushed");
+    }
+
+    private static List<string> GetOfferPresentOn(DBOffer dbOffer, ref ScrapingNodeTaskResult taskResult)
+    {
+        string offerId = dbOffer.id;
+        List<string> presentOn = new List<string>();
+        
+        // Find all instances of offer in DB and TaskResult
+        presentOn.AddRange(taskResult.scraped.iapItemPacks.Where(x => x.offerId == offerId).ToList().Select(x => x.id));
+        presentOn.AddRange(taskResult.scraped.iapItems.Where(x => x.offerId == offerId).ToList().Select(x => x.id));
+        presentOn.AddRange(taskResult.scraped.applications.Where(x => x.offerId == offerId).ToList().Select(x => x.id));
+        presentOn.AddRange(OculusDBDatabase.iapItemCollection.Find(x => x.offerId == offerId).ToList().Select(x => x.id));
+        presentOn.AddRange(OculusDBDatabase.iapItemPackCollection.Find(x => x.offerId == offerId).ToList().Select(x => x.id));
+        presentOn.AddRange(OculusDBDatabase.applicationCollection.Find(x => x.offerId == offerId).ToList().Select(x => x.id));
+        
+        // Remove duplicates
+        return presentOn.Distinct().ToList();
     }
 
     public static Dictionary<string, DateTime> OAuthExceptionReportTimes = new ();

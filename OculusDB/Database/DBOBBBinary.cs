@@ -31,4 +31,9 @@ public class DBOBBBinary : DBBase
             return SizeConverter.ByteSizeToString(size);
         }
     }
+
+    public override string GetId()
+    {
+        return id;
+    }
 }

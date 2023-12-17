@@ -47,9 +47,11 @@ public class OculusDBDatabase
         
         
         public static List<string> blockedAppsCache = new List<string>();
+        private static bool initialized = false;
         public static void Initialize()
         {
-            if (mongoClient != null) return; // only init if we didn't already
+            if (initialized) return;
+            initialized = true;
             BsonChunkPool.Default = new BsonChunkPool(512, 1024 * 64);
             ConventionPack pack = new ConventionPack();
             pack.Add(new IgnoreExtraElementsConvention(true));
@@ -85,6 +87,7 @@ public class OculusDBDatabase
             scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
             scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
             
+            /*
             RemoveIdRemap<DBAchievement>();
             RemoveIdRemap<DBAchievementTranslation>();
             RemoveIdRemap<DBAppImage>();
@@ -106,6 +109,7 @@ public class OculusDBDatabase
             RemoveIdRemap<DBVersion>();
             RemoveIdRemap<VersionAlias>();
             RemoveIdRemap<QAVSReport>();
+            */
 
             UpdateBlockedAppsCache();
         }

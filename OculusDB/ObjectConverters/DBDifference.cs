@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using OculusDB.Database;
 
 namespace OculusDB.ObjectConverters;
@@ -13,25 +14,14 @@ public enum DifferenceType
     ObjectRemoved = 2,
 }
 
-public enum DifferenceName
-{
-    Unknown = -1,
-}
-
-public class DBDifference : DBBase
+public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
 {
     [BsonId]
     public ObjectId _id { get; set; }
     public override string __OculusDBType { get; set; } = DBDataTypes.Difference;
-    public DifferenceName differenceNameEnum { get; set; } = DifferenceName.Unknown;
-
-    public string differenceNameFormatted
-    {
-        get
-        {
-            return OculusConverter.FormatOculusEnumString(differenceNameEnum.ToString());
-        }
-    }
+    public string entryId { get; set; } = "";
+    public string entryOculusDBType { get; set; } = "";
+    
 
     [BsonIgnore]
     public bool isSame
@@ -45,13 +35,15 @@ public class DBDifference : DBBase
     public object? oldObject { get; set; } = null;
     [JsonIgnore]
     public object? newObject { get; set; } = null;
+
     public DifferenceType differenceType
     {
         get
         {
+            
             if (oldObject == null && newObject == null) return DifferenceType.FuckedUp;
-            if (oldObject == null && newObject != null) return DifferenceType.ObjectRemoved; // realistically this should never happen
-            if (oldObject != null && newObject == null) return DifferenceType.ObjectAdded;
+            else if (oldObject != null && newObject == null) return DifferenceType.ObjectRemoved; // realistically this should never happen
+            else if (oldObject == null && newObject != null) return DifferenceType.ObjectAdded;
             return DifferenceType.ObjectUpdated;
         }
     }
@@ -94,6 +86,16 @@ public class DBDifference : DBBase
         }
         entries.AddRange(difference.entries);
         return this;
+    }
+
+    public DBDifference? GetEntryForDiffGeneration(IEnumerable<DBDifference> collection)
+    {
+        return this;
+    }
+
+    public void AddOrUpdateEntry(IMongoCollection<DBDifference> collection)
+    {
+        collection.InsertOne(this);
     }
 }
 

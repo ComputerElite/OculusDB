@@ -19,4 +19,9 @@ public class DBBase
     {
         return;
     }
+
+    public virtual string GetId()
+    {
+        return "";
+    }
 }

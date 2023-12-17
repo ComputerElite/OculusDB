@@ -89,6 +89,7 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     public string packageName { get; set; } = "";
     
     [OculusField("status")]
+    [BsonIgnore]
     [TrackChanges]
     public string binaryStatus { get; set; } = "";
     [OculusField("status_enum")]
@@ -154,5 +155,10 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     public static DBVersion? ById(string id)
     {
         return OculusDBDatabase.versionCollection.Find(x => x.id == id).FirstOrDefault();
+    }
+
+    public override string GetId()
+    {
+        return id;
     }
 }

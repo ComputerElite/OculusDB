@@ -59,6 +59,11 @@ public class ScrapingNodeMongoDBManager
         
         return selected;
     }
+
+    public static void RemoveAppFromAppsScraping(DBApplication app)
+    {
+        OculusDBDatabase.appsScraping.DeleteOne(x => x.appId == app.id);
+    }
     
     public static ScrapingNodeAuthenticationResult CheckScrapingNode(ScrapingNodeIdentification scrapingNodeIdentification)
     {
@@ -303,6 +308,7 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBAppImage> images = new ();
+
     public static void AddImage(DBAppImage? img, ref ScrapingContribution contribution)
     {
         if (img == null) return;
@@ -310,10 +316,48 @@ public class ScrapingNodeMongoDBManager
         img.__sn = contribution.scrapingNode.scrapingNodeId;
         images.Add(img);
     }
+    
+    public static Dictionary<string, TimeDependantBool> lockers = new Dictionary<string, TimeDependantBool>();
+    
 
+    /// <summary>
+    /// Inserts all provided items into the provided collection
+    /// </summary>
+    /// <param name="collection">Collection to insert to</param>
+    /// <param name="items">items to insert</param>
+    /// <typeparam name="T">Type of the entries</typeparam>
+    public static void BulkInsert<T>(IMongoCollection<T>? collection, ref List<T> items) where T : IDBObjectOperations<T>
+    {
+        if (collection == null) throw new Exception("Collection is null");
+        string typeName = typeof(T).Name;
+        // only allow one Thread to write to a given collection at once
+        if(!lockers.ContainsKey(typeName)) lockers.Add(typeName, new TimeDependantBool());
+        if (lockers[typeName].IsTrueAndValid()) return;
+        lockers[typeName].Set(true, TimeSpan.FromMinutes(30));
+        
+        while (items.Count > 0)
+        {
+            // Add all items with the same id to a list
+            items[0].AddOrUpdateEntry(collection);
+            items.RemoveAt(0);
+        }
+        // Unlock this type to be able to write to it again
+        lockers[typeName].Unlock();
+    }
+
+    /// <summary>
+    /// Writes all cached entries to the Database
+    /// </summary>
     public static void Flush()
     {
-        
+        BulkInsert(OculusDBDatabase.applicationCollection, ref apps);
+        BulkInsert(OculusDBDatabase.versionCollection, ref versions);
+        BulkInsert(OculusDBDatabase.iapItemCollection, ref iapItems);
+        BulkInsert(OculusDBDatabase.iapItemPackCollection, ref dlcPacks);
+        BulkInsert(OculusDBDatabase.offerCollection, ref offers);
+        BulkInsert(OculusDBDatabase.achievementCollection, ref achievements);
+        BulkInsert(OculusDBDatabase.appImages, ref images);
+        BulkInsert(OculusDBDatabase.differenceCollection, ref differences);
     }
 
     public static string CreateScrapingNode(string id, string name)

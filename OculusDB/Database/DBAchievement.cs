@@ -110,4 +110,9 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     {
         return OculusDBDatabase.achievementCollection.Find(x => x.id == dId).FirstOrDefault();
     }
+
+    public override string GetId()
+    {
+        return id;
+    }
 }

@@ -11,8 +11,9 @@ namespace OculusDB.ObjectConverters;
 public class OculusConverter
 {
 
-    public static T AddScrapingNodeName<T>(T toAlter, string scrapingNodeName)
+    public static T? AddScrapingNodeName<T>(T? toAlter, string scrapingNodeName)
     {
+        if (toAlter == null) return default(T);
         List<PropertyInfo> toSet = typeof(T).GetProperties().Where(x => x.Name == "__sn").ToList();
         if (toSet.Count >= 1)
         {
@@ -105,7 +106,7 @@ public class OculusConverter
         return db;
     }
 
-    public static DBVersion Version(OculusBinary binary, Application parent, List<VersionAlias> appAliases, DBApplication dbApplication)
+    public static DBVersion Version(OculusBinary binary, Application parent, DBApplication dbApplication)
     {
         DBVersion version = FromOculusToDB<OculusBinary, DBVersion>(binary);
         version.parentApplication = ParentApplication(parent);
@@ -138,7 +139,6 @@ public class OculusConverter
             // GearVR and Go report wrong headsets as targeted devices, so let's just override them for now
             version.targetedDevicesEnum = new List<Headset> {Headset.GEARVR, Headset.PACIFIC};
         }
-        version.alias = appAliases.Find(a => a.versionId == version.id)?.alias;
         return version;
     }
 

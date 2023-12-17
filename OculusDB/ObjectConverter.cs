@@ -87,7 +87,7 @@ namespace OculusDB
                 case DBDataTypes.Achievement:
                     return (DBAchievement)o;
                 case DBDataTypes.Offer:
-                    return (DBAchievement)o;
+                    return (DBOffer)o;
                 case DBDataTypes.Difference:
                     return (DBDifference)o;
             }

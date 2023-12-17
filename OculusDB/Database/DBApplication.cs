@@ -328,4 +328,9 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     {
         offers = context.GetOffers(offerId);
     }
+
+    public override string GetId()
+    {
+        return id;
+    }
 }

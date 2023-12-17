@@ -56,4 +56,9 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     {
         return OculusDBDatabase.iapItemPackCollection.Find(x =>x.id == id).FirstOrDefault();
     }
+
+    public override string GetId()
+    {
+        return id;
+    }
 }

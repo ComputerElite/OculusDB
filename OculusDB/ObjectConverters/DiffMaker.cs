@@ -8,6 +8,18 @@ namespace OculusDB.ObjectConverters;
 
 public class DiffMaker
 {
+    public static DBDifference GetDifference(object? oldObject, object? newObject, string scrapingNodeId)
+    {
+        DBDifference diff = OculusConverter.AddScrapingNodeName(GetDifference(oldObject, newObject, 0), scrapingNodeId) ?? new DBDifference();
+        if (newObject != null && newObject.GetType().IsAssignableTo(typeof(DBBase)))
+        {
+            DBBase dbBase = (DBBase)newObject;
+            diff.entryId = dbBase.GetId();
+            diff.entryOculusDBType = dbBase.__OculusDBType;
+        }
+
+        return diff;
+    }
     public static DBDifference GetDifference(object? oldObject, object? newObject, int depth = 0)
     {
         DBDifference diff = new DBDifference();
@@ -30,7 +42,7 @@ public class DiffMaker
         if(comparisonType.IsPrimitive) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType.IsEnum) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType == typeof(string)) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
-        if(comparisonType == typeof(DateTime)) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
+        if(comparisonType == typeof(DateTime)) return diff.ConditionalAddEntry(((DateTime)oldObject - (DateTime)newObject).Duration().TotalSeconds < 1, new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         // Compare lists
         if (comparisonType.IsGenericType && comparisonType.GetGenericTypeDefinition() == typeof(List<>))
         {
@@ -49,6 +61,7 @@ public class DiffMaker
             
             diff.Merge(propertyDiff, (depth > 0 ? "." : "") + property.Name);
         }
+
         return diff;
     }
 

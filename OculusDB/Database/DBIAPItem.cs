@@ -84,4 +84,9 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     {
         return OculusDBDatabase.iapItemCollection.Find(x => x.id == dId).FirstOrDefault();
     }
+
+    public override string GetId()
+    {
+        return id;
+    }
 }

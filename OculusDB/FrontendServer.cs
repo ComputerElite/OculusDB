@@ -15,6 +15,7 @@ using ComputerUtils.Webserver;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using OculusDB.Analytics;
+using OculusDB.Api;
 using OculusDB.ApiDocs;
 using OculusDB.Database;
 using OculusDB.MongoDB;
@@ -112,14 +113,35 @@ public class FrontendServer
         frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         
         ////////////////// Admin
-        server.AddRoute("GET", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("GET", "/api/config", "/api/v2/admin/config");
+        server.AddRoute("GET", "/api/v2/admin/config", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            if (!IsUserAdmin(request)) return true;
+            request.SendString(JsonSerializer.Serialize(config));
+            return true;
+        }));
+        
+        server.AddRouteRedirect("POST", "/api/config", "/api/v2/admin/config");
+        server.AddRoute("POST", "/api/v2/admin/config", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            if (!IsUserAdmin(request)) return true;
+            config = JsonSerializer.Deserialize<Config>(request.bodyString);
+            config.Save();
+            request.SendString("Updated config");
+            return true;
+        }));
+        server.AddRouteRedirect("GET", "/api/v1/admin/users", "/api/v2/admin/users");
+        server.AddRoute("GET", "/api/v2/admin/users", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             if (!IsUserAdmin(request)) return true;
             request.SendString(JsonSerializer.Serialize(config.tokens));
             return true;
         }));
-        server.AddRoute("POST", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("POST", "/api/v1/admin/users", "/api/v2/admin/users");
+        server.AddRoute("POST", "/api/v2/admin/users", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             if (!IsUserAdmin(request)) return true;
@@ -128,12 +150,15 @@ public class FrontendServer
             return true;
         }));
         
-        server.AddRoute("GET", "/api/v1/blocked/blockedapps", request =>
+        /////// Blocked
+        server.AddRouteRedirect("GET", "/api/v1/blocked/blockedapps", "/api/v2/blocked/blockedapps");
+        server.AddRoute("GET", "/api/v2/blocked/blockedapps", request =>
         {
             request.SendString(JsonSerializer.Serialize(OculusDBDatabase.GetBlockedApps()), "application/json");
             return true;
         });
-        server.AddRoute("DELETE", "/api/v1/blocked/unblockapp", request =>
+        server.AddRouteRedirect("DELETE", "/api/v1/blocked/unblockapp", "/api/v2/blocked/unblockapp");
+        server.AddRoute("DELETE", "/api/v2/blocked/unblockapp", request =>
         {
             string id = request.queryString.Get("id");
             if (!DoesTokenHaveAccess(request, Permission.BlockApps))
@@ -144,23 +169,8 @@ public class FrontendServer
             request.SendString("unblocked " + id, "application/json");
             return true;
         });
-        server.AddRoute("POST", "/api/v1/createscrapingnode", request =>
-        {
-            string id = request.queryString.Get("id") ?? "";
-            string name = request.queryString.Get("name") ?? "";
-            if (!DoesTokenHaveAccess(request, Permission.CreateScrapingNode))
-            {
-                return true;
-            }
-            if(id == "" || name == "")
-            {
-                request.SendString("id and name must be supplied", "text/plain", 400);
-                return true;
-            }
-            request.SendString(ScrapingNodeMongoDBManager.CreateScrapingNode(id, name), "application/json");
-            return true;
-        });
-        server.AddRoute("POST", "/api/v1/blocked/blockapp", request =>
+        server.AddRouteRedirect("POST", "/api/v1/blocked/blockapp", "/api/v2/blocked/blockapp");
+        server.AddRoute("POST", "/api/v2/blocked/blockapp", request =>
         {
             string id = request.queryString.Get("id") ?? "";
             if (!DoesTokenHaveAccess(request, Permission.BlockApps))
@@ -176,7 +186,27 @@ public class FrontendServer
             request.SendString("blocked " + id, "application/json");
             return true;
         });
-        server.AddRoute("POST", "/api/v1/admin/scrape/", request =>
+        
+        ////////// Scraping
+        server.AddRouteRedirect("POST", "/api/v1/createscrapingnode", "/api/v2/scraping/createnode");
+        server.AddRoute("POST", "/api/v2/scraping/createnode", request =>
+        {
+            string id = request.queryString.Get("id") ?? "";
+            string name = request.queryString.Get("name") ?? "";
+            if (!DoesTokenHaveAccess(request, Permission.CreateScrapingNode))
+            {
+                return true;
+            }
+            if(id == "" || name == "")
+            {
+                request.SendString("id and name must be supplied", "text/plain", 400);
+                return true;
+            }
+            request.SendString(ScrapingNodeMongoDBManager.CreateScrapingNode(id, name), "application/json");
+            return true;
+        });
+        server.AddRouteRedirect("POST", "/api/v1/admin/scrape/", "/api/v2/scraping/scrape");
+        server.AddRoute("POST", "/api/v2/scraping/scrape", request =>
         {
             AppToScrape s = JsonSerializer.Deserialize<AppToScrape>(request.bodyString);
             if (!DoesTokenHaveAccess(request, s.priority ? Permission.StartPriorityScrapes : Permission.StartScrapes))
@@ -195,15 +225,53 @@ public class FrontendServer
             }
             return true;
         });
-        server.AddRouteFile("/utils", frontend + "utils.html", replace);
+        server.AddRouteRedirect("GET", "/api/v1/reportmissing/", "/api/v2/scraping/reportmissing/", true);
+        server.AddRoute("GET", "/api/v2/scraping/reportmissing/", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            string appId = request.pathDiff.Split('?')[0];
+            if (appId.EndsWith("/")) appId = appId.TrimEnd('/');
+            if(appId.LastIndexOf("/") >= 0) appId = appId.Substring(appId.LastIndexOf("/") + 1);
+
+            Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
+            /*
+             * Check if app exists before adding it, however that's not needed as OculusDB will just skip it if it doesn't find it later.
+            Data<Application> app = GraphQLClient.GetAppDetail(appId, h);
+
+            if(app.data.node == null)
+            {
+                request.SendString("This app couldn't be found on oculus. Make sure you typed an app ID and NOT an app name", "text/plain", 400);
+                return true;
+            }
+            */
+            if (!Regex.IsMatch(appId, "[0-9]+"))
+            {
+                request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id. App names will NOT work", "text/plain", 400);
+                return true;
+            }
+
+            AppToScrape s = new AppToScrape
+            {
+                appId = appId,
+                scrapePriority = AppScrapePriority.High,
+                priority = false
+            };
+            ScrapingNodeMongoDBManager.AddAppToScrape(s);
+
+            request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
+            return true;
+        }), true, true, true, true);
+
 
         ////////////////// Aliases
-        server.AddRoute("GET", "/api/v1/aliases/applications", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("GET", "/api/v1/aliases/applications", "/api/v2/aliases/applications");
+        server.AddRoute("GET", "/api/v2/aliases/applications", new Func<ServerRequest, bool>(request =>
         {
             request.SendString(JsonSerializer.Serialize(VersionAlias.GetApplicationsWithAliases()));
             return true;
         }));
-		server.AddRoute("POST", "/api/v1/aliases/", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("POST", "/api/v1/aliases/", "/api/v2/aliases/add");
+		server.AddRoute("POST", "/api/v2/aliases/add", new Func<ServerRequest, bool>(request =>
 		{
             if (!IsUserAdmin(request)) return true;
             List<VersionAlias> aliases = JsonSerializer.Deserialize<List<VersionAlias>>(request.bodyString);
@@ -215,8 +283,9 @@ public class FrontendServer
 			return true;
 		}));
 
-		////////////////// LOGIN AND ADMIN STUFF
-		server.AddRoute("POST", "/api/v1/login", new Func<ServerRequest, bool>(request =>
+		////////////////// Login
+		server.AddRouteRedirect("POST", "/api/v1/login", "/api/v2/login");
+		server.AddRoute("POST", "/api/v2/login", new Func<ServerRequest, bool>(request =>
         {
             try
             {
@@ -258,154 +327,40 @@ public class FrontendServer
             }
             return true;
         }));
-        server.AddRoute("GET", "/api/coremodsdownload/", new Func<ServerRequest, bool>(request =>
-        {
-	        string v = request.pathDiff.Replace(".qmod", "");
-			Dictionary<string, CoreMods> mods = JsonSerializer.Deserialize<Dictionary<string, CoreMods>>(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"));
-            if(mods.ContainsKey(v))
-            {
-                CoreMods used = mods[v];
-                QMod mod = new QMod();
-				mod.name = "Core mods for " + v;
-                mod.id = "OculusDB_CoreMods_" + v;
-                mod.packageVersion = v;
-                mod.description = "Downloads all Core mods for Beat Saber version " + v;
-				foreach (CoreMod m in used.mods)
-                {
-                    mod.dependencies.Add(new QModDependency { downloadIfMissing = m.downloadLink, id = m.id, version = "^" + m.version });
-                }
-                MemoryStream stream = new MemoryStream();
-                ZipArchive a = new ZipArchive(stream, ZipArchiveMode.Create, true);
-                StreamWriter writer = new StreamWriter(a.CreateEntry("mod.json").Open());
-                writer.Write(JsonSerializer.Serialize(mod));
-                writer.Flush();
-                writer.Close();
-                writer.Dispose();
-                a.Dispose();
-                request.SendData(stream.ToArray(), "application/zip", 200, true, new Dictionary<string, string> { { "Content-Disposition", "inline; filename=\"OculusDB_CoreMods.qmod\"" } });
-			} else
-            {
-                request.SendString("", "text/plain", 404);
-            }
-			return true;
-        }), true, true, true, true, 300); // 5 mins
-        server.AddRoute("GET", "/api/coremodsproxy", new Func<ServerRequest, bool>(request =>
-        {
-            WebClient webClient = new WebClient();
-            try
-            {
-                string res = webClient.DownloadString("https://git.bmbf.dev/unicorns/resources/-/raw/master/com.beatgames.beatsaber/core-mods.json");
-                if (res.Length <= 2) throw new Exception("lol fuck you idiot");
-                request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
-                {
-                    {
-                        "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                    }
-                });
-                File.WriteAllText(OculusDBEnvironment.dataDir + "coremods.json", res);
-            }
-            catch (Exception e)
-            {
-                if(File.Exists(OculusDBEnvironment.dataDir + "coremods.json"))
-                {
-                    if(!request.closed) request.SendString(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"), "application/json", 200, true, new Dictionary<string, string>
-                    {
-                        {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
-                } else
-                {
-                    if(!request.closed) request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
-                    {
-                        {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
-                }
-            }
-
-            return true;
-        }));
-        server.AddRoute("POST", "/api/v1/checkaccess", new Func<ServerRequest, bool>(request =>
+        ////////// Game specific api
+        BeatSaberApi.SetupRoutes(server);
+        ////////// Emergency
+        server.AddRouteRedirect("POST", "/api/v1/checkaccess","/api/v2/emergency/checkaccess");
+        server.AddRoute("POST", "/api/v2/emergency/checkaccess", new Func<ServerRequest, bool>(request =>
         {
             request.SendString((config.accesscode == request.bodyString).ToString().ToLower());
             return true;
         }));
-		server.AddRoute("POST", "/api/v1/qavsreport", new Func<ServerRequest, bool>(request =>
+        ///////// QAVS
+        server.AddRouteRedirect("POST", "/api/v1/qavsreport","/api/v2/qavs/createreport");
+		server.AddRoute("POST", "/api/v2/qavs/createreport", new Func<ServerRequest, bool>(request =>
 		{
             QAVSReport report = JsonSerializer.Deserialize<QAVSReport>(request.bodyString);
             request.SendString(QAVSReport.AddQAVSReport(report));
 			return true;
 		}));
-		server.AddRoute("GET", "/api/v1/qavsreport/", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("GET", "/api/v1/qavsreport/","/api/v2/qavs/report/", true);
+		server.AddRoute("GET", "/api/v2/qavs/report/", new Func<ServerRequest, bool>(request =>
 		{
 			request.SendString(JsonSerializer.Serialize(QAVSReport.GetQAVSReport(request.pathDiff.ToUpper())), "application/json");
 			return true;
 		}), true);
-		server.AddRoute("GET", "/api/v1/user", new Func<ServerRequest, bool>(request =>
-        {
-            try
-            {
-                string token = request.queryString.Get("token") ?? "";
-                LoginResponse response = new LoginResponse();
-                if (token != config.masterToken)
-                {
-                    response.status = "This user does not exist";
-                    request.SendString(JsonSerializer.Serialize(response), "application/json");
-                    return true;
-                }
-                response.username = "admin";
-                response.redirect = "/admin";
-                response.authorized = true;
-                request.SendString(JsonSerializer.Serialize(response), "application/json");
-            }
-            catch
-            {
-                request.SendString("{}", "application/json");
-            }
-            return true;
-        }));
-        server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
-        {
-            if (!IsUserAdmin(request)) return true;
-            request.SendStringReplace(File.ReadAllText(frontend + "admin.html"), "text/html", 200, replace);
-            return true;
-        }), true, true, true);
-        server.AddRouteFile("/login", frontend + "login.html", replace, true, true, true, 0, true);
-        server.AddRouteFile("/style.css", frontend + "style.css", replace, true, true, true, 0, true);
-        server.AddRoute("POST", "/api/updateserver/", new Func<ServerRequest, bool>(request =>
-        {
-            if (!IsUserAdmin(request)) return true;
-            request.SendString("This endpoint has been deprecated. Please use MasterServer for deploying updates.");
-            return true;
-        }));
-        server.AddRoute("POST", "/api/restartserver/", new Func<ServerRequest, bool>(request =>
-        {
-            if (!IsUserAdmin(request)) return true;
-            request.SendString("Restarting");
-            Updater.Restart(Path.GetFileName(Assembly.GetExecutingAssembly().Location), OculusDBEnvironment.workingDir);
-            return true;
-        }));
-        server.AddRoute("GET", "/api/servermetrics/", new Func<ServerRequest, bool>(request =>
-        {
-            if (!IsUserAdmin(request)) return true;
-            ServerMetrics m = new ServerMetrics();
-            Process currentProcess = Process.GetCurrentProcess();
-            m.ramUsage = currentProcess.WorkingSet64;
-            m.ramUsageString = SizeConverter.ByteSizeToString(m.ramUsage);
-            m.workingDirectory = OculusDBEnvironment.workingDir;
-            m.test = Updater.GetBaseDir();
-            request.SendString(JsonSerializer.Serialize(m), "application/json");
-            return true;
-        }));
-        server.AddRoute("POST", "/api/v1/reportdownload", new Func<ServerRequest, bool>(request =>
+		
+        ///////////// Analytics
+        server.AddRouteRedirect("POST", "/api/v1/reportdownload", "/api/v2/analytics/reportdownload");
+        server.AddRoute("POST", "/api/v2/analytics/reportdownload", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             request.SendString(JsonSerializer.Serialize(AnalyticManager.ProcessAnalyticsRequest(request)));
             return true;
         }));
-        server.AddRoute("GET", "/api/v1/applicationanalytics/", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("GET", "/api/v1/applicationanalytics/", "/api/v2/analytics/applicationanalytics/", true);
+        server.AddRoute("GET", "/api/v2/analytics/applicationanalytics/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             DateTime after = DateTime.Parse(request.queryString.Get("after") ?? DateTime.MinValue.ToString());
@@ -422,8 +377,11 @@ public class FrontendServer
             else request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetAllAnalyticsForApplication(request.pathDiff, after)));
             return true;
         }), true, true, true, true, 900); // 15 mins
-        server.AddRouteRedirect("GET", "/api/explore/", "/api/v1/explore/");
-        server.AddRoute("GET", "/api/v1/explore/", new Func<ServerRequest, bool>(request =>
+        
+        
+        ///// WIP
+        AddDeprecatedRoute("GET", "/api/v1/explore", true);
+        server.AddRoute("GET", "/api/v2/wip/explore", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             string sorting = "name";
@@ -459,6 +417,8 @@ public class FrontendServer
             }
             return true;
         }));
+        
+        //////// Application specific html
         server.AddRoute("GET", "/applicationspecific/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
@@ -477,52 +437,18 @@ public class FrontendServer
             return true;
         }), true, true, true, true);
         
-        server.AddRoute("GET", "/api/v1/allapps", new Func<ServerRequest, bool>(request =>
+        ///////// all apps
+        AddDeprecatedRoute("GET", "/api/v1/allapps", true);
+        server.AddRoute("GET", "/api/v2/allapps", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             List<DBApplication> apps = OculusDBDatabase.GetAllApplications();
             request.SendString(JsonSerializer.Serialize(apps), "application/json");
             return true;
         }), false, true, true, true);
-		
-		server.AddRoute("GET", "/api/v1/reportmissing/", new Func<ServerRequest, bool>(request =>
-		{
-			if (!DoesUserHaveAccess(request)) return true;
-            string appId = request.pathDiff.Split('?')[0];
-            if (appId.EndsWith("/")) appId = appId.TrimEnd('/');
-            if(appId.LastIndexOf("/") >= 0) appId = appId.Substring(appId.LastIndexOf("/") + 1);
-			Logger.Log(appId);
-
-			Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
-			/*
-			 * Check if app exists before adding it, however that's not needed as OculusDB will just skip it if it doesn't find it later.
-            Data<Application> app = GraphQLClient.GetAppDetail(appId, h);
-
-            if(app.data.node == null)
-            {
-                request.SendString("This app couldn't be found on oculus. Make sure you typed an app ID and NOT an app name", "text/plain", 400);
-                return true;
-			}
-            */
-			if (!Regex.IsMatch(appId, "[0-9]+"))
-			{
-				request.SendString("This link or id cannot be processed. Make sure you actually input a correct link or id. App names will NOT work", "text/plain", 400);
-				return true;
-			}
-
-            AppToScrape s = new AppToScrape
-            {
-                appId = appId,
-                scrapePriority = AppScrapePriority.High,
-                priority = false
-            };
-			ScrapingNodeMongoDBManager.AddAppToScrape(s);
-
-			request.SendString("The app has been queued to get added. Allow us up to 5 hours to add the app. Thanks for your collaboration");
-			return true;
-		}), true, true, true, true);
-		
-		server.AddRoute("GET", "/api/v1/packagename/", new Func<ServerRequest, bool>(request =>
+        ///////// Package name
+        AddDeprecatedRoute("GET", "/api/v1/packagename", true);
+		server.AddRoute("GET", "/api/v2/packagename/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
@@ -541,8 +467,9 @@ public class FrontendServer
             }
             return true;
         }), true, true, true, true);
-        server.AddRouteRedirect("GET", "/api/id/", "/api/v1/id/", true);
-        server.AddRoute("GET", "/api/v1/id/", new Func<ServerRequest, bool>(request =>
+        //////// id
+        AddDeprecatedRoute("GET", "/api/v1/id", true);
+        server.AddRoute("GET", "/api/v2/id/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
@@ -553,7 +480,6 @@ public class FrontendServer
 					request.SendString("{}", "application/json", 404);
                     if(request.queryString.Get("noscrape") == null)
 					{
-						Headset h = HeadsetTools.GetHeadsetFromOculusLink(request.pathDiff, Headset.HOLLYWOOD);
                         AppToScrape s = new AppToScrape
                         {
                             appId = request.pathDiff,
@@ -573,13 +499,19 @@ public class FrontendServer
             
             return true;
         }), true, true, true, true, 120); // 2 mins
-        server.AddRouteRedirect("GET", "/api/connected/", "/api/v1/connected/", true);
-        server.AddRoute("GET", "/api/v1/connected/", new Func<ServerRequest, bool>(request =>
+        /////// Connected
+        AddDeprecatedRoute("GET", "/api/v1/connected", true);
+        server.AddRoute("GET", "/api/v2/connected/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                ConnectedList connected = MongoDBInteractor.GetConnected(request.pathDiff);
+                ConnectedList? connected = MongoDBInteractor.GetConnected(request.pathDiff);
+                if (connected == null)
+                {
+                    request.SendString(JsonSerializer.Serialize(new ConnectedList()), "application/json", 404);
+                    return true;
+                }
                 request.SendString(JsonSerializer.Serialize(connected), "application/json");
 
                 // Requests a priority scrape for every app
@@ -600,7 +532,9 @@ public class FrontendServer
             }
             return true;
         }), true, true, true, true, 120); // 2 mins
-        server.AddRoute("GET", "/api/v1/versions/", new Func<ServerRequest, bool>(request =>
+        /////// Versions
+        AddDeprecatedRoute("GET", "/api/v1/versions", true);
+        server.AddRoute("GET", "/api/v2/versions/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
@@ -626,13 +560,13 @@ public class FrontendServer
             }
             return true;
         }), true, true, true, true, 120); // 2 mins
-        server.AddRouteRedirect("GET", "/api/search/", "/api/v1/search/", true);
-        server.AddRoute("GET", "/api/v1/search/", new Func<ServerRequest, bool>(request =>
+        AddDeprecatedRoute("GET", "/api/v1/search", true);
+        server.AddRoute("GET", "/api/v2/search/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                
+                request.SendString("The search endpoint is not implemented yet", "text/plain", 501);
             }
             catch (Exception e)
             {
@@ -641,12 +575,13 @@ public class FrontendServer
             }
             return true;
         }), true, true, true, true, 360); // 6 mins
-        server.AddRouteRedirect("GET", "/api/dlcs/", "/api/v1/dlcs/", true);
-        server.AddRoute("GET", "/api/v1/dlcs/", new Func<ServerRequest, bool>(request =>
+        AddDeprecatedRoute("GET", "/api/v1/dlcs", true);
+        server.AddRoute("GET", "/api/v2/dlcs/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
+                MongoDBInteractor.GetDlcs(request.pathDiff);
             }
             catch (Exception e)
             {
@@ -655,13 +590,14 @@ public class FrontendServer
             }
             return true;
         }), true, true, true, true, 360); // 6 mins
-        server.AddRouteRedirect("GET", "/api/pricehistory/", "/api/v1/pricehistory/", true);
-        server.AddRoute("GET", "/api/v1/pricehistory/", new Func<ServerRequest, bool>(request =>
+        /////// Difference
+        AddDeprecatedRoute("GET", "/api/v1/pricehistory", true);
+        server.AddRoute("GET", "/api/v2/difference/pricehistory/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
             {
-                
+                request.SendString(JsonSerializer.Serialize(MongoDBInteractor.GetFormerPricesOfId(request.pathDiff)), "application/json");
             }
             catch (Exception e)
             {
@@ -670,8 +606,8 @@ public class FrontendServer
             }
             return true;
         }), true, true, true, true, 360); // 6 mins
-        server.AddRouteRedirect("GET", "/api/activity/", "/api/v1/activity/");
-        server.AddRoute("GET", "/api/v1/activity/", new Func<ServerRequest, bool>(request =>
+        AddDeprecatedRoute("GET", "/api/v1/activity", true);
+        server.AddRoute("GET", "/api/v2/difference/latest", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             int count = 50;
@@ -711,8 +647,8 @@ public class FrontendServer
             }
             return true;
         }), false, true, true, true, 30); // 0.5 mins
-        server.AddRouteRedirect("GET", "/api/activityid/", "/api/v1/activityid/", true);
-        server.AddRoute("GET", "/api/v1/activityid/", new Func<ServerRequest, bool>(request =>
+        AddDeprecatedRoute("GET", "/api/v1/activityid/", true);
+        server.AddRoute("GET", "/api/v2/difference/id/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
@@ -726,21 +662,8 @@ public class FrontendServer
             }
             return true; 
         }), true, true, true, true);
-        server.AddRoute("GET", "/api/serverconsole", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            if (!IsUserAdmin(request)) return true;
-            request.SendString(Logger.log);
-            return true;
-        }));
-        server.AddRoute("GET", "/api/config", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            if (!IsUserAdmin(request)) return true;
-            request.SendString(JsonSerializer.Serialize(config));
-            return true;
-        }));
-        server.AddRoute("GET", "/api/v1/updates", new Func<ServerRequest, bool>(request =>
+        server.AddRouteRedirect("GET", "/api/v1/updates", "/api/v2/commits");
+        server.AddRoute("GET", "/api/v2/commits", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             WebClient c = new WebClient();
@@ -754,7 +677,9 @@ public class FrontendServer
             request.SendString(JsonSerializer.Serialize(updates));
             return true;
         }), false, true, true, true, 3600); // 1 hour
-        server.AddRoute("GET", "/api/v1/database", new Func<ServerRequest, bool>(request =>
+        ////// Database
+        AddDeprecatedRoute("GET", "/api/v1/database", false);
+        server.AddRoute("GET", "/api/v2/database/info", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             try
@@ -768,15 +693,7 @@ public class FrontendServer
             }
             return true;
         }));
-        server.AddRoute("POST", "/api/config", new Func<ServerRequest, bool>(request =>
-        {
-            if (!DoesUserHaveAccess(request)) return true;
-            if (!IsUserAdmin(request)) return true;
-            config = JsonSerializer.Deserialize<Config>(request.bodyString);
-            config.Save();
-            request.SendString("Updated config");
-            return true;
-        }));
+        /// CDN
         server.AddRoute("GET", "/cdn/images/", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
@@ -791,8 +708,9 @@ public class FrontendServer
             else request.SendData(img.data, img.mimeType);
             return true;
         }), true, true, true, true, 1800, true); // 30 mins
-        
-        server.AddRoute("GET", "/api/v1/headsets", new Func<ServerRequest, bool>(request =>
+        ///////////// Lists
+        server.AddRouteRedirect("GET", "/api/v1/headsets", "/api/v2/lists/headsets");
+        server.AddRoute("GET", "/api/v2/lists/headsets", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
             request.SendString(JsonSerializer.Serialize(HeadsetIndex.entries));
@@ -819,6 +737,9 @@ public class FrontendServer
         server.AddRouteFile("/favicon.ico", frontend + "favicon.png", true, true, true, accessCheck);
         server.AddRouteFile("/privacy", frontend + "privacy.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/saved", frontend + "saved.html", replace, true, true, true, accessCheck);
+        
+        server.AddRouteFile("/login", frontend + "login.html", replace, true, true, true, 0, true);
+        server.AddRouteFile("/style.css", frontend + "style.css", replace, true, true, true, 0, true);
         
         server.AddRoute("GET", "/console", new Func<ServerRequest, bool>(request =>
         {
@@ -872,6 +793,13 @@ public class FrontendServer
             return true;
         }, false, true, true, true, 3600, true, 0);
 
+        server.AddRoute("GET", "/admin", new Func<ServerRequest, bool>(request =>
+        {
+            if (!IsUserAdmin(request)) return true;
+            request.SendStringReplace(File.ReadAllText(frontend + "admin.html"), "text/html", 200, replace);
+            return true;
+        }), true, true, true);
+        server.AddRouteFile("/utils", frontend + "utils.html", replace);
         server.AddRouteFile("/guide/rift", frontend + "guiderift.html", replace, true, true, true, accessCheck);
         server.AddRoute("GET", "/api/api.json", new Func<ServerRequest, bool>(request =>
         {
@@ -902,6 +830,15 @@ public class FrontendServer
         server.AddRouteFile("/cdn/modem.ogg", frontend + "assets" + Path.DirectorySeparatorChar + "modem.ogg", true, true, true, accessCheck);
 
         server.AddRouteFile("/cdn/BS2.jpg", frontend + "assets" + Path.DirectorySeparatorChar + "BS2.jpg", true, true, true, accessCheck);
+    }
+
+    private void AddDeprecatedRoute(string method, string path, bool ignoreEnd)
+    {
+        server.AddRoute(method, path, request =>
+        {
+            request.SendString("This endpoint is deprecated and does not work anymore. Please refer to the api docs for updated endpoints. /api/docs", "text/plain", 510);
+            return true;
+        }, ignoreEnd);
     }
 
     private void ProxyChangeFontUrl(string url, ServerRequest request)
