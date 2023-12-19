@@ -357,7 +357,10 @@ public class ScrapingNodeMongoDBManager
         BulkInsert(OculusDBDatabase.offerCollection, ref offers);
         BulkInsert(OculusDBDatabase.achievementCollection, ref achievements);
         BulkInsert(OculusDBDatabase.appImages, ref images);
-        BulkInsert(OculusDBDatabase.differenceCollection, ref differences);
+        List<DBDifference> diffs = new List<DBDifference>(differences);
+        differences.Clear();
+        OculusDBDatabase.differenceCollection.InsertMany(differences);
+        //BulkInsert(OculusDBDatabase.differenceCollection, ref differences);
     }
 
     public static string CreateScrapingNode(string id, string name)
