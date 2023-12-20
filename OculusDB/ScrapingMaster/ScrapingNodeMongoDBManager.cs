@@ -261,9 +261,9 @@ public class ScrapingNodeMongoDBManager
     }
 
     public static List<DBDifference> differences = new List<DBDifference>();
-    public static void AddDiff(DBDifference d, ref ScrapingContribution contribution)
+    public static void AddDiff(DBDifference? d, ref ScrapingContribution contribution)
     {
-        if (d.isSame) return;
+        if (d == null || d.isSame) return;
         contribution.AddContribution(d.__OculusDBType, 1);
         differences.Add(d);
     }
