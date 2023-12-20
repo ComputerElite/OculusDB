@@ -58,8 +58,7 @@ namespace OculusDB
             if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
             OculusDBEnvironment.config.Save();
             EnumIndex.Init();
-            Logger.Log((new DateTime(2022, 12, 13, 13, 13 ,13 ) - new DateTime(2022, 12, 13, 13, 13 ,13 )).TotalSeconds.ToString());
-            return;
+
             //Logger.SetLogFile(workingDir + "Log.log");
 
             if (cla.HasArgument("-dmt"))
