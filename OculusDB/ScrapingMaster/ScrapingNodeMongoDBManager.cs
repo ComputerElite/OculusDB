@@ -215,57 +215,88 @@ public class ScrapingNodeMongoDBManager
         if (v == null) return;
         contribution.AddContribution(v.__OculusDBType, 1);
         v.__sn = contribution.scrapingNode.scrapingNodeId;
-        versions.Add(v);
+        try
+        {
+            v.AddOrUpdateEntry(OculusDBDatabase.versionCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + v.__OculusDBType + " to DB");
+        }
     }
 
-    public static List<DBIAPItem> iapItems = new ();
     public static void AddIapItem(DBIAPItem? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
         d.__sn = contribution.scrapingNode.scrapingNodeId;
-        iapItems.Add(d);
+        try
+        {
+            d.AddOrUpdateEntry(OculusDBDatabase.iapItemCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + d.__OculusDBType + " to DB");
+        }
     }
 
-    public static List<DBIAPItemPack> dlcPacks = new ();
     public static void AddIapItemPack(DBIAPItemPack? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
-        d.__sn = contribution.scrapingNode.scrapingNodeId;
-        dlcPacks.Add(d);
+        try
+        {
+            d.AddOrUpdateEntry(OculusDBDatabase.iapItemPackCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + d.__OculusDBType + " to DB");
+        }
     }
-    public static List<DBOffer> offers = new ();
     public static void AddOffer(DBOffer? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
-        d.__sn = contribution.scrapingNode.scrapingNodeId;
-        offers.Add(d);
+        try
+        {
+            d.AddOrUpdateEntry(OculusDBDatabase.offerCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + d.__OculusDBType + " to DB");
+        }
     }
-    public static List<DBAchievement> achievements = new ();
     public static void AddAchievement(DBAchievement? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
-        d.__sn = contribution.scrapingNode.scrapingNodeId;
-        achievements.Add(d);
+        try
+        {
+            d.AddOrUpdateEntry(OculusDBDatabase.achievementCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + d.__OculusDBType + " to DB");
+        }
     }
-    
-    public static List<DBApplication> apps = new ();
     public static void AddApplication(DBApplication? a, ref ScrapingContribution contribution)
     {
         if(a == null) return;
         contribution.AddContribution(a.__OculusDBType, 1);
-        apps.Add(a);
+        try
+        {
+            a.AddOrUpdateEntry(OculusDBDatabase.applicationCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + a.__OculusDBType + " to DB");
+        }
     }
-
-    public static List<DBDifference> differences = new List<DBDifference>();
     public static void AddDiff(DBDifference? d, ref ScrapingContribution contribution)
     {
         if (d == null || d.isSame) return;
         contribution.AddContribution(d.__OculusDBType, 1);
-        differences.Add(d);
+        try
+        {
+            d.AddOrUpdateEntry(OculusDBDatabase.differenceCollection);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString(), "Error while adding " + d.__OculusDBType + " to DB");
+        }
     }
 
     public static List<ScrapingNodeStats> GetScrapingNodes()
@@ -307,60 +338,17 @@ public class ScrapingNodeMongoDBManager
         OculusDBDatabase.appsToScrape?.InsertOne(appToScrape);
     }
 
-    public static List<DBAppImage> images = new ();
-
     public static void AddImage(DBAppImage? img, ref ScrapingContribution contribution)
     {
         if (img == null) return;
         contribution.AddContribution(img.__OculusDBType, 1);
-        img.__sn = contribution.scrapingNode.scrapingNodeId;
-        images.Add(img);
-    }
-    
-    public static Dictionary<string, TimeDependantBool> lockers = new Dictionary<string, TimeDependantBool>();
-    
-
-    /// <summary>
-    /// Inserts all provided items into the provided collection
-    /// </summary>
-    /// <param name="collection">Collection to insert to</param>
-    /// <param name="items">items to insert</param>
-    /// <typeparam name="T">Type of the entries</typeparam>
-    public static void BulkInsert<T>(IMongoCollection<T>? collection, ref List<T> items) where T : IDBObjectOperations<T>
-    {
-        if (collection == null) throw new Exception("Collection is null");
-        string typeName = typeof(T).Name;
-        // only allow one Thread to write to a given collection at once
-        if(!lockers.ContainsKey(typeName)) lockers.Add(typeName, new TimeDependantBool());
-        if (lockers[typeName].IsTrueAndValid()) return;
-        lockers[typeName].Set(true, TimeSpan.FromMinutes(30));
-        
-        while (items.Count > 0)
+        try
         {
-            // Add all items with the same id to a list
-            items[0].AddOrUpdateEntry(collection);
-            items.RemoveAt(0);
+            img.AddOrUpdateEntry(OculusDBDatabase.appImages);
+        } catch (Exception e)
+        {
+            ScrapingManaging.ReportErrorWithDiscordMessage(e.ToString());
         }
-        // Unlock this type to be able to write to it again
-        lockers[typeName].Unlock();
-    }
-
-    /// <summary>
-    /// Writes all cached entries to the Database
-    /// </summary>
-    public static void Flush()
-    {
-        BulkInsert(OculusDBDatabase.applicationCollection, ref apps);
-        BulkInsert(OculusDBDatabase.versionCollection, ref versions);
-        BulkInsert(OculusDBDatabase.iapItemCollection, ref iapItems);
-        BulkInsert(OculusDBDatabase.iapItemPackCollection, ref dlcPacks);
-        BulkInsert(OculusDBDatabase.offerCollection, ref offers);
-        BulkInsert(OculusDBDatabase.achievementCollection, ref achievements);
-        BulkInsert(OculusDBDatabase.appImages, ref images);
-        List<DBDifference> diffs = new List<DBDifference>(differences);
-        differences.Clear();
-        if(diffs.Count > 0) OculusDBDatabase.differenceCollection.InsertMany(diffs);
-        //BulkInsert(OculusDBDatabase.differenceCollection, ref differences);
     }
 
     public static string CreateScrapingNode(string id, string name)

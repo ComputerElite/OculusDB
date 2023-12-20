@@ -358,9 +358,6 @@ public class ScrapingManaging
         scrapingContribution.lastContribution = DateTime.UtcNow;
         scrapingContribution.taskResultsProcessed = 1;
         ScrapingNodeMongoDBManager.IncScrapingNodeContribution(scrapingContribution);
-        Logger.Log("# " + taskId + " flushing");
-        ScrapingNodeMongoDBManager.Flush();
-        Logger.Log("# " + taskId + " flushed");
     }
 
     private static List<string> GetOfferPresentOn(DBOffer dbOffer, ref ScrapingNodeTaskResult taskResult)
