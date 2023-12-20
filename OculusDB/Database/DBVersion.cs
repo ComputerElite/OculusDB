@@ -91,10 +91,16 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("status")]
     [BsonIgnore]
     [TrackChanges]
-    public string binaryStatus { get; set; } = "";
+    public string binaryStatusFormatted {
+        get
+        {
+            return OculusConverter.FormatDBEnumString(binaryStatus.ToString());
+        }
+        
+    }
     [OculusField("status_enum")]
     [TrackChanges]
-    public BinaryStatus binaryStatusEnum { get; set; } = BinaryStatus.UNKNOWN;
+    public BinaryStatus binaryStatus { get; set; } = BinaryStatus.UNKNOWN;
     [ListScrapingNodeFieldPresent]
     [TrackChanges]
     public List<DBReleaseChannel> releaseChannels { get; set; } = new List<DBReleaseChannel>();
