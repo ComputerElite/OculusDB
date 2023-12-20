@@ -96,10 +96,10 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public bool isFirstParty { get; set; } = false;
     [TrackChanges]
     public bool cloudBackupEnabled { get; set; } = false;
-    
+
     [OculusField("releaseDate")]
     [TrackChanges]
-    public DateTime releaseTime { get; set; } = DateTime.MinValue;
+    public DateTime? releaseDate { get; set; } = null;
     
     [OculusFieldAlternate("publisher_name")]
     [TrackChanges]

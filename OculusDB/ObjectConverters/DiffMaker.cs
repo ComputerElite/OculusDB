@@ -40,10 +40,10 @@ public class DiffMaker
         Type comparisonType = oldObject.GetType();
         // Check default C# types and return if they're different
         if(comparisonType != newObject?.GetType()) return diff.AddEntry(new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.TypeChanged));
+        if(comparisonType == typeof(DateTime)) return diff.ConditionalAddEntry(((DateTime)oldObject - (DateTime)newObject).Duration().TotalSeconds <= 2.0, new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType.IsPrimitive) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType.IsEnum) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType == typeof(string)) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
-        if(comparisonType == typeof(DateTime)) return diff.ConditionalAddEntry(((DateTime)oldObject - (DateTime)newObject).Duration().TotalSeconds < 1, new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         // Compare lists
         if (comparisonType.IsGenericType && comparisonType.GetGenericTypeDefinition() == typeof(List<>))
         {
