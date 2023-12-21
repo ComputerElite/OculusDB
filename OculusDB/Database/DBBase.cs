@@ -1,3 +1,4 @@
+using MongoDB.Bson.Serialization.Attributes;
 using OculusDB.MongoDB;
 
 namespace OculusDB.Database;
@@ -6,8 +7,11 @@ namespace OculusDB.Database;
 
 public class DBBase
 {
+    [BsonElement("_lu")]
     public DateTime __lastUpdated { get; set; } = DateTime.Now;
+    [BsonElement("_dbt")]
     public virtual string __OculusDBType { get; set; } = DBDataTypes.Unknown;
+    [BsonElement("_sn")]
     public string __sn { get; set; } = "";
 
     public virtual ApplicationContext GetApplicationIds()

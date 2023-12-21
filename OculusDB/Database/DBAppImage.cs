@@ -10,11 +10,16 @@ namespace OculusDB.Database;
 
 public class DBAppImage : DBBase, IDBObjectOperations<DBAppImage>
 {
+    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.AppImage;
     [ObjectScrapingNodeFieldPresent]
+    [BsonElement("p")]
     public DBParentApplication parentApplication { get; set; } = new DBParentApplication();
+    [BsonElement("m")]
     public string mimeType { get; set; } = "image/webp";
+    [BsonElement("d")]
     public byte[] data { get; set; } = new byte[0];
+    
     public DBAppImage? GetEntryForDiffGeneration(IEnumerable<DBAppImage> collection)
     {
         return collection.FirstOrDefault(x => x.parentApplication.id == this.parentApplication.id);

@@ -217,6 +217,7 @@ public class ScrapingNodeScraper
         if (applicationFromStore == null && applicationFromDeveloper == null)
         {
             errorTracker.AddError();
+            return;
         }
         currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : ""); // throw an error here on purpose
 

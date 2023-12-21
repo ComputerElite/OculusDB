@@ -51,10 +51,15 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
     [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
     [BsonRepresentation(BsonType.ObjectId)]
     public string __id { get; set; }
+    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Difference;
+    [BsonElement("ei")]
     public string entryId { get; set; } = "";
+    [BsonElement("et")]
     public string entryOculusDBType { get; set; } = "";
+    [BsonElement("ea")]
     public List<string> entryParentApplicationIds { get; set; } = new List<string>();
+    [BsonElement("dn")]
     public DifferenceNameType differenceName { get; set; } = DifferenceNameType.Unknown;
     [BsonIgnore]
     public string differenceNameFormatted
@@ -140,10 +145,13 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
         }
     }
     [JsonIgnore]
+    [BsonElement("o")]
     public object? oldObject { get; set; } = null;
     [JsonIgnore]
+    [BsonElement("n")]
     public object? newObject { get; set; } = null;
 
+    [BsonElement("dt")]
     public DifferenceType differenceType
     {
         get
@@ -170,6 +178,7 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
     [JsonIgnore]
     [BsonIgnore]
     public int depth { get; set; } = 0;
+    [BsonElement("e")]
 
     public List<DBDifferenceEntry> entries { get; set; } = new List<DBDifferenceEntry>();
 
@@ -224,9 +233,13 @@ public enum DifferenceReason
 
 public class DBDifferenceEntry
 {
+    [BsonElement("f")]
     public string name { get; set; } = "";
+    [BsonElement("o")]
     public object? oldValue { get; set; } = null;
+    [BsonElement("n")]
     public object? newValue { get; set; } = null;
+    [BsonElement("r")]
     public DifferenceReason reason { get; set; } = DifferenceReason.Unknown;
     [BsonIgnore]
     public string reasonFormatted

@@ -10,19 +10,24 @@ namespace OculusDB.Database;
 
 public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
 {
+    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Achievement;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
+    [BsonElement("g")]
     public DBParentApplicationGrouping? grouping { get; set; } = null;
     [OculusField("id")]
     [TrackChanges]
+    [BsonElement("id")]
     public string id { get; set; } = "";
     
     [OculusField("api_name")]
     [TrackChanges]
+    [BsonElement("an")]
     public string apiName { get; set; } = "";
     [OculusFieldAlternate("achievement_type_enum")]
     [TrackChanges]
+    [BsonElement("at")]
     public AchievementType achievementType { get; set; } = AchievementType.UNKNOWN;
     [BsonIgnore]
     public string achievementTypeFormatted
@@ -34,6 +39,7 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     }
     [OculusFieldAlternate("achievement_write_policy_enum")]
     [TrackChanges]
+    [BsonElement("awp")]
     public AchievementWritePolicy achievementWritePolicy { get; set; } = AchievementWritePolicy.UNKNOWN;
     [BsonIgnore]
     public string achievementWritePolicyFormatted
@@ -45,24 +51,31 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     }
     [OculusField("is_draft")]
     [TrackChanges]
+    [BsonElement("isd")]
     public bool isDraft { get; set; } = false;
     [OculusField("is_secret")]
     [TrackChanges]
+    [BsonElement("iss")]
     public bool isSecret { get; set; } = false;
     [OculusField("is_archived")]
     [TrackChanges]
+    [BsonElement("isa")]
     public bool isArchived { get; set; } = false;
     [OculusFieldAlternate("bitfield_length")]
     [TrackChanges]
+    [BsonElement("bl")]
     public long? bitfieldLength { get; set; } = null;
     [OculusFieldAlternate("target_numerical")]
     [TrackChanges]
+    [BsonElement("bt")]
     public long? bitfieldTarget { get; set; } = null;
     [ListScrapingNodeFieldPresent]
     [TrackChanges]
+    [BsonElement("t")]
     public List<DBAchievementTranslation> translations { get; set; } = new List<DBAchievementTranslation>();
 
     [JsonIgnore]
+    [BsonElement("s")]
     public string? searchTitle { get; set; } = null;
     [BsonIgnore]
     public string? title
