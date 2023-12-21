@@ -29,5 +29,6 @@ namespace OculusDB.Database
 		public const string Error = "Error";
 		public const string Difference = "Difference";
 		public const string Unknown = "Unknown";
+		public const string ApplicationNull = "ApplicationNull";
     }
 }

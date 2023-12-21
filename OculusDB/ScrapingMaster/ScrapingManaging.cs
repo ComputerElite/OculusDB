@@ -453,4 +453,15 @@ public class ScrapingManaging
             currency = currency ?? ""
         };
     }
+
+    public static void ProcessApplicationNull(ScrapingNodeApplicationNull applicationNull, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    {
+        ScrapingNodeApplicationNull inDb = OculusDBDatabase.applicationNullCollection.Find(x => x.applicationId == applicationNull.applicationId).FirstOrDefault() ?? applicationNull;
+        inDb.count++;
+        inDb.reportedBy.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId);
+        OculusDBDatabase.applicationNullCollection.ReplaceOne(x => x.applicationId == applicationNull.applicationId, inDb, new ReplaceOptions
+        {
+            IsUpsert = true
+        });
+    }
 }

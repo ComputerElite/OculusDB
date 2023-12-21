@@ -217,6 +217,7 @@ public class ScrapingNodeScraper
         if (applicationFromStore == null && applicationFromDeveloper == null)
         {
             errorTracker.AddError();
+            ReportApplicationNull(app);
             return;
         }
         currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : ""); // throw an error here on purpose
@@ -335,6 +336,31 @@ public class ScrapingNodeScraper
         taskResult.scraped.versions.AddRange(versions.Where(x => x != null).ToList().ConvertAll(x => (DBVersion)x));
         taskResult.scraped.achievements.AddRange(achievements.Where(x => x != null).ToList().ConvertAll(x => (DBAchievement)x));
         taskResult.scraped.applications.Add(dbApp);
+    }
+
+    public void ReportApplicationNull(AppToScrape app)
+    {
+        try
+        {
+            ScrapingNodePostResponse r = scrapingNodeManager.GetResponseOfPostRequest(scrapingNodeManager.config.masterAddress + "/api/v1/applicationnull",
+                JsonSerializer.Serialize(new ScrapingNodeApplicationNull
+                {
+                    identification = scrapingNodeManager.GetIdentification(),
+                    applicationId = app.appId
+                }));
+            if (r.status == 200)
+            {
+                Logger.Log("Reported application null for " + app.appId);
+            }
+            else
+            {
+                Logger.Log("Failed to report application null for " + app.appId + ". Server responded with status code " + r.status, LoggingType.Error);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Log("Erro sending request to report application null for " + app.appId + ": " + e, LoggingType.Error);
+        }
     }
 
     public string GetOverrideCurrency(string currency)

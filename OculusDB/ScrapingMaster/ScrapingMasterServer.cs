@@ -4,6 +4,7 @@ using ComputerUtils.Discord;
 using ComputerUtils.Logging;
 using ComputerUtils.Webserver;
 using Ionic.Zip;
+using MongoDB.Driver;
 using OculusDB.Database;
 using OculusDB.MongoDB;
 using OculusDB.ScrapingNodeCode;
@@ -72,6 +73,26 @@ public class ScrapingMasterServer
             ScrapingManaging.ProcessTaskResult(taskResult, r);
             return true;
         });
+        server.AddRoute("POST", "/api/v1/applicationnull", request =>
+        {
+            // Check if the scraping node is authorized to scrape
+            ScrapingNodeApplicationNull applicationNull = JsonSerializer.Deserialize<ScrapingNodeApplicationNull>(request.bodyString);
+            ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(applicationNull.identification);
+            if (!r.tokenAuthorized)
+            {
+                request.SendString(JsonSerializer.Serialize(r), "application/json", 403);
+                return true;
+            }
+
+            request.SendString(JsonSerializer.Serialize(new ScrapingNodeApplicationNullResponse()), "application/json");
+            ScrapingManaging.ProcessApplicationNull(applicationNull, r);
+            return true;
+        });
+        server.AddRoute("GET", "/api/v1/applicationnull", request =>
+        {
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.applicationNullCollection.Find(x => true).ToList()));
+            return true;
+        }, false, true, true, true, 300);
         server.AddRoute("POST", "/api/v1/heartbeat", request =>
         {
             // Check if the scraping node is authorized to scrape

@@ -48,6 +48,8 @@ public class OculusDBDatabase
         
         public static List<string> blockedAppsCache = new List<string>();
         private static bool initialized = false;
+        public static IMongoCollection<ScrapingNodeApplicationNull> applicationNullCollection;
+
         public static void Initialize()
         {
             if (initialized) return;
@@ -81,6 +83,7 @@ public class OculusDBDatabase
             RemoveIdRemap<DBVersion>();
             RemoveIdRemap<VersionAlias>();
             RemoveIdRemap<QAVSReport>();
+            RemoveIdRemap<ScrapingNodeApplicationNull>();
             
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
@@ -109,6 +112,7 @@ public class OculusDBDatabase
             appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
             scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
             scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
+            applicationNullCollection = oculusDBDatabase.GetCollection<ScrapingNodeApplicationNull>("applicationNulls");
             
             
             
