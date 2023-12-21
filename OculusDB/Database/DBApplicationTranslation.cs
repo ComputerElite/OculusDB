@@ -29,7 +29,7 @@ public class DBApplicationTranslation : DBBase
     public string shortDescription { get; set; } = "";
     [OculusField("long_description")]
     [TrackChanges]
-    [BsonElement("l")]
+    [BsonElement("ld")]
     public string longDescription { get; set; } = "";
     [OculusField("long_description_uses_markdown")]
     [TrackChanges]
