@@ -137,7 +137,7 @@ public class OculusConverter
         if (dbApplication.group == HeadsetGroup.GoAndGearVr)
         {
             // GearVR and Go report wrong headsets as targeted devices, so let's just override them for now
-            version.targetedDevicesEnum = new List<Headset> {Headset.GEARVR, Headset.PACIFIC};
+            version.targetedDevices = new List<Headset> {Headset.GEARVR, Headset.PACIFIC};
         }
         return version;
     }
