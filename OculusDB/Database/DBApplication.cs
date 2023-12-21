@@ -10,7 +10,6 @@ namespace OculusDB.Database;
 
 public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Application;
 
     [BsonIgnore]

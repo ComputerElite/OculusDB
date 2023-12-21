@@ -5,7 +5,6 @@ namespace OculusDB.Database;
 
 public class DBPrice : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Price;
     [TrackChanges]
     [BsonElement("c")]

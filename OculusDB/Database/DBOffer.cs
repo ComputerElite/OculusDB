@@ -7,7 +7,6 @@ namespace OculusDB.Database;
 
 public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Offer;
 
     [ObjectScrapingNodeFieldPresent]
@@ -22,7 +21,7 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     public string currency { get; set; } = "";
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
-    [BsonElement("p")]
+    [BsonElement("pr")]
     public DBPrice? price { get; set; } = null;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]

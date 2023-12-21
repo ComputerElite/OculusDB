@@ -10,7 +10,6 @@ namespace OculusDB.Database;
 
 public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Version;
     [BsonElement("_lps")]
     public DateTime __lastPriorityScrape { get; set; } = DateTime.MinValue;

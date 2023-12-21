@@ -5,7 +5,6 @@ namespace OculusDB.Database;
 
 public class DBAchievementTranslation : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.AchievementTranslation;
     [TrackChanges]
     [BsonElement("l")]

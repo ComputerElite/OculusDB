@@ -8,7 +8,6 @@ namespace OculusDB.Database;
 
 public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.IapItem;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]

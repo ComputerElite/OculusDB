@@ -10,7 +10,6 @@ namespace OculusDB.Database;
 
 public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Achievement;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]

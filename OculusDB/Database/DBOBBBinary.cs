@@ -6,7 +6,6 @@ namespace OculusDB.Database;
 
 public class DBOBBBinary : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.ObbBinary;
     
     [OculusField("id")]

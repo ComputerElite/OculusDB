@@ -5,7 +5,6 @@ namespace OculusDB.Database;
 
 public class DBReleaseChannel : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.ReleaseChannel;
     [TrackChanges]
     [BsonElement("id")]

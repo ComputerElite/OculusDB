@@ -10,7 +10,6 @@ namespace OculusDB.Database;
 
 public class DBAppImage : DBBase, IDBObjectOperations<DBAppImage>
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.AppImage;
     [ObjectScrapingNodeFieldPresent]
     [BsonElement("p")]

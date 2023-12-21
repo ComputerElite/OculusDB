@@ -74,7 +74,6 @@ public class OculusConverter
         {
             OculusFieldAlternate oculusField = (OculusFieldAlternate)property.GetCustomAttribute(typeof(OculusFieldAlternate), false);
             // try to get value from oculus
-            Logger.Log(oculusField.fieldName);
             PropertyInfo oculusProperty = typeof(OculusType).GetProperty(oculusField.fieldName);
             object? rawValue = oculusProperty.GetValue(oculus);
             property.SetValue(toPopulate, rawValue);
@@ -98,7 +97,6 @@ public class OculusConverter
             OculusField oculusField = (OculusField)property.GetCustomAttribute(typeof(OculusField), false);
             // try to get value from oculus
             PropertyInfo oculusProperty = typeof(OculusType).GetProperty(oculusField.fieldName);
-            Logger.Log(oculusField.fieldName);
             object? rawValue = oculusProperty.GetValue(oculus);
             property.SetValue(db, rawValue);
         }
@@ -181,7 +179,6 @@ public class OculusConverter
             db.assetFiles.Add(AssetFile(assetFile, dbApplication));
         }
         // To get the offer id we need to get the msrp_offers->nodes[0]->id from the specific developer IAP request
-        Logger.Log(JsonSerializer.Serialize(GraphQLClient.GetAddOnDeveloper(db.id, dbApplication.id)));
         IAPItem specificDlc = GraphQLClient.GetAddOnDeveloper(db.id, dbApplication.id).data.node?.grouping.add_ons.nodes[0];
         db = FromOculusToDBAlternate(specificDlc, db);
         if (specificDlc != null && specificDlc.msrp_offers.nodes.Count > 0)

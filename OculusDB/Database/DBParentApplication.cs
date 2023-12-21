@@ -5,7 +5,6 @@ namespace OculusDB.Database;
 
 public class DBParentApplication : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.ParentApplication;
     [TrackChanges]
     [BsonElement("id")]

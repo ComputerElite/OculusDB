@@ -51,7 +51,6 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
     [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
     [BsonRepresentation(BsonType.ObjectId)]
     public string __id { get; set; }
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.Difference;
     [BsonElement("ei")]
     public string entryId { get; set; } = "";

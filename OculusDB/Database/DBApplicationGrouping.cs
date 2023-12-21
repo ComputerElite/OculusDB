@@ -9,7 +9,6 @@ namespace OculusDB.Database;
 
 public class DBApplicationGrouping : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.ApplicationGrouping;
     [OculusField("id")]
     [BsonElement("id")]

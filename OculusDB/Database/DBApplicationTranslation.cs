@@ -6,7 +6,6 @@ namespace OculusDB.Database;
 
 public class DBApplicationTranslation : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.ApplicationTranslation;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]

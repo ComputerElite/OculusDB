@@ -5,7 +5,6 @@ namespace OculusDB.Database;
 
 public class DBParentApplicationGrouping : DBBase
 {
-    [BsonElement("_dbt")]
     public override string __OculusDBType { get; set; } = DBDataTypes.ParentApplicationGrouping;
     [OculusField("id")]
     [TrackChanges]
