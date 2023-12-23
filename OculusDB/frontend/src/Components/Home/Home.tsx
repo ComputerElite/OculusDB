@@ -36,7 +36,7 @@ let Home = ( props: HomeProps ) => {
 
         <h2>API</h2>
 
-        <p>OculusDB has an api anyone is allowed to use. You can find it <a href="https://oculusdb.rui2015.me/api/docs">here</a>.</p>
+        <p>OculusDB has an api anyone is allowed to use. You can find it <a href="/api/docs">here</a>.</p>
       </div>
     </div>
   )

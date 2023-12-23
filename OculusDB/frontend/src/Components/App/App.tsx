@@ -11,6 +11,7 @@ import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, Downgradin
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect } from 'solid-js'
+import APIDocs from '../APIDocs/APIDocs'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -20,6 +21,8 @@ let pageTitles: any = {
   '/privacy': 'Privacy Policy - OculusDB',
   '/saved': 'Saved Apps - OculusDB',
   '/login': 'Login - OculusDB',
+
+  '/api/docs': 'API Documentation - OculusDB',
 
   '/guide': 'Downgrading Guide - OculusDB',
   '/guide/rift': 'Downgrading Guide (Rift) - OculusDB',
@@ -112,6 +115,9 @@ function App() {
         </Match>
         <Match when={currentTab().startsWith('/search/')}>
           <SearchPage currentTab={currentTab} setCurrentTab={setCurrentTab} currentSearch={currentSearch} />
+        </Match>
+        <Match when={currentTab() === '/api/docs'}>
+          <APIDocs />
         </Match>
       </Switch>
 
