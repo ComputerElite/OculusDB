@@ -1,0 +1,31 @@
+.search-bar{
+  width: 80%;
+  height: 50px;
+  border-radius: 50px;
+  margin: auto;
+  background: #202324;
+  box-shadow: #000 0 0 10px;
+  display: flex;
+}
+
+.search-bar input{
+  width: calc(100% - 50px);
+  border-radius: 50px;
+  border: none;
+  background: transparent;
+  outline: none;
+  color: white;
+  font-size: 15px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  padding-left: 25px;
+}
+
+.search-bar i{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  width: 50px;
+  cursor: pointer;
+}

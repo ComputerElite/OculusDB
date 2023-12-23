@@ -1,19 +1,36 @@
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+using OculusDB.MongoDB;
 using OculusGraphQLApiLib;
 using OculusGraphQLApiLib.Results;
 
 namespace OculusDB.Database;
 
-public class DBAppImage
-{
-    public DateTime __lastUpdated { get; set; } = DateTime.Now;
-    public string __OculusDBType { get; set; } = DBDataTypes.AppImage;
+// Don't track app images
 
-    /// <summary>
-    /// Scraping node ID
-    /// </summary>
-    public string __sn { get; set; } = "";
-    public string appId { get; set; } = "";
+public class DBAppImage : DBBase, IDBObjectOperations<DBAppImage>
+{
+    public override string __OculusDBType { get; set; } = DBDataTypes.AppImage;
+    [ObjectScrapingNodeFieldPresent]
+    [BsonElement("p")]
+    public DBParentApplication parentApplication { get; set; } = new DBParentApplication();
+    [BsonElement("m")]
     public string mimeType { get; set; } = "image/webp";
+    [BsonElement("d")]
     public byte[] data { get; set; } = new byte[0];
+    
+    public DBAppImage? GetEntryForDiffGeneration(IEnumerable<DBAppImage> collection)
+    {
+        return collection.FirstOrDefault(x => x.parentApplication.id == this.parentApplication.id);
+    }
+
+    public void AddOrUpdateEntry(IMongoCollection<DBAppImage> collection)
+    {
+        collection.ReplaceOne(x => x.parentApplication.id == this.parentApplication.id, this, new ReplaceOptions() { IsUpsert = true });
+    }
+
+    public static DBAppImage? ById(string appId)
+    {
+        return OculusDBDatabase.appImages.Find(x => x.parentApplication.id == appId).FirstOrDefault();
+    }
 }

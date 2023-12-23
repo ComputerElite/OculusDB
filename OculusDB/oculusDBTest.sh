@@ -1,4 +1,9 @@
 echo copying executables
+cd frontend
+pnpm build
+cd ..
+cp -r frontend/dist/* ~/rider/OculusDB/OculusDB/bin/Debug/net6.0/frontend
+
 cp -r ~/rider/OculusDB/OculusDB/bin/Debug/net6.0/* ~/testing/OculusDB/frontend
 cp -r ~/rider/OculusDB/OculusDB/bin/Debug/net6.0/* ~/testing/OculusDB/node
 cp -r ~/rider/OculusDB/OculusDB/bin/Debug/net6.0/* ~/testing/OculusDB/master

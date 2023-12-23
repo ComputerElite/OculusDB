@@ -16,9 +16,8 @@ public class AppToScrape
         
     public string appId { get; set; } = "";
     public bool priority { get; set; } = false;
-    public Headset headset { get; set; } = Headset.HOLLYWOOD;
+    public string canonicalName { get; set; } = "";
     public DateTime addedTime { get; set; } = DateTime.UtcNow;
-    public string imageUrl { get; set; } = "";
     public DateTime sentToScrapeTime { get; set; } = DateTime.MinValue;
     public AppScrapePriority scrapePriority { get; set; } = AppScrapePriority.Low;
     public string currency { get; set; } = "";

@@ -1,0 +1,38 @@
+.info{
+  margin: 100px 0;
+  color: white;
+  font-size: 15px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  background: #0005;
+  padding: 10px;
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+}
+
+.main{
+  margin: auto;
+  margin-top: 100px;
+  width: 80%;
+  padding: 10px;
+}
+
+b{
+  color: #63fac3;
+}
+
+a{
+  color: #63fac3;
+}
+
+@media screen and (max-width: 410px) {
+  .info{
+    border-radius: 0;
+    width: calc(100% - 20px);
+  }
+
+  .main{
+    width: 100%;
+    padding: 0;
+  }
+}

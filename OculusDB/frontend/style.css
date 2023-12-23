@@ -1,4 +1,4 @@
-﻿/*joke stuff*/
+/*joke stuff*/
 .flashbang {
     animation: ease-in-out flashbang 8s;
     width: 100vw;
@@ -232,18 +232,18 @@ button {
     background-color: var(--hoverColor);
     color: var(--highlightedColor);
 }
-  
-  /* Change background color of buttons on hover */
+
+/* Change background color of buttons on hover */
 .tab button:hover {
     background-color: var(--hoverColor);
 }
-  
-  /* Create an active/current tablink class */
+
+/* Create an active/current tablink class */
 .tab button.active {
     background-color: var(--selectedColor);
 }
-  
-  /* Style the tab content */
+
+/* Style the tab content */
 .tabcontent {
     display: none;
     padding: 6px 12px;
@@ -445,11 +445,11 @@ code {
     .leftRightAdjustedContainer {
         flex-direction: column-reverse;
     }
-    
+
     .leftRightAdjustedContainerItemLeft {
         width: 100% !important;
     }
-    
+
     .leftRightAdjustedContainerItemRight {
         width: 100% !important;
         margin-left: 0px;
@@ -548,7 +548,7 @@ table {
     background-color: var(--hightlightColor);
     border-radius: 5px;
     padding: 20px;
-    
+
     border-collapse: collapse;
 }
 
@@ -658,7 +658,7 @@ textarea {
 
 input:hover {
     border: 1px solid var(--highlightedColor);
-    
+
 }
 
 input[type=button]:hover {

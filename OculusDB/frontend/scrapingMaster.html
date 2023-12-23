@@ -3,9 +3,9 @@
 <head>
     <link rel="stylesheet" href="style.css" >
     <style>
-    .content {
-        margin-top: 0;
-    }
+        .content {
+            margin-top: 0;
+        }
     </style>
     <title>Scraping Master - OculusDB Scraping Master</title>
     <meta name="title" content="Scraping Master - OculusDB Scraping Master">
@@ -16,8 +16,8 @@
 <div class="content">
     <a href="/setup">Setup a scraping node</a>
     <table id="status">
-        
-        
+
+
     </table>
 </div>
 <script>
@@ -43,7 +43,7 @@
         const formattedTime = `${years}y ${remainingDays}d ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
         return formattedTime;
     }
-    
+
     const sortByKey = (a, b) => {
         const keyA = a[0];
         const keyB = b[0];
@@ -56,7 +56,7 @@
         }
         return 0;
     }
-    
+
     var j = []
     function UpdateNodes() {
         fetch(`/api/v1/scrapingnodes`).then(res => res.json().then(json => {

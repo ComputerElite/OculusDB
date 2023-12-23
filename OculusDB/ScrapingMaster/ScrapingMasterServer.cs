@@ -4,7 +4,9 @@ using ComputerUtils.Discord;
 using ComputerUtils.Logging;
 using ComputerUtils.Webserver;
 using Ionic.Zip;
+using MongoDB.Driver;
 using OculusDB.Database;
+using OculusDB.MongoDB;
 using OculusDB.ScrapingNodeCode;
 using ZipFile = System.IO.Compression.ZipFile;
 
@@ -13,10 +15,7 @@ namespace OculusDB.ScrapingMaster;
 public class ScrapingMasterServer
 {
     public HttpServer server;
-    public Config config
-    {
-        get { return OculusDBEnvironment.config; }
-    }
+    public Config config => OculusDBEnvironment.config;
 
     public void StartServer(HttpServer httpServer)
     {
@@ -24,10 +23,8 @@ public class ScrapingMasterServer
         bool creatingNodeZip = false;
         string frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
         
-        MongoDBInteractor.Initialize();
+        OculusDBDatabase.Initialize();
         ScrapingNodeMongoDBManager.Init();
-        
-        ScrapingNodeMongoDBManager.CheckActivityCollection();
         Thread nodeStatusThread = new Thread(() =>
         {
             MonitorNodes();
@@ -76,6 +73,26 @@ public class ScrapingMasterServer
             ScrapingManaging.ProcessTaskResult(taskResult, r);
             return true;
         });
+        server.AddRoute("POST", "/api/v1/applicationnull", request =>
+        {
+            // Check if the scraping node is authorized to scrape
+            ScrapingNodeApplicationNull applicationNull = JsonSerializer.Deserialize<ScrapingNodeApplicationNull>(request.bodyString);
+            ScrapingNodeAuthenticationResult r = ScrapingNodeMongoDBManager.CheckScrapingNode(applicationNull.identification);
+            if (!r.tokenAuthorized)
+            {
+                request.SendString(JsonSerializer.Serialize(r), "application/json", 403);
+                return true;
+            }
+
+            request.SendString(JsonSerializer.Serialize(new ScrapingNodeApplicationNullResponse()), "application/json");
+            ScrapingManaging.ProcessApplicationNull(applicationNull, r);
+            return true;
+        });
+        server.AddRoute("GET", "/api/v1/applicationnull", request =>
+        {
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.applicationNullCollection.Find(x => true).ToList()));
+            return true;
+        }, false, true, true, true, 300);
         server.AddRoute("POST", "/api/v1/heartbeat", request =>
         {
             // Check if the scraping node is authorized to scrape
@@ -165,6 +182,7 @@ public class ScrapingMasterServer
                 }
                 else
                 {
+                    // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
                     while (creatingNodeZip)
                     {
                         Thread.Sleep(100);
@@ -193,7 +211,7 @@ public class ScrapingMasterServer
         }
         catch (Exception ex)
         {
-            Logger.Log("Exception while sending webhook" + ex.ToString(), LoggingType.Warning);
+            Logger.Log("Exception while sending webhook" + ex, LoggingType.Warning);
         }
     }
     
@@ -205,20 +223,21 @@ public class ScrapingMasterServer
             List<ScrapingNodeStats> nodes = ScrapingNodeMongoDBManager.GetScrapingNodes();
             foreach (ScrapingNodeStats node in nodes)
             {
-                if (!wasOnline.ContainsKey(node.scrapingNode.scrapingNodeId))
-                {
-                    wasOnline.Add(node.scrapingNode.scrapingNodeId, node.online);
-                }
+                // Add node to tracking if it isn't tracked already
+                wasOnline.TryAdd(node.scrapingNode.scrapingNodeId, node.online);
                 //Logger.Log("Node " + node.scrapingNode.scrapingNodeId + " is " + (node.online ? "online" : "offline"), LoggingType.Debug);
 
+                // Check if node status changed
                 if (wasOnline[node.scrapingNode.scrapingNodeId] != node.online)
                 {
                     //Logger.Log("That is a change", LoggingType.Debug);
                     // Node status changed, send webhook msg
                     SendMasterWebhookMessage("Scraping Node " + node.scrapingNode.scrapingNodeId + " " + (node.online ? "online" : "offline"), "", node.online ? 0x00FF00 : 0xFF0000);
                 }
+                // Save node status
                 wasOnline[node.scrapingNode.scrapingNodeId] = node.online;
             }
+            // Check again in 15 seconds
             Thread.Sleep(15000);
         }
     }

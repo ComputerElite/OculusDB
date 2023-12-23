@@ -11,6 +11,7 @@ using OculusGraphQLApiLib;
 using System.Net;
 using ComputerUtils.Logging;
 using System.Text.Json;
+using OculusDB.ObjectConverters;
 
 namespace OculusDB.Users
 {
@@ -27,181 +28,40 @@ namespace OculusDB.Users
         public ActivityWebhookType type { get; set; } = ActivityWebhookType.Discord;
         public List<string> activities { get; set; } = new List<string>();
 
-        public void SendOculusDBWebhook(BsonDocument activity)
+        public void SendOculusDBWebhook(DBDifference difference)
         {
-            if (!SendWebhook(activity)) return;
-            string type = activity["__OculusDBType"].ToString();
-            if(CheckDownloadableType(activity) && !(activities.Contains(DBDataTypes.ActivityNewVersion) ||activities.Contains(DBDataTypes.ActivityVersionUpdated)))
-            {
-                activity["__OculusDBType"] = DBDataTypes.ActivityVersionDownloadable;
-            }
+            if (!SendWebhook(difference)) return;
             WebClient c = new WebClient();
             c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
-            c.UploadString(url, "POST", JsonSerializer.Serialize(ObjectConverter.ConvertToDBType(activity)));
+            c.UploadString(url, "POST", JsonSerializer.Serialize(difference));
         }
 
         public bool CheckDownloadableType(BsonDocument activity)
         {
             string type = activity["__OculusDBType"].ToString();
-            return (type == DBDataTypes.ActivityNewVersion || type == DBDataTypes.ActivityVersionUpdated) && activity["releaseChannels"].AsBsonArray.Count > 0 && activities.Contains(DBDataTypes.ActivityVersionDownloadable);
+            return false;
         }
 
-        public bool SendWebhook(BsonDocument activity)
+        public bool SendWebhook(DBDifference difference)
         {
-            string type = activity["__OculusDBType"].ToString();
-            if (!activities.Contains(type) && !CheckDownloadableType(activity)) return false;
-            string id;
-            if (type == DBDataTypes.ActivityNewApplication) id = activity["id"].ToString();
-            else id = activity["parentApplication"]["id"].ToString();
-            if (applicationId != "" && applicationId != id || applicationId == "" && (type == DBDataTypes.ActivityNewVersion || type == DBDataTypes.ActivityVersionUpdated) && this.type == ActivityWebhookType.Discord) return false;
+            
             return true;
         }
 
-        public void SendDiscordWebhook(BsonDocument activity)
+        public void SendDiscordWebhook(DBDifference difference)
         {
-            if (!SendWebhook(activity)) return;
-            string type = activity["__OculusDBType"].ToString();
+            if (!SendWebhook(difference)) return;
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
             string websiteUrl = config.publicAddress;
             string icon = websiteUrl + "logo";
             embed.author = new DiscordEmbedAuthor { icon_url = icon, name = "OculusDB", url = websiteUrl };
             Dictionary<string, string> meta = new Dictionary<string, string>();
-            if(type == DBDataTypes.ActivityNewApplication)
-            {
-                DBActivityNewApplication app = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "New Application released";
-                meta.Add("Name", app.displayName);
-                meta.Add("Price", app.priceFormatted);
-                meta.Add("Id", app.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(app.hmd));
-                meta.Add("Publisher", app.publisherName);
-            }
-            else if (type == DBDataTypes.ActivityPriceChanged)
-            {
-                DBActivityPriceChanged app = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "Application price change";
-                meta.Add("Name", app.parentApplication.displayName);
-                meta.Add("New price", app.newPriceFormatted);
-                meta.Add("Old price", app.oldPriceFormatted);
-                meta.Add("Id", app.parentApplication.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(app.parentApplication.hmd));
-            }
-            else if (type == DBDataTypes.ActivityNewVersion)
-            {
-                DBActivityNewVersion v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "New Version uploaded";
-                meta.Add("Version", v.version);
-                meta.Add("Version code", v.versionCode.ToString());
-                meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
-                List<string> releaseChannels = new List<string>();
-                foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
-                meta.Add("Release channels", String.Join(", ", releaseChannels));
-                meta.Add("Id", v.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-                meta.Add("Application", v.parentApplication.displayName);
-                meta.Add("Application id", v.parentApplication.id);
-            }
-            else if (type == DBDataTypes.ActivityVersionUpdated)
-            {
-                DBActivityVersionUpdated v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "Version updated";
-                meta.Add("Version", v.version);
-                meta.Add("Version code", v.versionCode.ToString());
-                meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
-                List<string> releaseChannels = new List<string>();
-                foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
-                meta.Add("Release channels", String.Join(", ", releaseChannels));
-                meta.Add("Id", v.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-                meta.Add("Application", v.parentApplication.displayName);
-                meta.Add("Application id", v.parentApplication.id);
-            }
-            else if (type == DBDataTypes.ActivityNewDLC)
-            {
-                DBActivityNewDLC v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "New DLC released";
-                meta.Add("DLC name", v.displayName);
-                meta.Add("Price", v.priceFormatted);
-                meta.Add("Latest Asset file id", v.latestAssetFileId);
-                meta.Add("Id", v.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-                meta.Add("Application", v.parentApplication.displayName);
-                meta.Add("Application id", v.parentApplication.id);
-            }
-            else if (type == DBDataTypes.ActivityDLCUpdated)
-            {
-                DBActivityDLCUpdated v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "DLC updated";
-                meta.Add("DLC name", v.displayName);
-                meta.Add("Price", v.priceFormatted);
-                meta.Add("Latest Asset file id", v.latestAssetFileId);
-                meta.Add("Id", v.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-                meta.Add("Application", v.parentApplication.displayName);
-                meta.Add("Application id", v.parentApplication.id);
-            }
-            else if (type == DBDataTypes.ActivityNewDLCPack)
-            {
-                DBActivityNewDLCPack v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "New DLC Pack released";
-                meta.Add("DLC Pack name", v.displayName);
-                meta.Add("Price", v.priceFormatted);
-                meta.Add("Included DLCs", "See on OculusDB website");
-                meta.Add("Id", v.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-                meta.Add("Application", v.parentApplication.displayName);
-                meta.Add("Application id", v.parentApplication.id);
-            }
-            else if (type == DBDataTypes.ActivityDLCPackUpdated)
-            {
-                DBActivityDLCPackUpdated v = ObjectConverter.ConvertToDBType(activity);
-                embed.title = "DLC Pack updated";
-                meta.Add("DLC Pack name", v.displayName);
-                meta.Add("Price", v.priceFormatted);
-                meta.Add("Included DLCs", "See on OculusDB website");
-                meta.Add("Id", v.id);
-                meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-                meta.Add("Application", v.parentApplication.displayName);
-                meta.Add("Application id", v.parentApplication.id);
-            }
-			else if (type == DBDataTypes.ActivityVersionChangelogAvailable)
-			{
-				DBActivityVersionChangelogAvailable v = ObjectConverter.ConvertToDBType(activity);
-				embed.title = "Version changelog available";
-				meta.Add("Version", v.version);
-				meta.Add("Version code", v.versionCode.ToString());
-				meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
-				List<string> releaseChannels = new List<string>();
-				foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
-				meta.Add("Release channels", String.Join(", ", releaseChannels));
-				meta.Add("Id", v.id);
-				meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-				meta.Add("Application", v.parentApplication.displayName);
-				meta.Add("Application id", v.parentApplication.id);
-                meta.Add("Changelog", v.changeLog.Substring(0, 1800));
-			}
-			else if (type == DBDataTypes.ActivityVersionChangelogUpdated)
-			{
-				DBActivityVersionChangelogUpdated v = ObjectConverter.ConvertToDBType(activity);
-				embed.title = "Version changelog updated";
-				meta.Add("Version", v.version);
-				meta.Add("Version code", v.versionCode.ToString());
-				meta.Add("Downloadable", (v.releaseChannels.Count != 0).ToString());
-				List<string> releaseChannels = new List<string>();
-				foreach (DBReleaseChannel channel in v.releaseChannels) releaseChannels.Add(channel.channel_name);
-				meta.Add("Release channels", String.Join(", ", releaseChannels));
-				meta.Add("Id", v.id);
-				meta.Add("Headset", HeadsetTools.GetHeadsetDisplayName(v.parentApplication.hmd));
-				meta.Add("Application", v.parentApplication.displayName);
-				meta.Add("Application id", v.parentApplication.id);
-				meta.Add("Changelog", v.changeLog.Substring(0, 1800));
-			}
 			foreach (KeyValuePair<string, string> item in meta)
             {
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
             }
-            embed.description += "**Activity link:** " + websiteUrl + "activity/" + activity["_id"].ToString();
+            embed.description += "**Activity link:** " + websiteUrl + "activity/" + difference.__id;
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1200);
         }

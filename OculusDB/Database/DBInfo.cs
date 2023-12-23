@@ -8,9 +8,7 @@ namespace OculusDB.Database
 {
     public class DBInfo
     {
-        public string scrapingStatusPageUrl;
-        public long dataDocuments { get; set; } = 0;
-        public long activityDocuments { get; set; } = 0;
-        public long appCount { get; set; } = 0;
+        public string scrapingStatusPageUrl { get; set; }
+        public Dictionary<string, long> counts { get; set; } = new Dictionary<string, long>();
     }
 }

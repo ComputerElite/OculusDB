@@ -23,6 +23,16 @@ public class TimeDependantBool
     }
 
     /// <summary>
+    /// Set the time dependant bool to the provided value for the provided time
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="setToFalseIn"></param>
+    public void Set(bool value, TimeSpan setToFalseIn)
+    {
+        Set(value, setToFalseIn, "");
+    }
+
+    /// <summary>
     /// If the value is true and hasn't expired yet
     /// </summary>
     /// <returns></returns>
@@ -53,5 +63,13 @@ public class TimeDependantBool
     public void Unlock(ScrapingNode scrapingNode)
     {
         if (IsThisResponsible(scrapingNode)) value = false;
+    }
+    
+    /// <summary>
+    /// Set value to false
+    /// </summary>
+    public void Unlock()
+    {
+        value = false;
     }
 }

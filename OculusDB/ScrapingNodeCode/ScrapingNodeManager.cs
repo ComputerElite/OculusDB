@@ -53,11 +53,12 @@ public class ScrapingNodeManager
         scraper = new ScrapingNodeScraper(this);
         scraper.Init();
         client = new HttpClient();
-        client.Timeout = TimeSpan.FromMinutes(20);
+        client.Timeout = TimeSpan.FromMinutes(1);
         client.DefaultRequestHeaders.UserAgent.Clear();
         client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("OculusDB", OculusDBEnvironment.updater.version));
         // Check out server to let it know the node is stared. If errors occur during the checkout, the node will do the appropriate action automatically
         ScrapingNodeAuthenticationResult r = CheckOutServer();
+        config.scrapingNode = r.scrapingNode;
         if (r.overrideSettings.overrideCurrency != "")
         {
             config.overrideCurrency = r.overrideSettings.overrideCurrency;
@@ -76,10 +77,8 @@ public class ScrapingNodeManager
                 scrapingTask = ScrapingTaskType.ScrapeApp,
                 appToScrape = new AppToScrape
                 {
-                    headset = Headset.MONTEREY,
                     appId = config.appId,
-                    priority = config.isPriorityScrape,
-                    imageUrl = ""
+                    priority = config.isPriorityScrape
                 }
             });
             scraper.DoTasks();

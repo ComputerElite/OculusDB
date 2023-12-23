@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
+using OculusDB.Api;
+using OculusDB.ObjectConverters;
 using OculusDB.ScrapingMaster;
 using OculusDB.ScrapingNodeCode;
 
@@ -51,9 +53,12 @@ namespace OculusDB
                 Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), cla);
             }
             OculusDBEnvironment.config = Config.LoadConfig();
+            if(OculusDBEnvironment.config.publicAddress.EndsWith("/")) OculusDBEnvironment.config.publicAddress = OculusDBEnvironment.config.publicAddress.Substring(0, OculusDBEnvironment.config.publicAddress.Length - 1);
             OculusDBEnvironment.scrapingNodeConfig = ScrapingNodeConfig.LoadConfig();
             if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
             OculusDBEnvironment.config.Save();
+            EnumIndex.Init();
+
             //Logger.SetLogFile(workingDir + "Log.log");
 
             if (cla.HasArgument("-dmt"))
@@ -102,6 +107,9 @@ namespace OculusDB
                 }
                 return;
             }
+
+            //OculusDBTest.Test();
+            //return;
 
             if (cla.HasArgument("--fp"))
             {

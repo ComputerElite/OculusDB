@@ -8,30 +8,27 @@ namespace OculusDB.Database
 {
     public class DBDataTypes
     {
-	    public static string AppImage = "AppImage";
+	    public const string AppImage = "AppImage";
+	    public const string ParentApplication = "ParentApplication";
 	    public const string Application = "Application";
         public const string Version = "Version";
-        public const string IAPItem = "IAPItem";
-        public const string IAPItemPack = "IAPItemPack";
-        public const string OBBBinary = "OBBBinary";
+        public const string IapItem = "IapItem";
+        public const string IapItemPack = "IapItemPack";
+        public const string ObbBinary = "ObbBinary";
 		public const string VersionAlias = "VersionAlias";
-
-
-		//Activities
-		public const string ActivityNewApplication = "ActivityNewApplication";
-		public const string ActivityApplicationUpdated = "ActivityApplicationUpdated";
-        public const string ActivityPriceChanged = "ActivityPriceChanged";
-        public const string ActivityNewVersion = "ActivityNewVersion";
-        public const string ActivityVersionUpdated = "ActivityVersionUpdated";
-		public const string ActivityVersionChangelogAvailable = "ActivityVersionChangelogAvailable";
-		public const string ActivityVersionChangelogUpdated = "ActivityVersionChangelogUpdated";
-
-		public const string ActivityNewDLC = "ActivityNewDLC";
-        public const string ActivityDLCUpdated = "ActivityDLCUpdated";
-        public const string ActivityNewDLCPack = "ActivityNewDLCPack";
-        public const string ActivityDLCPackUpdated = "ActivityDLCPackUpdated";
-
-        // not a DB property. Gets resolved on runtime for webhooks
-        public const string ActivityVersionDownloadable = "ActivityVersionDownloadable";
+		public const string Price = "Price";
+		public const string ReleaseChannel = "ReleaseChannel";
+		public const string ApplicationTranslation = "ApplicationTranslation";
+		public const string ApplicationGrouping = "ApplicationGrouping";
+		public const string ParentApplicationGrouping = "ParentApplicationGrouping";
+		public const string AssetFile = "AssetFile";
+		public const string IapItemId = "IapItemId";
+		public const string Achievement = "Achievement";
+		public const string AchievementTranslation = "AchievementTranslation";
+		public const string Offer = "Offer";
+		public const string Error = "Error";
+		public const string Difference = "Difference";
+		public const string Unknown = "Unknown";
+		public const string ApplicationNull = "ApplicationNull";
     }
 }

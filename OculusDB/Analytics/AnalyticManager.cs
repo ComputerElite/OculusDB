@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OculusDB.Database;
+using OculusDB.MongoDB;
 
 namespace OculusDB.Analytics
 {
@@ -23,22 +25,33 @@ namespace OculusDB.Analytics
             AnalyticRequest ar = JsonSerializer.Deserialize<AnalyticRequest>(request.bodyString);
             Analytic a = new Analytic();
             a.itemId = ar.id;
-            List<BsonDocument> entry = MongoDBInteractor.GetByID(a.itemId);
-            if (entry.Count <= 0) return new AnalyticResponse
+            DBBase? entry = OculusDBDatabase.GetDocument(a.itemId);
+            if (entry == null) return new AnalyticResponse
             {
                 msg = "The item hasn't been found in the database"
             };
-            if (entry[0]["parentApplication"] == null) return new AnalyticResponse
+            string parentId = "";
+            string parentName = "";
+            switch (entry.__OculusDBType)
             {
-                msg = "Item doesn't have parentApplication"
-            };
-            a.parentId = entry[0]["parentApplication"]["id"].AsString;
-            a.applicationName = entry[0]["parentApplication"]["displayName"].AsString;
+                case DBDataTypes.Version:
+                    parentName = ((DBVersion)entry).parentApplication?.id ?? "";
+                    parentId = ((DBVersion)entry).parentApplication?.id ?? "";
+                    break;
+                default:
+                    return new AnalyticResponse
+                    {
+                        msg = "Only versions are recorded for now. This may change in the future"
+                    };
+            }
+
+            a.parentId = parentId;
+            a.applicationName = parentName;
             MongoDBInteractor.AddAnalytic(a);
             return new AnalyticResponse
             {
                 success = true,
-                msg = "Added analytic. Only the version/dlc id you clicked as well as the current time has been recorded. Nothing else"
+                msg = "Added analytic. Only the version id you clicked as well as the current time has been recorded. Nothing else"
             };
         }
     }

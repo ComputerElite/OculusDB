@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MongoDB.Driver;
+using OculusDB.MongoDB;
 
 namespace OculusDB.QAVS
 {
@@ -28,6 +30,21 @@ namespace OculusDB.QAVS
 			} }
 
 		public ModsAndLibs modsAndLibs { get; set; } = null;
+		
+		
+		public static string AddQAVSReport(QAVSReport report)
+		{
+			string id = Random.Shared.Next(0x111111, 0xFFFFFF).ToString("X");
+			report.reportId = id;
+			OculusDBDatabase.qAVSReports.DeleteMany(x => x.reportId == id);
+			OculusDBDatabase.qAVSReports.InsertOne(report);
+			return id;
+		}
+
+		public static QAVSReport GetQAVSReport(string id)
+		{
+			return OculusDBDatabase.qAVSReports.Find(x => x.reportId == id).FirstOrDefault();
+		}
 	}
 	public class PatchingStatus
 	{

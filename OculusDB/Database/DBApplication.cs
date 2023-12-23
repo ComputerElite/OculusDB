@@ -1,166 +1,392 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using OculusGraphQLApiLib;
-using OculusGraphQLApiLib.Results;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using ComputerUtils.VarUtils;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+using OculusDB.MongoDB;
+using OculusDB.ObjectConverters;
+using OculusGraphQLApiLib.Results;
 
-namespace OculusDB.Database
+namespace OculusDB.Database;
+
+public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
 {
-    public class DBApplication
+    public override string __OculusDBType { get; set; } = DBDataTypes.Application;
+
+    [BsonIgnore]
+    public bool blocked
     {
-        public DateTime __lastUpdated { get; set; } = DateTime.Now;
-        public string __OculusDBType { get; set; } = DBDataTypes.Application;
-        public HeadsetGroup group { get; set; } = HeadsetGroup.Unknown;
-        public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
-        public Headset hmd { get; set; } = Headset.HOLLYWOOD;
-        /// <summary> 
-        /// Scraping node ID
-        /// </summary>
-        public string __sn { get; set; } = "";
-        [BsonIgnore]
-
-        public bool blocked
+        get
         {
-            get
-            {
-                return MongoDBInteractor.GetBlockedStatusForApp(id);
-            }
+            return OculusDBDatabase.blockedAppsCache.Contains(id);
         }
+    }
 
-        // Application
-        public string appName { get; set; } = "";
-        
-        /// <summary>
-        /// Normal price without discount
-        /// </summary>
-        public AppStoreOffer baseline_offer { get; set; } = null;
-        public string priceFormatted
+    [OculusField("id")]
+    [TrackChanges]
+    [BsonElement("id")]
+    public string id { get; set; } = "";
+
+    [BsonIgnore]
+    public string imgUrl
+    {
+        get
         {
-            get
-            {
-                return AppStoreOfferPrice.GetFormattedPrice(priceOffsetNumerical, currency);
-            }
+            return "/assets/app/" + id;
         }
-        public long priceOffsetNumerical { get; set; } = 0;
-
-        public bool appHasDiscount
+    }
+    [BsonIgnore]
+    public string imgUrlAbsolute
+    {
+        get
         {
-            get
-            {
-                return baseline_offer != null && current_offer != null && current_offer.price != null && baseline_offer.price != null
-                    && current_offer.price.offset_amount_numerical < baseline_offer.price.offset_amount_numerical
-                    && TimeConverter.UnixTimeStampToDateTime(current_offer.end_time) > DateTime.UtcNow;
-            }
+            return OculusDBEnvironment.config.publicAddress + "/assets/app/" + id;
         }
-
-        public DateTime discountEndTime
+    }
+    [TrackChanges]
+    [BsonElement("hg")]
+    public HeadsetGroup group { get; set; } = HeadsetGroup.Unknown;
+    
+    [OculusFieldAlternate("category_enum")]
+    [TrackChanges]
+    [BsonElement("c")]
+    public Category category { get; set; } = Category.UNKNOWN;
+    [BsonIgnore]
+    [TrackChanges]
+    public string categoryFormatted
+    {
+        get
         {
-            get
-            {
-                if(current_offer == null || current_offer.end_time == 0) return DateTime.MinValue;
-                return TimeConverter.UnixTimeStampToDateTime(current_offer.end_time);
-            }
+            return OculusConverter.FormatOculusEnumString(category.ToString());
         }
-
-        public bool appHasTrial
+    }
+    [JsonIgnore]
+    [BsonIgnore]
+    public string oculusImageUrl { get; set; } = "";
+    [OculusFieldAlternate("genres")]
+    [TrackChanges]
+    [BsonElement("ge")]
+    public List<string> genres { get; set; } = new List<string>();
+    public List<string> genresFormatted {
+        get
         {
-            get
-            {
-                return current_trial_offer != null;
-            }
+            return genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
         }
+    }
+    
+    [OculusField("has_in_app_ads")]
+    [TrackChanges]
+    [BsonElement("hiaa")]
+    public bool hasInAppAds { get; set; } = false;
+    
+    [OculusField("is_concept")]
+    [TrackChanges]
+    [BsonElement("isa")]
+    public bool isAppLab { get; set; } = false;
+    
+    [OculusField("is_quest_for_business")]
+    [TrackChanges]
+    [BsonElement("isqfb")]
+    public bool isQuestForBusiness { get; set; } = false;
+    
+    [OculusField("is_test")]
+    [TrackChanges]
+    [BsonElement("ist")]
+    public bool isTest { get; set; } = false;
+    
+    [OculusField("is_blocked_by_verification")]
+    [TrackChanges]
+    [BsonElement("isbbv")]
+    public bool isBlockedByVerification { get; set; } = false;
+    
+    [OculusField("is_for_oculus_keys_only")]
+    [TrackChanges]
+    [BsonElement("isfoko")]
+    public bool isForOculusKeysOnly { get; set; } = false;
+    [TrackChanges]
+    [BsonElement("isfp")]
+    public bool isFirstParty { get; set; } = false;
+    [TrackChanges]
+    [BsonElement("cb")]
+    public bool cloudBackupEnabled { get; set; } = false;
 
-        public bool appCanBeBought
+    [OculusField("releaseDate")]
+    [TrackChanges]
+    [BsonElement("rd")]
+    public DateTime? releaseDate { get; set; } = null;
+    
+    [OculusFieldAlternate("publisher_name")]
+    [TrackChanges]
+    [BsonElement("pn")]
+    public string publisherName { get; set; } = "";
+    [OculusFieldAlternate("support_website_url")]
+    [TrackChanges]
+    [BsonElement("swu")]
+    public string? supportWebsiteUrl { get; set; } = null;
+    [OculusFieldAlternate("developer_terms_of_service_url")]
+    [TrackChanges]
+    [BsonElement("dtosu")]
+    public string? developerTermOfServiceUrl { get; set; } = null;
+    [OculusFieldAlternate("developer_privacy_policy_url")]
+    [TrackChanges]
+    [BsonElement("dppu")]
+    public string? developerPrivacyPolicyUrl { get; set; } = null;
+    [OculusFieldAlternate("website_url")]
+    [TrackChanges]
+    [BsonElement("wu")]
+    public string? websiteUrl { get; set; } = null;
+    [OculusFieldAlternate("external_subscription_type_enum")]
+    [TrackChanges]
+    [BsonElement("est")]
+    public ExternalSubscriptionType externalSubscriptionType { get; set; } = ExternalSubscriptionType.UNKNOWN;
+    [BsonIgnore]
+    public string externalSubscriptionTypeFormatted
+    {
+        get
         {
-            get
-            {
-                return current_offer != null && baseline_offer != null;
-            }
+            return OculusConverter.FormatOculusEnumString(externalSubscriptionType.ToString());
         }
-        
-        public string currency { get; set; } = "";
-        public string canonicalName { get; set; } = "";
-        public AppStoreOffer current_gift_offer { get; set; } = null;
-        /// <summary>
-        /// Price the user pays
-        /// </summary>
-        public AppStoreOffer current_offer { get; set; } = null;
-        /// <summary>
-        /// Trial offer
-        /// </summary>
-        public AppStoreTrialOffer current_trial_offer { get; set; } = null;
-        [BsonIgnore]
-        public string displayName { get { return display_name; } set { display_name = value; } }
-        public string display_name { get; set; } = "";
-        public string display_long_description { get; set; } = "";
-        public List<string> genre_names { get; set; } = new List<string>();
-        public bool has_in_app_ads { get; set; } = false;
-        public string id { get; set; } = "";
-        public bool is_approved { get; set; } = false;
-        public bool is_concept { get; set; } = false; // aka AppLab
-        public bool is_enterprise_enabled { get; set; } = false;
-        public Organization organization { get; set; } = new Organization();
-        public string platform { get; set; } = "";
-        public string publisher_name { get; set; } = "";
-        public long required_space_adjusted { get; set; } = -1;
-        [BsonIgnore]
-        public string requiredSpaceAdjustedFormatted
+    }
+
+    [OculusFieldAlternate("comfort_rating_enum")]
+    [TrackChanges]
+    [BsonElement("cr")]
+    public ComfortRating comfortRating { get; set; } = ComfortRating.UNKNOWN;
+    
+    [BsonIgnore]
+    public string comfortRatingFormatted
+    {
+        get
         {
-            get
-            {
-                return SizeConverter.ByteSizeToString(required_space_adjusted);
-            }
+            return OculusConverter.FormatOculusEnumString(comfortRating.ToString());
         }
-
-        public long total_installed_space { get; set; } = -1;
-        [BsonIgnore]
-        public string totalInstalledSpaceFormatted
+    }
+    
+    [TrackChanges]
+    [BsonElement("oid")]
+    public string? offerId { get; set; } = null;
+    [OculusFieldAlternate("supported_in_app_languages")]
+    [TrackChanges]
+    [BsonElement("sial")]
+    public List<string> supportedInAppLanguages { get; set; } = new List<string>();
+    [OculusFieldAlternate("supported_input_devices_enum")]
+    [TrackChanges]
+    [BsonElement("sid")]
+    public List<SupportedInputDevice> supportedInputDevices { get; set; } = new List<SupportedInputDevice>();
+    [BsonIgnore]
+    public List<string> supportedInputDevicesFormatted
+    {
+        get
         {
-            get
+            List<string> formatted = new List<string>();
+            foreach (SupportedInputDevice device in supportedInputDevices)
             {
-                return SizeConverter.ByteSizeToString(total_installed_space);
+                formatted.Add(OculusConverter.FormatOculusEnumString(device.ToString()));
             }
+            return formatted;
         }
-
-
-        public double? quality_rating_aggregate { get; set; } = 0.0;
-
-        public string img { get; set; } = "";
-        public string packageName { get; set; } = "";
-
-        [BsonIgnore]
-        public string imageLink { get
-            {
-                return "/cdn/images/" + id;
-            } }
-        public Nodes<ReleaseChannel> release_channels { get; set; } = new Nodes<ReleaseChannel>();
-        public long? release_date { get; set; } = 0;
-        [BsonIgnore]
-        public DateTime releaseDate
+    }
+    
+    [OculusFieldAlternate("supported_player_modes_enum")]
+    [TrackChanges]
+    [BsonElement("spm")]
+    public List<SupportedPlayerMode> supportedPlayerModes { get; set; } = new List<SupportedPlayerMode>();
+    [BsonIgnore]
+    public List<string> supportedPlayerModesFormatted
+    {
+        get
         {
-            get
+            List<string> formatted = new List<string>();
+            foreach (SupportedPlayerMode mode in supportedPlayerModes)
             {
-                return TimeConverter.UnixTimeStampToDateTime(release_date);
+                formatted.Add(OculusConverter.FormatOculusEnumString(mode.ToString()));
             }
+            return formatted;
         }
-
-        public List<string> supported_hmd_platforms { get; set; } = new List<string>();
-        public List<Headset> supported_hmd_platforms_enum
+    }
+    
+    [OculusFieldAlternate("user_interaction_modes_enum")]
+    [TrackChanges]
+    [BsonElement("uim")]
+    public List<UserInteractionMode> userInteractionModes { get; set; } = new List<UserInteractionMode>();
+    [BsonIgnore]
+    public List<string> userInteractionModesFormatted
+    {
+        get
         {
-            get
+            List<string> formatted = new List<string>();
+            foreach (UserInteractionMode mode in userInteractionModes)
             {
-                List<Headset> headsets = new List<Headset>();
-                foreach (string s in supported_hmd_platforms)
-                {
-                    headsets.Add((Headset)Enum.Parse(typeof(Headset), s));
-                }
-                return headsets;
+                formatted.Add(OculusConverter.FormatOculusEnumString(mode.ToString()));
             }
+            return formatted;
         }
-        public string website_url { get; set; } = "";
+    }
+    [TrackChanges]
+    [BsonElement("sc")]
+    public List<ShareCapability> shareCapabilities { get; set; } = new List<ShareCapability>();
+    [BsonIgnore]
+    public List<string> shareCapabilitiesFormatted
+    {
+        get
+        {
+            List<string> formatted = new List<string>();
+            foreach (ShareCapability capability in shareCapabilities)
+            {
+                formatted.Add(OculusConverter.FormatOculusEnumString(capability.ToString()));
+            }
+            return formatted;
+        }
+    }
+    
+    [OculusFieldAlternate("play_area_enum")]
+    [TrackChanges]
+    [BsonElement("pa")]
+    public PlayArea playArea { get; set; } = PlayArea.UNKNOWN;
+    [BsonIgnore]
+    public string playAreaFormatted
+    {
+        get
+        {
+            return OculusConverter.FormatOculusEnumString(playArea.ToString());
+        }
+    }
+    [JsonIgnore]
+    [BsonElement("sdn")]
+    public string searchDisplayName { get; set; } = "";
+    [BsonIgnore]
+    public string displayName
+    {
+        get
+        {
+            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.displayName ?? "";
+        }
+    }
+    [BsonIgnore]
+    public string shortDescription
+    {
+        get
+        {
+            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.shortDescription ?? "";
+        }
+    }
+    [BsonIgnore]
+    public string longDescription
+    {
+        get
+        {
+            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.longDescription ?? "";
+        }
+    }
+    [BsonIgnore]
+    public bool longDescriptionUsesMarkdown
+    {
+        get
+        {
+            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.longDescriptionUsesMarkdown ?? false;
+        }
+    }
+    [BsonIgnore]
+    public List<string> keywords
+    {
+        get
+        {
+            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.keywords ?? new List<string>();
+        }
+    }
+    
+    [TrackChanges]
+    [BsonElement("pckn")]
+    public string? packageName { get; set; } = null;
+    [TrackChanges]
+    [BsonElement("cn")]
+    public string canonicalName { get; set; } = "";
+
+    [BsonIgnore]
+    public List<DBOffer> offers { get; set; } = null;
+    
+    [ObjectScrapingNodeFieldPresent]
+    [TrackChanges]
+    [BsonElement("g")]
+    public DBApplicationGrouping? grouping { get; set; } = null;
+    [ListScrapingNodeFieldPresent]
+    [TrackChanges]
+    [BsonElement("t")]
+    public List<DBApplicationTranslation> translations { get; set; } = new List<DBApplicationTranslation>();
+    [TrackChanges]
+    [BsonElement("dl")]
+    public string defaultLocale { get; set; } = "";
+    [OculusFieldAlternate("recommended_graphics")]
+    [TrackChanges]
+    [BsonElement("rc")]
+    public string? recommendedGraphics { get; set; } = null;
+    [OculusFieldAlternate("recommended_processor")]
+    [TrackChanges]
+    [BsonElement("rp")]
+    public string? recommendedProcessor { get; set; } = null;
+    [OculusFieldAlternate("recommended_memory_gb")]
+    [TrackChanges]
+    [BsonElement("rm")]
+    public double? recommendedMemoryGB { get; set; } = null;
+    [BsonIgnore]
+    public string? recommendedMemoryGBFormatted
+    {
+        get
+        {
+            if(recommendedMemoryGB == null) return null;
+            return SizeConverter.GigaByteSizeToString(recommendedMemoryGB.Value);
+        }
+    }
+    
+    [TrackChanges]
+    [BsonElement("humiq")]
+    public bool hasUnpublishedMetadataInQueue { get; set; } = false;
+    
+    [BsonElement("e")]
+    public List<DBError> errors { get; set; } = new List<DBError>();
+    
+    public DBApplication GetEntryForDiffGeneration(IEnumerable<DBApplication> collection)
+    {
+        return collection.FirstOrDefault(x => x.id == this.id);
+    }
+    public DBApplication GetEntryForDiffGenerationFromDB()
+    {
+        return OculusDBDatabase.applicationCollection.Find(x => x.id == this.id).FirstOrDefault();
+    }
+
+    public void AddOrUpdateEntry(IMongoCollection<DBApplication> collection)
+    {
+        collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
+    }
+
+    /// <summary>
+    /// Gets an DB application by id from the database
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static DBApplication? ById(string? appid)
+    {
+        if (appid == null) return null;
+        return OculusDBDatabase.applicationCollection.Find(x => x.id == appid).FirstOrDefault();
+    }
+    
+    public static DBApplication? ByPackageName(string? packageName)
+    {
+        if(packageName == null) return null;
+        return OculusDBDatabase.applicationCollection.Find(x => x.packageName == packageName).FirstOrDefault();
+    }
+
+    public override ApplicationContext GetApplicationIds()
+    {
+        return ApplicationContext.FromAppId(id);
+    }
+
+    public override void PopulateSelf(PopulationContext context)
+    {
+        offers = context.GetOffers(offerId);
+    }
+
+    public override string GetId()
+    {
+        return id;
     }
 }
