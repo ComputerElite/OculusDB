@@ -22,13 +22,13 @@ let APIDocs = () => {
                     height: fit-content;
                   }
 
-                  #enum-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-${index()}{
+                  #enum-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-enum${index()}{
                     display: block;
                     height: fit-content;
                     opacity: 1;
                   }
 
-                  #enum-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-${index()} i{
+                  #enum-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-enum${index()} i{
                     rotate: 90deg;
                   }`}
                 </style>
@@ -36,14 +36,14 @@ let APIDocs = () => {
                 <input type="checkbox" id={"enum-dropdown-"+index()} style={{ display: 'none' }} />
                 <div class="dropdown">
                   <label for={"enum-dropdown-"+index()}>
-                    <div class={"dropdown-heading dropdown-heading-"+index()}>
+                    <div class={"dropdown-heading dropdown-heading-enum"+index()}>
                       <p>
                         <i class="fa-solid fa-circle-arrow-right"></i> { item.name }
                       </p>
                     </div>
                   </label>
 
-                  <div class={"dropdown-contents dropdown-contents-"+index()}>
+                  <div class={"dropdown-contents dropdown-contents-enum"+index()}>
                     { item.description }
 
                     <h2>Values</h2>
@@ -73,13 +73,13 @@ let APIDocs = () => {
                     height: fit-content;
                   }
 
-                  #endpoint-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-${index()}{
+                  #endpoint-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-endpoint${index()}{
                     display: block;
                     height: fit-content;
                     opacity: 1;
                   }
 
-                  #endpoint-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-${index()} i{
+                  #endpoint-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-endpoint${index()} i{
                     rotate: 90deg;
                   }`}
                 </style>
@@ -87,14 +87,14 @@ let APIDocs = () => {
                 <input type="checkbox" id={"endpoint-dropdown-"+index()} style={{ display: 'none' }} />
                 <div class="dropdown">
                   <label for={"endpoint-dropdown-"+index()}>
-                    <div class={"dropdown-heading dropdown-heading-"+index()}>
+                    <div class={"dropdown-heading dropdown-heading-endpoint"+index()}>
                       <p>
                         <i class="fa-solid fa-circle-arrow-right"></i> { item.method } { item.url }
                       </p>
                     </div>
                   </label>
 
-                  <div class={"dropdown-contents dropdown-contents-"+index()}>
+                  <div class={"dropdown-contents dropdown-contents-endpoint"+index()}>
                     { item.description }
 
                     <h2>Parameters</h2>
