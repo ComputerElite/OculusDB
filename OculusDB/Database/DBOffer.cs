@@ -1,3 +1,4 @@
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
@@ -10,19 +11,25 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
 
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
+    [BsonElement("p")]
     public DBParentApplication? parentApplication { get; set; } = new DBParentApplication();
     [TrackChanges]
+    [BsonElement("id")]
     public string id { get; set; } = "";
     [TrackChanges]
+    [BsonElement("c")]
     public string currency { get; set; } = "";
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
+    [BsonElement("pr")]
     public DBPrice? price { get; set; } = null;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
+    [BsonElement("s")]
     public DBPrice? strikethroughPrice { get; set; } = null;
     
     [TrackChanges]
+    [BsonElement("o")]
     public List<string> presentOn { get; set; } = new List<string>();
 
     public DBOffer? GetEntryForDiffGeneration(IEnumerable<DBOffer> collection)

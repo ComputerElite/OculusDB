@@ -9,14 +9,14 @@ public class ApiDocsCreator
     public static void UpdateApiDocs()
     {
         ApiDocsRoot apiDocsRoot =
-            JsonSerializer.Deserialize<ApiDocsRoot>(File.ReadAllText(FrontendServer.frontend + "api_raw.json"));
+            JsonSerializer.Deserialize<ApiDocsRoot>(File.ReadAllText(FrontendServer.frontend + "../ApiDocs/api_raw.json"));
         Logger.Log(JsonSerializer.Serialize(apiDocsRoot));
         WebClient webClient = new WebClient();
         for (int i = 0; i < apiDocsRoot.endpoints.Count; i++)
         {
             if (apiDocsRoot.endpoints[i].exampleUrl == "" || apiDocsRoot.endpoints[i].method != "GET") continue;
             
-            string path = FrontendServer.config.publicAddress + apiDocsRoot.endpoints[i].exampleUrl.Substring(1);
+            string path = FrontendServer.config.publicAddress + apiDocsRoot.endpoints[i].exampleUrl;
             Logger.Log("Generating example response for " + path);
             string res;
             try {

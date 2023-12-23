@@ -7,25 +7,31 @@ namespace OculusDB.Database;
 
 public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
 {
-    public override string __OculusDBType { get; set; } = DBDataTypes.IAPItemPack;
+    public override string __OculusDBType { get; set; } = DBDataTypes.IapItemPack;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
+    [BsonElement("g")]
     public DBParentApplicationGrouping? grouping { get; set; } = null;
     [OculusField("id")]
     [TrackChanges]
+    [BsonElement("id")]
     public string id { get; set; } = "";
     [TrackChanges]
+    [BsonElement("oi")]
     public string offerId { get; set; } = "";
     [BsonIgnore]
     public List<DBOffer>? offers { get; set; } = null;
     
     [OculusField("display_name")]
     [TrackChanges]
+    [BsonElement("n")]
     public string displayName { get; set; } = "";
     [OculusField("display_short_description")]
     [TrackChanges]
+    [BsonElement("d")]
     public string displayShortDescription { get; set; } = "";
     [TrackChanges]
+    [BsonElement("i")]
     public List<DBIAPItemId> items { get; set; } = new List<DBIAPItemId>();
 
     public DBIAPItemPack? GetEntryForDiffGeneration(IEnumerable<DBIAPItemPack> collection)
@@ -45,6 +51,8 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     public override void PopulateSelf(PopulationContext context)
     {
         offers = context.GetOffers(offerId);
+        if (grouping == null) return;
+        grouping.applications = context.GetParentApplicationInApplicationGrouping(grouping.id);
     }
 
     public static List<DBIAPItemPack> GetAllForApplicationGrouping(string? groupingId)

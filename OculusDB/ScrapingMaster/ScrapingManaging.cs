@@ -72,7 +72,7 @@ public class ScrapingManaging
         // There are enough apps to scrape or app adding is running. Send scraping tasks.
         List<ScrapingTask> scrapingTasks = new();
         // Add 20 non-priority apps to scrape and 3 priority apps to scrape
-        scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(false, 2, scrapingNodeAuthenticationResult.scrapingNode)));
+        scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(false, 20, scrapingNodeAuthenticationResult.scrapingNode)));
         scrapingTasks.AddRange(ConvertAppsToScrapeToScrapingTasks(ScrapingNodeMongoDBManager.GetAppsToScrapeAndAddThemToScrapingApps(true, 3, scrapingNodeAuthenticationResult.scrapingNode)));
 
         return scrapingTasks;
@@ -358,9 +358,6 @@ public class ScrapingManaging
         scrapingContribution.lastContribution = DateTime.UtcNow;
         scrapingContribution.taskResultsProcessed = 1;
         ScrapingNodeMongoDBManager.IncScrapingNodeContribution(scrapingContribution);
-        Logger.Log("# " + taskId + " flushing");
-        ScrapingNodeMongoDBManager.Flush();
-        Logger.Log("# " + taskId + " flushed");
     }
 
     private static List<string> GetOfferPresentOn(DBOffer dbOffer, ref ScrapingNodeTaskResult taskResult)
@@ -455,5 +452,16 @@ public class ScrapingManaging
             count = ScrapingNodeMongoDBManager.GetNonPriorityAppsToScrapeCount(currency ?? ""),
             currency = currency ?? ""
         };
+    }
+
+    public static void ProcessApplicationNull(ScrapingNodeApplicationNull applicationNull, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult)
+    {
+        ScrapingNodeApplicationNull inDb = OculusDBDatabase.applicationNullCollection.Find(x => x.applicationId == applicationNull.applicationId).FirstOrDefault() ?? applicationNull;
+        inDb.count++;
+        inDb.reportedBy.Add(scrapingNodeAuthenticationResult.scrapingNode.scrapingNodeId);
+        OculusDBDatabase.applicationNullCollection.ReplaceOne(x => x.applicationId == applicationNull.applicationId, inDb, new ReplaceOptions
+        {
+            IsUpsert = true
+        });
     }
 }

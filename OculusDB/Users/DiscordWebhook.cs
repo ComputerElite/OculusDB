@@ -51,7 +51,6 @@ namespace OculusDB.Users
         public void SendDiscordWebhook(DBDifference difference)
         {
             if (!SendWebhook(difference)) return;
-            DifferenceName type = difference.differenceNameEnum;
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
             string websiteUrl = config.publicAddress;
@@ -62,7 +61,7 @@ namespace OculusDB.Users
             {
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
             }
-            embed.description += "**Activity link:** " + websiteUrl + "activity/" + difference._id;
+            embed.description += "**Activity link:** " + websiteUrl + "activity/" + difference.__id;
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1200);
         }

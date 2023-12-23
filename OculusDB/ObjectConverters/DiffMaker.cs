@@ -16,8 +16,9 @@ public class DiffMaker
             DBBase dbBase = (DBBase)newObject;
             diff.entryId = dbBase.GetId();
             diff.entryOculusDBType = dbBase.__OculusDBType;
+            diff.entryParentApplicationIds = dbBase.GetApplicationIds().appIds; // This is slow!!! It will run on every difference object and do 1 database query
         }
-
+        diff.PopulateDifferenceName();
         return diff;
     }
     public static DBDifference GetDifference(object? oldObject, object? newObject, int depth = 0)
@@ -39,10 +40,10 @@ public class DiffMaker
         Type comparisonType = oldObject.GetType();
         // Check default C# types and return if they're different
         if(comparisonType != newObject?.GetType()) return diff.AddEntry(new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.TypeChanged));
+        if(comparisonType == typeof(DateTime)) return diff.ConditionalAddEntry(((DateTime)oldObject - (DateTime)newObject).Duration().TotalSeconds <= 2.0, new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType.IsPrimitive) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType.IsEnum) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         if(comparisonType == typeof(string)) return diff.ConditionalAddEntry(oldObject.Equals(newObject), new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
-        if(comparisonType == typeof(DateTime)) return diff.ConditionalAddEntry(((DateTime)oldObject - (DateTime)newObject).Duration().TotalSeconds < 1, new DBDifferenceEntry("", oldObject, newObject, DifferenceReason.ValueChanged));
         // Compare lists
         if (comparisonType.IsGenericType && comparisonType.GetGenericTypeDefinition() == typeof(List<>))
         {

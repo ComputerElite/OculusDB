@@ -11,8 +11,10 @@ public class DBApplicationGrouping : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.ApplicationGrouping;
     [OculusField("id")]
+    [BsonElement("id")]
     public string id { get; set; } = "";
     [OculusField("report_method_enum")]
+    [BsonElement("rm")]
     public ReportMethod reportMethod { get; set; } = new ReportMethod();
 
     [BsonIgnore]

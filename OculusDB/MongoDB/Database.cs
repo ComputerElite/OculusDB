@@ -48,6 +48,8 @@ public class OculusDBDatabase
         
         public static List<string> blockedAppsCache = new List<string>();
         private static bool initialized = false;
+        public static IMongoCollection<ScrapingNodeApplicationNull> applicationNullCollection;
+
         public static void Initialize()
         {
             if (initialized) return;
@@ -58,6 +60,30 @@ public class OculusDBDatabase
             ConventionRegistry.Register("Ignore extra elements cause it's annoying", pack, t => true);
 
             // Don't ask. It's important stuff to reduce DB size and fix a lot of errors
+            
+            
+            RemoveIdRemap<DBAchievement>();
+            RemoveIdRemap<DBAchievementTranslation>();
+            RemoveIdRemap<DBAppImage>();
+            RemoveIdRemap<DBApplication>();
+            RemoveIdRemap<DBApplicationGrouping>();
+            RemoveIdRemap<DBApplicationTranslation>();
+            RemoveIdRemap<DBAssetFile>();
+            RemoveIdRemap<DBBase>();
+            RemoveIdRemap<DBError>();
+            RemoveIdRemap<DBIAPItem>();
+            RemoveIdRemap<DBIAPItemId>();
+            RemoveIdRemap<DBIAPItemPack>();
+            RemoveIdRemap<DBOBBBinary>();
+            RemoveIdRemap<DBOffer>();
+            RemoveIdRemap<DBParentApplication>();
+            RemoveIdRemap<DBParentApplicationGrouping>();
+            RemoveIdRemap<DBPrice>();
+            RemoveIdRemap<DBReleaseChannel>();
+            RemoveIdRemap<DBVersion>();
+            RemoveIdRemap<VersionAlias>();
+            RemoveIdRemap<QAVSReport>();
+            RemoveIdRemap<ScrapingNodeApplicationNull>();
             
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
@@ -86,30 +112,10 @@ public class OculusDBDatabase
             appsScraping = oculusDBDatabase.GetCollection<AppToScrape>("appsScraping");
             scrapingNodeOverrideSettingses = oculusDBDatabase.GetCollection<ScrapingNodeOverrideSettings>("scrapingNodeOverrideSettingses");
             scrapingErrors = oculusDBDatabase.GetCollection<ScrapingError>("scrapingErrors");
+            applicationNullCollection = oculusDBDatabase.GetCollection<ScrapingNodeApplicationNull>("applicationNulls");
             
-            /*
-            RemoveIdRemap<DBAchievement>();
-            RemoveIdRemap<DBAchievementTranslation>();
-            RemoveIdRemap<DBAppImage>();
-            RemoveIdRemap<DBApplication>();
-            RemoveIdRemap<DBApplicationGrouping>();
-            RemoveIdRemap<DBApplicationTranslation>();
-            RemoveIdRemap<DBAssetFile>();
-            RemoveIdRemap<DBBase>();
-            RemoveIdRemap<DBError>();
-            RemoveIdRemap<DBIAPItem>();
-            RemoveIdRemap<DBIAPItemId>();
-            RemoveIdRemap<DBIAPItemPack>();
-            RemoveIdRemap<DBOBBBinary>();
-            RemoveIdRemap<DBOffer>();
-            RemoveIdRemap<DBParentApplication>();
-            RemoveIdRemap<DBParentApplicationGrouping>();
-            RemoveIdRemap<DBPrice>();
-            RemoveIdRemap<DBReleaseChannel>();
-            RemoveIdRemap<DBVersion>();
-            RemoveIdRemap<VersionAlias>();
-            RemoveIdRemap<QAVSReport>();
-            */
+            
+            
 
             UpdateBlockedAppsCache();
         }
@@ -181,8 +187,8 @@ public class OculusDBDatabase
                 {
                     { DBDataTypes.Application, applicationCollection.CountDocuments(x => true) },
                     { DBDataTypes.Version, versionCollection.CountDocuments(x => true) },
-                    { DBDataTypes.IAPItem, iapItemCollection.CountDocuments(x => true) },
-                    { DBDataTypes.IAPItemPack, iapItemPackCollection.CountDocuments(x => true) },
+                    { DBDataTypes.IapItem, iapItemCollection.CountDocuments(x => true) },
+                    { DBDataTypes.IapItemPack, iapItemPackCollection.CountDocuments(x => true) },
                     { DBDataTypes.Achievement, achievementCollection.CountDocuments(x => true) },
                     { DBDataTypes.Offer, offerCollection.CountDocuments(x => true) },
                     { DBDataTypes.AppImage, appImages.CountDocuments(x => true) },
@@ -196,17 +202,21 @@ public class OculusDBDatabase
         {
             DBBase? document = applicationCollection.Find(x => x.id == id).FirstOrDefault();
             
-            if (document != null) return document;
-            document = versionCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = iapItemCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = iapItemPackCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = achievementCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
-            document = offerCollection.Find(x => x.id == id).FirstOrDefault();
-            if (document != null) return document;
+            if (document == null)
+                document = versionCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null) 
+                document = iapItemCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null)
+                document = iapItemPackCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null)
+                document = achievementCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document == null)
+                document = offerCollection.Find(x => x.id == id).FirstOrDefault();
+            if (document != null)
+            {
+                document.PopulateSelf(new PopulationContext());
+                return document;
+            }
             return null;
         }
 }
