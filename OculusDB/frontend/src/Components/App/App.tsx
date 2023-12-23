@@ -11,6 +11,7 @@ import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, Downgradin
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect } from 'solid-js'
+import APIDocs from '../APIDocs/APIDocs'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -20,6 +21,8 @@ let pageTitles: any = {
   '/privacy': 'Privacy Policy - OculusDB',
   '/saved': 'Saved Apps - OculusDB',
   '/login': 'Login - OculusDB',
+
+  '/api/docs': 'API Documentation - OculusDB',
 
   '/guide': 'Downgrading Guide - OculusDB',
   '/guide/rift': 'Downgrading Guide (Rift) - OculusDB',
@@ -46,18 +49,29 @@ function App() {
   if(currentUrl.startsWith('/search/'))
     setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
 
+  window.onpopstate = () => {
+    let currentUrl = window.location.pathname;
+
+    setCurrentTab(currentUrl);
+
+    if(currentTab() === '')setCurrentTab('/home');
+
+    if(currentUrl.startsWith('/search/'))
+      setCurrentSearch(currentUrl.replace('/search/', ''));
+  }
+
   createEffect(() => {
     let tab = currentTab();
     document.querySelector<HTMLInputElement>('#nav-open')!.checked = false;
 
     if(tab.startsWith('/search/')){
       document.querySelector('title')!.innerText = 'Search - Oculus DB'
-      window.history.replaceState(null, 'Search - Oculus DB', tab);
+      window.history.pushState(null, 'Search - Oculus DB', tab);
 
       setCurrentSearch(tab.replace('/search/', ''));
     } else{
       document.querySelector('title')!.innerText = pageTitles[tab] || '404 Not Found - Oculus DB'
-      window.history.replaceState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab);
+      window.history.pushState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab);
     }
   })
 
@@ -101,6 +115,9 @@ function App() {
         </Match>
         <Match when={currentTab().startsWith('/search/')}>
           <SearchPage currentTab={currentTab} setCurrentTab={setCurrentTab} currentSearch={currentSearch} />
+        </Match>
+        <Match when={currentTab() === '/api/docs'}>
+          <APIDocs />
         </Match>
       </Switch>
 

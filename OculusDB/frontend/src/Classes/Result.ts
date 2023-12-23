@@ -1,4 +1,4 @@
-class Application{
+class ResultData{
   name: string = 'None.';
   id: string = 'null';
   comfortRatingFormatted: string = 'Comfortable for most';
@@ -14,6 +14,8 @@ class Application{
   offerPriceFormatted: string = '£0';
   priceOffer: boolean = false;
   rawPrice: number = 0;
+
+  type: string = 'None';
 }
 
-export default Application
+export default ResultData;

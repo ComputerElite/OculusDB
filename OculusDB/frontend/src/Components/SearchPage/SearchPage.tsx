@@ -3,7 +3,7 @@ import Search from '../Search/Search';
 import { For, onMount, createSignal, createEffect } from 'solid-js';
 import './SearchPage.css'
 import Result from './SearchPage/Result';
-import Application from '../../Classes/Application';
+import ResultData from '../../Classes/Result';
 
 // This will eventually be replaced with a fetch request, to load directly off the server.
 const headsets = [
@@ -90,7 +90,7 @@ const headsets = [
   }
 ]
 
-const searchTypes = [ 'Applications', 'DLCs', 'DLC Packs', 'Achievements' ];
+let searchTypes: Array<any> = [];
 let headsetTypes: Array<string> = [];
 
 headsets.forEach(headset => {
@@ -106,16 +106,38 @@ class SearchPageProps{
 }
 
 let SearchPage = ( props: SearchPageProps ) => {
-  let [ searchType, setSearchType ] = createSignal(0);
-  let [ apps, setApps ] = createSignal<Array<Application>>([]);
+  let [ searchType, setSearchType ] = createSignal(-1);
+  let [ searchHeadset, setSearchHeadset ] = createSignal(0);
+  let [ apps, setApps ] = createSignal<Array<ResultData>>([]);
 
   let selectorButtons: Array<HTMLElement> = [];
   let headsetButtons: Array<HTMLElement> = [];
 
   let loadingIndicator: HTMLElement;
+  let searchTypesEl: HTMLElement;
 
   onMount(() => {
-    selectorButtons[0].classList.add('button-selected');
+    fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/searchcategories')
+      .then(data => data.json())
+      .then(data => {
+        searchTypes = data;
+
+        searchTypesEl.innerHTML = '';
+        searchTypesEl.appendChild(<div>
+          <For each={searchTypes}>
+            {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
+          </For>
+
+          <select class="currency-selection">
+            <option>Currency 1</option>
+            <option>Currency 2</option>
+            <option>Currency 3</option>
+          </select>
+        </div> as Node)
+
+        selectorButtons[0].classList.add('button-selected');
+        setSearchType(0);
+      });
   })
 
   let selectBtn = ( index: number ) => {
@@ -134,36 +156,67 @@ let SearchPage = ( props: SearchPageProps ) => {
       })
 
       headsetButtons[index].classList.add('button-selected');
+      setSearchHeadset(Math.pow(2, index));
     } else{
       headsetButtons[index].classList.toggle('button-selected');
+
+      let headsetType = 0;
+      headsetButtons.forEach((btn, i) => {
+        if(btn.classList.contains('button-selected'))
+          headsetType += Math.pow(2, i);
+      })
+
+      setSearchHeadset(headsetType);
     }
   }
 
   createEffect(() => {
     let search = props.currentSearch();
     let type = searchType();
+    let headset = searchHeadset();
+
+    if(type === -1)
+      return;
 
     setApps([]);
 
     loadingIndicator.style.display = 'flex';
-    console.log(search, type);
+    console.log(search, type, headset);
 
-    fetch(`/api/v2/search?q=${encodeURIComponent(search)}`)
+    console.log(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}`);
+    fetch(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}`)
       .then(data => data.json())
       .then(data => {
         loadingIndicator.style.display = 'none';
-        let tempApps: Array<Application> = [];
+        let tempApps: Array<ResultData> = [];
 
         data.results.forEach(( d: any ) => {
-          let app = new Application();
+          console.log(d);
+          let app = new ResultData();
           let addToList = true;
+
+          switch(d.__OculusDBType){
+            case 'Application':
+              app.shortDescription = d.shortDescription;
+              app.longDescription = d.longDescription;
+              break;
+
+            case 'IapItemPack':
+              app.shortDescription = d.displayShortDescription;
+              app.longDescription = d.displayShortDescription;
+              break;
+
+            case 'IapItem':
+              app.shortDescription = d.displayShortDescription;
+              app.longDescription = d.displayShortDescription;
+              break;
+          }
 
           app.id = d.id;
           app.name = d.displayName;
           app.comfortRatingFormatted = d.comfortRatingFormatted;
-          app.shortDescription = d.shortDescription;
-          app.longDescription = d.longDescription;
           app.comfortRating = d.comfortRating;
+          app.type = d.__OculusDBType;
 
           if(!d.offers[0])
             addToList = false;
@@ -179,11 +232,10 @@ let SearchPage = ( props: SearchPageProps ) => {
             }
           }
 
-
           if(addToList)
             tempApps.push(app);
           else
-            console.log(app);
+            console.log(false);
         })
 
         setApps(tempApps);
@@ -194,9 +246,9 @@ let SearchPage = ( props: SearchPageProps ) => {
     <div class="search-page">
       <Search value={ props.currentSearch } setCurrentTab={props.setCurrentTab} />
 
-      <div class="type-filter">
+      <div class="type-filter" ref={( el  ) => searchTypesEl = el}>
         <For each={searchTypes}>
-          {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item }</div> }
+          {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
         </For>
 
         <select class="currency-selection">
@@ -208,22 +260,28 @@ let SearchPage = ( props: SearchPageProps ) => {
 
       <div class="result-columns">
         <div class="more-filters">
-          <h2><b>Filters</b></h2>
+          <div class="more-filter-headers">
+            <h2><b>Filters</b></h2>
 
-          <h3>Headsets</h3>
-          <p>
-            Click to toggle selection.<br />
-            Shift + Click to select only the one you clicked on.
-          </p>
+            <div>
+              <h3>Headsets</h3>
+              <p>
+                Click to toggle selection.<br />
+                Shift + Click to select only the one you clicked on.
+              </p>
+            </div>
+          </div>
 
-          <For each={headsetTypes}>
-            {( item, index ) =>  <>
-              <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
-                { item }
-              </div>
-              <br />
-            </> }
-          </For>
+          <div class="headset-selection-list">
+            <For each={headsetTypes}>
+              {( item, index ) =>  <>
+                <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
+                  { item }
+                </div>
+                <br />
+              </> }
+            </For>
+          </div>
         </div>
 
         <div class="results-page">

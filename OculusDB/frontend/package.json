@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pgrabovets/json-view": "^2.7.5",
     "@types/node": "^20.10.2",
     "pnpm": "^8.12.1",
     "solid-js": "^1.8.5"

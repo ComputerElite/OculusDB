@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@pgrabovets/json-view':
+    specifier: ^2.7.5
+    version: 2.7.5
   '@types/node':
     specifier: ^20.10.2
     version: 20.10.2
@@ -583,6 +586,10 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
+
+  /@pgrabovets/json-view@2.7.5:
+    resolution: {integrity: sha512-5ewaHFwjjG9h2rzkkeqRZUTUK5fmnWWq0qCzv8IiZT2pU10jI6nrKPuxzzrKdD22U2PcHVKzWdeX6hPyGcyeiQ==}
+    dev: false
 
   /@rollup/rollup-android-arm-eabi@4.6.1:
     resolution: {integrity: sha512-0WQ0ouLejaUCRsL93GD4uft3rOmB8qoQMU05Kb8CmMtMBe7XUDLAltxVZI1q6byNqEtU7N1ZX1Vw5lIpgulLQA==}

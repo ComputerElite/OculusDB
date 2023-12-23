@@ -1,0 +1,14 @@
+.json-container{
+  background: black !important;
+  color: white !important;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.json-container i::before{
+  display: none !important;
+}
+
+.json-container .json-key{
+  color: #aaa !important;
+}
