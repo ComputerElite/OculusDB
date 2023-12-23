@@ -46,18 +46,29 @@ function App() {
   if(currentUrl.startsWith('/search/'))
     setCurrentSearch(currentUrl.replace('/search/', ''));
 
+  window.onpopstate = () => {
+    let currentUrl = window.location.pathname;
+
+    setCurrentTab(currentUrl);
+
+    if(currentTab() === '')setCurrentTab('/home');
+
+    if(currentUrl.startsWith('/search/'))
+      setCurrentSearch(currentUrl.replace('/search/', ''));
+  }
+
   createEffect(() => {
     let tab = currentTab();
     document.querySelector<HTMLInputElement>('#nav-open')!.checked = false;
 
     if(tab.startsWith('/search/')){
       document.querySelector('title')!.innerText = 'Search - Oculus DB'
-      window.history.replaceState(null, 'Search - Oculus DB', tab);
+      window.history.pushState(null, 'Search - Oculus DB', tab);
 
       setCurrentSearch(tab.replace('/search/', ''));
     } else{
       document.querySelector('title')!.innerText = pageTitles[tab] || '404 Not Found - Oculus DB'
-      window.history.replaceState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab);
+      window.history.pushState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab);
     }
   })
 
