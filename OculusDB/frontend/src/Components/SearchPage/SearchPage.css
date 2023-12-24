@@ -268,22 +268,31 @@
   .result-price{
     transform: translateY(-5px);
   }
+
+  .result-mobile-shrink{
+    height: 160px;
+  }
 }
 
 @media screen and (max-width: 550px) {
   .result-desc{
-    height: 75px;
+    height: 100px;
   }
 
   .result{
-    height: 475px;
+    height: 500px;
+  }
+
+  .result-mobile-shrink{
+    height: 210px;
   }
 }
 
 @media screen and (max-width: 375px) {
   .result-price{
     margin-left: -100%;
-    transform: translateY(-150px) translateX(-15px);
+    transform: translateY(-175px) translateX(-15px);
+    text-shadow: #000 0 0 5px;
   }
 
   .rating-format{

@@ -3,7 +3,7 @@ import './Footer.css'
 let Footer = () => {
   return (
     <div class="footer">
-      This website is not affiliated with Oculus/Meta VR
+      "We don't have to be efficient" - Computer | This website is not affiliated with Oculus/Meta VR
     </div>
   )
 }

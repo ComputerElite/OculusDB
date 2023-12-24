@@ -7,11 +7,11 @@ import InfoStats from '../InfoStats/InfoStats'
 import PrivacyPolicy from '../PrivacyPolicy/PrivacyPolicy'
 import Activity from '../Activity/Activity'
 import SearchPage from '../SearchPage/SearchPage'
+import APIDocs from '../APIDocs/APIDocs'
 import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, DowngradingGuideQuestQavs, DowngradingGuideQuestSqq, DowngradingGuideRift } from '../DowngradingGuide/DowngradingGuide'
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect } from 'solid-js'
-import APIDocs from '../APIDocs/APIDocs'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -57,7 +57,7 @@ function App() {
     if(currentTab() === '')setCurrentTab('/home');
 
     if(currentUrl.startsWith('/search/'))
-      setCurrentSearch(currentUrl.replace('/search/', ''));
+      setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
   }
 
   createEffect(() => {
@@ -68,7 +68,7 @@ function App() {
       document.querySelector('title')!.innerText = 'Search - Oculus DB'
       window.history.pushState(null, 'Search - Oculus DB', tab);
 
-      setCurrentSearch(tab.replace('/search/', ''));
+      setCurrentSearch(decodeURIComponent(tab.replace('/search/', '')));
     } else{
       document.querySelector('title')!.innerText = pageTitles[tab] || '404 Not Found - Oculus DB'
       window.history.pushState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab);
