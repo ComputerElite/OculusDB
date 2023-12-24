@@ -7,11 +7,11 @@ import InfoStats from '../InfoStats/InfoStats'
 import PrivacyPolicy from '../PrivacyPolicy/PrivacyPolicy'
 import Activity from '../Activity/Activity'
 import SearchPage from '../SearchPage/SearchPage'
+import APIDocs from '../APIDocs/APIDocs'
 import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, DowngradingGuideQuestQavs, DowngradingGuideQuestSqq, DowngradingGuideRift } from '../DowngradingGuide/DowngradingGuide'
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect } from 'solid-js'
-import APIDocs from '../APIDocs/APIDocs'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',

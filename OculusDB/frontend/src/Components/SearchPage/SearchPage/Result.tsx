@@ -16,7 +16,7 @@ const comfortRatingIcons = [
 
 let Result = ( { app, setCurrentTab }: ResultProps ) => {
   return (
-    <div class="result">
+    <div class={ app.type !== 'Application' ? "result result-mobile-shrink" : "result" }>
       <Show when={ app.type === 'Application' }>
         <div class="result-icon" style={{ background: 'url(\'https://oculusdb.rui2015.me/cdn/images/' + app.id + '\')' }}></div>
       </Show>
