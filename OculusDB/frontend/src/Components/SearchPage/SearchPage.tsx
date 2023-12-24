@@ -1,6 +1,6 @@
 import Search from '../Search/Search';
 
-import { For, onMount, createSignal, createEffect, Show } from 'solid-js';
+import { For, onMount, createSignal, createEffect } from 'solid-js';
 import './SearchPage.css'
 import Result from './SearchPage/Result';
 import ResultData from '../../Classes/Result';
