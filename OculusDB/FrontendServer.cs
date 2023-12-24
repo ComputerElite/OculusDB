@@ -709,7 +709,7 @@ public class FrontendServer
         {
             string path = request.path.ToLower();
             if (path.StartsWith("/")) path = path.Substring(1);
-            if (path.StartsWith("cdn") || path.StartsWith("api")) return false;
+            if (path.StartsWith("cdn") || (path.StartsWith("api") && path != "api/docs")) return false;
             request.SendData(indexHtml, "text/html");
             return true;
         };
