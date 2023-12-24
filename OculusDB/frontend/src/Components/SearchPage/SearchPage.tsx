@@ -1,103 +1,14 @@
 import Search from '../Search/Search';
 
-import { For, onMount, createSignal, createEffect } from 'solid-js';
+import { For, onMount, createSignal, createEffect, Show } from 'solid-js';
 import './SearchPage.css'
 import Result from './SearchPage/Result';
 import ResultData from '../../Classes/Result';
 
-// This will eventually be replaced with a fetch request, to load directly off the server.
-const headsets = [
-  {
-    "headset": 1,
-    "codename": "MONTEREY",
-    "displayName": "Quest 1",
-    "binaryType": 1,
-    "group": 0,
-    "groupString": "Quest",
-    "info": ""
-  },
-  {
-    "headset": 2,
-    "codename": "HOLLYWOOD",
-    "displayName": "Quest 2",
-    "binaryType": 1,
-    "group": 0,
-    "groupString": "Quest",
-    "info": ""
-  },
-  {
-    "headset": 7,
-    "codename": "EUREKA",
-    "displayName": "Quest 3",
-    "binaryType": 1,
-    "group": 0,
-    "groupString": "Quest",
-    "info": ""
-  },
-  {
-    "headset": 6,
-    "codename": "SEACLIFF",
-    "displayName": "Quest Pro",
-    "binaryType": 1,
-    "group": 0,
-    "groupString": "Quest",
-    "info": ""
-  },
-  {
-    "headset": 8,
-    "codename": "PANTHER",
-    "displayName": "Unknown headset (PANTHER)",
-    "binaryType": 1,
-    "group": 0,
-    "groupString": "Quest",
-    "info": ""
-  },
-  {
-    "headset": 0,
-    "codename": "RIFT",
-    "displayName": "Rift",
-    "binaryType": 2,
-    "group": 1,
-    "groupString": "PCVR",
-    "info": "Link compatible"
-  },
-  {
-    "headset": 5,
-    "codename": "LAGUNA",
-    "displayName": "Rift S",
-    "binaryType": 2,
-    "group": 1,
-    "groupString": "PCVR",
-    "info": "Link compatible"
-  },
-  {
-    "headset": 4,
-    "codename": "PACIFIC",
-    "displayName": "Go",
-    "binaryType": 1,
-    "group": 2,
-    "groupString": "Go",
-    "info": ""
-  },
-  {
-    "headset": 3,
-    "codename": "GEARVR",
-    "displayName": "GearVR",
-    "binaryType": 1,
-    "group": 3,
-    "groupString": "GearVR",
-    "info": ""
-  }
-]
+let headsets: Array<any> = []
 
 let searchTypes: Array<any> = [];
-let headsetTypes: Array<string> = [];
-
-headsets.forEach(headset => {
-  if(headsetTypes.indexOf(headset.groupString) === -1){
-    headsetTypes.push(headset.groupString);
-  }
-})
+let headsetTypes: Array<{ group: string, name: string }> = [];
 
 class SearchPageProps{
   currentTab!: () => string;
@@ -107,16 +18,48 @@ class SearchPageProps{
 
 let SearchPage = ( props: SearchPageProps ) => {
   let [ searchType, setSearchType ] = createSignal(-1);
-  let [ searchHeadset, setSearchHeadset ] = createSignal(0);
+  let [ searchHeadset, setSearchHeadset ] = createSignal("Quest,PCVR,GoAndGearVR");
   let [ apps, setApps ] = createSignal<Array<ResultData>>([]);
 
   let selectorButtons: Array<HTMLElement> = [];
   let headsetButtons: Array<HTMLElement> = [];
 
   let loadingIndicator: HTMLElement;
+
+  let filterTypesEl: HTMLElement;
   let searchTypesEl: HTMLElement;
 
   onMount(() => {
+    fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/headsets')
+      .then(data => data.json())
+      .then(data => {
+        headsets = data;
+
+        headsets.forEach(headset => {
+          let type = headsetTypes.find(x => x.group === headset.groupString);
+
+          if(type){
+            type.name += ', ' + headset.displayName;
+          } else{
+            headsetTypes.push({ group: headset.groupString, name: headset.displayName });
+          }
+        })
+
+        filterTypesEl.innerHTML = '';
+        filterTypesEl.appendChild((
+          <div>
+            <For each={headsetTypes}>
+              {( item, index ) =>  <>
+                <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
+                  { item.name }
+                </div>
+                <br />
+              </> }
+            </For>
+          </div>
+        ) as Node)
+      })
+
     fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/searchcategories')
       .then(data => data.json())
       .then(data => {
@@ -156,17 +99,17 @@ let SearchPage = ( props: SearchPageProps ) => {
       })
 
       headsetButtons[index].classList.add('button-selected');
-      setSearchHeadset(Math.pow(2, index));
+      setSearchHeadset(headsetTypes[index].group);
     } else{
       headsetButtons[index].classList.toggle('button-selected');
 
-      let headsetType = 0;
+      let headsetType: Array<string> = [];
       headsetButtons.forEach((btn, i) => {
         if(btn.classList.contains('button-selected'))
-          headsetType += Math.pow(2, i);
+          headsetType.push(headsetTypes[i].group);
       })
 
-      setSearchHeadset(headsetType);
+      setSearchHeadset(headsetType.join(','));
     }
   }
 
@@ -179,12 +122,10 @@ let SearchPage = ( props: SearchPageProps ) => {
       return;
 
     setApps([]);
-
     loadingIndicator.style.display = 'flex';
-    console.log(search, type, headset);
 
-    console.log(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}`);
-    fetch(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}`)
+    console.log(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}&groups=${headset}`);
+    fetch(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}&groups=${headset}`)
       .then(data => data.json())
       .then(data => {
         loadingIndicator.style.display = 'none';
@@ -246,7 +187,7 @@ let SearchPage = ( props: SearchPageProps ) => {
     <div class="search-page">
       <Search value={ props.currentSearch } setCurrentTab={props.setCurrentTab} />
 
-      <div class="type-filter" ref={( el  ) => searchTypesEl = el}>
+      <div class="type-filter" ref={( el ) => searchTypesEl = el}>
         <For each={searchTypes}>
           {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
         </For>
@@ -272,16 +213,7 @@ let SearchPage = ( props: SearchPageProps ) => {
             </div>
           </div>
 
-          <div class="headset-selection-list">
-            <For each={headsetTypes}>
-              {( item, index ) =>  <>
-                <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
-                  { item }
-                </div>
-                <br />
-              </> }
-            </For>
-          </div>
+          <div class="headset-selection-list" ref={( el ) => filterTypesEl = el}></div>
         </div>
 
         <div class="results-page">
