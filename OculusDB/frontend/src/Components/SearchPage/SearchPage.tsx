@@ -14,11 +14,13 @@ class SearchPageProps{
   currentTab!: () => string;
   currentSearch!: () => string;
   setCurrentTab!: ( tab: string ) => string;
+  query!: () => any;
+  setQuery!: ( query: any ) => any;
 }
 
 let SearchPage = ( props: SearchPageProps ) => {
   let [ searchType, setSearchType ] = createSignal(-1);
-  let [ searchHeadset, setSearchHeadset ] = createSignal("Quest,PCVR,GoAndGearVR");
+  let [ searchHeadset, setSearchHeadset ] = createSignal("Quest,PCVR,GoAndGearVr");
   let [ apps, setApps ] = createSignal<Array<ResultData>>([]);
 
   let selectorButtons: Array<HTMLElement> = [];
@@ -34,6 +36,7 @@ let SearchPage = ( props: SearchPageProps ) => {
       .then(data => data.json())
       .then(data => {
         headsets = data;
+        headsetTypes = [];
 
         headsets.forEach(headset => {
           let type = headsetTypes.find(x => x.group === headset.groupString);
@@ -45,12 +48,14 @@ let SearchPage = ( props: SearchPageProps ) => {
           }
         })
 
+        let selectedHeadsetGroups = props.query().group ? props.query().group.split(',') : headsetTypes.map(x => x.group);
+
         filterTypesEl.innerHTML = '';
         filterTypesEl.appendChild((
           <div>
             <For each={headsetTypes}>
               {( item, index ) =>  <>
-                <div class="button button-selected" ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
+                <div class={ selectedHeadsetGroups.indexOf(item.group) !== -1 ? "button button-selected" : "button" } ref={( el ) => headsetButtons.push(el)} onClick={( e: MouseEvent ) => headsetFilterToggle(e, index())}>
                   { item.name }
                 </div>
                 <br />
@@ -78,8 +83,8 @@ let SearchPage = ( props: SearchPageProps ) => {
           </select>
         </div> as Node)
 
-        selectorButtons[0].classList.add('button-selected');
-        setSearchType(0);
+        selectorButtons[props.query().type || 0].classList.add('button-selected');
+        setSearchType(props.query().type || 0);
       });
   })
 
@@ -90,6 +95,11 @@ let SearchPage = ( props: SearchPageProps ) => {
 
     selectorButtons[index].classList.add('button-selected');
     setSearchType(index);
+
+    let q = props.query();
+
+    q['type'] = index;
+    props.setQuery(q);
   };
 
   let headsetFilterToggle = ( ev: MouseEvent, index: number ) => {
@@ -100,6 +110,11 @@ let SearchPage = ( props: SearchPageProps ) => {
 
       headsetButtons[index].classList.add('button-selected');
       setSearchHeadset(headsetTypes[index].group);
+
+      let q = props.query();
+
+      q['group'] = headsetTypes[index].group;
+      props.setQuery(q);
     } else{
       headsetButtons[index].classList.toggle('button-selected');
 
@@ -110,6 +125,11 @@ let SearchPage = ( props: SearchPageProps ) => {
       })
 
       setSearchHeadset(headsetType.join(','));
+
+      let q = props.query();
+
+      q['group'] = headsetType.join(',');
+      props.setQuery(q);
     }
   }
 
@@ -132,7 +152,7 @@ let SearchPage = ( props: SearchPageProps ) => {
         let tempApps: Array<ResultData> = [];
 
         data.results.forEach(( d: any ) => {
-          console.log(d);
+          // console.log(d);
           let app = new ResultData();
           let addToList = true;
 
@@ -175,8 +195,8 @@ let SearchPage = ( props: SearchPageProps ) => {
 
           if(addToList)
             tempApps.push(app);
-          else
-            console.log(false);
+          // else
+          //   console.log(false);
         })
 
         setApps(tempApps);
