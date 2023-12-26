@@ -13,7 +13,7 @@ namespace OculusDB
 {
     public class OculusDBEnvironment
     {
-        public static Updater updater = new ("2.2.3", "https://github.com/ComputerElite/OculusDB", "OculusDB", "OculusDB.dll");
+        public static Updater updater = new ("2.2.4", "https://github.com/ComputerElite/OculusDB", "OculusDB", "OculusDB.dll");
         public static string workingDir = "";
         public static string dataDir = "";
         // Set to false if not in dev mode
