@@ -67,6 +67,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [TrackChanges]
     [BsonElement("ge")]
     public List<Genre>? genres { get; set; } = null;
+    [BsonIgnore]
     public List<string> genresFormatted {
         get
         {
