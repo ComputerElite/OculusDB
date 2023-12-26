@@ -7,6 +7,7 @@ import InfoStats from '../InfoStats/InfoStats'
 import PrivacyPolicy from '../PrivacyPolicy/PrivacyPolicy'
 import Activity from '../Activity/Activity'
 import SearchPage from '../SearchPage/SearchPage'
+import APIDocs from '../APIDocs/APIDocs'
 import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, DowngradingGuideQuestQavs, DowngradingGuideQuestSqq, DowngradingGuideRift } from '../DowngradingGuide/DowngradingGuide'
 
 import './App.css'
@@ -21,6 +22,8 @@ let pageTitles: any = {
   '/saved': 'Saved Apps - OculusDB',
   '/login': 'Login - OculusDB',
 
+  '/api/docs': 'API Documentation - OculusDB',
+
   '/guide': 'Downgrading Guide - OculusDB',
   '/guide/rift': 'Downgrading Guide (Rift) - OculusDB',
   '/guide/quest': 'Downgrading Guide (Quest) - OculusDB',
@@ -31,6 +34,7 @@ let pageTitles: any = {
 
 function App() {
   let currentUrl = window.location.pathname;
+
   if(currentUrl.endsWith('/')){
     let splitUrl = currentUrl.split('');
     splitUrl.pop();
@@ -40,11 +44,48 @@ function App() {
 
   let [ currentTab, setCurrentTab ] = createSignal(currentUrl);
   let [ currentSearch, setCurrentSearch ] = createSignal('None');
+  let [ query, setQuery ] = createSignal<any>({}, { equals: false });
+
+  let queryString = window.location.href.split('?')[1];
+  if(queryString){
+    let querys = queryString.split('&');
+
+    let qObject: any = {};
+    querys.forEach(q => {
+      let splitQ = q.split('=');
+      qObject[splitQ[0]] = splitQ[1];
+    })
+
+    setQuery(qObject);
+  }
 
   if(currentTab() === '')setCurrentTab('/home');
 
+  let formatQuery = ( objQuery: any ) => {
+    let qText = '';
+    let vals = Object.values(objQuery);
+
+    Object.keys(objQuery).forEach((key , i) => {
+      qText += '&' + key + '=' + vals[i];
+    })
+
+    qText = '?' + qText.substring(1, qText.length);
+    return qText;
+  }
+
   if(currentUrl.startsWith('/search/'))
     setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
+
+  window.onpopstate = () => {
+    let currentUrl = window.location.pathname;
+
+    setCurrentTab(currentUrl);
+
+    if(currentTab() === '')setCurrentTab('/home');
+
+    if(currentUrl.startsWith('/search/'))
+      setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
+  }
 
   createEffect(() => {
     let tab = currentTab();
@@ -52,12 +93,12 @@ function App() {
 
     if(tab.startsWith('/search/')){
       document.querySelector('title')!.innerText = 'Search - Oculus DB'
-      window.history.replaceState(null, 'Search - Oculus DB', tab);
+      window.history.pushState(null, 'Search - Oculus DB', tab + formatQuery(query()));
 
-      setCurrentSearch(tab.replace('/search/', ''));
+      setCurrentSearch(decodeURIComponent(tab.replace('/search/', '')));
     } else{
       document.querySelector('title')!.innerText = pageTitles[tab] || '404 Not Found - Oculus DB'
-      window.history.replaceState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab);
+      window.history.pushState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab + formatQuery(query()));
     }
   })
 
@@ -100,7 +141,10 @@ function App() {
           <Activity />
         </Match>
         <Match when={currentTab().startsWith('/search/')}>
-          <SearchPage currentTab={currentTab} setCurrentTab={setCurrentTab} currentSearch={currentSearch} />
+          <SearchPage currentTab={currentTab} setCurrentTab={setCurrentTab} currentSearch={currentSearch} query={query} setQuery={setQuery} />
+        </Match>
+        <Match when={currentTab() === '/api/docs'}>
+          <APIDocs />
         </Match>
       </Switch>
 
