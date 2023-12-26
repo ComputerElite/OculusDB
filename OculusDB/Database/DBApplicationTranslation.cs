@@ -38,5 +38,5 @@ public class DBApplicationTranslation : DBBase
     [OculusField("keywords")]
     [TrackChanges]
     [BsonElement("k")]
-    public List<string> keywords { get; set; } = new List<string>();
+    public List<string>? keywords { get; set; } = null;
 }

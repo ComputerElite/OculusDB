@@ -25,6 +25,7 @@ public class DBError : DBBase
         }
     }
     public string message { get; set; } = "";
+    public List<string> unknownOrApproximatedFieldsIfAny { get; set; } = null;
 }
 
 public enum DBErrorType
@@ -33,11 +34,16 @@ public enum DBErrorType
     CouldNotScrapeIaps = 0,
     CouldNotScrapeAchievements = 1,
     StoreDlcsNotFoundInExistingDlcs = 2,
+    ReleaseDateApproximated = 3,
+    MissingOrApproximatesInformation = 4,
+    CouldNotScrapeIapsFully = 5,
+    CouldntApproximateReleaseDate = 6
 }
 
 public enum DBErrorReason
 {
     Unknown = -1,
     GroupingNull = 0,
-    DlcNotInDlcList = 0,
+    DlcNotInDlcList = 1,
+    DeveloperApplicationNull = 2,
 }
