@@ -63,14 +63,14 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [BsonIgnore]
     public string oculusImageUrl { get; set; } = "";
 
-    [OculusFieldAlternate("genres")]
+    [OculusFieldAlternate("genres_enum")]
     [TrackChanges]
     [BsonElement("ge")]
-    public List<string>? genres { get; set; } = null;
+    public List<Genre>? genres { get; set; } = null;
     public List<string> genresFormatted {
         get
         {
-            return genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
+            return genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x.ToString()));
         }
     }
     
