@@ -221,6 +221,8 @@ public class ScrapingNodeScraper
             ReportApplicationNull(app);
             return;
         }
+        Logger.Log(JsonSerializer.Serialize(applicationFromDeveloper));
+        Logger.Log(JsonSerializer.Serialize(applicationFromStore));
         currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : ""); // throw an error here on purpose
 
         
@@ -294,7 +296,11 @@ public class ScrapingNodeScraper
                             // If dlcs weren't added by developer api just add them from store
                             Logger.Log(JsonSerializer.Serialize(dlc));
                             IAPItem iap = new IAPItem();
-                            // ToDo: extract info from api
+                            // Turns out I just wasted 2 hours of my life cause I was trying to scrape an version instead of an app
+                            // However I'll leave the code in there cause after all it was a lot of work
+                            // FUCK YOU PAST ME FOR NOT CHECKING THE LOG SOMEONE SENT THOUROUGHLY
+                            // AND FOR MAKING THE LOGS CONFUSING
+                            // HUAIGEMPGHEPAHGAOUEMPAHAEMPGHUPEAHGAEUMPIGHIAHGuidsghspihguspiehapgheasu
                         }
                     }
                     offers.Add(
