@@ -1,0 +1,81 @@
+.header-image{
+  width: calc(100% + 20px);
+  height: 600px;
+  background-position: center !important;
+  background-size: cover !important;
+  margin: -10px;
+  border-radius: 10px;
+  margin-bottom: -350px;
+  mask-image: linear-gradient(to bottom, #000 25%, #0000 65%);
+  z-index: -1;
+  position: relative;
+}
+
+.app-icon{
+  width: 150px;
+  height: 150px;
+  background-position: center !important;
+  background-size: cover !important;
+  border-radius: 10px;
+}
+
+.app-title{
+  width: calc(100% - 150px);
+  margin-left: 10px;
+}
+
+.app-branding{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-keywords{
+  margin-bottom: -30px;
+  text-align: right;
+  height: 20px;
+  color: #fff5;
+}
+
+.app-supported-devices{
+  color: #fffa
+}
+
+.app-rating{
+  margin-bottom: -20px;
+  text-align: left;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  transform: translateY(10px);
+}
+
+.app-column{
+  display: flex;
+}
+
+.app-lists{
+  width: calc(100% - 300px);
+  padding-right: 10px;
+}
+
+.app-info{
+  width: 300px;
+  border-left: 2px solid #fff5;
+  padding-left: 10px;
+  text-align: center;
+}
+
+.app-list-select{
+  display: flex;
+  margin-top: 10px;
+}
+
+.list-select{
+  width: 100%;
+  text-align: center;
+}
+
+.version-key{
+  color: #aaa;
+}

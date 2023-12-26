@@ -12,6 +12,7 @@ import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, Downgradin
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect } from 'solid-js'
+import DetailsPage from '../../DetailsPage/DetailsPage'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -44,6 +45,7 @@ function App() {
 
   let [ currentTab, setCurrentTab ] = createSignal(currentUrl);
   let [ currentSearch, setCurrentSearch ] = createSignal('None');
+  let [ currentID, setCurrentID ] = createSignal('None');
   let [ query, setQuery ] = createSignal<any>({}, { equals: false });
 
   let queryString = window.location.href.split('?')[1];
@@ -76,6 +78,9 @@ function App() {
   if(currentUrl.startsWith('/search/'))
     setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
 
+  if(currentUrl.startsWith('/id/'))
+    setCurrentID(decodeURIComponent(currentUrl.replace('/id/', '')));
+
   window.onpopstate = () => {
     let currentUrl = window.location.pathname;
 
@@ -85,6 +90,9 @@ function App() {
 
     if(currentUrl.startsWith('/search/'))
       setCurrentSearch(decodeURIComponent(currentUrl.replace('/search/', '')));
+
+    if(currentUrl.startsWith('/id/'))
+      setCurrentID(decodeURIComponent(currentUrl.replace('/id/', '')));
   }
 
   createEffect(() => {
@@ -96,6 +104,11 @@ function App() {
       window.history.pushState(null, 'Search - Oculus DB', tab + formatQuery(query()));
 
       setCurrentSearch(decodeURIComponent(tab.replace('/search/', '')));
+    } else if(tab.startsWith('/id/')){
+      document.querySelector('title')!.innerText = 'Loading... - Oculus DB'
+      window.history.pushState(null, 'Loading... - Oculus DB', tab + formatQuery(query()));
+
+      setCurrentID(decodeURIComponent(tab.replace('/id/', '')));
     } else{
       document.querySelector('title')!.innerText = pageTitles[tab] || '404 Not Found - Oculus DB'
       window.history.pushState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab + formatQuery(query()));
@@ -142,6 +155,9 @@ function App() {
         </Match>
         <Match when={currentTab().startsWith('/search/')}>
           <SearchPage currentTab={currentTab} setCurrentTab={setCurrentTab} currentSearch={currentSearch} query={query} setQuery={setQuery} />
+        </Match>
+        <Match when={currentTab().startsWith('/id/')}>
+          <DetailsPage currentID={currentID} />
         </Match>
         <Match when={currentTab() === '/api/docs'}>
           <APIDocs />
