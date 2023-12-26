@@ -8,7 +8,7 @@ const quotes = [
   "\"help, I have arms now\" - Computer",
   "\"He's having a bad dream\" - Computer",
   "\"I didn't talk about being tied to a bed\" - Computer",
-  "\"QuestAppVersion<b>Swither</b>\" - Computer",
+  "\"QuestAppVersionSwither\" - Computer",
   "\"Shut the fuck off\" - Computer",
 ]
 
