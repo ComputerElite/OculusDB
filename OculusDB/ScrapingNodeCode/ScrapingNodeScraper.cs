@@ -214,12 +214,15 @@ public class ScrapingNodeScraper
         Application? applicationFromDeveloper = GraphQLClient.AppDetailsDeveloperAll(app.appId).data.node;
         Application? applicationFromStore = GraphQLClient.AppDetailsMetaStore(app.appId).data.item;
 
+
         if (applicationFromStore == null && applicationFromDeveloper == null)
         {
             errorTracker.AddError();
             ReportApplicationNull(app);
             return;
         }
+        Logger.Log(JsonSerializer.Serialize(applicationFromDeveloper));
+        Logger.Log(JsonSerializer.Serialize(applicationFromStore));
         currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : ""); // throw an error here on purpose
 
         
@@ -232,13 +235,28 @@ public class ScrapingNodeScraper
         // Add DLCs
         List<DBIAPItem?> iapItems = new List<DBIAPItem?>();
         int i = 0;
+        bool dlcsAdded = false;
         if (dbApp.grouping != null)
         {
-            foreach (IAPItem iapItem in OculusInteractor.EnumerateAllDLCs(dbApp.grouping.id))
+            try
             {
-                Logger.Log(i.ToString());
-                i++;
-                iapItems.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItem(iapItem, dbApp), scrapingNodeId));
+                foreach (IAPItem iapItem in OculusInteractor.EnumerateAllDLCs(dbApp.grouping.id))
+                {
+                    Logger.Log(i.ToString());
+                    i++;
+                    iapItems.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItem(iapItem, dbApp), scrapingNodeId));
+                }
+
+                dlcsAdded = true;
+            }
+            catch (Exception e)
+            {
+                dbApp.errors.Add(new DBError
+                {
+                    type = DBErrorType.CouldNotScrapeIapsFully,
+                    reason = DBErrorReason.DeveloperApplicationNull,
+                    message = "Couldn't scrape IAPs because developer api returned nothing. Some info in IAPs may be missing and will be marked with null or -1"
+                });
             }
         }
         else
@@ -247,7 +265,7 @@ public class ScrapingNodeScraper
             {
                 type = DBErrorType.CouldNotScrapeIaps,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
-                message = "Couldn't scrape DLCs because grouping is null"
+                message = "Couldn't scrape IAPs because grouping is null"
             });
         }
         Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
@@ -264,12 +282,26 @@ public class ScrapingNodeScraper
                     }
                     else
                     {
-                        dbApp.errors.Add(new DBError
+                        if (dlcsAdded)
                         {
-                            type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
-                            reason = DBErrorReason.DlcNotInDlcList,
-                            message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
-                        });
+                            dbApp.errors.Add(new DBError
+                            {
+                                type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
+                                reason = DBErrorReason.DlcNotInDlcList,
+                                message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
+                            });
+                        }
+                        else
+                        {
+                            // If dlcs weren't added by developer api just add them from store
+                            Logger.Log(JsonSerializer.Serialize(dlc));
+                            IAPItem iap = new IAPItem();
+                            // Turns out I just wasted 2 hours of my life cause I was trying to scrape an version instead of an app
+                            // However I'll leave the code in there cause after all it was a lot of work
+                            // FUCK YOU PAST ME FOR NOT CHECKING THE LOG SOMEONE SENT THOUROUGHLY
+                            // AND FOR MAKING THE LOGS CONFUSING
+                            // HUAIGEMPGHEPAHGAOUEMPAHAEMPGHUPEAHGAEUMPIGHIAHGuidsghspihguspiehapgheasu
+                        }
                     }
                     offers.Add(
                         OculusConverter.AddScrapingNodeName(OculusConverter.Price(dlc.node.current_offer, dbApp),
@@ -422,7 +454,7 @@ public class ScrapingNodeScraper
             dbi.data = data;
             dbi.mimeType = HttpServer.GetContentTpe("image" + ext);
             dbi.parentApplication = OculusConverter.ParentApplication(a);
-            return dbi;
+            return OculusConverter.AddScrapingNodeName(dbi, scrapingNodeId);
         } catch(Exception e)
         {
             Logger.Log("Couldn't download image of " + a.id + ":\n" + e.ToString, LoggingType.Warning);

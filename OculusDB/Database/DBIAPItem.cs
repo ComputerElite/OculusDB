@@ -17,10 +17,11 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     [TrackChanges]
     [BsonElement("id")]
     public string id { get; set; } = "";
+
     [ListScrapingNodeFieldPresent]
     [TrackChanges]
     [BsonElement("a")]
-    public List<DBAssetFile> assetFiles { get; set; } = new List<DBAssetFile>();
+    public List<DBAssetFile>? assetFiles { get; set; } = null;
     [OculusField("display_name")]
     [TrackChanges]
     [BsonElement("n")]
@@ -31,7 +32,7 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     [OculusField("is_cancelled")]
     [TrackChanges]
     [BsonElement("isc")]
-    public bool isCancelled { get; set; } = false;
+    public bool? isCancelled { get; set; } = null;
     [OculusField("is_concept")]
     [TrackChanges]
     [BsonElement("isal")]
@@ -44,7 +45,7 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     [OculusField("sku")]
     [TrackChanges]
     [BsonElement("sku")]
-    public string sku { get; set; } = "";
+    public string? sku { get; set; } = null;
     [OculusFieldAlternate("iap_type_enum")]
     [TrackChanges]
     [BsonElement("it")]

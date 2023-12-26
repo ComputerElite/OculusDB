@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Text.Json;
@@ -248,51 +249,158 @@ public class OculusConverter
     /// </summary>
     /// <param name="application"></param>
     /// <returns></returns>
-    public static DBApplication Application(Application applicationFromDeveloper, Application applicationFromStore)
+    public static DBApplication Application(Application? applicationFromDeveloper, Application? applicationFromStore)
     {
-        DBApplication db = FromOculusToDB<Application, DBApplication>(applicationFromDeveloper);
-        Application applicationCloudStorage = GraphQLClient.AppDetailsCloudStorageEnabled(applicationFromDeveloper.id).data.node;
-        db.cloudBackupEnabled = applicationCloudStorage.cloud_backup_enabled;
-        
-        // Get latest public metadata revision
-        PDPMetadata metadataToUse = applicationFromDeveloper.firstRevision.nodes[0].pdp_metadata;
-        foreach (ApplicationRevision revision in applicationFromDeveloper.revisionsIncludingVariantMetadataRevisions.nodes)
+        DBApplication db = new DBApplication();
+        if (applicationFromDeveloper != null)
         {
-            if (revision.release_status_enum == ReleaseStatus.RELEASED)
+            db = FromOculusToDB<Application, DBApplication>(applicationFromDeveloper);
+            Application applicationCloudStorage = GraphQLClient.AppDetailsCloudStorageEnabled(applicationFromDeveloper.id).data.node;
+            db.cloudBackupEnabled = applicationCloudStorage.cloud_backup_enabled;
+            
+            // Get latest public metadata revision
+            PDPMetadata metadataToUse = applicationFromDeveloper.firstRevision.nodes[0].pdp_metadata;
+            foreach (ApplicationRevision revision in applicationFromDeveloper.revisionsIncludingVariantMetadataRevisions.nodes)
             {
-                if (metadataToUse != null && metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
-                db.hasUnpublishedMetadataInQueue = true;
-                if(revision.pdp_metadata == null) continue;
-                metadataToUse = GraphQLClient.PDPMetadata(revision.pdp_metadata.id).data.node; // fetch released metadata entry from Oculus
-                break;
+                if (revision.release_status_enum == ReleaseStatus.RELEASED)
+                {
+                    if (metadataToUse != null && metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
+                    db.hasUnpublishedMetadataInQueue = true;
+                    if(revision.pdp_metadata == null) continue;
+                    metadataToUse = GraphQLClient.PDPMetadata(revision.pdp_metadata.id).data.node; // fetch released metadata entry from Oculus
+                    break;
+                }
+            }
+            db = FromOculusToDBAlternate(metadataToUse, db); // populate db with info from PDPMetadata
+            db.isFirstParty = metadataToUse.application.is_first_party;
+            db.grouping = ApplicationGrouping(applicationFromDeveloper.grouping);
+            
+            Application? shareCapabilitiesApplication = GraphQLClient.GetAppSharingCapabilities(applicationFromDeveloper.id).data.node;
+            db.shareCapabilities = shareCapabilitiesApplication.share_capabilities_enum;
+
+            db.group = OculusPlatformToHeadsetGroup(applicationFromDeveloper.platform_enum);
+            
+            // Add translations
+            db.defaultLocale = metadataToUse.application.default_locale;
+            foreach (ApplicationTranslation translation in metadataToUse.translations.nodes)
+            {
+                foreach (OculusImage img in translation.imagesExcludingScreenshotsAndMarkdown.nodes)
+                {
+                    if(img.image_type_enum == ImageType.APP_IMG_COVER_SQUARE) db.oculusImageUrl = img.uri;    
+                }
+                DBApplicationTranslation dbTranslation = FromOculusToDB<ApplicationTranslation, DBApplicationTranslation>(translation);
+                dbTranslation.parentApplication = ParentApplication(applicationFromDeveloper);
+                db.translations.Add(dbTranslation);
             }
         }
-        db = FromOculusToDBAlternate(metadataToUse, db); // populate db with info from PDPMetadata
-        db.isFirstParty = metadataToUse.application.is_first_party;
-        db.canonicalName = applicationFromStore.canonicalName;
-        
-        db.grouping = ApplicationGrouping(applicationFromDeveloper.grouping);
-        
-        db.offerId = applicationFromStore.current_offer != null ? applicationFromStore.current_offer.id : null;
-        
-        // Get share capabilities
-        Application? shareCapabilitiesApplication = GraphQLClient.GetAppSharingCapabilities(applicationFromDeveloper.id).data.node;
-        db.shareCapabilities = shareCapabilitiesApplication.share_capabilities_enum;
-
-        db.group = OculusPlatformToHeadsetGroup(applicationFromDeveloper.platform_enum);
-        
-        // Add translations
-        db.defaultLocale = metadataToUse.application.default_locale;
-        foreach (ApplicationTranslation translation in metadataToUse.translations.nodes)
+        else
         {
-            foreach (OculusImage img in translation.imagesExcludingScreenshotsAndMarkdown.nodes)
+            db = FromOculusToDB<Application, DBApplication>(applicationFromStore);
+            db.cloudBackupEnabled = false;
+            DBError missingStuffEror = new DBError
             {
-                if(img.image_type_enum == ImageType.APP_IMG_COVER_SQUARE) db.oculusImageUrl = img.uri;    
+                reason = DBErrorReason.DeveloperApplicationNull,
+                type = DBErrorType.MissingOrApproximatesInformation,
+                message =
+                    "Some data could not be fetched by OculusDB. It was either approximated, incomplete, wrong or missing. The fields are listed below. This list may not be complete cause it's curated by ComputerElite :]",
+                unknownOrApproximatedFieldsIfAny = new List<string>()
+            };
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("cloudBackupEnabled");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("translations");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("shareCapabilities");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("shareCapabilitiesFormatted");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("shortDescription");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("keywords");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("genres");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("genresFormatted");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("isBlockedByVerification");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("isForOculusKeysOnly");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("isFirstParty");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("isBlockedByVerification");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("supportWebsiteUrl");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("externalSubscriptionType");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("externalSubscriptionTypeFormatted");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("supportedInAppLanguages"); // FUCK YOU OCULUS I'M NOT PARSING LANGUAGE NAMES
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("userInteractionModes"); /// I'M ALSO NOT PARSING THAT!!!
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("userInteractionModesFormatted");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("playArea");
+            missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("playAreaFormatted");
+            try
+            {
+                foreach (InputDevice device in applicationFromStore.supported_input_devices_list)
+                {
+                    db.supportedInputDevices.Add(device.tag_enum);
+                }
             }
-            DBApplicationTranslation dbTranslation = FromOculusToDB<ApplicationTranslation, DBApplicationTranslation>(translation);
-            dbTranslation.parentApplication = ParentApplication(applicationFromDeveloper);
+            catch (Exception e)
+            {
+                missingStuffEror.unknownOrApproximatedFieldsIfAny.Add("supportedInputDevices");
+            }
+
+            db.supportedPlayerModes = applicationFromStore.supported_player_modes_enum;
+            
+            db.externalSubscriptionType = ExternalSubscriptionType.UNKNOWN;
+            db.category = applicationFromStore.category_enum;
+            db.comfortRating = applicationFromStore.comfort_rating_enum;
+            db.developerPrivacyPolicyUrl = applicationFromStore.developer_privacy_policy_url;
+            db.developerTermsOfServiceUrl = applicationFromStore.developer_terms_of_service_url;
+            db.websiteUrl = applicationFromStore.website_url;
+            db.publisherName = applicationFromStore.publisher_name;
+            db.isFirstParty = null;
+            db.isForOculusKeysOnly = null;
+            db.isBlockedByVerification = null;
+            db.grouping = ApplicationGrouping(applicationFromStore.grouping);
+            db.group = OculusPlatformToHeadsetGroup(applicationFromStore.platform_enum);
+            
+            try
+            {
+                // parse release date
+                string[] split = applicationFromStore.release_info.display_name.Split(' ');
+                string day = split[0];
+                string monthName = split[1];
+                string year = split[2];
+                List<string> months = new List<string>
+                {
+                    "January", "February", "March", "April", "May", "June", "July", "August", "September",
+                    "October", "November", "December"
+                };
+                int month = months.FindIndex(x => x.ToLower() == monthName.ToLower()) + 1;
+                DateTime releaseDate = new DateTime(int.Parse(year), month, int.Parse(day));
+                db.releaseDate = releaseDate;
+                db.errors.Add(new DBError
+                {
+                    type = DBErrorType.ReleaseDateApproximated,
+                    reason = DBErrorReason.DeveloperApplicationNull,
+                    message = "Release date approximated from string"
+                });
+            } catch (Exception e)
+            {
+                db.errors.Add(new DBError
+                {
+                    type = DBErrorType.CouldntApproximateReleaseDate,
+                    reason = DBErrorReason.DeveloperApplicationNull,
+                    message = "Could not parse release date from string"
+                });
+            }
+            
+            
+            // Add translation
+            DBApplicationTranslation dbTranslation = new DBApplicationTranslation();
+            dbTranslation.displayName = applicationFromStore.display_name;
+            dbTranslation.longDescription = applicationFromStore.display_long_description;
+            string trunancedDescription = applicationFromStore.display_long_description;
+            if (trunancedDescription.Length > 200) trunancedDescription = trunancedDescription.Substring(0, 200);
+            dbTranslation.shortDescription = trunancedDescription;
+            dbTranslation.longDescriptionUsesMarkdown = applicationFromStore.long_description_uses_markdown;
+            dbTranslation.keywords = null;
             db.translations.Add(dbTranslation);
         }
+
+        db.developerName = applicationFromStore.developer_name;
+        db.canonicalName = applicationFromStore.canonicalName;
+        
+        
+        db.offerId = applicationFromStore.current_offer != null ? applicationFromStore.current_offer.id : null;
 
         db.searchDisplayName = db.displayName;
         return db;

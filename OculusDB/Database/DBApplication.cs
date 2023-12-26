@@ -62,14 +62,16 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [JsonIgnore]
     [BsonIgnore]
     public string oculusImageUrl { get; set; } = "";
-    [OculusFieldAlternate("genres")]
+
+    [OculusFieldAlternate("genres_enum")]
     [TrackChanges]
     [BsonElement("ge")]
-    public List<string> genres { get; set; } = new List<string>();
+    public List<Genre>? genres { get; set; } = null;
+    [BsonIgnore]
     public List<string> genresFormatted {
         get
         {
-            return genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x));
+            return genres.ConvertAll(x => OculusConverter.FormatOculusEnumString(x.ToString()));
         }
     }
     
@@ -96,18 +98,18 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [OculusField("is_blocked_by_verification")]
     [TrackChanges]
     [BsonElement("isbbv")]
-    public bool isBlockedByVerification { get; set; } = false;
+    public bool? isBlockedByVerification { get; set; } = null;
     
     [OculusField("is_for_oculus_keys_only")]
     [TrackChanges]
     [BsonElement("isfoko")]
-    public bool isForOculusKeysOnly { get; set; } = false;
+    public bool? isForOculusKeysOnly { get; set; } = null;
     [TrackChanges]
     [BsonElement("isfp")]
-    public bool isFirstParty { get; set; } = false;
+    public bool? isFirstParty { get; set; } = null;
     [TrackChanges]
     [BsonElement("cb")]
-    public bool cloudBackupEnabled { get; set; } = false;
+    public bool? cloudBackupEnabled { get; set; } = false;
 
     [OculusField("releaseDate")]
     [TrackChanges]
@@ -118,6 +120,9 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [TrackChanges]
     [BsonElement("pn")]
     public string publisherName { get; set; } = "";
+    [TrackChanges]
+    [BsonElement("dn")]
+    public string developerName { get; set; } = "";
     [OculusFieldAlternate("support_website_url")]
     [TrackChanges]
     [BsonElement("swu")]
@@ -125,7 +130,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [OculusFieldAlternate("developer_terms_of_service_url")]
     [TrackChanges]
     [BsonElement("dtosu")]
-    public string? developerTermOfServiceUrl { get; set; } = null;
+    public string? developerTermsOfServiceUrl { get; set; } = null;
     [OculusFieldAlternate("developer_privacy_policy_url")]
     [TrackChanges]
     [BsonElement("dppu")]
@@ -164,10 +169,11 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [TrackChanges]
     [BsonElement("oid")]
     public string? offerId { get; set; } = null;
+
     [OculusFieldAlternate("supported_in_app_languages")]
     [TrackChanges]
     [BsonElement("sial")]
-    public List<string> supportedInAppLanguages { get; set; } = new List<string>();
+    public List<string>? supportedInAppLanguages { get; set; } = null;
     [OculusFieldAlternate("supported_input_devices_enum")]
     [TrackChanges]
     [BsonElement("sid")]
@@ -223,12 +229,13 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     }
     [TrackChanges]
     [BsonElement("sc")]
-    public List<ShareCapability> shareCapabilities { get; set; } = new List<ShareCapability>();
+    public List<ShareCapability>? shareCapabilities { get; set; } = null;
     [BsonIgnore]
-    public List<string> shareCapabilitiesFormatted
+    public List<string>? shareCapabilitiesFormatted
     {
         get
         {
+            if(shareCapabilities == null) return null;
             List<string> formatted = new List<string>();
             foreach (ShareCapability capability in shareCapabilities)
             {
@@ -286,11 +293,11 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
         }
     }
     [BsonIgnore]
-    public List<string> keywords
+    public List<string>? keywords
     {
         get
         {
-            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.keywords ?? new List<string>();
+            return translations.FirstOrDefault(x => x.locale == defaultLocale)?.keywords ?? null;
         }
     }
     
@@ -302,7 +309,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public string canonicalName { get; set; } = "";
 
     [BsonIgnore]
-    public List<DBOffer> offers { get; set; } = null;
+    public List<DBOffer>? offers { get; set; } = null;
     
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
@@ -342,6 +349,7 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public bool hasUnpublishedMetadataInQueue { get; set; } = false;
     
     [BsonElement("e")]
+    [ListScrapingNodeFieldPresent]
     public List<DBError> errors { get; set; } = new List<DBError>();
     
     public DBApplication GetEntryForDiffGeneration(IEnumerable<DBApplication> collection)

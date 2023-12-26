@@ -110,7 +110,7 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     public string binaryStatusFormatted {
         get
         {
-            return OculusConverter.FormatDBEnumString(binaryStatus.ToString());
+            return OculusConverter.FormatOculusEnumString(binaryStatus.ToString());
         }
         
     }
