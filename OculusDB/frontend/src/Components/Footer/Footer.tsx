@@ -10,6 +10,16 @@ const quotes = [
   "\"I didn't talk about being tied to a bed\" - Computer",
   "\"QuestAppVersion<b>Swither</b>\" - Computer",
   "\"Shut the fuck off\" - Computer",
+  "\"xD\" - Phaze",
+  "\"fucking hell computer\" - Phaze",
+  "\"you've basically got admin access to everything\" - Phaze",
+  "\"that's half gay duh\" - Computer",
+  "\"the gay, its taking me\" - Phaze",
+  "\"that's like using a nuke to amputate your foot\" - Phaze",
+  "\"SCOTLAND FOREEEVER\" - ComputerElite",
+  "\"SCOOOOOOOOOOOOTLAND\" - Phaze",
+  "\"what is that? Selfie stick base station?\" - Computer",
+  "\"I FOUND IT\" - Phaze"
 ]
 
 let Footer = () => {
