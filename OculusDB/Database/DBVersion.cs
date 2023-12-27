@@ -40,7 +40,7 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("changeLog")]
     [TrackChanges]
     [BsonElement("l")]
-    public string changelog { get; set; } = "";
+    public string? changelog { get; set; } = null;
     
     [OculusField("created_date_datetime")]
     [TrackChanges]
@@ -50,28 +50,28 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("size_numerical")]
     [TrackChanges]
     [BsonElement("s")]
-    public long size { get; set; } = 0;
+    public long? size { get; set; } = null;
 
     [BsonIgnore]
-    public string sizeFormatted
+    public string? sizeFormatted
     {
         get
         {
-            return SizeConverter.ByteSizeToString(size);
+            return size == null ? null : SizeConverter.ByteSizeToString(size.Value);
         }
     }
     
     [OculusField("required_space_numerical")]
     [TrackChanges]
     [BsonElement("rs")]
-    public long requiredSpace { get; set; } = 0;
+    public long? requiredSpace { get; set; } = null;
 
     [BsonIgnore]
     public string requiredSpaceFormatted
     {
         get
         {
-            return SizeConverter.ByteSizeToString(requiredSpace);
+            return requiredSpace == null ? null : SizeConverter.ByteSizeToString(requiredSpace.Value);
         }
     }
 
@@ -83,27 +83,27 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("targeted_devices")]
     [TrackChanges]
     [BsonElement("t")]
-    public List<string> targetedDevicesFormatted { get; set; } = new List<string>();
+    public List<string>? targetedDevicesFormatted { get; set; } = null;
     
     [OculusField("targeted_devices_enum")]
     [TrackChanges]
     [BsonElement("te")]
-    public List<Headset> targetedDevices { get; set; } = new List<Headset>();
+    public List<Headset>? targetedDevices { get; set; } = null;
     
     [OculusField("permissions")]
     [TrackChanges]
     [BsonElement("pe")]
-    public List<string> permissions { get; set; } = new List<string>();
+    public List<string>? permissions { get; set; } = null;
     
     [OculusField("is_pre_download_enabled")]
     [TrackChanges]
     [BsonElement("pde")]
-    public bool preDownloadEnabled { get; set; } = false;
+    public bool? preDownloadEnabled { get; set; } = null;
     
     [OculusField("package_name")]
     [TrackChanges]
     [BsonElement("pckn")]
-    public string packageName { get; set; } = "";
+    public string? packageName { get; set; } = null;
     
     [BsonIgnore]
     [TrackChanges]

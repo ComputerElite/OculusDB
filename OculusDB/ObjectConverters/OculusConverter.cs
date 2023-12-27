@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Security.AccessControl;
@@ -105,25 +106,56 @@ public class OculusConverter
         return db;
     }
 
-    public static DBVersion Version(OculusBinary binary, Application parent, DBApplication dbApplication)
+    /// <summary>
+    /// Convert OculusBinary to DBVersion
+    /// </summary>
+    /// <param name="detailedBinary">binary details from developer api</param>
+    /// <param name="notDetailedBinary">binary details from enumeration</param>
+    /// <param name="parent">parent application</param>
+    /// <param name="dbApplication">parent db application</param>
+    /// <param name="existingVersion">existing version from the db</param>
+    /// <returns></returns>
+    public static DBVersion Version(OculusBinary? detailedBinary, OculusBinary notDetailedBinary, Application parent, DBApplication dbApplication, DBVersion? existingVersion)
     {
-        DBVersion version = FromOculusToDB<OculusBinary, DBVersion>(binary);
-        version.parentApplication = ParentApplication(parent);
-        foreach (ReleaseChannel channel in binary.binary_release_channels.nodes)
+        DBVersion version = new DBVersion();
+        if (detailedBinary != null)
         {
-            version.releaseChannels.Add(new DBReleaseChannel
+            version = FromOculusToDB<OculusBinary, DBVersion>(detailedBinary);
+
+            if (detailedBinary.obb_binary != null)
             {
-                id = channel.id,
-                name = channel.channel_name,
-            });
+                version.obbBinary = OBBBinary(detailedBinary.obb_binary);
+            }
+            version.__lastPriorityScrape = DateTime.UtcNow;
         }
-
-        if (binary.obb_binary != null)
+        else
         {
-            version.obbBinary = OBBBinary(binary.obb_binary);
+            version.uploadedDate = notDetailedBinary.created_date_datetime;
+            version.version = notDetailedBinary.version;
+            version.versionCode = notDetailedBinary.versionCode;
+            version.id = notDetailedBinary.id;
+            version.filename = notDetailedBinary.file_name;
+            Logger.Log("not detailed");
+            if (existingVersion != null)
+            {
+                Logger.Log("existing ain't null");
+                version.changelog = existingVersion.changelog;
+                version.size = existingVersion.size;
+                version.requiredSpace = existingVersion.requiredSpace;
+                version.releaseChannels = existingVersion.releaseChannels;
+                version.targetedDevices = existingVersion.targetedDevices;
+                version.targetedDevicesFormatted = existingVersion.targetedDevicesFormatted;
+                version.permissions = existingVersion.permissions;
+                version.preDownloadEnabled = existingVersion.preDownloadEnabled;
+                version.binaryStatus = existingVersion.binaryStatus;
+                version.minAndroidSdkVersion = existingVersion.minAndroidSdkVersion;
+                version.maxAndroidSdkVersion = existingVersion.maxAndroidSdkVersion;
+                version.obbBinary = existingVersion.obbBinary;
+                version.targetAndroidSdkVersion = existingVersion.targetAndroidSdkVersion;
+            }
         }
 
-        switch (binary.typename_enum)
+        switch ((detailedBinary ?? notDetailedBinary).typename_enum)
         {
             case OculusTypeName.AndroidBinary:
                 version.binaryType = HeadsetBinaryType.AndroidBinary;
@@ -132,12 +164,23 @@ public class OculusConverter
                 version.binaryType = HeadsetBinaryType.PCBinary;
                 break;
         }
+        
+        foreach (ReleaseChannel channel in (detailedBinary ?? notDetailedBinary).binary_release_channels.nodes)
+        {
+            version.releaseChannels.Add(new DBReleaseChannel
+            {
+                id = channel.id,
+                name = channel.channel_name,
+            });
+        }
+        
 
         if (dbApplication.group == HeadsetGroup.GoAndGearVr)
         {
             // GearVR and Go report wrong headsets as targeted devices, so let's just override them for now
             version.targetedDevices = new List<Headset> {Headset.GEARVR, Headset.PACIFIC};
         }
+        version.parentApplication = ParentApplication(parent);
         return version;
     }
 

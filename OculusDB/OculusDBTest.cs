@@ -217,7 +217,8 @@ public class OculusDBTest
         
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeName);
+            /// This is now broken
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, null, applicationFromDeveloper,dbApp, null), scrapingNodeName);
             Logger.Log(v.versionCode.ToString());
             versions.Add(v);
         }
