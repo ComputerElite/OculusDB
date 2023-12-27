@@ -15,8 +15,8 @@ public class EnumIndex
     public static void Init()
     {
         PopulateEnum(ref differenceNameTypes, typeof(DifferenceNameType));
-        PopulateEnum(ref categoryTypes, typeof(Category));
-        PopulateEnum(ref genres, typeof(Genre));
+        PopulateEnum(ref categoryTypes, typeof(Category), true);
+        PopulateEnum(ref genres, typeof(Genre), true);
         searchEntryTypes = new List<EnumEntry>
         {
             new EnumEntry("Applications", DBDataTypes.Application),
@@ -26,14 +26,14 @@ public class EnumIndex
         };
     }
 
-    public static void PopulateEnum(ref List<EnumEntry> list, Type enumType)
+    public static void PopulateEnum(ref List<EnumEntry> list, Type enumType, bool isOculusType = false)
     {
         list.Clear();
         foreach(int i in Enum.GetValues(enumType)) {
             string name = Enum.GetName(enumType, i) ?? "";
             list.Add(new EnumEntry()
             {
-                displayName = OculusConverter.FormatDBEnumString(name),
+                displayName = isOculusType ? OculusConverter.FormatOculusEnumString(name) : OculusConverter.FormatDBEnumString(name),
                 enumName = name,
                 value = i
             });
