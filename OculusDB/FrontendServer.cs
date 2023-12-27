@@ -695,6 +695,12 @@ public class FrontendServer
             request.SendString(JsonSerializer.Serialize(EnumIndex.searchEntryTypes));
             return true;
         }));
+        server.AddRoute("GET", "/api/v2/lists/categories", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            request.SendString(JsonSerializer.Serialize(EnumIndex.categoryTypes));
+            return true;
+        }));
         ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED
         Func<ServerRequest, bool> accessCheck = null;
         /*
