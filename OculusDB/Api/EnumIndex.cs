@@ -10,11 +10,13 @@ public class EnumIndex
     public static List<EnumEntry> differenceNameTypes = new List<EnumEntry>();
     public static List<EnumEntry> searchEntryTypes = new List<EnumEntry>();
     public static List<EnumEntry> categoryTypes = new List<EnumEntry>();
+    public static List<EnumEntry> genres = new List<EnumEntry>();
 
     public static void Init()
     {
         PopulateEnum(ref differenceNameTypes, typeof(DifferenceNameType));
         PopulateEnum(ref categoryTypes, typeof(Category));
+        PopulateEnum(ref genres, typeof(Genre));
         searchEntryTypes = new List<EnumEntry>
         {
             new EnumEntry("Applications", DBDataTypes.Application),
