@@ -1326,7 +1326,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     } else {
         PopUp(`
         <div>
-            Please install QuestAppVersionSwitcher to downgrade Quest games. You can find a guide <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>
+            Please use QuestAppVersionSwitcher to downgrade Quest games. You can find a guide <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>
         </div>
     `)
     }
