@@ -72,16 +72,21 @@ namespace OculusDB
 
         public static dynamic? ConvertToDBType(DBBase o)
         {
-            switch (o.__OculusDBType)
+            return ConvertToDBType(o, o.__OculusDBType);
+        }
+        
+        public static dynamic? ConvertToDBType(object o, string oculusDbType)
+        {
+            switch (oculusDbType)
             {
                 case DBDataTypes.Application:
                     return (DBApplication)o;
                 case DBDataTypes.Version:
                     return (DBVersion)o;
                 case DBDataTypes.IapItem:
-                    return (DBIAPItem)o;
+                    return (DBIapItem)o;
                 case DBDataTypes.IapItemPack:
-                    return (DBIAPItemPack)o;
+                    return (DBIapItemPack)o;
                 case DBDataTypes.AppImage:
                     return (DBAppImage)o;
                 case DBDataTypes.Achievement:

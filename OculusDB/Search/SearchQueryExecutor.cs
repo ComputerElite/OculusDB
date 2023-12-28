@@ -40,7 +40,7 @@ public class SearchQueryExecutor
     private static SearchResult SearchIapItems(SearchQuery query)
     {
         string? grouping = GetGroupingId(query);
-        List<DBIAPItem> apps = OculusDBDatabase.iapItemCollection.Find(x => 
+        List<DBIapItem> apps = OculusDBDatabase.iapItemCollection.Find(x => 
             (grouping == null || x.grouping != null && x.grouping.id == grouping) 
             &&
             (
@@ -116,7 +116,7 @@ public class SearchQueryExecutor
     private static SearchResult SearchIapItemPacks(SearchQuery query)
     {
         string? grouping = GetGroupingId(query);
-        List<DBIAPItemPack> apps = OculusDBDatabase.iapItemPackCollection.Find(x => 
+        List<DBIapItemPack> apps = OculusDBDatabase.iapItemPackCollection.Find(x => 
             (grouping == null || x.grouping != null && x.grouping.id == grouping) 
             &&
             (

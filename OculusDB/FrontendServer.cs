@@ -157,7 +157,17 @@ public class FrontendServer
             {
                 return true;
             }
-            request.SendString("Not implemented yet", "application/json");
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.GetAllWebhooks()), "application/json");
+            return true;
+        });
+        server.AddRoute("POST", "/api/v2/webhooks/createorupdate", request =>
+        {
+            if (!DoesTokenHaveAccess(request, Permission.UpdateWebhooks))
+            {
+                return true;
+            }
+            DifferenceWebhook webhook = JsonSerializer.Deserialize<DifferenceWebhook>(request.bodyString);
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.AddOrCreateWebhook(webhook)), "application/json");
             return true;
         });
         

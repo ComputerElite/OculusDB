@@ -41,7 +41,18 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     {
         collection.ReplaceOne(x => x.currency == this.currency && x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
-    
+
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "Currency", currency},
+            { "Price", price?.priceFormatted ?? "N/A"},
+            { "Strikethrough price", strikethroughPrice?.priceFormatted ?? "No strikethrough price"},
+            { "For apps", string.Join(", ", presentOn)},
+        };
+    }
+
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromAppId(parentApplication?.id ?? null);

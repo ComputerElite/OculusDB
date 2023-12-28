@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OculusDB.MongoDB;
 using OculusDB.ObjectConverters;
 using OculusDB.ScrapingMaster;
 
@@ -12,72 +13,52 @@ namespace OculusDB.Users
 {
     public class DiscordWebhookSender
     {
-        public static void SendActivity(DateTime start)
+        public static void StartFlushDifferenceThread()
         {
-            Logger.Log("Sending activity via Discord webhooks after " + start);
             Thread t = new Thread(() =>
             {
-                List<DifferenceWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
-                if (activityWebhooks.Count <= 0) return;
-                List<DBDifference> diffs = new List<DBDifference>(); // ToDo: Get all diffs after start
-                foreach (DifferenceWebhook activityWebhook in activityWebhooks)
+                while (true)
                 {
+                    List<DifferenceWebhook> differenceWebhooks = GetWebhooks();
+                    if (differenceWebhooks.Count <= 0)
+                    {
+                        // no webhooks, sleep for 10 seconds
+                        Thread.Sleep(10000);
+                        continue;
+                    }
+                    List<DBDifference> diffs = OculusDBDatabase.GetDiffsFromQueue(100);
+                    if (diffs.Count <= 0)
+                    {
+                        // no diffs to process, wait 10 seconds
+                        Thread.Sleep(10000);
+                    }
+                    
                     foreach (DBDifference diff in diffs)
                     {
-                        try
+                        foreach (DifferenceWebhook differenceWebhook in differenceWebhooks)
                         {
-                            switch(activityWebhook.type)
+                            try
                             {
-                                case DifferenceWebhookType.Discord:
-                                    activityWebhook.SendDiscordWebhook(diff);
-                                    break;
-                                case DifferenceWebhookType.OculusDB:
-                                    activityWebhook.SendOculusDbWebhook(diff);
-                                    break;
+                                switch(differenceWebhook.type)
+                                {
+                                    case DifferenceWebhookType.Discord:
+                                        differenceWebhook.SendDiscordWebhook(diff);
+                                        break;
+                                    case DifferenceWebhookType.OculusDB:
+                                        differenceWebhook.SendOculusDbWebhook(diff);
+                                        break;
+                                }
+                                
                             }
-                            
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
-                            break;
-                        }
-                    }
-                }
-            });
-            t.Start();
-        }
-
-        public static void SendActivity(List<DBDifference> diffs)
-        {
-            Logger.Log("Sending " + diffs.Count + " activities via Discord webhooks");
-            Thread t = new Thread(() =>
-            {
-                List<DifferenceWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
-                if (activityWebhooks.Count <= 0) return;
-                foreach (DifferenceWebhook activityWebhook in activityWebhooks)
-                {
-                    foreach (DBDifference activity in diffs)
-                    {
-                        try
-                        {
-                            switch (activityWebhook.type)
+                            catch (Exception ex)
                             {
-                                case DifferenceWebhookType.Discord:
-                                    activityWebhook.SendDiscordWebhook(activity);
-                                    break;
-                                case DifferenceWebhookType.OculusDB:
-                                    activityWebhook.SendOculusDbWebhook(activity);
-                                    break;
+                                Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
+                                break;
                             }
-
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
-                            break;
-                        }
+                        OculusDBDatabase.SetDiffProcessed(diff);
                     }
+                    
                 }
             });
             t.Start();
@@ -89,38 +70,11 @@ namespace OculusDB.Users
         {
             if(DateTime.UtcNow - lastUpdatedWebhooks > TimeSpan.FromMinutes(5))
             {
-                webhooks = MongoDBInteractor.GetWebhooks();
+                webhooks = OculusDBDatabase.GetAllWebhooks();
                 lastUpdatedWebhooks = DateTime.UtcNow;
             }
 
             return webhooks;
-        }
-        
-        public static void SendActivity(DBDifference diff)
-        {
-            List<DifferenceWebhook> activityWebhooks = GetWebhooks();
-            if (activityWebhooks.Count <= 0) return;
-            foreach (DifferenceWebhook activityWebhook in activityWebhooks)
-            {
-                try
-                {
-                    switch (activityWebhook.type)
-                    {
-                        case DifferenceWebhookType.Discord:
-                            activityWebhook.SendDiscordWebhook(diff);
-                            break;
-                        case DifferenceWebhookType.OculusDB:
-                            activityWebhook.SendOculusDbWebhook(diff);
-                            break;
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log("Couldn't send webhook: " + ex.ToString(), LoggingType.Error);
-                    break;
-                }
-            }
         }
     }
 }

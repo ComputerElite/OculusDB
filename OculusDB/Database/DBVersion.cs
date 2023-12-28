@@ -20,6 +20,14 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [TrackChanges]
     [BsonElement("bt")]
     public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
+    [BsonIgnore]
+    public string binaryTypeForatted
+    {
+        get
+        {
+            return OculusConverter.FormatDBEnumString(binaryType.ToString());
+        }
+    }
     [OculusField("id")]
     [TrackChanges]
     [BsonElement("id")]
@@ -154,6 +162,29 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
+
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            {"version", version},
+            {"version code", versionCode.ToString()},
+            {"downloadable", downloadable ? "Yes" : "No"},
+            {"changelog", changelog ?? "not yet fetched"},
+            {"binary type", binaryTypeForatted},
+            {"uploaded date", uploadedDate.ToString("yyyy-MM-dd HH:mm:ss")},
+            {"size", sizeFormatted},
+            {"required space", requiredSpaceFormatted},
+            {"filename", filename},
+            {"binary status", binaryStatusFormatted},
+            {"targeted devices", String.Join(", ", targetedDevicesFormatted ?? new List<string> {"N/A"})},
+            {"permissions", String.Join(", ", permissions?? new List<string> {"N/A"})},
+            {"pre-download enabled", preDownloadEnabled?.ToString() ?? "N/A"},
+            {"package name", packageName ?? "N/A"},
+            {"has obb", obbBinary != null ? "Yes" : "No"}
+        };
+    }
+
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromAppId(parentApplication?.id ?? null);

@@ -214,9 +214,9 @@ public class OculusConverter
         return parentApplication;
     }
 
-    public static DBIAPItem IAPItem(IAPItem dlc, DBApplication dbApplication)
+    public static DBIapItem IAPItem(IAPItem dlc, DBApplication dbApplication)
     {
-        DBIAPItem db = FromOculusToDB<IAPItem, DBIAPItem>(dlc);
+        DBIapItem db = FromOculusToDB<IAPItem, DBIapItem>(dlc);
         db.grouping = ParentApplicationGrouping(dlc.app_grouping);
         foreach (AssetFile assetFile in dlc.asset_files.nodes)
         {
@@ -494,10 +494,10 @@ public class OculusConverter
         return String.Join(' ', words);
     }
 
-    public static DBIAPItemPack IAPItemPack(AppItemBundle dlc, DBApplicationGrouping grouping)
+    public static DBIapItemPack IAPItemPack(AppItemBundle dlc, DBApplicationGrouping grouping)
     {
         
-        DBIAPItemPack db = FromOculusToDB<AppItemBundle, DBIAPItemPack>(dlc);
+        DBIapItemPack db = FromOculusToDB<AppItemBundle, DBIapItemPack>(dlc);
         if(dlc.current_offer != null) db.offerId = dlc.current_offer.id;
         db.grouping = ParentApplicationGrouping(grouping);
         foreach (Node<IAPItem> iapItem in dlc.bundle_items.edges)

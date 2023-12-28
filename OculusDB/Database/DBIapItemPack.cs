@@ -5,7 +5,7 @@ using OculusDB.ObjectConverters;
 
 namespace OculusDB.Database;
 
-public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
+public class DBIapItemPack : DBBase, IDBObjectOperations<DBIapItemPack>
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.IapItemPack;
     [ObjectScrapingNodeFieldPresent]
@@ -34,15 +34,26 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
     [BsonElement("i")]
     public List<DBIAPItemId> items { get; set; } = new List<DBIAPItemId>();
 
-    public DBIAPItemPack? GetEntryForDiffGeneration(IEnumerable<DBIAPItemPack> collection)
+    public DBIapItemPack? GetEntryForDiffGeneration(IEnumerable<DBIapItemPack> collection)
     {
         return collection.FirstOrDefault(x => x.id == this.id);
     }
 
-    public void AddOrUpdateEntry(IMongoCollection<DBIAPItemPack> collection)
+    public void AddOrUpdateEntry(IMongoCollection<DBIapItemPack> collection)
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
+
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "display name", displayName},
+            { "display short description", displayShortDescription},
+            {"dlc count", items.Count.ToString()},
+        };
+    }
+
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromGroupingId(grouping?.id ?? null);
@@ -55,12 +66,12 @@ public class DBIAPItemPack : DBBase, IDBObjectOperations<DBIAPItemPack>
         grouping.applications = context.GetParentApplicationInApplicationGrouping(grouping.id);
     }
 
-    public static List<DBIAPItemPack> GetAllForApplicationGrouping(string? groupingId)
+    public static List<DBIapItemPack> GetAllForApplicationGrouping(string? groupingId)
     {
-        if (groupingId == null) return new List<DBIAPItemPack>();
+        if (groupingId == null) return new List<DBIapItemPack>();
         return OculusDBDatabase.iapItemPackCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
     }
-    public static DBIAPItemPack? ById(string id)
+    public static DBIapItemPack? ById(string id)
     {
         return OculusDBDatabase.iapItemPackCollection.Find(x =>x.id == id).FirstOrDefault();
     }

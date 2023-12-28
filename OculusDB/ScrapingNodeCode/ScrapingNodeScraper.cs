@@ -230,10 +230,10 @@ public class ScrapingNodeScraper
         
         List<DBOffer?> offers = new List<DBOffer?>();
         offers.Add(OculusConverter.AddScrapingNodeName(OculusConverter.Price(applicationFromStore.current_offer, dbApp), scrapingNodeId));
-        List<DBIAPItemPack?> dlcPacks = new List<DBIAPItemPack?>();
+        List<DBIapItemPack?> dlcPacks = new List<DBIapItemPack?>();
         // Get DLC Packs and prices
         // Add DLCs
-        List<DBIAPItem?> iapItems = new List<DBIAPItem?>();
+        List<DBIapItem?> iapItems = new List<DBIapItem?>();
         int i = 0;
         bool dlcsAdded = false;
         if (dbApp.grouping != null)
@@ -389,8 +389,8 @@ public class ScrapingNodeScraper
         }
         
         taskResult.scraped.offers.AddRange(offers.Where(x => x != null).ToList().ConvertAll(x => (DBOffer)x));
-        taskResult.scraped.iapItemPacks.AddRange(dlcPacks.Where(x => x != null).ToList().ConvertAll(x => (DBIAPItemPack)x));
-        taskResult.scraped.iapItems.AddRange(iapItems.Where(x => x != null).ToList().ConvertAll(x => (DBIAPItem)x));
+        taskResult.scraped.iapItemPacks.AddRange(dlcPacks.Where(x => x != null).ToList().ConvertAll(x => (DBIapItemPack)x));
+        taskResult.scraped.iapItems.AddRange(iapItems.Where(x => x != null).ToList().ConvertAll(x => (DBIapItem)x));
         taskResult.scraped.versions.AddRange(versions.Where(x => x != null).ToList().ConvertAll(x => (DBVersion)x));
         taskResult.scraped.achievements.AddRange(achievements.Where(x => x != null).ToList().ConvertAll(x => (DBAchievement)x));
         taskResult.scraped.applications.Add(dbApp);

@@ -62,6 +62,8 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
     public List<string> entryParentApplicationIds { get; set; } = new List<string>();
     [BsonElement("dn")]
     public DifferenceNameType differenceName { get; set; } = DifferenceNameType.Unknown;
+    [BsonElement("wp")]
+    public bool webhookProcessed { get; set; } = false;
     [BsonIgnore]
     public string differenceNameFormatted
     {

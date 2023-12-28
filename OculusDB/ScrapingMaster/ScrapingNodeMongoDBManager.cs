@@ -224,7 +224,7 @@ public class ScrapingNodeMongoDBManager
         }
     }
 
-    public static void AddIapItem(DBIAPItem? d, ref ScrapingContribution contribution)
+    public static void AddIapItem(DBIapItem? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);
@@ -238,7 +238,7 @@ public class ScrapingNodeMongoDBManager
         }
     }
 
-    public static void AddIapItemPack(DBIAPItemPack? d, ref ScrapingContribution contribution)
+    public static void AddIapItemPack(DBIapItemPack? d, ref ScrapingContribution contribution)
     {
         if (d == null) return;
         contribution.AddContribution(d.__OculusDBType, 1);

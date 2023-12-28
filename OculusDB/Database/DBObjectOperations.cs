@@ -7,4 +7,5 @@ public interface IDBObjectOperations<T>
 {
     public T? GetEntryForDiffGeneration(IEnumerable<T> collection);
     public void AddOrUpdateEntry(IMongoCollection<T> collection);
+    public Dictionary<string, string?> GetDiscordEmbedFields();
 }

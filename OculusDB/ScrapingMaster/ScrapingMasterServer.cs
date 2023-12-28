@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using OculusDB.Database;
 using OculusDB.MongoDB;
 using OculusDB.ScrapingNodeCode;
+using OculusDB.Users;
 using ZipFile = System.IO.Compression.ZipFile;
 
 namespace OculusDB.ScrapingMaster;
@@ -30,6 +31,7 @@ public class ScrapingMasterServer
             MonitorNodes();
         });
         nodeStatusThread.Start();
+        DiscordWebhookSender.StartFlushDifferenceThread();
         server = httpServer;
         server.AddRoute("POST", "/api/v1/gettasks", request =>
         {

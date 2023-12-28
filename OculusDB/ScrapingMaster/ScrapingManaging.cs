@@ -220,25 +220,25 @@ public class ScrapingManaging
         versionLookup.Clear();
         
         // Process DLCs
-        Dictionary<string, List<DBIAPItem>> iapItemLookup = new Dictionary<string, List<DBIAPItem>>();
+        Dictionary<string, List<DBIapItem>> iapItemLookup = new Dictionary<string, List<DBIapItem>>();
         Logger.Log("# " + taskId + " processing " + taskResult.scraped.iapItems.Count + " iaps");
-        foreach (DBIAPItem d in taskResult.scraped.iapItems)
+        foreach (DBIapItem d in taskResult.scraped.iapItems)
         {
             string? parentGrouping = d.grouping?.id ?? null;
 
             if (parentGrouping != null && !iapItemLookup.ContainsKey(parentGrouping))
             {
                 // Add versions to VersionLookup
-                iapItemLookup.Add(parentGrouping, DBIAPItem.GetAllForApplicationGrouping(parentGrouping));
+                iapItemLookup.Add(parentGrouping, DBIapItem.GetAllForApplicationGrouping(parentGrouping));
             }
             if (parentGrouping == "")
             {
                 // If no grouping then get it individually from the db
-                DBIAPItem? found = DBIAPItem.ById(d.id);
+                DBIapItem? found = DBIapItem.ById(d.id);
                 if(found != null) iapItemLookup[""].Add(found);
             }
 
-            DBIAPItem? oldEntry = d.GetEntryForDiffGeneration(iapItemLookup[parentGrouping ?? ""]);
+            DBIapItem? oldEntry = d.GetEntryForDiffGeneration(iapItemLookup[parentGrouping ?? ""]);
             ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions
@@ -249,24 +249,24 @@ public class ScrapingManaging
         
         
         // Process IapPacks
-        Dictionary<string, List<DBIAPItemPack>> iapItemPackLookup = new Dictionary<string, List<DBIAPItemPack>>();
+        Dictionary<string, List<DBIapItemPack>> iapItemPackLookup = new Dictionary<string, List<DBIapItemPack>>();
         Logger.Log("# " + taskId + " processing " + taskResult.scraped.iapItemPacks.Count + " iap packs");
-        foreach (DBIAPItemPack d in taskResult.scraped.iapItemPacks)
+        foreach (DBIapItemPack d in taskResult.scraped.iapItemPacks)
         {
             string? parentGrouping = d.grouping?.id ?? null;
             if (parentGrouping != null && !iapItemPackLookup.ContainsKey(parentGrouping))
             {
                 // Cache everything for grouping
-                iapItemPackLookup.Add(parentGrouping, DBIAPItemPack.GetAllForApplicationGrouping(parentGrouping));
+                iapItemPackLookup.Add(parentGrouping, DBIapItemPack.GetAllForApplicationGrouping(parentGrouping));
             }
             if (parentGrouping == "")
             {
                 // If no grouping then get it individually from the db
-                DBIAPItemPack? found = DBIAPItemPack.ById(d.id);
+                DBIapItemPack? found = DBIapItemPack.ById(d.id);
                 if(found != null) iapItemPackLookup[""].Add(found);
             }
 
-            DBIAPItemPack? oldEntry = d.GetEntryForDiffGeneration(iapItemPackLookup[parentGrouping ?? ""]);
+            DBIapItemPack? oldEntry = d.GetEntryForDiffGeneration(iapItemPackLookup[parentGrouping ?? ""]);
             ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions

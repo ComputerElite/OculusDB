@@ -29,6 +29,11 @@ public class DBAppImage : DBBase, IDBObjectOperations<DBAppImage>
         collection.ReplaceOne(x => x.parentApplication.id == this.parentApplication.id, this, new ReplaceOptions() { IsUpsert = true });
     }
 
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>();
+    }
+
     public static DBAppImage? ById(string appId)
     {
         return OculusDBDatabase.appImages.Find(x => x.parentApplication.id == appId).FirstOrDefault();
