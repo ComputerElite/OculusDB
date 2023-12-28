@@ -20,7 +20,6 @@ function GetHeadsetGroups() {
 function GetHeadsetsOfGroup(groupString) {
     var h = []
     for(const e of headsets) {
-        console.log(e.codename)
         if(e.groupString != groupString) continue;
         h.push(e)
     }
