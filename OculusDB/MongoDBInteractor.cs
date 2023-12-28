@@ -111,7 +111,7 @@ namespace OculusDB
             return toFilter;
         }
 
-        public static List<ActivityWebhook> GetWebhooks()
+        public static List<DifferenceWebhook> GetWebhooks()
         {
             return OculusDBDatabase.webhookCollection.Find(new BsonDocument()).ToList();
         }

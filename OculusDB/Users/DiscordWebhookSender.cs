@@ -17,10 +17,10 @@ namespace OculusDB.Users
             Logger.Log("Sending activity via Discord webhooks after " + start);
             Thread t = new Thread(() =>
             {
-                List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
+                List<DifferenceWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
                 if (activityWebhooks.Count <= 0) return;
                 List<DBDifference> diffs = new List<DBDifference>(); // ToDo: Get all diffs after start
-                foreach (ActivityWebhook activityWebhook in activityWebhooks)
+                foreach (DifferenceWebhook activityWebhook in activityWebhooks)
                 {
                     foreach (DBDifference diff in diffs)
                     {
@@ -28,10 +28,10 @@ namespace OculusDB.Users
                         {
                             switch(activityWebhook.type)
                             {
-                                case ActivityWebhookType.Discord:
+                                case DifferenceWebhookType.Discord:
                                     activityWebhook.SendDiscordWebhook(diff);
                                     break;
-                                case ActivityWebhookType.OculusDB:
+                                case DifferenceWebhookType.OculusDB:
                                     activityWebhook.SendOculusDBWebhook(diff);
                                     break;
                             }
@@ -53,9 +53,9 @@ namespace OculusDB.Users
             Logger.Log("Sending " + diffs.Count + " activities via Discord webhooks");
             Thread t = new Thread(() =>
             {
-                List<ActivityWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
+                List<DifferenceWebhook> activityWebhooks = MongoDBInteractor.GetWebhooks();
                 if (activityWebhooks.Count <= 0) return;
-                foreach (ActivityWebhook activityWebhook in activityWebhooks)
+                foreach (DifferenceWebhook activityWebhook in activityWebhooks)
                 {
                     foreach (DBDifference activity in diffs)
                     {
@@ -63,10 +63,10 @@ namespace OculusDB.Users
                         {
                             switch (activityWebhook.type)
                             {
-                                case ActivityWebhookType.Discord:
+                                case DifferenceWebhookType.Discord:
                                     activityWebhook.SendDiscordWebhook(activity);
                                     break;
-                                case ActivityWebhookType.OculusDB:
+                                case DifferenceWebhookType.OculusDB:
                                     activityWebhook.SendOculusDBWebhook(activity);
                                     break;
                             }
@@ -83,9 +83,9 @@ namespace OculusDB.Users
             t.Start();
         }
 
-        public static List<ActivityWebhook> webhooks = new();
+        public static List<DifferenceWebhook> webhooks = new();
         public static DateTime lastUpdatedWebhooks = DateTime.MinValue;
-        public static List<ActivityWebhook> GetWebhooks()
+        public static List<DifferenceWebhook> GetWebhooks()
         {
             if(DateTime.UtcNow - lastUpdatedWebhooks > TimeSpan.FromMinutes(5))
             {
@@ -98,18 +98,18 @@ namespace OculusDB.Users
         
         public static void SendActivity(DBDifference diff)
         {
-            List<ActivityWebhook> activityWebhooks = GetWebhooks();
+            List<DifferenceWebhook> activityWebhooks = GetWebhooks();
             if (activityWebhooks.Count <= 0) return;
-            foreach (ActivityWebhook activityWebhook in activityWebhooks)
+            foreach (DifferenceWebhook activityWebhook in activityWebhooks)
             {
                 try
                 {
                     switch (activityWebhook.type)
                     {
-                        case ActivityWebhookType.Discord:
+                        case DifferenceWebhookType.Discord:
                             activityWebhook.SendDiscordWebhook(diff);
                             break;
-                        case ActivityWebhookType.OculusDB:
+                        case DifferenceWebhookType.OculusDB:
                             activityWebhook.SendOculusDBWebhook(diff);
                             break;
                     }

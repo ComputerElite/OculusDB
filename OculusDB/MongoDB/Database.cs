@@ -17,7 +17,7 @@ public class OculusDBDatabase
 {
     public static MongoClient? mongoClient;
         public static IMongoDatabase? oculusDBDatabase;
-        public static IMongoCollection<ActivityWebhook>? webhookCollection;
+        public static IMongoCollection<DifferenceWebhook>? webhookCollection;
         public static IMongoCollection<Analytic>? analyticsCollection;
         public static IMongoCollection<AppToScrape>? appsToScrape;
 		public static IMongoCollection<VersionAlias>? versionAliases;
@@ -87,7 +87,7 @@ public class OculusDBDatabase
             
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
-            webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
+            webhookCollection = oculusDBDatabase.GetCollection<DifferenceWebhook>("webhooks");
             analyticsCollection = oculusDBDatabase.GetCollection<Analytic>("analytics");
             
             versionCollection = oculusDBDatabase.GetCollection<DBVersion>("versions");

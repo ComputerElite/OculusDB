@@ -16,7 +16,7 @@ using OculusDB.ObjectConverters;
 namespace OculusDB.Users
 {
     [BsonIgnoreExtraElements]
-    public class ActivityWebhook
+    public class DifferenceWebhook
     {
         [BsonIgnore]
         public Config config { get
@@ -24,9 +24,9 @@ namespace OculusDB.Users
                 return OculusDBEnvironment.config;
             } }
         public string url { get; set; } = "";
-        public string applicationId { get; set; } = "";
-        public ActivityWebhookType type { get; set; } = ActivityWebhookType.Discord;
-        public List<string> activities { get; set; } = new List<string>();
+        public List<string> applicationIds { get; set; } = new List<string>();
+        public DifferenceWebhookType type { get; set; } = DifferenceWebhookType.Discord;
+        public List<DifferenceNameType> differenceTypes { get; set; } = new List<DifferenceNameType>();
 
         public void SendOculusDBWebhook(DBDifference difference)
         {
@@ -36,10 +36,11 @@ namespace OculusDB.Users
             c.UploadString(url, "POST", JsonSerializer.Serialize(difference));
         }
 
-        public bool CheckDownloadableType(BsonDocument activity)
+        public bool CheckDownloadableType(DBDifference difference)
         {
-            string type = activity["__OculusDBType"].ToString();
-            return false;
+            if (!applicationIds.Any(x => difference.entryParentApplicationIds.Contains(x))) return false;
+            if (!differenceTypes.Contains(difference.differenceName)) return false;
+            return true;
         }
 
         public bool SendWebhook(DBDifference difference)
@@ -67,7 +68,7 @@ namespace OculusDB.Users
         }
     }
 
-    public enum ActivityWebhookType
+    public enum DifferenceWebhookType
     {
         Discord = 0,
         OculusDB = 1

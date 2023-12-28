@@ -33,6 +33,7 @@ public class SearchQuery
         q.skip = int.Parse(request.queryString.Get("skip") ?? "0");
         if(q.skip < 0) q.skip = 0;
         q.limit = int.Parse(request.queryString.Get("limit") ?? "100");
+        q.parentApplication = request.queryString.Get("appid") ?? "";
         if(q.limit < 0) q.limit = 100;
         string groups = request.queryString.Get("groups") ??
                         String.Join(",", HeadsetIndex.entries.Select(x => x.groupString).Distinct()); // default to all groups if none are given

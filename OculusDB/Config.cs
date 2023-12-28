@@ -99,7 +99,8 @@ namespace OculusDB
         StartScrapes,
         StartPriorityScrapes,
         BlockApps,
-        CreateScrapingNode
+        CreateScrapingNode,
+        UpdateWebhooks
     }
 
     public enum ScrapingStatus
