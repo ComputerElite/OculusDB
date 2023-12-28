@@ -2,7 +2,7 @@ import './Login.css'
 
 let Login = () => {
   let input: HTMLInputElement;
-  let submitBtn: HTMLElement;
+  //let submitBtn: HTMLElement;
   let errorBox: HTMLElement;
 
   if(localStorage.getItem('token')){
@@ -61,7 +61,7 @@ let Login = () => {
       <div class="info">
         <h2>Dev Login</h2>
         <input class="password-box" type="password" placeholder='Enter Password...' ref={( el ) => input = el} />
-        <div class="button" onClick={onClick} ref={( el ) => submitBtn = el}>Submit</div>
+        <div class="button" onClick={onClick}>Submit</div>
 
         <div ref={( el ) => errorBox = el}></div>
       </div>

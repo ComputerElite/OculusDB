@@ -229,6 +229,11 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
         collection.InsertOne(this);
     }
 
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>();
+    }
+
     public static DBDifference? ById(string objectId)
     {
         return OculusDBDatabase.differenceCollection.Find(x => x.__id == objectId).FirstOrDefault();
