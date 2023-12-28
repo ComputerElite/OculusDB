@@ -13,6 +13,13 @@
     <div>
         <h2>Utils</h2>
         <i>Mostly for admins</i>
+
+        <h3>Set Oculus token for downloads</h3>
+        <p>You can save an Oculus token in your browser below to use the download button on OculusDB. It will only be saved locally and not sent anywhere.</p>
+        <input type="password" placeholder="Oculus token" id="oculustoken">
+
+        <input type="button" value="Save in browser" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) SaveToken()">
+        
         <div class="application">
             <div class="info">
                 <div class="flex outside">
@@ -68,6 +75,11 @@
         document.getElementById("app-id").value = id
     }
     UpdateBlockedApps()
+    
+    function SaveToken() {
+        localStorage.oculusToken = document.getElementById("oculustoken").value
+        alert("saved")
+    }
     
     function CreateNode() {
         var id = prompt("Enter node id")

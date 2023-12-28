@@ -47,6 +47,7 @@ if(!params.get("nonavbar")) document.body.innerHTML = document.body.innerHTML + 
         <input type="button" onclick="Search('query')" value="Search">
     </div>
     <a class="underlineAnimation navBarElement" href="/login">Login</a>
+    <a class="underlineAnimation navBarElement" href="/utils">Utils</a>
     <a class="underlineAnimation navBarElement" href="/saved">Saved apps</a>
     <a class="underlineAnimation navBarElement" href="/privacy">Privacy Policy</a>
     <a class="underlineAnimation navBarElement" href="/recentactivity">Recent activity</a>
@@ -1223,7 +1224,7 @@ function GetDLC(dlcs, id) {
 }
 
 function GetDownloadLink(id) {
-    return `https://securecdn.oculus.com/binaries/download/?id=${id}`
+    return `https://securecdn.oculus.com/binaries/download/?id=${id}&access_token=${localStorage.oculusToken}`
 }
 
 var sendToParent = InIframe()
@@ -1316,7 +1317,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     }
 
     // Not in iframe which supports downloads
-    if(localStorage.fuckpopups && !jokeconfig.dialupdownload) {
+    if(localStorage.fuckpopups && !jokeconfig.dialupdownload && localStorage.oculusToken || localStorage.oculusToken) {
         DownloadID(id)
         if(obbs && obbs.length > 0){
             ObbDownloadPopUp()
@@ -1325,14 +1326,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     } else {
         PopUp(`
         <div>
-            To download games you must be logged in on <a href="{oculusloginlink}" target="_blank">{oculusloginlink}</a> with an account which owns the game! If you aren't logged in, you won't be able to download games.
-            <br>
-            <a onclick="localStorage.fuckpopups = 'yummy, spaghetti'; window.open(GetDownloadLink('${id}')); ClosePopUp();"><i style="cursor: pointer;">Don't show warning again</i></a>
-            <div class="textbox" id="downloadTextBox"></div>
-            <div>
-                <input type="button" value="Log in" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) window.open('{oculusloginlink}', )">
-                <input type="button" value="Download" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) { OpenDownloadWithJokes('${id}', ${obbs && obbs.length > 0}); ${isObb && !sendToParent ? `ObbInfoPopup();` : ``}}">
-            </div>
+            Please install QuestAppVersionSwitcher to downgrade Quest games. You can find a guide <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>
         </div>
     `)
     }
