@@ -252,4 +252,11 @@ public class OculusDBDatabase
         {
             differenceCollection.UpdateOne(x => x.__id == diff.__id, Builders<DBDifference>.Update.Set(x => x.webhookProcessed, true));
         }
+
+        public static DifferenceWebhookResponse DeleteWebhook(DifferenceWebhook? webhook)
+        {
+            if (webhook == null) return new DifferenceWebhookResponse { msg = "Webhook not found", isNewWebhook = false };
+            webhookCollection.DeleteOne(x => x.__id == webhook.__id);
+            return new DifferenceWebhookResponse { msg = "Webhook deleted", isNewWebhook = false };
+        }
 }

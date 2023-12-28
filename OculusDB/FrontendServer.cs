@@ -170,6 +170,16 @@ public class FrontendServer
             request.SendString(JsonSerializer.Serialize(OculusDBDatabase.AddOrCreateWebhook(webhook)), "application/json");
             return true;
         });
+        server.AddRoute("DELETE", "/api/v2/webhooks/delete", request =>
+        {
+            if (!DoesTokenHaveAccess(request, Permission.UpdateWebhooks))
+            {
+                return true;
+            }
+            DifferenceWebhook webhook = JsonSerializer.Deserialize<DifferenceWebhook>(request.bodyString);
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.DeleteWebhook(webhook)), "application/json");
+            return true;
+        });
         
         
         /////// Blocked
