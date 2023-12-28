@@ -36,6 +36,7 @@ namespace OculusDB.Users
 
         public void SendOculusDbWebhook(DBDifference difference)
         {
+            if (url == "") return;
             if (!SendWebhook(difference)) return;
             WebClient c = new WebClient();
             c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
@@ -51,6 +52,7 @@ namespace OculusDB.Users
 
         public void SendDiscordWebhook(DBDifference difference)
         {
+            if (url == "") return;
             if (!SendWebhook(difference)) return;
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
