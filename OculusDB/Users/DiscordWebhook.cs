@@ -28,24 +28,19 @@ namespace OculusDB.Users
         public DifferenceWebhookType type { get; set; } = DifferenceWebhookType.Discord;
         public List<DifferenceNameType> differenceTypes { get; set; } = new List<DifferenceNameType>();
 
-        public void SendOculusDBWebhook(DBDifference difference)
+        public void SendOculusDbWebhook(DBDifference difference)
         {
             if (!SendWebhook(difference)) return;
             WebClient c = new WebClient();
             c.Headers.Add("user-agent", OculusDBEnvironment.userAgent);
             c.UploadString(url, "POST", JsonSerializer.Serialize(difference));
         }
-
-        public bool CheckDownloadableType(DBDifference difference)
-        {
-            if (!applicationIds.Any(x => difference.entryParentApplicationIds.Contains(x))) return false;
-            if (!differenceTypes.Contains(difference.differenceName)) return false;
-            return true;
-        }
-
+        
         public bool SendWebhook(DBDifference difference)
         {
             
+            if (!applicationIds.Any(x => difference.entryParentApplicationIds.Contains(x))) return false;
+            if (!differenceTypes.Contains(difference.differenceName)) return false;
             return true;
         }
 

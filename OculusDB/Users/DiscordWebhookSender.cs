@@ -32,7 +32,7 @@ namespace OculusDB.Users
                                     activityWebhook.SendDiscordWebhook(diff);
                                     break;
                                 case DifferenceWebhookType.OculusDB:
-                                    activityWebhook.SendOculusDBWebhook(diff);
+                                    activityWebhook.SendOculusDbWebhook(diff);
                                     break;
                             }
                             
@@ -67,7 +67,7 @@ namespace OculusDB.Users
                                     activityWebhook.SendDiscordWebhook(activity);
                                     break;
                                 case DifferenceWebhookType.OculusDB:
-                                    activityWebhook.SendOculusDBWebhook(activity);
+                                    activityWebhook.SendOculusDbWebhook(activity);
                                     break;
                             }
 
@@ -110,7 +110,7 @@ namespace OculusDB.Users
                             activityWebhook.SendDiscordWebhook(diff);
                             break;
                         case DifferenceWebhookType.OculusDB:
-                            activityWebhook.SendOculusDBWebhook(diff);
+                            activityWebhook.SendOculusDbWebhook(diff);
                             break;
                     }
 
