@@ -316,31 +316,8 @@ public class FrontendServer
 		}));
 
 		////////////////// Login
-        server.AddRouteRedirect("POST", "/api/v2/user", "/api/v2/user");
-		server.AddRoute("GET", "/api/v2/user", new Func<ServerRequest, bool>(request =>
-        {
-            try
-            {
-                string token = request.queryString.Get("token") ?? "";
-                LoginResponse response = new LoginResponse();
-                if (token != config.masterToken)
-                {
-                    response.status = "This user does not exist";
-                    request.SendString(JsonSerializer.Serialize(response), "application/json");
-                    return true;
-                }
-                response.username = "admin";
-                response.redirect = "/admin";
-                response.authorized = true;
-                request.SendString(JsonSerializer.Serialize(response), "application/json");
-            }
-            catch
-            {
-                request.SendString("{}", "application/json");
-            }
-            return true;
-        }));
 		server.AddRouteRedirect("POST", "/api/v1/login", "/api/v2/login");
+        server.AddRouteOptions("/api/v2/login", new List<string> {"OPTIONS, POST"});
 		server.AddRoute("POST", "/api/v2/login", new Func<ServerRequest, bool>(request =>
         {
             try
