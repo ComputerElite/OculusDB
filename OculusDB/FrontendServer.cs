@@ -661,8 +661,7 @@ public class FrontendServer
                 {
                     headsetGroups.Add(HeadsetGroup.Quest);
                     headsetGroups.Add(HeadsetGroup.PCVR);
-                    headsetGroups.Add(HeadsetGroup.GearVR);
-                    headsetGroups.Add(HeadsetGroup.Go);
+                    headsetGroups.Add(HeadsetGroup.GoAndGearVr);
                 }
                 List<DBApplication> d = MongoDBInteractor.SearchApplication(HttpUtility.UrlDecode(request.pathDiff), headsets, headsetGroups, request.queryString.Get("quick") == null ? false : true);
                 if (d.Count <= 0)

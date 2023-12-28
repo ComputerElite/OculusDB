@@ -57,7 +57,7 @@ public class ScrapingNodeScraper
         // This will set the token globally, all Scraping Nodes running via this process will use the same token. Might lead to problems down the line.
         currentToken++;
         currentToken %= scrapingNodeManager.config.oculusTokens.Count;
-        GraphQLClient.oculusStoreToken = scrapingNodeManager.config.oculusTokens[currentToken];
+        GraphQLClient.userToken = scrapingNodeManager.config.oculusTokens[currentToken];
         try
         {
             GetEntitlements();
