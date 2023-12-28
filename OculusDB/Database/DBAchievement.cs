@@ -111,6 +111,24 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions { IsUpsert = true });
     }
 
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "title", title },
+            { "Write policy", achievementWritePolicyFormatted },
+            { "description", description },
+            { "unlocked description", unlockedDescription },
+            { "Achievement type", achievementTypeFormatted },
+            { "Is draft", isDraft.ToString() },
+            { "Is secret", isSecret.ToString() },
+            { "Is archived", isArchived.ToString() },
+            { "Bitfield length", bitfieldLength.ToString() },
+            { "Bitfield target", bitfieldTarget.ToString() },
+            { "API name", apiName },
+        };
+    }
+
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromGroupingId(grouping?.id ?? null);

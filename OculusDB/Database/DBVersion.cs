@@ -20,6 +20,14 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [TrackChanges]
     [BsonElement("bt")]
     public HeadsetBinaryType binaryType { get; set; } = HeadsetBinaryType.Unknown;
+    [BsonIgnore]
+    public string binaryTypeForatted
+    {
+        get
+        {
+            return OculusConverter.FormatDBEnumString(binaryType.ToString());
+        }
+    }
     [OculusField("id")]
     [TrackChanges]
     [BsonElement("id")]
@@ -40,7 +48,7 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("changeLog")]
     [TrackChanges]
     [BsonElement("l")]
-    public string changelog { get; set; } = "";
+    public string? changelog { get; set; } = null;
     
     [OculusField("created_date_datetime")]
     [TrackChanges]
@@ -50,28 +58,28 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("size_numerical")]
     [TrackChanges]
     [BsonElement("s")]
-    public long size { get; set; } = 0;
+    public long? size { get; set; } = null;
 
     [BsonIgnore]
-    public string sizeFormatted
+    public string? sizeFormatted
     {
         get
         {
-            return SizeConverter.ByteSizeToString(size);
+            return size == null ? null : SizeConverter.ByteSizeToString(size.Value);
         }
     }
     
     [OculusField("required_space_numerical")]
     [TrackChanges]
     [BsonElement("rs")]
-    public long requiredSpace { get; set; } = 0;
+    public long? requiredSpace { get; set; } = null;
 
     [BsonIgnore]
     public string requiredSpaceFormatted
     {
         get
         {
-            return SizeConverter.ByteSizeToString(requiredSpace);
+            return requiredSpace == null ? null : SizeConverter.ByteSizeToString(requiredSpace.Value);
         }
     }
 
@@ -83,27 +91,27 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [OculusField("targeted_devices")]
     [TrackChanges]
     [BsonElement("t")]
-    public List<string> targetedDevicesFormatted { get; set; } = new List<string>();
+    public List<string>? targetedDevicesFormatted { get; set; } = null;
     
     [OculusField("targeted_devices_enum")]
     [TrackChanges]
     [BsonElement("te")]
-    public List<Headset> targetedDevices { get; set; } = new List<Headset>();
+    public List<Headset>? targetedDevices { get; set; } = null;
     
     [OculusField("permissions")]
     [TrackChanges]
     [BsonElement("pe")]
-    public List<string> permissions { get; set; } = new List<string>();
+    public List<string>? permissions { get; set; } = null;
     
     [OculusField("is_pre_download_enabled")]
     [TrackChanges]
     [BsonElement("pde")]
-    public bool preDownloadEnabled { get; set; } = false;
+    public bool? preDownloadEnabled { get; set; } = null;
     
     [OculusField("package_name")]
     [TrackChanges]
     [BsonElement("pckn")]
-    public string packageName { get; set; } = "";
+    public string? packageName { get; set; } = null;
     
     [BsonIgnore]
     [TrackChanges]
@@ -154,6 +162,29 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
+
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            {"version", version},
+            {"version code", versionCode.ToString()},
+            {"downloadable", downloadable ? "Yes" : "No"},
+            {"changelog", changelog ?? "not yet fetched"},
+            {"binary type", binaryTypeForatted},
+            {"uploaded date", uploadedDate.ToString("yyyy-MM-dd HH:mm:ss")},
+            {"size", sizeFormatted},
+            {"required space", requiredSpaceFormatted},
+            {"filename", filename},
+            {"binary status", binaryStatusFormatted},
+            {"targeted devices", String.Join(", ", targetedDevicesFormatted ?? new List<string> {"N/A"})},
+            {"permissions", String.Join(", ", permissions?? new List<string> {"N/A"})},
+            {"pre-download enabled", preDownloadEnabled?.ToString() ?? "N/A"},
+            {"package name", packageName ?? "N/A"},
+            {"has obb", obbBinary != null ? "Yes" : "No"}
+        };
+    }
+
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromAppId(parentApplication?.id ?? null);

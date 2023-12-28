@@ -150,6 +150,37 @@ public class FrontendServer
             request.SendString("Set users");
             return true;
         }));
+        /////// Webhooks
+        server.AddRoute("GET", "/api/v2/webhooks/all", request =>
+        {
+            if (!DoesTokenHaveAccess(request, Permission.UpdateWebhooks))
+            {
+                return true;
+            }
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.GetAllWebhooks()), "application/json");
+            return true;
+        });
+        server.AddRoute("POST", "/api/v2/webhooks/createorupdate", request =>
+        {
+            if (!DoesTokenHaveAccess(request, Permission.UpdateWebhooks))
+            {
+                return true;
+            }
+            DifferenceWebhook webhook = JsonSerializer.Deserialize<DifferenceWebhook>(request.bodyString);
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.AddOrCreateWebhook(webhook)), "application/json");
+            return true;
+        });
+        server.AddRoute("DELETE", "/api/v2/webhooks/delete", request =>
+        {
+            if (!DoesTokenHaveAccess(request, Permission.UpdateWebhooks))
+            {
+                return true;
+            }
+            DifferenceWebhook webhook = JsonSerializer.Deserialize<DifferenceWebhook>(request.bodyString);
+            request.SendString(JsonSerializer.Serialize(OculusDBDatabase.DeleteWebhook(webhook)), "application/json");
+            return true;
+        });
+        
         
         /////// Blocked
         server.AddRouteRedirect("GET", "/api/v1/blocked/blockedapps", "/api/v2/blocked/blockedapps");
@@ -286,6 +317,7 @@ public class FrontendServer
 
 		////////////////// Login
 		server.AddRouteRedirect("POST", "/api/v1/login", "/api/v2/login");
+        server.AddRouteOptions("/api/v2/login", new List<string> {"OPTIONS, POST"});
 		server.AddRoute("POST", "/api/v2/login", new Func<ServerRequest, bool>(request =>
         {
             try
@@ -680,19 +712,31 @@ public class FrontendServer
         server.AddRoute("GET", "/api/v2/lists/headsets", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
-            request.SendString(JsonSerializer.Serialize(HeadsetIndex.entries));
+            request.SendString(JsonSerializer.Serialize(HeadsetIndex.entries), "application/json");
             return true;
         }));
         server.AddRoute("GET", "/api/v2/lists/differencetypes", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
-            request.SendString(JsonSerializer.Serialize(EnumIndex.differenceNameTypes));
+            request.SendString(JsonSerializer.Serialize(EnumIndex.differenceNameTypes), "application/json");
             return true;
         }));
         server.AddRoute("GET", "/api/v2/lists/searchcategories", new Func<ServerRequest, bool>(request =>
         {
             if (!DoesUserHaveAccess(request)) return true;
-            request.SendString(JsonSerializer.Serialize(EnumIndex.searchEntryTypes));
+            request.SendString(JsonSerializer.Serialize(EnumIndex.searchEntryTypes), "application/json");
+            return true;
+        }));
+        server.AddRoute("GET", "/api/v2/lists/categories", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            request.SendString(JsonSerializer.Serialize(EnumIndex.categoryTypes), "application/json");
+            return true;
+        }));
+        server.AddRoute("GET", "/api/v2/lists/genres", new Func<ServerRequest, bool>(request =>
+        {
+            if (!DoesUserHaveAccess(request)) return true;
+            request.SendString(JsonSerializer.Serialize(EnumIndex.genres), "application/json");
             return true;
         }));
         ////////////// ACCESS CHECK IF OCULUSDB IS BLOCKED

@@ -230,10 +230,10 @@ public class ScrapingNodeScraper
         
         List<DBOffer?> offers = new List<DBOffer?>();
         offers.Add(OculusConverter.AddScrapingNodeName(OculusConverter.Price(applicationFromStore.current_offer, dbApp), scrapingNodeId));
-        List<DBIAPItemPack?> dlcPacks = new List<DBIAPItemPack?>();
+        List<DBIapItemPack?> dlcPacks = new List<DBIapItemPack?>();
         // Get DLC Packs and prices
         // Add DLCs
-        List<DBIAPItem?> iapItems = new List<DBIAPItem?>();
+        List<DBIapItem?> iapItems = new List<DBIapItem?>();
         int i = 0;
         bool dlcsAdded = false;
         if (dbApp.grouping != null)
@@ -321,11 +321,38 @@ public class ScrapingNodeScraper
         
         // Get Versions
         List<DBVersion?> versions = new List<DBVersion?>();
-        
+        List<DBVersion> existingVersions = GetVersionsOfApp(dbApp.id);
+        string? packageName = null;
+        bool triedToGetPackageName = false;
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeId);
-            Logger.Log(v.versionCode.ToString());
+            bool doPriority = app.priority;
+            DBVersion? existing = existingVersions.FirstOrDefault(x => x.id == binary.id);
+            Logger.Log("existing version found: " + (existing != null));
+            if (existing != null)
+            {
+                if ((DateTime.UtcNow - existing.__lastPriorityScrape).TotalDays < 1)
+                {
+                    Logger.Log("Not scraping " + binary.id + " as it was scraped in the last 24 hours");
+                    doPriority = false;
+                }
+            }
+
+            if (!triedToGetPackageName)
+            {
+                doPriority = true;
+                Logger.Log("Doing priority to get package name");
+            }
+            if(doPriority) Logger.Log(binary.version + " - " + binary.versionCode + " (" + binary.id + ")");
+            
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(doPriority ? GraphQLClient.GetMoreBinaryDetails(binary.id).data.node : null, binary, applicationFromDeveloper, dbApp, existing), scrapingNodeId);
+            if (doPriority && !triedToGetPackageName)
+            {
+                triedToGetPackageName = true;
+                packageName = v.packageName;
+            }
+
+            v.packageName = packageName;
             versions.Add(v);
         }
         
@@ -333,8 +360,7 @@ public class ScrapingNodeScraper
 
         // Add application packageName
         
-        DBVersion? versionToGiveApplication = versions.Count > 0 ? versions[0] : null;
-        dbApp.packageName = versionToGiveApplication?.packageName ?? null;
+        dbApp.packageName = packageName;
         
         
         // Add Achievements
@@ -363,8 +389,8 @@ public class ScrapingNodeScraper
         }
         
         taskResult.scraped.offers.AddRange(offers.Where(x => x != null).ToList().ConvertAll(x => (DBOffer)x));
-        taskResult.scraped.iapItemPacks.AddRange(dlcPacks.Where(x => x != null).ToList().ConvertAll(x => (DBIAPItemPack)x));
-        taskResult.scraped.iapItems.AddRange(iapItems.Where(x => x != null).ToList().ConvertAll(x => (DBIAPItem)x));
+        taskResult.scraped.iapItemPacks.AddRange(dlcPacks.Where(x => x != null).ToList().ConvertAll(x => (DBIapItemPack)x));
+        taskResult.scraped.iapItems.AddRange(iapItems.Where(x => x != null).ToList().ConvertAll(x => (DBIapItem)x));
         taskResult.scraped.versions.AddRange(versions.Where(x => x != null).ToList().ConvertAll(x => (DBVersion)x));
         taskResult.scraped.achievements.AddRange(achievements.Where(x => x != null).ToList().ConvertAll(x => (DBAchievement)x));
         taskResult.scraped.applications.Add(dbApp);

@@ -9,8 +9,8 @@ namespace OculusDB.Database
 {
     public class DLCLists
     {
-        public List<DBIAPItem> iapItems { get; set; } = new List<DBIAPItem>();
-        public List<DBIAPItemPack> iapItemPacks { get; set; } = new List<DBIAPItemPack>();
+        public List<DBIapItem> iapItems { get; set; } = new List<DBIapItem>();
+        public List<DBIapItemPack> iapItemPacks { get; set; } = new List<DBIapItemPack>();
 
         public void PopulateAll(PopulationContext context)
         {

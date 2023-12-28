@@ -45,7 +45,16 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     [TrackChanges]
     [BsonElement("hg")]
     public HeadsetGroup group { get; set; } = HeadsetGroup.Unknown;
-    
+
+    [BsonIgnore]
+    public string groupFormatted
+    {
+        get
+        {
+            return OculusConverter.FormatDBEnumString(group.ToString());
+        }
+    }
+
     [OculusFieldAlternate("category_enum")]
     [TrackChanges]
     [BsonElement("c")]
@@ -364,6 +373,31 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
     public void AddOrUpdateEntry(IMongoCollection<DBApplication> collection)
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
+    }
+
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "App name", displayName },
+            {"Headset group", groupFormatted},
+            {"Category", categoryFormatted},
+            {"Genres", string.Join(", ", genresFormatted)},
+            {"Release date", releaseDate?.ToString("yyyy-MM-dd") ?? "Unknown"},
+            {"Developer", developerName},
+            {"Publisher", publisherName},
+            {"Comfort rating", comfortRatingFormatted},
+            {"Play area", playAreaFormatted},
+            {"External subscription type", externalSubscriptionTypeFormatted},
+            {"Has in-app ads", hasInAppAds ? "Yes" : "No"},
+            {"Is App Lab", isAppLab ? "Yes" : "No"},
+            {"Is blocked by verification", isBlockedByVerification?.ToString() ?? "Unknown"},
+            {"Cloud backup enabled", cloudBackupEnabled?.ToString() ?? "Unknown"},
+            {"Has unpublished metadata in queue", hasUnpublishedMetadataInQueue ? "Yes" : "No"},
+            {"Package name", packageName ?? "Unknown"},
+            {"Canonical name", canonicalName ?? "Unknown"},
+            {"Default locale", defaultLocale ?? "Unknown"},
+        };
     }
 
     /// <summary>

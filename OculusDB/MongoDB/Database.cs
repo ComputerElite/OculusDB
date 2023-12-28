@@ -17,7 +17,7 @@ public class OculusDBDatabase
 {
     public static MongoClient? mongoClient;
         public static IMongoDatabase? oculusDBDatabase;
-        public static IMongoCollection<ActivityWebhook>? webhookCollection;
+        public static IMongoCollection<DifferenceWebhook>? webhookCollection;
         public static IMongoCollection<Analytic>? analyticsCollection;
         public static IMongoCollection<AppToScrape>? appsToScrape;
 		public static IMongoCollection<VersionAlias>? versionAliases;
@@ -26,8 +26,8 @@ public class OculusDBDatabase
         
         public static IMongoCollection<DBApplication>? applicationCollection;
         public static IMongoCollection<DBAppImage>? appImages;
-        public static IMongoCollection<DBIAPItem>? iapItemCollection;
-        public static IMongoCollection<DBIAPItemPack>? iapItemPackCollection;
+        public static IMongoCollection<DBIapItem>? iapItemCollection;
+        public static IMongoCollection<DBIapItemPack>? iapItemPackCollection;
         public static IMongoCollection<DBVersion>? versionCollection;
         public static IMongoCollection<DBAchievement>? achievementCollection;
         public static IMongoCollection<DBOffer>? offerCollection;
@@ -71,9 +71,9 @@ public class OculusDBDatabase
             RemoveIdRemap<DBAssetFile>();
             RemoveIdRemap<DBBase>();
             RemoveIdRemap<DBError>();
-            RemoveIdRemap<DBIAPItem>();
+            RemoveIdRemap<DBIapItem>();
             RemoveIdRemap<DBIAPItemId>();
-            RemoveIdRemap<DBIAPItemPack>();
+            RemoveIdRemap<DBIapItemPack>();
             RemoveIdRemap<DBOBBBinary>();
             RemoveIdRemap<DBOffer>();
             RemoveIdRemap<DBParentApplication>();
@@ -87,13 +87,13 @@ public class OculusDBDatabase
             
             mongoClient = new MongoClient(OculusDBEnvironment.config.mongoDBUrl);
             oculusDBDatabase = mongoClient.GetDatabase(OculusDBEnvironment.config.mongoDBName);
-            webhookCollection = oculusDBDatabase.GetCollection<ActivityWebhook>("webhooks");
+            webhookCollection = oculusDBDatabase.GetCollection<DifferenceWebhook>("webhooks");
             analyticsCollection = oculusDBDatabase.GetCollection<Analytic>("analytics");
             
             versionCollection = oculusDBDatabase.GetCollection<DBVersion>("versions");
             applicationCollection = oculusDBDatabase.GetCollection<DBApplication>("apps");
-            iapItemCollection = oculusDBDatabase.GetCollection<DBIAPItem>("iapItems");
-            iapItemPackCollection = oculusDBDatabase.GetCollection<DBIAPItemPack>("iapItemPacks");
+            iapItemCollection = oculusDBDatabase.GetCollection<DBIapItem>("iapItems");
+            iapItemPackCollection = oculusDBDatabase.GetCollection<DBIapItemPack>("iapItemPacks");
             appImages = oculusDBDatabase.GetCollection<DBAppImage>("appImages");
             achievementCollection = oculusDBDatabase.GetCollection<DBAchievement>("achievements");
             offerCollection = oculusDBDatabase.GetCollection<DBOffer>("offers");
@@ -218,5 +218,45 @@ public class OculusDBDatabase
                 return document;
             }
             return null;
+        }
+
+        public static List<DifferenceWebhook> GetAllWebhooks()
+        {
+            return webhookCollection.Find(x => true).ToList();
+        }
+
+        /// <summary>
+        /// Creates or updates an webhook based on __id
+        /// </summary>
+        /// <param name="webhook">Webhook to update/create</param>
+        /// <returns>Message for user</returns>
+        public static DifferenceWebhookResponse AddOrCreateWebhook(DifferenceWebhook webhook)
+        {
+            if (webhook.__id == "")
+            {
+                
+                webhookCollection.InsertOne(webhook);
+                return new DifferenceWebhookResponse { msg = "Webhook created", isNewWebhook = true };
+            }
+            webhookCollection.ReplaceOne(x => x.__id == webhook.__id, webhook);
+            return new DifferenceWebhookResponse { msg = "Webhook updated", isNewWebhook = false };
+        }
+
+        public static List<DBDifference> GetDiffsFromQueue(int limit)
+        {
+            List<DBDifference> diffs = differenceCollection.Find(x => !x.webhookProcessed).Limit(limit).ToList();
+            return diffs;
+        }
+        
+        public static void SetDiffProcessed(DBDifference diff)
+        {
+            differenceCollection.UpdateOne(x => x.__id == diff.__id, Builders<DBDifference>.Update.Set(x => x.webhookProcessed, true));
+        }
+
+        public static DifferenceWebhookResponse DeleteWebhook(DifferenceWebhook? webhook)
+        {
+            if (webhook == null) return new DifferenceWebhookResponse { msg = "Webhook not found", isNewWebhook = false };
+            webhookCollection.DeleteOne(x => x.__id == webhook.__id);
+            return new DifferenceWebhookResponse { msg = "Webhook deleted", isNewWebhook = false };
         }
 }

@@ -29,6 +29,8 @@ public enum DifferenceNameType
     
     OfferAdded = 6,
     OfferUpdated = 7,
+    OfferSaleStarted = 20,
+    OfferSaleEnded = 21,
     
     VersionAdded = 8,
     VersionUpdated = 9,
@@ -60,6 +62,8 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
     public List<string> entryParentApplicationIds { get; set; } = new List<string>();
     [BsonElement("dn")]
     public DifferenceNameType differenceName { get; set; } = DifferenceNameType.Unknown;
+    [BsonElement("wp")]
+    public bool webhookProcessed { get; set; } = false;
     [BsonIgnore]
     public string differenceNameFormatted
     {
@@ -112,6 +116,17 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
                 break;
             case DBDataTypes.Offer:
                 differenceName = differenceType == DifferenceType.ObjectAdded ? DifferenceNameType.OfferAdded : DifferenceNameType.OfferUpdated;
+                // Sales happen when a strikethrough price is added.
+                bool saleStarted = entries.Any(x =>
+                {
+                    return x.name == "strikethroughPrice" && x.oldValue == null && x.newValue != null;
+                });
+                bool saleEnded = entries.Any(x =>
+                {
+                    return x.name == "strikethroughPrice" && x.newValue == null && x.oldValue != null;
+                });
+                if(saleStarted) differenceName = DifferenceNameType.OfferSaleStarted;
+                else if(saleEnded) differenceName = DifferenceNameType.OfferSaleEnded;
                 break;
             case DBDataTypes.Achievement:
                 differenceName = differenceType == DifferenceType.ObjectAdded ? DifferenceNameType.AchievementAdded : DifferenceNameType.AchievementUpdated;

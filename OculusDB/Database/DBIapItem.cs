@@ -6,7 +6,7 @@ using OculusGraphQLApiLib.Results;
 
 namespace OculusDB.Database;
 
-public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
+public class DBIapItem : DBBase, IDBObjectOperations<DBIapItem>
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.IapItem;
     [ObjectScrapingNodeFieldPresent]
@@ -66,16 +66,30 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
     [BsonIgnore]
     public List<DBOffer>? offers { get; set; } = null;
 
-    public DBIAPItem? GetEntryForDiffGeneration(IEnumerable<DBIAPItem> collection)
+    public DBIapItem? GetEntryForDiffGeneration(IEnumerable<DBIapItem> collection)
     {
         return collection.FirstOrDefault(x => x.id == this.id);
     }
 
-    public void AddOrUpdateEntry(IMongoCollection<DBIAPItem> collection)
+    public void AddOrUpdateEntry(IMongoCollection<DBIapItem> collection)
     {
         collection.ReplaceOne(x => x.id == this.id, this, new ReplaceOptions() { IsUpsert = true });
     }
-    
+
+    public Dictionary<string, string?> GetDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "Display name", displayName},
+            { "Display short description", displayShortDescription},
+            { "SKU", sku},
+            { "IAP Type", iapTypeFormatted},
+            { "Release date", releaseDate?.ToString("yyyy-MM-dd") ?? null},
+            { "Is cancelled", isCancelled?.ToString() ?? null},
+            { "Is App Lab", isAppLab.ToString()},
+        };
+    }
+
     public override ApplicationContext GetApplicationIds()
     {
         return ApplicationContext.FromGroupingId(grouping?.id ?? null);
@@ -88,13 +102,13 @@ public class DBIAPItem : DBBase, IDBObjectOperations<DBIAPItem>
         grouping.applications = context.GetParentApplicationInApplicationGrouping(grouping.id);
     }
 
-    public static List<DBIAPItem> GetAllForApplicationGrouping(string? groupingId)
+    public static List<DBIapItem> GetAllForApplicationGrouping(string? groupingId)
     {
-        if (groupingId == null) return new List<DBIAPItem>();
+        if (groupingId == null) return new List<DBIapItem>();
         return OculusDBDatabase.iapItemCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
     }
 
-    public static DBIAPItem? ById(string dId)
+    public static DBIapItem? ById(string dId)
     {
         return OculusDBDatabase.iapItemCollection.Find(x => x.id == dId).FirstOrDefault();
     }

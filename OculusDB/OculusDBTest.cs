@@ -152,10 +152,10 @@ public class OculusDBTest
 
         List<DBOffer> offers = new List<DBOffer>();
         offers.Add(OculusConverter.Price(applicationFromStore.current_offer, dbApp));
-        List<DBIAPItemPack> dlcPacks = new List<DBIAPItemPack>();
+        List<DBIapItemPack> dlcPacks = new List<DBIapItemPack>();
         // Get DLC Packs and prices
         // Add DLCs
-        List<DBIAPItem> iapItems = new List<DBIAPItem>();
+        List<DBIapItem> iapItems = new List<DBIapItem>();
         int i = 0;
         if (dbApp.grouping != null)
         {
@@ -217,7 +217,8 @@ public class OculusDBTest
         
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, applicationFromDeveloper,dbApp), scrapingNodeName);
+            /// This is now broken
+            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(GraphQLClient.GetMoreBinaryDetails(binary.id).data.node, null, applicationFromDeveloper,dbApp, null), scrapingNodeName);
             Logger.Log(v.versionCode.ToString());
             versions.Add(v);
         }
