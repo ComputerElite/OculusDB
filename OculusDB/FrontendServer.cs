@@ -318,7 +318,7 @@ public class FrontendServer
 		////////////////// Login
 		server.AddRouteRedirect("POST", "/api/v1/login", "/api/v2/login");
         server.AddRouteOptions("/api/v2/login", new List<string> {"OPTIONS, POST"});
-		server.AddRoute("POST", "/api/v2/login", new Func<ServerRequest, bool>(request =>
+		server.AddRoute("POST", "/api/v2/login", request =>
         {
             try
             {
@@ -359,7 +359,7 @@ public class FrontendServer
                 request.SendString("{}", "application/json");
             }
             return true;
-        }));
+        });
         ////////// Game specific api
         BeatSaberApi.SetupRoutes(server);
         ////////// Emergency
