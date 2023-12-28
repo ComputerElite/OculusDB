@@ -1,0 +1,17 @@
+.password-box{
+  padding: 5px;
+  font-size: 15px;
+  width: 300px;
+  outline: none;
+  border: #444 3px solid;
+  background: #444;
+  color: white;
+  border-radius: 5px;
+  transition: 0.1s;
+  height: 26px;
+  font-family: 'Rubik', sans-serif;
+}
+
+.password-box:focus{
+  border: #888 3px solid;
+}
