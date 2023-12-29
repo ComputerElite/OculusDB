@@ -1325,7 +1325,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     } else {
         PopUp(`
         <div>
-            Please use QuestAppVersionSwitcher to downgrade Quest games. You can find a guide <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>
+            It is currently not possible to download apks directly from OculusDB. You can use QuestAppVersionSwitcher to downgrade Quest games. You can find a guide for downgrading <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>.
         </div>
     `)
     }
