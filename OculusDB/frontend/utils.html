@@ -16,6 +16,7 @@
 
         <h3>Set Oculus token for downloads</h3>
         <p>You can save an Oculus token in your browser below to use the download button on OculusDB. It will only be saved locally and not sent anywhere.</p>
+        <p>You will also need to remove the <code>oc_www_at</code> cookie via the developer tools (application tab) to be able to download games</p>
         <input type="password" placeholder="Oculus token" id="oculustoken">
 
         <input type="button" value="Save in browser" onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) SaveToken()">
