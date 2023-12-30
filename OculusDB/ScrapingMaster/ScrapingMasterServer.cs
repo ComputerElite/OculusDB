@@ -121,7 +121,7 @@ public class ScrapingMasterServer
             }
 
             ScrapingError error = ScrapingNodeMongoDBManager.AddErrorReport(errorContainer.scrapingError, r);
-            SendMasterWebhookMessage("Scraping error reported", config.scrapingMasterUrl + "api/v1/scrapingerror/" + error.__id, 0xFFFF00);
+            SendMasterWebhookMessage("Scraping error reported", config.scrapingMasterUrl + "/api/v1/scrapingerror/" + error.__id, 0xFFFF00);
             request.SendString("OK");
             return true;
         });
@@ -209,7 +209,7 @@ public class ScrapingMasterServer
         {
             Logger.Log("Sending master webhook");
             DiscordWebhook webhook = new DiscordWebhook(OculusDBEnvironment.config.nodeStatusWebhookUrl);
-            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", OculusDBEnvironment.config.scrapingMasterUrl + "logo", OculusDBEnvironment.config.scrapingMasterUrl, OculusDBEnvironment.config.scrapingMasterUrl + "logo", OculusDBEnvironment.config.scrapingMasterUrl, color);
+            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow + " UTC", "OculusDB", OculusDBEnvironment.config.scrapingMasterUrl + "/logo", OculusDBEnvironment.config.scrapingMasterUrl, OculusDBEnvironment.config.scrapingMasterUrl + "/logo", OculusDBEnvironment.config.scrapingMasterUrl, color);
         }
         catch (Exception ex)
         {

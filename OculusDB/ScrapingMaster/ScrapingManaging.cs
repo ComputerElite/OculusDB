@@ -180,7 +180,7 @@ public class ScrapingManaging
                 scrapingNodeId = "MASTER-SERVER"
             }
         });
-        ScrapingMasterServer.SendMasterWebhookMessage("Processing error", discordDescription + "\n" + OculusDBEnvironment.config.scrapingMasterUrl + "api/v1/scrapingerror/" + error.__id, 0xFF8800);
+        ScrapingMasterServer.SendMasterWebhookMessage("Processing error", discordDescription + "\n" + OculusDBEnvironment.config.scrapingMasterUrl + "/api/v1/scrapingerror/" + error.__id, 0xFF8800);
     }
 
     private static void ProcessScrapedResults(ScrapingNodeTaskResult taskResult, ScrapingNodeAuthenticationResult scrapingNodeAuthenticationResult, ref ScrapingProcessedResult r)

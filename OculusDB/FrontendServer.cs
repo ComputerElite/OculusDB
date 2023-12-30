@@ -87,7 +87,7 @@ public class FrontendServer
         {
             Logger.Log("Sending master webhook");
             DiscordWebhook webhook = new DiscordWebhook(config.masterWebhookUrl);
-            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow, "OculusDB", config.publicAddress + "logo", config.publicAddress, config.publicAddress + "logo", config.publicAddress, color);
+            webhook.SendEmbed(title, description, "master " + DateTime.UtcNow, "OculusDB", config.publicAddress + "/logo", config.publicAddress, config.publicAddress + "/logo", config.publicAddress, color);
         }
         catch (Exception ex)
         {

@@ -53,6 +53,7 @@ namespace OculusDB
                 Updater.UpdateNetApp(Path.GetFileName(Assembly.GetExecutingAssembly().Location), cla);
             }
             OculusDBEnvironment.config = Config.LoadConfig();
+            if(OculusDBEnvironment.config.scrapingMasterUrl.EndsWith("/")) OculusDBEnvironment.config.scrapingMasterUrl = OculusDBEnvironment.config.scrapingMasterUrl.Substring(0, OculusDBEnvironment.config.scrapingMasterUrl.Length - 1);
             if(OculusDBEnvironment.config.publicAddress.EndsWith("/")) OculusDBEnvironment.config.publicAddress = OculusDBEnvironment.config.publicAddress.Substring(0, OculusDBEnvironment.config.publicAddress.Length - 1);
             OculusDBEnvironment.scrapingNodeConfig = ScrapingNodeConfig.LoadConfig();
             if (OculusDBEnvironment.config.masterToken == "") OculusDBEnvironment.config.masterToken = RandomExtension.CreateToken();
