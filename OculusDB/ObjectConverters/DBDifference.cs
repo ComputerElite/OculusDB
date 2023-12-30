@@ -158,10 +158,8 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
             return entries.Count == 0;
         }
     }
-    [JsonIgnore]
     [BsonElement("o")]
     public object? oldObject { get; set; } = null;
-    [JsonIgnore]
     [BsonElement("n")]
     public object? newObject { get; set; } = null;
 
