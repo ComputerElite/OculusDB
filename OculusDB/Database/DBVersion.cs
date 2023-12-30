@@ -12,7 +12,7 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.Version;
     [BsonElement("_lps")]
-    public DateTime __lastPriorityScrape { get; set; } = DateTime.MinValue;
+    public DateTime? __lastPriorityScrape { get; set; } = null;
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
     [BsonElement("p")]

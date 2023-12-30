@@ -221,8 +221,6 @@ public class ScrapingNodeScraper
             ReportApplicationNull(app);
             return;
         }
-        Logger.Log(JsonSerializer.Serialize(applicationFromDeveloper));
-        Logger.Log(JsonSerializer.Serialize(applicationFromStore));
         currentlyScraping = applicationFromStore.displayName + (app.priority ? " (Priority)" : ""); // throw an error here on purpose
 
         
@@ -242,7 +240,6 @@ public class ScrapingNodeScraper
             {
                 foreach (IAPItem iapItem in OculusInteractor.EnumerateAllDLCs(dbApp.grouping.id))
                 {
-                    Logger.Log(i.ToString());
                     i++;
                     iapItems.Add(OculusConverter.AddScrapingNodeName(OculusConverter.IAPItem(iapItem, dbApp), scrapingNodeId));
                 }
@@ -331,11 +328,16 @@ public class ScrapingNodeScraper
             Logger.Log("existing version found: " + (existing != null));
             if (existing != null)
             {
-                if ((DateTime.UtcNow - existing.__lastPriorityScrape).TotalDays < 1)
+                if (existing.__lastPriorityScrape != null && (DateTime.UtcNow - existing.__lastPriorityScrape).Value.TotalDays < 1)
                 {
                     Logger.Log("Not scraping " + binary.id + " as it was scraped in the last 24 hours");
                     doPriority = false;
                 }
+            }
+            else
+            {
+                // first scrape of an version should be priority
+                doPriority = true;
             }
 
             if (!triedToGetPackageName)
