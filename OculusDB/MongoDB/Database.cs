@@ -250,7 +250,10 @@ public class OculusDBDatabase
         
         public static void SetDiffProcessed(DBDifference diff)
         {
-            differenceCollection.UpdateOne(x => x.__id == diff.__id, Builders<DBDifference>.Update.Set(x => x.webhookProcessed, true));
+            differenceCollection.UpdateOne(x => x.__id == diff.__id, Builders<DBDifference>.Update.Set(x => x.webhookProcessed, true), new UpdateOptions
+            {
+                IsUpsert = true
+            });
         }
 
         public static DifferenceWebhookResponse DeleteWebhook(DifferenceWebhook? webhook)
