@@ -118,7 +118,7 @@ namespace OculusDB.Users
                 }
                 embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
             }
-            embed.description += "\n**Difference link:** " + websiteUrl + "difference/" + difference.__id;
+            embed.description += "\n**Difference link:** " + websiteUrl + "/difference/" + difference.__id;
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1200);
         }
