@@ -3,7 +3,7 @@ using OculusDB.ObjectConverters;
 
 namespace OculusDB.Database;
 
-public class DBIAPItemId : DBBase
+public class DBIapItemId : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.IapItemId;
     [OculusField("id")]

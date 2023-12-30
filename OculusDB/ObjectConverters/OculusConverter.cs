@@ -184,9 +184,9 @@ public class OculusConverter
         return version;
     }
 
-    public static DBOBBBinary OBBBinary(AssetFile obbAsset)
+    public static DBObbBinary OBBBinary(AssetFile obbAsset)
     {
-        DBOBBBinary obbBinary = FromOculusToDB<AssetFile, DBOBBBinary>(obbAsset);
+        DBObbBinary obbBinary = FromOculusToDB<AssetFile, DBObbBinary>(obbAsset);
         return obbBinary;
     }
 
@@ -507,9 +507,9 @@ public class OculusConverter
         return db;
     }
     
-    public static DBIAPItemId IAPItemChild(IAPItem iapItem)
+    public static DBIapItemId IAPItemChild(IAPItem iapItem)
     {
-        DBIAPItemId db = FromOculusToDB<IAPItem, DBIAPItemId>(iapItem);
+        DBIapItemId db = FromOculusToDB<IAPItem, DBIapItemId>(iapItem);
         return db;
     }
 

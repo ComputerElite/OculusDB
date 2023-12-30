@@ -152,7 +152,7 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
     [BsonElement("ts")]
     public int? targetAndroidSdkVersion { get; set; } = null;
     [BsonElement("o")]
-    public DBOBBBinary? obbBinary { get; set; } = null;
+    public DBObbBinary? obbBinary { get; set; } = null;
     public DBVersion? GetEntryForDiffGeneration(IEnumerable<DBVersion> collection)
     {
         return collection.FirstOrDefault(x => x.id == this.id);

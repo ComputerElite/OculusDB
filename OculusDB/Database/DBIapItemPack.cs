@@ -32,7 +32,7 @@ public class DBIapItemPack : DBBase, IDBObjectOperations<DBIapItemPack>
     public string displayShortDescription { get; set; } = "";
     [TrackChanges]
     [BsonElement("i")]
-    public List<DBIAPItemId> items { get; set; } = new List<DBIAPItemId>();
+    public List<DBIapItemId> items { get; set; } = new List<DBIapItemId>();
 
     public DBIapItemPack? GetEntryForDiffGeneration(IEnumerable<DBIapItemPack> collection)
     {

@@ -72,9 +72,9 @@ public class OculusDBDatabase
             RemoveIdRemap<DBBase>();
             RemoveIdRemap<DBError>();
             RemoveIdRemap<DBIapItem>();
-            RemoveIdRemap<DBIAPItemId>();
+            RemoveIdRemap<DBIapItemId>();
             RemoveIdRemap<DBIapItemPack>();
-            RemoveIdRemap<DBOBBBinary>();
+            RemoveIdRemap<DBObbBinary>();
             RemoveIdRemap<DBOffer>();
             RemoveIdRemap<DBParentApplication>();
             RemoveIdRemap<DBParentApplicationGrouping>();

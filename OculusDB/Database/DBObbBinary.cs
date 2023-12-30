@@ -4,7 +4,7 @@ using OculusDB.ObjectConverters;
 
 namespace OculusDB.Database;
 
-public class DBOBBBinary : DBBase
+public class DBObbBinary : DBBase
 {
     public override string __OculusDBType { get; set; } = DBDataTypes.ObbBinary;
     
