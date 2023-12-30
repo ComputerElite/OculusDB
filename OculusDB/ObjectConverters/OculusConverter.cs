@@ -135,10 +135,8 @@ public class OculusConverter
             version.versionCode = notDetailedBinary.versionCode;
             version.id = notDetailedBinary.id;
             version.filename = notDetailedBinary.file_name;
-            Logger.Log("not detailed");
             if (existingVersion != null)
             {
-                Logger.Log("existing ain't null");
                 version.changelog = existingVersion.changelog;
                 version.size = existingVersion.size;
                 version.requiredSpace = existingVersion.requiredSpace;
