@@ -400,6 +400,16 @@ public class DBApplication : DBBase, IDBObjectOperations<DBApplication>
         };
     }
 
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "App name", displayName },
+            { "Headset group", groupFormatted },
+
+        };
+    }
+
     /// <summary>
     /// Gets an DB application by id from the database
     /// </summary>

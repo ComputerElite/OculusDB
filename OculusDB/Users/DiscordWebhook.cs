@@ -63,8 +63,13 @@ namespace OculusDB.Users
             
             Dictionary<string, string?> meta = new Dictionary<string, string?>();
             meta.Add("diff type", OculusConverter.FormatDBEnumString(difference.differenceType.ToString()));
+            meta.Add("object id", OculusConverter.FormatDBEnumString(difference.entryId) + "\n"); // add new line to add seperation
             if (difference.differenceType == DifferenceType.ObjectUpdated)
             {
+                foreach (KeyValuePair<string, string?> field in GetIdentifyDiscordEmbedFields(difference))
+                {
+                    meta.Add(field.Key, field.Value);
+                }
                 // When updated we should list all changes
                 foreach (DBDifferenceEntry entry in difference.entries)
                 {
@@ -76,34 +81,7 @@ namespace OculusDB.Users
                 }
             } else if (difference.differenceType == DifferenceType.ObjectAdded)
             {
-                Dictionary<string, string?> fields = new Dictionary<string, string?>();
-                // Get newObject as IDBObjectOperations if it implements the interface
-                switch (difference.entryOculusDBType)
-                {
-                    case DBDataTypes.Application:
-                        fields = ((IDBObjectOperations<DBApplication>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    case DBDataTypes.IapItem:
-                        fields = ((IDBObjectOperations<DBIapItem>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    case DBDataTypes.IapItemPack:
-                        fields = ((IDBObjectOperations<DBIapItemPack>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    case DBDataTypes.Achievement:
-                        fields = ((IDBObjectOperations<DBAchievement>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    case DBDataTypes.Version:
-                        fields = ((IDBObjectOperations<DBVersion>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    case DBDataTypes.AppImage:
-                        fields = ((IDBObjectOperations<DBAppImage>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    case DBDataTypes.Offer:
-                        fields = ((IDBObjectOperations<DBOffer>)difference.newObject).GetDiscordEmbedFields();
-                        break;
-                    
-                }
-                foreach (KeyValuePair<string, string?> field in fields)
+                foreach (KeyValuePair<string, string?> field in GetNewDiscordEmbedFields(difference))
                 {
                     meta.Add(field.Key, field.Value);
                 }
@@ -121,6 +99,58 @@ namespace OculusDB.Users
             embed.description += "\n**Difference link:** " + websiteUrl + "/difference/" + difference.__id;
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1500);
+        }
+
+        public Dictionary<string, string?> GetNewDiscordEmbedFields(DBDifference difference)
+        {
+            switch (difference.entryOculusDBType)
+            {
+                case DBDataTypes.Application:
+                    return ((IDBObjectOperations<DBApplication>)difference.newObject).GetDiscordEmbedFields();
+                case DBDataTypes.IapItem:
+                    return ((IDBObjectOperations<DBIapItem>)difference.newObject).GetDiscordEmbedFields();
+                case DBDataTypes.IapItemPack:
+                    return ((IDBObjectOperations<DBIapItemPack>)difference.newObject).GetDiscordEmbedFields();
+                case DBDataTypes.Achievement:
+                    return ((IDBObjectOperations<DBAchievement>)difference.newObject).GetDiscordEmbedFields();
+                case DBDataTypes.Version:
+                    return ((IDBObjectOperations<DBVersion>)difference.newObject).GetDiscordEmbedFields();
+                case DBDataTypes.AppImage:
+                    return ((IDBObjectOperations<DBAppImage>)difference.newObject).GetDiscordEmbedFields();
+                case DBDataTypes.Offer:
+                    return ((IDBObjectOperations<DBOffer>)difference.newObject).GetDiscordEmbedFields();
+            }
+
+            return new Dictionary<string, string?>
+            {
+                { "Error", "Unknown object type" }
+            };
+        }
+        
+        public Dictionary<string, string?> GetIdentifyDiscordEmbedFields(DBDifference difference)
+        {
+            switch (difference.entryOculusDBType)
+            {
+                case DBDataTypes.Application:
+                    return ((IDBObjectOperations<DBApplication>)difference.newObject).GetIdentifyDiscordEmbedFields();
+                case DBDataTypes.IapItem:
+                    return ((IDBObjectOperations<DBIapItem>)difference.newObject).GetIdentifyDiscordEmbedFields();
+                case DBDataTypes.IapItemPack:
+                    return ((IDBObjectOperations<DBIapItemPack>)difference.newObject).GetIdentifyDiscordEmbedFields();
+                case DBDataTypes.Achievement:
+                    return ((IDBObjectOperations<DBAchievement>)difference.newObject).GetIdentifyDiscordEmbedFields();
+                case DBDataTypes.Version:
+                    return ((IDBObjectOperations<DBVersion>)difference.newObject).GetIdentifyDiscordEmbedFields();
+                case DBDataTypes.AppImage:
+                    return ((IDBObjectOperations<DBAppImage>)difference.newObject).GetIdentifyDiscordEmbedFields();
+                case DBDataTypes.Offer:
+                    return ((IDBObjectOperations<DBOffer>)difference.newObject).GetIdentifyDiscordEmbedFields();
+            }
+
+            return new Dictionary<string, string?>
+            {
+                { "Error", "Unknown object type" }
+            };
         }
     }
 

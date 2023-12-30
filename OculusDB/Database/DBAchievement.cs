@@ -116,6 +116,7 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
         return new Dictionary<string, string?>
         {
             { "title", title },
+            { "API name", apiName },
             { "Write policy", achievementWritePolicyFormatted },
             { "description", description },
             { "unlocked description", unlockedDescription },
@@ -125,6 +126,13 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
             { "Is archived", isArchived.ToString() },
             { "Bitfield length", bitfieldLength.ToString() },
             { "Bitfield target", bitfieldTarget.ToString() },
+        };
+    }
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "title", title },
             { "API name", apiName },
         };
     }

@@ -184,6 +184,14 @@ public class DBVersion : DBBase, IDBObjectOperations<DBVersion>
             {"has obb", obbBinary != null ? "Yes" : "No"}
         };
     }
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            {"version", version},
+            {"version code", versionCode.ToString()},
+        };
+    }
 
     public override ApplicationContext GetApplicationIds()
     {

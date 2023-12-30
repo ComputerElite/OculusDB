@@ -231,6 +231,10 @@ public class DBDifference : DBBase, IDBObjectOperations<DBDifference>
     {
         return new Dictionary<string, string?>();
     }
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>();
+    }
 
     public static DBDifference? ById(string objectId)
     {

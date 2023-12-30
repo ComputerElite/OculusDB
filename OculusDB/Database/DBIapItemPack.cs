@@ -53,6 +53,13 @@ public class DBIapItemPack : DBBase, IDBObjectOperations<DBIapItemPack>
             {"dlc count", items.Count.ToString()},
         };
     }
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "Display name", displayName }
+        };
+    }
 
     public override ApplicationContext GetApplicationIds()
     {

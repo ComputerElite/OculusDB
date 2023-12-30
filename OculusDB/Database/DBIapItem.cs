@@ -89,6 +89,14 @@ public class DBIapItem : DBBase, IDBObjectOperations<DBIapItem>
             { "Is App Lab", isAppLab.ToString()},
         };
     }
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "Display name", displayName },
+            { "SKU", sku}
+        };
+    }
 
     public override ApplicationContext GetApplicationIds()
     {

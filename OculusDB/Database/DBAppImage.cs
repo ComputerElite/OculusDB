@@ -34,6 +34,11 @@ public class DBAppImage : DBBase, IDBObjectOperations<DBAppImage>
         return new Dictionary<string, string?>();
     }
 
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>();
+    }
+
     public static DBAppImage? ById(string appId)
     {
         return OculusDBDatabase.appImages.Find(x => x.parentApplication.id == appId).FirstOrDefault();

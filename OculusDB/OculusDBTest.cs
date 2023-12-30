@@ -40,7 +40,12 @@ public class OculusDBTest
 {
     public static void Test()
     {
-        
+        DiffTest d = new DiffTest();
+        d.d = DateTime.Now;
+        DiffTest d2 = new DiffTest();
+        d2.d = DateTime.UtcNow;
+        Logger.Log(JsonSerializer.Serialize(DiffMaker.GetDifference(d, d2)));
+        return;
         GraphQLClient.log = false;
         /*
         Console.WriteLine("{");

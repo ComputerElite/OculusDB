@@ -49,7 +49,14 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
             { "Currency", currency},
             { "Price", price?.priceFormatted ?? "N/A"},
             { "Strikethrough price", strikethroughPrice?.priceFormatted ?? "No strikethrough price"},
-            { "For apps", string.Join(", ", presentOn)},
+            { "For ", string.Join(", ", presentOn)},
+        };
+    }
+    public Dictionary<string, string?> GetIdentifyDiscordEmbedFields()
+    {
+        return new Dictionary<string, string?>
+        {
+            { "For ", string.Join(", ", presentOn)},
         };
     }
 
