@@ -23,18 +23,20 @@ namespace OculusDB.Users
                     if (differenceWebhooks.Count <= 0)
                     {
                         // no webhooks, sleep for 10 seconds
+                        Logger.Log("No webhooks to process for");
                         Thread.Sleep(10000);
-                        continue;
                     }
                     List<DBDifference> diffs = OculusDBDatabase.GetDiffsFromQueue(100);
                     if (diffs.Count <= 0)
                     {
                         // no diffs to process, wait 10 seconds
+                        Logger.Log("No diff to process");
                         Thread.Sleep(10000);
                     }
                     
                     foreach (DBDifference diff in diffs)
                     {
+                        Logger.Log("Processing " + diff.__id);
                         foreach (DifferenceWebhook differenceWebhook in differenceWebhooks)
                         {
                             try
