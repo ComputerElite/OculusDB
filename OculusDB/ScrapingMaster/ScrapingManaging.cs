@@ -280,20 +280,20 @@ public class ScrapingManaging
         Logger.Log("# " + taskId + " processing " + taskResult.scraped.offers.Count + " offers");
         foreach (DBOffer d in taskResult.scraped.offers)
         {
-            string? parentApp = d.parentApplication?.id ?? null;
-            if (parentApp != null && !offerLookup.ContainsKey(parentApp))
+            string? grouping = d.grouping?.id ?? null;
+            if (grouping != null && !offerLookup.ContainsKey(grouping))
             {
                 // Cache everything for grouping
-                offerLookup.Add(parentApp, DBOffer.GetAllForApplication(parentApp));
+                offerLookup.Add(grouping, DBOffer.GetAllForGrouping(grouping));
             }
-            if (parentApp == "")
+            if (grouping == "")
             {
                 // If no grouping then get it individually from the db
                 List<DBOffer> found = DBOffer.ById(d.id);
                 offerLookup[""].AddRange(found);
             }
             d.presentOn = GetOfferPresentOn(d, ref taskResult);
-            DBOffer? oldEntry = d.GetEntryForDiffGeneration(offerLookup[parentApp ?? ""]);
+            DBOffer? oldEntry = d.GetEntryForDiffGeneration(offerLookup[grouping ?? ""]);
             ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             
             // Update contributions

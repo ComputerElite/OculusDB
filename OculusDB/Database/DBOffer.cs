@@ -11,8 +11,8 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
 
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
-    [BsonElement("p")]
-    public DBParentApplication? parentApplication { get; set; } = new DBParentApplication();
+    [BsonElement("g")]
+    public DBApplicationGrouping? grouping { get; set; } = null;
     [TrackChanges]
     [BsonElement("id")]
     public string id { get; set; } = "";
@@ -62,12 +62,7 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
 
     public override ApplicationContext GetApplicationIds()
     {
-        return ApplicationContext.FromAppId(parentApplication?.id ?? null);
-    }
-
-    public static List<DBOffer> GetAllForApplication(string parentApp)
-    {
-        return OculusDBDatabase.offerCollection.Find(x => x.parentApplication != null && x.parentApplication.id == parentApp).ToList();
+        return ApplicationContext.FromGroupingId(grouping?.id ?? null);
     }
 
     public static List<DBOffer> ById(string id)
@@ -78,5 +73,10 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     public override string GetId()
     {
         return id;
+    }
+
+    public static List<DBOffer> GetAllForGrouping(string groupingId)
+    {
+        return OculusDBDatabase.offerCollection.Find(x => x.grouping != null && x.grouping.id == groupingId).ToList();
     }
 }
