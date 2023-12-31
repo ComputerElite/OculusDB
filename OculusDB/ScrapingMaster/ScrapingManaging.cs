@@ -203,7 +203,7 @@ public class ScrapingManaging
                 // Add versions to VersionLookup
                 versionLookup.Add(parentApp, DBVersion.GetVersionsOfAppId(parentApp));
             }
-            if (parentApp == "")
+            if (String.IsNullOrEmpty(parentApp))
             {
                 // If no grouping then get it individually from the db
                 DBVersion? found = DBVersion.ById(v.id);
@@ -231,7 +231,7 @@ public class ScrapingManaging
                 // Add versions to VersionLookup
                 iapItemLookup.Add(parentGrouping, DBIapItem.GetAllForApplicationGrouping(parentGrouping));
             }
-            if (parentGrouping == "")
+            if (String.IsNullOrEmpty(parentGrouping))
             {
                 // If no grouping then get it individually from the db
                 DBIapItem? found = DBIapItem.ById(d.id);
@@ -259,7 +259,7 @@ public class ScrapingManaging
                 // Cache everything for grouping
                 iapItemPackLookup.Add(parentGrouping, DBIapItemPack.GetAllForApplicationGrouping(parentGrouping));
             }
-            if (parentGrouping == "")
+            if (String.IsNullOrEmpty(parentGrouping))
             {
                 // If no grouping then get it individually from the db
                 DBIapItemPack? found = DBIapItemPack.ById(d.id);
@@ -286,7 +286,7 @@ public class ScrapingManaging
                 // Cache everything for grouping
                 offerLookup.Add(grouping, DBOffer.GetAllForGrouping(grouping));
             }
-            if (grouping == "")
+            if (String.IsNullOrEmpty(grouping))
             {
                 // If no grouping then get it individually from the db
                 List<DBOffer> found = DBOffer.ById(d.id);
@@ -315,7 +315,7 @@ public class ScrapingManaging
                 // Cache everything for grouping
                 achievementLoopup.Add(parentGrouping, DBAchievement.GetAllForApplicationGrouping(parentGrouping));
             }
-            if (parentGrouping == "")
+            if (String.IsNullOrEmpty(parentGrouping))
             {
                 // If no grouping then get it individually from the db
                 DBAchievement? found = DBAchievement.ById(d.id);
