@@ -12,7 +12,7 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     [ObjectScrapingNodeFieldPresent]
     [TrackChanges]
     [BsonElement("g")]
-    public DBApplicationGrouping? grouping { get; set; } = null;
+    public DBParentApplicationGrouping? grouping { get; set; } = null;
     [TrackChanges]
     [BsonElement("id")]
     public string id { get; set; } = "";
@@ -68,6 +68,12 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     public static List<DBOffer> ById(string id)
     {
         return OculusDBDatabase.offerCollection.Find(x => x.id == id).ToList();
+    }
+
+    public override void PopulateSelf(PopulationContext context)
+    {
+        if (grouping == null) return;
+        grouping.applications = context.GetParentApplicationInApplicationGrouping(grouping.id);
     }
 
     public override string GetId()

@@ -278,6 +278,7 @@ public class ScrapingManaging
         // Process offers
         Dictionary<string, List<DBOffer>> offerLookup = new Dictionary<string, List<DBOffer>>();
         Logger.Log("# " + taskId + " processing " + taskResult.scraped.offers.Count + " offers");
+        PopulationContext populationContext = new PopulationContext();
         foreach (DBOffer d in taskResult.scraped.offers)
         {
             string? grouping = d.grouping?.id ?? null;
@@ -293,6 +294,7 @@ public class ScrapingManaging
                 offerLookup[""].AddRange(found);
             }
             d.presentOn = GetOfferPresentOn(d, ref taskResult);
+            d.PopulateSelf(populationContext);
             DBOffer? oldEntry = d.GetEntryForDiffGeneration(offerLookup[grouping ?? ""]);
             ScrapingNodeMongoDBManager.AddDiff(DiffMaker.GetDifference(oldEntry, d, scrapingNodeId), ref scrapingContribution);
             

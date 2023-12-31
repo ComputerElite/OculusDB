@@ -234,7 +234,7 @@ public class OculusConverter
         if (offer == null) return null;
         DBOffer db = new DBOffer();
         db.id = offer.id;
-        db.grouping = parentApplication.grouping;
+        db.grouping = ParentApplicationGrouping(parentApplication.grouping);
         if (offer.price != null)
         {
             DBPrice price = new DBPrice();

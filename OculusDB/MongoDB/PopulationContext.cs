@@ -81,7 +81,7 @@ public class PopulationContext
     {
         PopulationContext context = new PopulationContext();
         context.versionAliases = OculusDBDatabase.versionAliases.Find(x => x.appId == appId).ToList();
-        context.offers = OculusDBDatabase.offerCollection.Find(x => x.parentApplication != null && x.parentApplication.id == appId).ToList();
+        context.offers = OculusDBDatabase.offerCollection.Find(x => x.grouping != null && x.grouping.applicationIds.Contains(appId)).ToList();
         return context;
     }
     
@@ -89,7 +89,15 @@ public class PopulationContext
     {
         PopulationContext context = new PopulationContext();
         context.versionAliases = OculusDBDatabase.versionAliases.Find(x => appIds.Contains(x.appId)).ToList();
-        context.offers = OculusDBDatabase.offerCollection.Find(x => x.parentApplication != null && appIds.Contains(x.parentApplication.id)).ToList();
+        foreach (string appId in appIds)
+        {
+            // Add every offer for an appid but make sure to not add duplicates
+            List<DBOffer> offers = OculusDBDatabase.offerCollection.Find(x => x.grouping != null && x.grouping.applicationIds.Contains(appId)).ToList();
+            foreach (DBOffer offer in offers)
+            {
+                if (offer.GetEntryForDiffGeneration(context.offers) == null) context.offers.Add(offer);
+            }
+        }
         return context;
     }
 
