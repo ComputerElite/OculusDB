@@ -140,7 +140,6 @@ public class OculusConverter
                 version.changelog = existingVersion.changelog;
                 version.size = existingVersion.size;
                 version.requiredSpace = existingVersion.requiredSpace;
-                version.releaseChannels = existingVersion.releaseChannels;
                 version.targetedDevices = existingVersion.targetedDevices;
                 version.targetedDevicesFormatted = existingVersion.targetedDevicesFormatted;
                 version.permissions = existingVersion.permissions;
@@ -162,7 +161,7 @@ public class OculusConverter
                 version.binaryType = HeadsetBinaryType.PCBinary;
                 break;
         }
-        
+        version.releaseChannels.Clear();
         foreach (ReleaseChannel channel in (detailedBinary ?? notDetailedBinary).binary_release_channels.nodes)
         {
             version.releaseChannels.Add(new DBReleaseChannel
