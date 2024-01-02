@@ -16,7 +16,7 @@
 
         <h3>Set Oculus token for downloads</h3>
         <p>You can save an Oculus token in your browser below to use the download button on OculusDB. It will only be saved locally and not sent anywhere.</p>
-        <p>You will also need to remove the <code>oc_www_at</code> cookie via the developer tools (application tab) to be able to download games</p>
+        <b>You must also install the <a href="https://chromewebstore.google.com/detail/incognito-url-opener/mdehanmmmmflmlgobaogkgepjldhpibm">Incognito url opener chrome extension</a> and add <code>securecdn.oculus.com</code> as url</b>
         <a href="https://computerelite.github.io/tools/Oculus/ObtainTokenNew.html">Guide to get your token</a>
         <input type="password" placeholder="Oculus token" id="oculustoken">
 
@@ -77,15 +77,24 @@
         document.getElementById("app-id").value = id
     }
     UpdateBlockedApps()
+
+    if(params.has("token")) {
+        document.getElementById("oculustoken").value = params.get("token")
+        SaveToken(false)
+        alert("Saved token, you must also install an extension for downloads to work. I'll open it when you press ok. After installing it, return to this page.")
+        window.open("https://chromewebstore.google.com/detail/incognito-url-opener/mdehanmmmmflmlgobaogkgepjldhpibm", "_blank")
+        Popup(`Click the Incognito URL Opener extension in your navigation bar and add <code>securecdn.oculus.com</code> as url for download to work.
+        <div class="button" onclick="location = "/utils">Done</div>`)
+    }
     
-    function SaveToken() {
+    function SaveToken(showMsg = true) {
         var token = document.getElementById("oculustoken").value
         if(!token.startsWith("FR")) {
             alert("Your token is not correct. Please refer to the token guide to get your token.")
             return
         }
         localStorage.oculusToken = token
-        alert("saved")
+        alert("saved token.")
     }
     
     function CreateNode() {
