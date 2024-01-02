@@ -83,7 +83,7 @@
         SaveToken(false)
         alert("Saved token, you must also install an extension for downloads to work. I'll open it when you press ok. After installing it, return to this page.")
         window.open("https://chromewebstore.google.com/detail/incognito-url-opener/mdehanmmmmflmlgobaogkgepjldhpibm", "_blank")
-        Popup(`Click the Incognito URL Opener extension in your navigation bar and add <code>securecdn.oculus.com</code> as url for download to work.
+        PopUp(`Click the Incognito URL Opener extension in your navigation bar and add <code>securecdn.oculus.com</code> as url for download to work.
         <div class="button" onclick="location = "/utils">Done</div>`)
     }
     
@@ -94,7 +94,7 @@
             return
         }
         localStorage.oculusToken = token
-        alert("saved token.")
+        if(showMsg) alert("saved token.")
     }
     
     function CreateNode() {
