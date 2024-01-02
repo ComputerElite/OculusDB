@@ -164,13 +164,13 @@ if(!localStorage.isQAVS) {
     /// JOKES END
 
     // add survey
-    /*
+    
     document.body.innerHTML += `<div class="leftBottom" id="surveyPopup">
-    Mind taking a minute to give feedback on OculusDB and its related programs?
-    <input type="button" value="Go to Survey" onclick="window.open('https://forms.gle/CaDYkwFbhTTw7LnNA', '_blank')">
+    Mind taking 5 minute to give feedback on OculusDB and its related programs?
+    <input type="button" value="Go to Survey" onclick="window.open('https://forms.gle/xbBKRgfkMbXrFtLp9', '_blank')">
     <input type="button" value="Close popup" onclick="document.getElementById('surveyPopup').remove()">
     </div>`
-    */
+    
 }
 
 var navBarOpen = false
