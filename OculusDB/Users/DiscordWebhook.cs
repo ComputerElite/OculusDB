@@ -64,11 +64,11 @@ namespace OculusDB.Users
             Dictionary<string, string?> meta = new Dictionary<string, string?>();
             meta.Add("diff type", OculusConverter.FormatDBEnumString(difference.differenceType.ToString()));
             meta.Add("object id", OculusConverter.FormatDBEnumString(difference.entryId)); // add new line to add seperation
-            embed.description += FormatDisct(meta);
+            embed.description += FormatDict(meta);
             meta.Clear();
             if (difference.differenceType == DifferenceType.ObjectUpdated)
             {
-                embed.description += FormatDisct(GetIdentifyDiscordEmbedFields(difference)) + "\n";
+                embed.description += FormatDict(GetIdentifyDiscordEmbedFields(difference)) + "\n";
                 // When updated we should list all changes
                 foreach (DBDifferenceEntry entry in difference.entries)
                 {
