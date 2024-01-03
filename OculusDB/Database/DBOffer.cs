@@ -56,6 +56,7 @@ public class DBOffer : DBBase, IDBObjectOperations<DBOffer>
     {
         return new Dictionary<string, string?>
         {
+            { "Currency", currency},
             { "For ", string.Join(", ", presentOn)},
         };
     }

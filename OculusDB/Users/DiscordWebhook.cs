@@ -63,13 +63,12 @@ namespace OculusDB.Users
             
             Dictionary<string, string?> meta = new Dictionary<string, string?>();
             meta.Add("diff type", OculusConverter.FormatDBEnumString(difference.differenceType.ToString()));
-            meta.Add("object id", OculusConverter.FormatDBEnumString(difference.entryId) + "\n"); // add new line to add seperation
+            meta.Add("object id", OculusConverter.FormatDBEnumString(difference.entryId)); // add new line to add seperation
+            embed.description += FormatDisct(meta);
+            meta.Clear();
             if (difference.differenceType == DifferenceType.ObjectUpdated)
             {
-                foreach (KeyValuePair<string, string?> field in GetIdentifyDiscordEmbedFields(difference))
-                {
-                    meta.Add(field.Key, field.Value);
-                }
+                embed.description += FormatDisct(GetIdentifyDiscordEmbedFields(difference)) + "\n";
                 // When updated we should list all changes
                 foreach (DBDifferenceEntry entry in difference.entries)
                 {
@@ -81,24 +80,33 @@ namespace OculusDB.Users
                 }
             } else if (difference.differenceType == DifferenceType.ObjectAdded)
             {
+                embed.description += "\n";
                 foreach (KeyValuePair<string, string?> field in GetNewDiscordEmbedFields(difference))
                 {
                     meta.Add(field.Key, field.Value);
                 }
             }
-			foreach (KeyValuePair<string, string?> item in meta)
-            {
-                string toAdd = "**" + item.Key + ":** `" + (string.IsNullOrEmpty(item.Value) ? "-" : item.Value) + "`\n";
-                if (embed.description.Length + toAdd.Length >= 3500)
-                {
-                    embed.description += "...\n";
-                    break;
-                }
-                embed.description += "**" + item.Key + ":** `" + (item.Value.Length <= 0 ? "none" : item.Value) + "`\n";
-            }
+
+            embed.description += FormatDict(meta)
+			
             embed.description += "\n**Difference link:** " + websiteUrl + "/difference/" + difference.__id;
             webhook.SendEmbed(embed, "OculusDB", icon);
             Thread.Sleep(1500);
+        }
+
+        public string FormatDict(Dictionary<string, string?> meta) {
+            string s = "";
+            foreach (KeyValuePair<string, string?> item in meta)
+            {
+                string toAdd = "**" + item.Key + ":** `" + (string.IsNullOrEmpty(item.Value) ? "-" : item.Value) + "`\n";
+                if (s.Length + toAdd.Length >= 3500)
+                {
+                    s += "...\n";
+                    break;
+                }
+                s += toAdd;
+            }
+            return s;
         }
 
         public Dictionary<string, string?> GetNewDiscordEmbedFields(DBDifference difference)
