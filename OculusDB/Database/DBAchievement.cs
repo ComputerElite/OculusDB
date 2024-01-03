@@ -73,7 +73,6 @@ public class DBAchievement : DBBase, IDBObjectOperations<DBAchievement>
     [BsonElement("t")]
     public List<DBAchievementTranslation> translations { get; set; } = new List<DBAchievementTranslation>();
 
-    [JsonIgnore]
     [BsonElement("s")]
     public string? searchTitle { get; set; } = null;
     [BsonIgnore]
