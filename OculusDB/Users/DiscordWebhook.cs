@@ -87,7 +87,7 @@ namespace OculusDB.Users
                 }
             }
 
-            embed.description += FormatDict(meta)
+            embed.description += FormatDict(meta);
 			
             embed.description += "\n**Difference link:** " + websiteUrl + "/difference/" + difference.__id;
             webhook.SendEmbed(embed, "OculusDB", icon);
