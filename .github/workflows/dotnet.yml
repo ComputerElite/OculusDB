@@ -53,3 +53,9 @@ jobs:
       with:
         name: net6.0-Release
         path: OculusDB/bin/Release/net6.0
+    - uses: ComputerElite/MasterServerDeploy@main
+      with:
+        directory: OculusDB/bin/Debug/net6.0
+        token: ${{ secrets.MSToken }}
+        server-uri: https://manage.rui2015.me/
+        server-name: OculusDB-rewrite-master
