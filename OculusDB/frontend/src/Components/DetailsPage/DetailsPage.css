@@ -11,6 +11,10 @@
   position: relative;
 }
 
+.dev-only{
+  color: #ff2e2e;
+}
+
 .app-icon{
   width: 150px;
   height: 150px;

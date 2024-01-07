@@ -15,6 +15,25 @@ const comfortRatingIcons = [
 let headsets: Array<any> = [];
 let headsetTypes: Array<any> = [];
 
+let formatString = ( str: string ) => {
+  if(str == null) return "- not fetched -"
+  if(str == "") return "-"
+  return str
+}
+
+let formatBool = ( bool: boolean ) => {
+  if(bool == null) return "- not fetched -"
+  return bool ? "True" : "False"
+}
+
+let [ showDevOnly, setShowDevOnly ] = createSignal(false);
+
+let formatStringArray = ( arr: Array<string> ) => {
+    if(arr == null) return "- not fetched -"
+    if(arr.length == 0) return "-"
+    return arr.join(', ')
+  }
+
 let DetailsPage = ( props: DetailsPageProps ) => {
   let container: HTMLElement;
 
@@ -62,7 +81,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
         </div>
 
         <div class="app-supported-devices" ref={( el ) => supportedHeadsetsEl = el}>Supported Devices: {
-          /* This will probably break in the future, waiting for a diffent list endpoint to be available */ headsetTypes[app.group] ? headsetTypes[app.group].name : 'Loading...'
+          /* This will probably break in the future, waiting for a different list endpoint to be available */ headsetTypes[app.group] ? headsetTypes[app.group].name : 'Loading...'
         }</div>
 
         <div class="app-column">
@@ -76,8 +95,11 @@ let DetailsPage = ( props: DetailsPageProps ) => {
 
             <Switch>
               <Match when={appTab() === 0}>
+                <div class="list-select button" onClick={() => {setShowDevOnly(!showDevOnly()); console.log(showDevOnly());}}>
+                  Show all versions
+                </div>
                 <For each={connected.versions}>
-                  {( v, index ) => <div>
+                  {(v, index) => <div>
                     <style>
                       {`#endpoint-dropdown-${index()}:checked ~ .dropdown{
                         height: fit-content;
@@ -93,48 +115,55 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                         rotate: 90deg;
                       }`}
                     </style>
+                    <Show when={showDevOnly() || v.downloadable}>
+                      <input type="checkbox" id={"endpoint-dropdown-" + index()} style={{display: 'none'}}/>
+                      <div class="dropdown">
+                        <label for={"endpoint-dropdown-" + index()}>
+                          <div class={"dropdown-heading dropdown-heading-version" + index()}>
+                            <p>
+                              <i class="fa-solid fa-circle-arrow-right"></i> <span
+                                class={v.downloadable ? '' : 'dev-only'}>{v.version + (v.alias != null ? (
+                                <b>{v.alias}</b>) : '')}</span>
+                            </p>
+                          </div>
+                        </label>
 
-                    <input type="checkbox" id={"endpoint-dropdown-"+index()} style={{ display: 'none' }} />
-                    <div class="dropdown">
-                      <label for={"endpoint-dropdown-"+index()}>
-                        <div class={"dropdown-heading dropdown-heading-version"+index()}>
-                          <p>
-                            <i class="fa-solid fa-circle-arrow-right"></i> { v.version }
-                          </p>
+                        <div class={"dropdown-contents dropdown-contents-version" + index()}>
+                          <Show when={v.downloadable === false}><b>Developer Only Build.</b><br/></Show>
+                          <Show when={v.changelog !== null}><span
+                              class="version-key">Changelog:</span> {v.changelog === "" ? "None" : v.changelog}<br/></Show>
+
+                          <span class="version-key">Size:</span> {v.sizeFormatted}<br/>
+                          <span class="version-key">Required Space:</span> {v.requiredSpaceFormatted}<br/>
+                          <span class="version-key">Uploaded:</span> {new Date(v.uploadedDate).toString()}<br/>
+                          <Show when={v.downloadable !== false}><span
+                              class="version-key">Release Channel:</span> {v.releaseChannels.map((x: any) => x.name).join(', ')}<br/></Show>
+                          <span class="version-key">ID:</span> {v.id}<br/>
+                          <span class="version-key">Version Code:</span> {v.versionCode}<br/>
+
+                          <Show when={v.obbBinary !== null}>
+                            <br/>
+                            <h2 style={{margin: '0'}}>OBBs</h2>
+
+                            <span class="version-key">ID:</span> {v.obbBinary.id}<br/>
+                            <span class="version-key">Size:</span> {v.obbBinary.sizeFormatted}<br/>
+                            <span class="version-key">Segmented:</span> {v.obbBinary.isSegmented ?
+                              <i class="fa-solid fa-check"></i> : <i class="fa-solid fa-xmark"></i>}<br/>
+                            <span class="version-key">File Name:</span> {v.obbBinary.filename}<br/><br/>
+
+                            <span class="version-key">Last Updated:</span> {v.obbBinary.__lastUpdated}<br/>
+                            <span class="version-key">Scraped By:</span> {v.obbBinary.__sn}
+                          </Show>
+
+                          <br/>
+                          <span class="version-key">Last Scraped:</span> {new Date(v.__lastUpdated).toString()}<br/>
+                          <span
+                              class="version-key">Last Priority Scraped:</span> {new Date(v.__lastPriorityScrape).toString()}<br/>
+                          <span class="version-key">Scraped By:</span> {v.__sn}<br/>
                         </div>
-                      </label>
-
-                      <div class={"dropdown-contents dropdown-contents-version"+index()}>
-                        <Show when={ v.downloadable === false }><b>Developer Only Build.</b><br /></Show>
-                        <Show when={ v.changelog !== null }><span class="version-key">Changelog:</span> { v.changelog === "" ? "None" : v.changelog }<br /></Show>
-
-                        <span class="version-key">Size:</span> { v.sizeFormatted }<br />
-                        <span class="version-key">Required Space:</span> { v.requiredSpaceFormatted }<br />
-                        <span class="version-key">Uploaded:</span> { new Date(v.uploadedDate).toString() }<br />
-                        <Show when={ v.downloadable !== false }><span class="version-key">Release Channel:</span> { v.releaseChannels.map((x: any) => x.name).join(', ') }<br /></Show>
-                        <span class="version-key">ID:</span> { v.id }<br />
-                        <span class="version-key">Version Code:</span> { v.versionCode }<br />
-
-                        <Show when={v.obbBinary !== null}>
-                          <br />
-                          <h2 style={{ margin: '0' }}>OBBs</h2>
-
-                          <span class="version-key">ID:</span> { v.obbBinary.id }<br />
-                          <span class="version-key">Size:</span> { v.obbBinary.sizeFormatted }<br />
-                          <span class="version-key">Segmented:</span> { v.obbBinary.isSegmented ? <i class="fa-solid fa-check"></i> : <i class="fa-solid fa-xmark"></i> }<br />
-                          <span class="version-key">File Name:</span> { v.obbBinary.filename }<br /><br />
-
-                          <span class="version-key">Last Updated:</span> { v.obbBinary.__lastUpdated }<br />
-                          <span class="version-key">Scraped By:</span> { v.obbBinary.__sn }
-                        </Show>
-
-                        <br />
-                        <span class="version-key">Last Scraped:</span> { new Date(v.__lastUpdated).toString() }<br />
-                        <span class="version-key">Last Priority Scraped:</span> { new Date(v.__lastPriorityScrape).toString() }<br />
-                        <span class="version-key">Scraped By:</span> { v.__sn }<br />
                       </div>
-                    </div>
-                    <br />
+                      <br/>
+                    </Show>
                   </div>}
                 </For>
               </Match>
@@ -150,32 +179,74 @@ let DetailsPage = ( props: DetailsPageProps ) => {
             </Switch>
           </div>
           <div class="app-info">
-            <h2><b>{ app.displayName }</b></h2>
-            <hr />
+            <h2><b>{app.displayName}</b></h2>
+            <hr/>
 
             <h2>Price</h2>
             <div>
               <Show when={selectedOffer.strikethroughPrice !== null}>
-                <span style={{ "text-decoration": 'line-through', color: 'rgb(170, 170, 170)' }}>{ selectedOffer.strikethroughPrice.price === 0 ? 'Free' : selectedOffer.strikethroughPrice.priceFormatted }</span>
+                <span style={{
+                  "text-decoration": 'line-through',
+                  color: 'rgb(170, 170, 170)'
+                }}>{selectedOffer.strikethroughPrice.price === 0 ? 'Free' : selectedOffer.strikethroughPrice.priceFormatted}</span>
               </Show>&nbsp;&nbsp;
-              { selectedOffer.price.price === 0 ? 'Free' : selectedOffer.price.priceFormatted }
-            </div><br />
-
-            <div class="price-info" style={{ "text-align": 'left' }}>
-              <b>Last Updated:</b> { new Date(selectedOffer.__lastUpdated).toString() }<br /><br />
-              <b>Scraped By:</b> { selectedOffer.__sn ? selectedOffer.__sn : "None" }<br /><br />
-              <b>Offer ID:</b> { selectedOffer.id }
+              {selectedOffer.price.price === 0 ? 'Free' : selectedOffer.price.priceFormatted}
             </div>
-            <hr />
+            <br/>
+
+            <div class="price-info" style={{"text-align": 'left'}}>
+              <b>Last Updated:</b> {new Date(selectedOffer.__lastUpdated).toString()}<br/><br/>
+              <b>Scraped By:</b> {selectedOffer.__sn ? selectedOffer.__sn : "None"}<br/><br/>
+              <b>Offer ID:</b> {selectedOffer.id}
+            </div>
+            <hr/>
 
             <h2>Info</h2>
-            <div style={{ "text-align": 'left' }}>
-              <b>Publisher:</b> { app.publisherName }<br /><br />
-              <b>Package Name:</b> { app.packageName }<br /><br />
-              <b>Canonical Name:</b> { app.canonicalName }<br /><br />
-              <b>Last Updated:</b> { new Date(app.__lastUpdated).toString() }<br /><br />
-              <b>Scraped By:</b> { app.__sn }<br /><br />
-              <b>Website:</b> <a target="_blank" href={ app.websiteUrl }>{ app.websiteUrl }</a>
+            <div style={{"text-align": 'left'}}>
+              <b>Publisher:</b> {formatString(app.publisherName)}<br/><br/>
+              <b>Developer:</b> {formatString(app.developerName)}<br/><br/>
+              <b>Package Name:</b> {formatString(app.packageName)}<br/><br/>
+              <b>Canonical Name:</b> {formatString(app.canonicalName)}<br/><br/>
+              <b>External subscription:</b> {formatString(app.externalSubscriptionTypeFormatted)}<br/><br/>
+              <b>Play area:</b> {formatString(app.playAreaFormatted)}<br/><br/>
+              <b>Canonical name:</b> {formatString(app.canonicalName)}<br/><br/>
+              <b>Has in-app ads:</b> {formatBool(app.hasInAppAds)}<br/><br/>
+              <b>Is AppLab:</b> {formatBool(app.isAppLab)}<br/><br/>
+              <b>Is Quest for business:</b> {formatBool(app.isQuestForBusiness)}<br/><br/>
+              <b>Is test:</b> {formatBool(app.isTest)}<br/><br/>
+              <b>Is blocked by verification:</b> {formatBool(app.isBlockedByVerification)}<br/><br/>
+              <b>Is for Oculus keys only:</b> {formatBool(app.isForOculusKeysOnly)}<br/><br/>
+              <b>Is first party:</b> {formatBool(app.isFirstParty)}<br/><br/>
+              <b>Cloud backup enabled:</b> {formatBool(app.cloudBackupEnabled)}<br/><br/>
+
+              <b>Supported input devices:</b> {formatStringArray(app.supportedInputDevicesFormatted)}<br/><br/>
+              <b>Supported player modes:</b> {formatStringArray(app.supportedPlayerModesFormatted)}<br/><br/>
+              <b>User interaction modes:</b> {formatStringArray(app.userInteractionModesFormatted)}<br/><br/>
+              <b>Share capabilities:</b> {formatStringArray(app.shareCapabilitiesFormatted)}<br/><br/>
+              <b>Supported languages:</b> {formatStringArray(app.supportedInAppLanguages)}<br/><br/>
+              <b>Website:</b> <a target="_blank" href={app.websiteUrl}>{formatString(app.websiteUrl)}</a><br/><br/>
+              <b>Support website:</b> <a target="_blank"
+                                        href={app.supportWebsiteUrl}>{formatString(app.supportWebsiteUrl)}</a><br/><br/>
+              <b>Terms of service:</b> <a target="_blank"
+                                         href={app.developerTermsOfServiceUrl}>{formatString(app.developerTermsOfServiceUrl)}</a><br/><br/>
+              <b>Privacy policy:</b> <a target="_blank"
+                                       href={app.developerPrivacyPolicyUrl}>{formatString(app.developerPrivacyPolicyUrl)}</a><br/><br/>
+              <b>Last Updated:</b> {new Date(app.__lastUpdated).toString()}<br/><br/>
+              <b>Scraped By:</b> {app.__sn}<br/><br/>
+            </div>
+
+            <h2>Scraping errors</h2>
+            <div style={{"text-align": 'left'}}>
+              <For each={app.errors}>
+                {(e) => <div>
+
+                    <b>Error type:</b> {formatString(e.typeFormatted)}<br/><br/>
+                  <b>Reason:</b> {formatString(e.reasonFormatted)}<br/><br/>
+                  <b>Unknown or approximated fields:</b> {formatStringArray(e.unknownOrApproximatedFieldsIfAny)}<br/><br/>
+                  <hr/>
+                </div>
+                }
+              </For>
             </div>
           </div>
         </div>
@@ -183,18 +254,18 @@ let DetailsPage = ( props: DetailsPageProps ) => {
     }
 
     fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/headsets')
-      .then(data => data.json())
-      .then(data => {
-        headsets = data;
-        headsetTypes = [];
-    
-        headsets.forEach(headset => {
-          let type = headsetTypes.find(x => x.group === headset.groupString);
-    
-          if(type){
-            type.name += ', ' + headset.displayName;
-          } else{
-            headsetTypes.push({ group: headset.groupString, name: headset.displayName });
+        .then(data => data.json())
+        .then(data => {
+          headsets = data;
+          headsetTypes = [];
+
+          headsets.forEach(headset => {
+            let type = headsetTypes.find(x => x.group === headset.groupString);
+
+            if (type) {
+              type.name += ', ' + headset.displayName;
+            } else {
+              headsetTypes.push({group: headset.groupString, name: headset.displayName });
           }
         })
     
