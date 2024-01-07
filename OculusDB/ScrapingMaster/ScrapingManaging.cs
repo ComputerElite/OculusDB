@@ -207,6 +207,7 @@ public class ScrapingManaging
             {
                 // If no grouping then get it individually from the db
                 DBVersion? found = DBVersion.ById(v.id);
+                if(!versionLookup.ContainsKey("")) versionLookup.Add("", new List<DBVersion>());
                 if(found != null) versionLookup[""].Add(found);
             }
 
@@ -235,6 +236,7 @@ public class ScrapingManaging
             {
                 // If no grouping then get it individually from the db
                 DBIapItem? found = DBIapItem.ById(d.id);
+                if(!iapItemLookup.ContainsKey("")) iapItemLookup.Add("", new List<DBIapItem>());
                 if(found != null) iapItemLookup[""].Add(found);
             }
 
@@ -263,6 +265,7 @@ public class ScrapingManaging
             {
                 // If no grouping then get it individually from the db
                 DBIapItemPack? found = DBIapItemPack.ById(d.id);
+                if(!iapItemPackLookup.ContainsKey("")) iapItemPackLookup.Add("", new List<DBIapItemPack>());
                 if(found != null) iapItemPackLookup[""].Add(found);
             }
 
@@ -291,6 +294,7 @@ public class ScrapingManaging
             {
                 // If no grouping then get it individually from the db
                 List<DBOffer> found = DBOffer.ById(d.id);
+                if(!offerLookup.ContainsKey("")) offerLookup.Add("", new List<DBOffer>());
                 offerLookup[""].AddRange(found);
             }
             d.presentOn = GetOfferPresentOn(d, ref taskResult);
@@ -321,6 +325,7 @@ public class ScrapingManaging
             {
                 // If no grouping then get it individually from the db
                 DBAchievement? found = DBAchievement.ById(d.id);
+                if(!achievementLoopup.ContainsKey("")) achievementLoopup.Add("", new List<DBAchievement>());
                 if(found != null) achievementLoopup[""].Add(found);
             }
 

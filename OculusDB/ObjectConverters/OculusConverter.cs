@@ -304,7 +304,7 @@ public class OculusConverter
             {
                 if (revision.release_status_enum == ReleaseStatus.RELEASED)
                 {
-                    if (metadataToUse != null && metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
+                    if (metadataToUse != null && revision.pdp_metadata != null && metadataToUse.id == revision.pdp_metadata.id) break; // we already have the full metadata
                     db.hasUnpublishedMetadataInQueue = true;
                     if(revision.pdp_metadata == null) continue;
                     metadataToUse = GraphQLClient.PDPMetadata(revision.pdp_metadata.id).data.node; // fetch released metadata entry from Oculus
