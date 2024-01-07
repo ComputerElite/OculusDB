@@ -11,16 +11,18 @@ public class DBParentApplicationGrouping : DBBase
     [TrackChanges]
     [BsonElement("id")]
     public string id { get; set; } = "";
+    [BsonIgnore]
+    private List<DBParentApplication> _applications = new List<DBParentApplication>();
     [BsonElement("a")]
     public List<DBParentApplication> applications {
         get
         {
-            return applications;
+            return _applications;
         }
         set
         {
             applicationIds = applications.Select(x => x.id).ToList();
-            applications = value;
+            _applications = value;
         }
     }
 

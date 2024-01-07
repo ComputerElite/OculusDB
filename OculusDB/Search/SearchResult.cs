@@ -17,3 +17,20 @@ public class SearchResult
         resultAnnotation = msg;
     }
 }
+public class SearchResultWithType<T>
+{
+    public List<T> results { get; set; } = new List<T>();
+    public string? resultAnnotation { get; set; } = null;
+    
+    public SearchResultWithType() {}
+
+    public SearchResultWithType(string msg)
+    {
+        resultAnnotation = msg;
+    }
+    public SearchResultWithType(List<T> res, string msg)
+    {
+        results = res;
+        resultAnnotation = msg;
+    }
+}

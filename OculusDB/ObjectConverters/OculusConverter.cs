@@ -473,8 +473,9 @@ public class OculusConverter
         DBParentApplicationGrouping db = FromOculusToDB<ApplicationGrouping, DBParentApplicationGrouping>(grouping);
         return db;
     }
-    public static DBParentApplicationGrouping ParentApplicationGrouping(DBApplicationGrouping grouping)
+    public static DBParentApplicationGrouping ParentApplicationGrouping(DBApplicationGrouping? grouping)
     {
+        if (grouping == null) return null;
         DBParentApplicationGrouping db = new DBParentApplicationGrouping();
         db.id = grouping.id;
         return db;
