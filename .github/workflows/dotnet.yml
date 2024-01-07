@@ -59,3 +59,9 @@ jobs:
         token: ${{ secrets.MSToken }}
         server-uri: https://manage.rui2015.me/
         server-name: OculusDB-rewrite-master
+    - uses: ComputerElite/MasterServerDeploy@main
+      with:
+        directory: OculusDB/bin/Debug/net6.0
+        token: ${{ secrets.MSTokenFrontend }}
+        server-uri: https://manage.rui2015.me/
+        server-name: OculusDB-rewrite-frontend
