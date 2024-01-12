@@ -276,8 +276,8 @@ public class ScrapingNodeScraper
                 }
                 if (packageName == "")
                 {
-                    PlainData<AppBinaryInfoContainer> info = GraphQLClient.GetAssetFiles(a.id, b.versionCode);
-                    if (info.data != null) packageName = info.data.app_binary_info.info[0].binary.package_name;
+                    Data<OculusBinary> info = GraphQLClient.GetMoreBinaryDetails(b.id);
+                    if (info.data != null) packageName = info.data.node.package_name;
                 }
 
                 if (!addedApplication)
