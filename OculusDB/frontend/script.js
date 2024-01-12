@@ -1324,10 +1324,15 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
         if(isObb && !sendToParent) ObbInfoPopup()
     } else {
         PopUp(`
-        <div>
-            You can use QuestAppVersionSwitcher to downgrade Quest games. A guide for downgrading can be found <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>. For alternate methods click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading">here</a>.
-        </div>
-    `)
+            <div>
+                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">Please read this before asking why downgrading is not working!</div>
+                <p>
+                    <span style="font-weight: bold">You can use <span style="font-weight: bolder;">QuestAppVersionSwitcher</span> to downgrade Quest games.</span>
+                    A guide for downgrading can be found <a href="https://oculusdb.rui2015.me/guide/quest/qavs" style="text-decoration: underline; color: red;">here</a>.
+                    For alternate methods click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading" style="text-decoration: none;">here</a>.
+                </p>
+            </div>
+        `);
     }
    
 }
