@@ -19,7 +19,9 @@ const quotes = [
   "\"SCOTLAND FOREEEVER\" - ComputerElite",
   "\"SCOOOOOOOOOOOOTLAND\" - Phaze",
   "\"what is that? Selfie stick base station?\" - Computer",
-  "\"I FOUND IT\" - Phaze"
+  "\"I FOUND IT\" - Phaze",
+  "\"I'm better than Meta\" - Computer (according to a classmate)",
+  "\"WE NEED MORE QUOTES\" - Computer"
 ]
 
 let Footer = () => {
