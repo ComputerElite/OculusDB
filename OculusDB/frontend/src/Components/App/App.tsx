@@ -8,12 +8,13 @@ import PrivacyPolicy from '../PrivacyPolicy/PrivacyPolicy'
 import Activity from '../Activity/Activity'
 import SearchPage from '../SearchPage/SearchPage'
 import APIDocs from '../APIDocs/APIDocs'
+import DetailsPage from '../DetailsPage/DetailsPage'
+import Login from '../Login/Login'
+import SavedApps from '../SavedApps/SavedApps'
 import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, DowngradingGuideQuestQavs, DowngradingGuideQuestSqq, DowngradingGuideRift } from '../DowngradingGuide/DowngradingGuide'
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect } from 'solid-js'
-import DetailsPage from '../DetailsPage/DetailsPage'
-import Login from '../Login/Login'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -165,6 +166,9 @@ function App() {
         </Match>
         <Match when={currentTab() === '/login'}>
           <Login />
+        </Match>
+        <Match when={currentTab() === '/saved'}>
+          <SavedApps setCurrentTab={setCurrentTab} />
         </Match>
       </Switch>
 
