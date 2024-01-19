@@ -12,6 +12,12 @@ const comfortRatingIcons = [
   'https://cdn.phazed.xyz/odbicons/norate.svg',
 ]
 
+const headsetGroups = [ // This will be updated at some point to use an api endpoint
+  'Quest',
+  'PCVR',
+  'Go & GearVR'
+]
+
 let headsets: Array<any> = [];
 let headsetTypes: Array<any> = [];
 
@@ -26,13 +32,11 @@ let formatBool = ( bool: boolean ) => {
   return bool ? "True" : "False"
 }
 
-let [ showDevOnly, setShowDevOnly ] = createSignal(false);
-
 let formatStringArray = ( arr: Array<string> ) => {
-    if(arr == null) return "- not fetched -"
-    if(arr.length == 0) return "-"
-    return arr.join(', ')
-  }
+  if(arr == null) return "- not fetched -"
+  if(arr.length == 0) return "-"
+  return arr.join(', ')
+}
 
 let DetailsPage = ( props: DetailsPageProps ) => {
   let container: HTMLElement;
@@ -46,13 +50,32 @@ let DetailsPage = ( props: DetailsPageProps ) => {
 
     let displayApplication = async ( app: any ) => {
       let [ appTab, setAppTab ] = createSignal(0);
+      let [ starred, setStarred ] = createSignal(false);
+      let [ showDevOnly, setShowDevOnly ] = createSignal(false);
 
+      let starredApps = localStorage.getItem('starred') ? localStorage.getItem('starred')!.split(',') : [];
+      setStarred(starredApps.find(x => x === app.id) ? true : false);
+    
       let tabButtons: Array<HTMLElement> = [];
       let selectTab = ( index: number ) => {
         tabButtons.forEach(btn => btn.classList.remove('button-selected'));
         tabButtons[index].classList.add('button-selected');
 
+        localStorage.setItem('application-selected-tab', index.toString());
         setAppTab(index);
+      }
+
+      let star = () => {
+        setStarred(!starred());
+
+        starredApps = localStorage.getItem('starred') ? localStorage.getItem('starred')!.split(',') : [];
+        
+        if(starredApps.find(x => x === app.id))
+          starredApps = starredApps.filter(x => x !== app.id);
+        else
+          starredApps.push(app.id);
+
+        localStorage.setItem('starred', starredApps.join(','));
       }
 
       let connectedReq = await fetch('https://oculusdb-rewrite.rui2015.me/api/v2/connected/'+app.id);
@@ -66,6 +89,16 @@ let DetailsPage = ( props: DetailsPageProps ) => {
         <div class="app-rating">
           <img width="20" src={ comfortRatingIcons[app.comfortRating] } />
           <div style={{ "margin-left": '10px' }}>{ app.comfortRatingFormatted }</div>
+        </div>
+        <div class="app-save" onClick={star}>
+          <Switch>
+            <Match when={starred()}>
+              <i class="fa-solid fa-star"></i>
+            </Match>
+            <Match when={!starred()}>
+              <i class="fa-regular fa-star"></i>
+            </Match>
+          </Switch>
         </div>
 
         <div class="header-image" style={{ background: 'url(' + app.imgUrlAbsolute + ')' }}></div>
@@ -87,7 +120,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
         <div class="app-column">
           <div class="app-lists">
             <div class="app-list-select">
-              <div class="list-select button button-selected" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(0)}>Versions ({ connected.versions.length })</div>
+              <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(0)}>Versions ({ connected.versions.length })</div>
               <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(1)}>DLCs ({ connected.iapItems.length })</div>
               <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(2)}>DLC Packs ({ connected.iapItemPacks.length })</div>
               <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(3)}>Applications ({ connected.applications.length })</div>
@@ -95,30 +128,31 @@ let DetailsPage = ( props: DetailsPageProps ) => {
 
             <Switch>
               <Match when={appTab() === 0}>
-                <div class="list-select button" onClick={() => {setShowDevOnly(!showDevOnly()); console.log(showDevOnly());}}>
+                <div class="list-select button" style={{ width: 'calc(100% - 60px)' }} onClick={() => {setShowDevOnly(!showDevOnly()); console.log(showDevOnly());}}>
                   Show all versions
-                </div>
+                </div><br /><br />
+
                 <For each={connected.versions}>
                   {(v, index) => <div>
                     <style>
-                      {`#endpoint-dropdown-${index()}:checked ~ .dropdown{
+                      {`#version-dropdown-${index()}:checked ~ .dropdown{
                         height: fit-content;
                       }
 
-                      #endpoint-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-version${index()}{
+                      #version-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-version${index()}{
                         display: block;
                         height: fit-content;
                         opacity: 1;
                       }
 
-                      #endpoint-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-version${index()} i{
+                      #version-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-version${index()} i{
                         rotate: 90deg;
                       }`}
                     </style>
                     <Show when={showDevOnly() || v.downloadable}>
-                      <input type="checkbox" id={"endpoint-dropdown-" + index()} style={{display: 'none'}}/>
+                      <input type="checkbox" id={"version-dropdown-" + index()} style={{display: 'none'}}/>
                       <div class="dropdown">
-                        <label for={"endpoint-dropdown-" + index()}>
+                        <label for={"version-dropdown-" + index()}>
                           <div class={"dropdown-heading dropdown-heading-version" + index()}>
                             <p>
                               <i class="fa-solid fa-circle-arrow-right"></i> <span
@@ -168,13 +202,117 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                 </For>
               </Match>
               <Match when={appTab() === 1}>
-                <p>1</p>
+                <For each={connected.iapItems}>
+                  {(dlc, index) => <div>
+                    <style>
+                      {`#iapItems-dropdown-${index()}:checked ~ .dropdown{
+                        height: fit-content;
+                      }
+
+                      #iapItems-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-iapItems${index()}{
+                        display: block;
+                        height: fit-content;
+                        opacity: 1;
+                      }
+
+                      #iapItems-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-iapItems${index()} i{
+                        rotate: 90deg;
+                      }`}
+                    </style>
+                    <input type="checkbox" id={"iapItems-dropdown-" + index()} style={{display: 'none'}}/>
+                      <div class="dropdown">
+                        <label for={"iapItems-dropdown-" + index()}>
+                          <div class={"dropdown-heading dropdown-heading-iapItems" + index()}>
+                            <p>
+                              <i class="fa-solid fa-circle-arrow-right"></i> <span>{ dlc.displayName }</span>
+                            </p>
+                          </div>
+                        </label>
+
+                        <div class={"dropdown-contents dropdown-contents-iapItems" + index()}>
+
+                        </div>
+                      </div><br />
+                  </div>}
+                </For>
               </Match>
               <Match when={appTab() === 2}>
-                <p>2</p>
+                <For each={connected.iapItemPacks}>
+                  {(dlcPack, index) => <div>
+                    <style>
+                      {`#iapItemPacks-dropdown-${index()}:checked ~ .dropdown{
+                        height: fit-content;
+                      }
+
+                      #iapItemPacks-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-iapItemPacks${index()}{
+                        display: block;
+                        height: fit-content;
+                        opacity: 1;
+                      }
+
+                      #iapItemPacks-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-iapItemPacks${index()} i{
+                        rotate: 90deg;
+                      }`}
+                    </style>
+                    <input type="checkbox" id={"iapItemPacks-dropdown-" + index()} style={{display: 'none'}}/>
+                      <div class="dropdown">
+                        <label for={"iapItemPacks-dropdown-" + index()}>
+                          <div class={"dropdown-heading dropdown-heading-iapItemPacks" + index()}>
+                            <p>
+                              <i class="fa-solid fa-circle-arrow-right"></i> <span>{ dlcPack.displayName }</span>
+                            </p>
+                          </div>
+                        </label>
+
+                        <div class={"dropdown-contents dropdown-contents-iapItemPacks" + index()}>
+                          { dlcPack.displayShortDescription }<br /><br />
+
+                          <span class="version-key">Price: </span> {dlcPack.offers[0].price.priceFormatted}<br />
+                          <span class="version-key">Included DLCs: </span> {dlcPack.items.length}
+                        </div>
+                      </div><br />
+                  </div>}
+                </For>
               </Match>
               <Match when={appTab() === 3}>
-                <p>3</p>
+                <For each={connected.applications}>
+                  {(app, index) => <div>
+                    <style>
+                      {`#application-dropdown-${index()}:checked ~ .dropdown{
+                        height: fit-content;
+                      }
+
+                      #application-dropdown-${index()}:checked ~ .dropdown > .dropdown-contents-application${index()}{
+                        display: block;
+                        height: fit-content;
+                        opacity: 1;
+                      }
+
+                      #application-dropdown-${index()}:checked ~ .dropdown .dropdown-heading-application${index()} i{
+                        rotate: 90deg;
+                      }`}
+                    </style>
+                    <input type="checkbox" id={"application-dropdown-" + index()} style={{display: 'none'}}/>
+                      <div class="dropdown">
+                        <label for={"application-dropdown-" + index()}>
+                          <div class={"dropdown-heading dropdown-heading-application" + index()}>
+                            <p>
+                              <i class="fa-solid fa-circle-arrow-right"></i> <span>{ app.displayName }</span>
+                            </p>
+                          </div>
+                        </label>
+
+                        <div class={"dropdown-contents dropdown-contents-application" + index()}>
+                          <span class="version-key">Devices:</span> {headsetGroups[app.group]}<br />
+
+                          <br />
+                          <div class="button" style={{ width: 'calc(100% - 55px)', 'text-align': 'center' }} onClick={ () => window.location.href = '/id/' + app.id }>
+                            Go to Details
+                          </div>
+                        </div>
+                      </div><br />
+                  </div>}
+                </For>
               </Match>
             </Switch>
           </div>
@@ -251,6 +389,8 @@ let DetailsPage = ( props: DetailsPageProps ) => {
           </div>
         </div>
       </div> as Node);
+
+      selectTab(localStorage.getItem('application-selected-tab') !== undefined ? parseInt(localStorage.getItem('application-selected-tab')!) : 0);
     }
 
     fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/headsets')
