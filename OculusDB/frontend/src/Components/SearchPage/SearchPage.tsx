@@ -20,7 +20,7 @@ class SearchPageProps{
 
 let SearchPage = ( props: SearchPageProps ) => {
   let [ searchType, setSearchType ] = createSignal(-1);
-  let [ searchHeadset, setSearchHeadset ] = createSignal("Quest,PCVR,GoAndGearVr");
+  let [ searchHeadset, setSearchHeadset ] = createSignal(props.query().group || 'Quest,PCVR,GoAndGearVr');
   let [ apps, setApps ] = createSignal<Array<ResultData>>([]);
 
   let selectorButtons: Array<HTMLElement> = [];
@@ -143,6 +143,8 @@ let SearchPage = ( props: SearchPageProps ) => {
 
     setApps([]);
     loadingIndicator.style.display = 'flex';
+
+    console.log(headset);
 
     console.log(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}&groups=${headset}`);
     fetch(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}&groups=${headset}`)
