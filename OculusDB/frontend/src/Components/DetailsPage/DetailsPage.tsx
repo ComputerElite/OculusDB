@@ -61,6 +61,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
         tabButtons.forEach(btn => btn.classList.remove('button-selected'));
         tabButtons[index].classList.add('button-selected');
 
+        localStorage.setItem('application-selected-tab', index.toString());
         setAppTab(index);
       }
 
@@ -119,7 +120,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
         <div class="app-column">
           <div class="app-lists">
             <div class="app-list-select">
-              <div class="list-select button button-selected" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(0)}>Versions ({ connected.versions.length })</div>
+              <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(0)}>Versions ({ connected.versions.length })</div>
               <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(1)}>DLCs ({ connected.iapItems.length })</div>
               <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(2)}>DLC Packs ({ connected.iapItemPacks.length })</div>
               <div class="list-select button" ref={( el ) => tabButtons.push(el)} onClick={() => selectTab(3)}>Applications ({ connected.applications.length })</div>
@@ -264,7 +265,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                         </label>
 
                         <div class={"dropdown-contents dropdown-contents-iapItemPacks" + index()}>
-
+                          { dlcPack.displayShortDescription }
                         </div>
                       </div><br />
                   </div>}
@@ -299,7 +300,12 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                         </label>
 
                         <div class={"dropdown-contents dropdown-contents-application" + index()}>
-                          <span class="version-key">Devices:</span> {headsetGroups[app.group]}
+                          <span class="version-key">Devices:</span> {headsetGroups[app.group]}<br />
+
+                          <br />
+                          <div class="button" style={{ width: 'calc(100% - 55px)', 'text-align': 'center' }} onClick={ () => window.location.href = '/id/' + app.id }>
+                            Go to Details
+                          </div>
                         </div>
                       </div><br />
                   </div>}
@@ -380,6 +386,8 @@ let DetailsPage = ( props: DetailsPageProps ) => {
           </div>
         </div>
       </div> as Node);
+
+      selectTab(localStorage.getItem('application-selected-tab') !== undefined ? parseInt(localStorage.getItem('application-selected-tab')!) : 0);
     }
 
     fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/headsets')
