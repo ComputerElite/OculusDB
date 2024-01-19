@@ -265,7 +265,10 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                         </label>
 
                         <div class={"dropdown-contents dropdown-contents-iapItemPacks" + index()}>
-                          { dlcPack.displayShortDescription }
+                          { dlcPack.displayShortDescription }<br /><br />
+
+                          <span class="version-key">Price: </span> {dlcPack.offers[0].price.priceFormatted}<br />
+                          <span class="version-key">Included DLCs: </span> {dlcPack.items.length}
                         </div>
                       </div><br />
                   </div>}
