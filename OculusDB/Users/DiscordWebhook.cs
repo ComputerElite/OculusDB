@@ -63,7 +63,7 @@ namespace OculusDB.Users
             string type = activity["__OculusDBType"].ToString();
             DiscordWebhook webhook = new DiscordWebhook(url);
             DiscordEmbed embed = new DiscordEmbed();
-            string websiteUrl = config.publicAddress;
+            string websiteUrl = config.publicAddress + "/";
             string icon = websiteUrl + "logo";
             embed.author = new DiscordEmbedAuthor { icon_url = icon, name = "OculusDB", url = websiteUrl };
             Dictionary<string, string> meta = new Dictionary<string, string>();
