@@ -1325,10 +1325,10 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
     } else {
         PopUp(`
             <div>
-                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">Please read this before asking why downgrading is not working!</div>
+                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">Why is my download not starting?</div>
                 <p>
-                    <span style="font-weight: bold">You can use <span style="font-weight: bolder;">QuestAppVersionSwitcher</span> to downgrade Quest games.</span>
-                    A guide for downgrading can be found <a href="https://oculusdb.rui2015.me/guide/quest/qavs" style="text-decoration: underline; color: red;">here</a>.
+                    <span style="font-weight: bold">You have to use <span style="font-weight: bolder;">QuestAppVersionSwitcher</span> to downgrade Quest games.</span>
+                    It's an app you install on your Quest and then use to downgrade. You can find a guide on how to set it up <a href="https://oculusdb.rui2015.me/guide/quest/qavs" style="text-decoration: underline; color: red;">here</a>.
                     For alternate methods click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading" style="text-decoration: none;">here</a>.
                 </p>
             </div>
