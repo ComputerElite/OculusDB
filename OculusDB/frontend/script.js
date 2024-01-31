@@ -1331,7 +1331,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
                     It's an app you install on your Quest and then use to downgrade. You can find a guide on how to set it up <a href="https://oculusdb.rui2015.me/guide/quest/qavs" style="text-decoration: underline; color: red;">here</a>.
                     For alternate methods click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading" style="text-decoration: none;">here</a>.
                     <br/>
-                    <button onclick="GetHelp">Recieve Help</button>
+                    <input type="button" onclick="GetHelp()" value="Receive Help">
                 </p>
             </div>
         `);
