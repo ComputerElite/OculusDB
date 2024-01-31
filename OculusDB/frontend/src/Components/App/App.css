@@ -4,3 +4,17 @@
   overflow: auto;
   background: #0008;
 }
+
+.zuck{
+  position: fixed;
+  bottom: -300px;
+  rotate: -45deg;
+  left: 50px;
+  height: 300px;
+  width: 300px;
+  background: url('https://cdn.phazed.xyz/odbicons/S7LGZu7.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  transition: 0.5s;
+}

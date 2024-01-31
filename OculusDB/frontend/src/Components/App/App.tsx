@@ -37,6 +37,10 @@ let pageTitles: any = {
 
 function App() {
   let currentUrl = window.location.pathname;
+  let zuck: HTMLElement;
+  let zuckShown = false;
+
+  let lastMouseMove = Date.now();
 
   if(currentUrl.endsWith('/')){
     let splitUrl = currentUrl.split('');
@@ -117,6 +121,24 @@ function App() {
     }
   })
 
+  window.addEventListener('mousemove', () => {
+    lastMouseMove = Date.now();
+
+    if(zuckShown){
+      zuck.style.bottom = '-300px';
+      zuck.style.rotate = '-45deg';
+      zuckShown = false;
+    }
+  })
+
+  setInterval(() => {
+    if(lastMouseMove + 10000 > Date.now() && zuckShown === false && Math.floor(Math.random() * 100) === 1){
+      zuck.style.bottom = '0px';
+      zuck.style.rotate = '0deg';
+      zuckShown = true;
+    }
+  }, 10000);
+
   return (
     <>
       <NavBar setCurrentTab={setCurrentTab} />
@@ -171,6 +193,8 @@ function App() {
           <SavedApps setCurrentTab={setCurrentTab} />
         </Match>
       </Switch>
+
+      <div class="zuck" ref={( el ) => zuck = el}></div>
 
       <Footer />
     </>
