@@ -1383,6 +1383,9 @@ function GetHelp() {
     In this poetic guide, find your destined fate.<br/>
     Now, with rituals completed, attention keen,<br/>
     Learn the art of downgrading, as you've never seen.<br/>
+    <br/>
+    <br/>
+    In case you still need help, here's the link to the <a href="{OculusDBDC}">OculusDB Discord</a>
     `);
 }
 
