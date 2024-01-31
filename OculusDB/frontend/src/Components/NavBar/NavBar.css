@@ -33,7 +33,7 @@
 .home-icon{
   height: 40px;
   width: 40px;
-  background: url('https://cdn.phazed.xyz/computerelite.png');
+  background: url('/assets/computerelite.png');
   background-size: cover;
   background-position: center;
   margin: 0 10px;

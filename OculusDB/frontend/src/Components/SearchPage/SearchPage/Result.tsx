@@ -8,10 +8,10 @@ class ResultProps{
 }
 
 const comfortRatingIcons = [
-  'https://cdn.phazed.xyz/odbicons/comfortable.svg',
-  'https://cdn.phazed.xyz/odbicons/moderate.svg',
-  'https://cdn.phazed.xyz/odbicons/intense.svg',
-  'https://cdn.phazed.xyz/odbicons/norate.svg',
+  '/assets/icons/comfortable.svg',
+  '/assets/icons/odbicons/moderate.svg',
+  '/assets/icons/odbicons/intense.svg',
+  '/assets/icons/odbicons/norate.svg',
 ]
 
 let Result = ( { app, setCurrentTab }: ResultProps ) => {
