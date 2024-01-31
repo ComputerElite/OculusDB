@@ -1340,8 +1340,6 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
 }
 
 function GetHelp() {
-    window.history.pushState(null, null, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-
     PopUp(`
     Dear user, in need of aid so dire,<br/>
     You've journeyed here, lost in the mire.<br/>
