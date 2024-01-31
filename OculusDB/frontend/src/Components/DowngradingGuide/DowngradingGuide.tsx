@@ -69,7 +69,7 @@ let DowngradingGuideQuestSqq = ( props: DowngradingGuideProps ) => {
 
         <h2>Does your SideQuest look like this?</h2>
 
-        <img src="https://cdn.phazed.xyz/oculusdbsq.png" /><br />
+        <img src="/assets/oculusdbsq.png" /><br />
 
         <div class="button" onClick={() => props.setCurrentTab('/guide/quest/qavs')}>Yes</div>
         <div class="button" onClick={() => props.setCurrentTab('/guide/quest/pc')}>No</div>
