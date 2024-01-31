@@ -8,10 +8,10 @@ class ResultProps{
 }
 
 const comfortRatingIcons = [
-  '/assets/icons/comfortable.svg',
-  '/assets/icons/odbicons/moderate.svg',
-  '/assets/icons/odbicons/intense.svg',
-  '/assets/icons/odbicons/norate.svg',
+  '/assets/comfortable.svg',
+  '/assets/moderate.svg',
+  '/assets/intense.svg',
+  '/assets/norate.svg',
 ]
 
 let Result = ( { app, setCurrentTab }: ResultProps ) => {
