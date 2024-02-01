@@ -15,7 +15,6 @@ import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, Downgradin
 
 import './App.css'
 import { Switch, Match, createSignal, createEffect, onMount } from 'solid-js'
-import { request } from 'http'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
