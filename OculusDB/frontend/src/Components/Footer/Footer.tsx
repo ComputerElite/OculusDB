@@ -30,6 +30,7 @@ let Footer = () => {
     "\"see, i'm on top now\" - Computer",
     "\"He didnt want to come\" - Computer",
     "\"kiss me phaze\" - Computer",
+    "\"Phaz, come here, You're gonna put on the collar\" - Computer",
   ]
 
   onMount(() => {
