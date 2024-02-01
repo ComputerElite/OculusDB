@@ -14,7 +14,7 @@ import SavedApps from '../SavedApps/SavedApps'
 import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, DowngradingGuideQuestQavs, DowngradingGuideQuestSqq, DowngradingGuideRift } from '../DowngradingGuide/DowngradingGuide'
 
 import './App.css'
-import { Switch, Match, createSignal, createEffect } from 'solid-js'
+import { Switch, Match, createSignal, createEffect, onMount } from 'solid-js'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -39,6 +39,7 @@ function App() {
   let currentUrl = window.location.pathname;
   let zuck: HTMLElement;
   let zuckShown = false;
+  let theGay: HTMLElement;
 
   let lastMouseMove = Date.now();
 
@@ -138,6 +139,12 @@ function App() {
     }
   }, 10000);
 
+  onMount(() => {
+    if(Math.floor(Math.random() * 1000) === 0){
+      theGay.style.animation = 'thegay 1s infinite linear';
+    }
+  })
+
   return (
     <>
       <NavBar setCurrentTab={setCurrentTab} />
@@ -194,6 +201,7 @@ function App() {
       </Switch>
 
       <div class="zuck" ref={( el ) => zuck = el}></div>
+      <div class="the-gay" ref={( el ) => theGay = el}></div>
 
       <Footer />
     </>
