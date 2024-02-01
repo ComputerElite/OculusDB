@@ -28,7 +28,7 @@ let Footer = () => {
     "\"I'm better than Meta\" - Computer (according to a classmate)",
     "\"WE NEED MORE QUOTES\" - Computer",
     "\"see, i'm on top now\" - Computer",
-    "\"He didnt want to come\" - Computer",
+    "\"He didn't want to cum. Well, come, not cum. You know what I mean duh.\" - Computer",
     "\"kiss me phaze\" - Computer",
     "\"Phaz, come here, You're gonna put on the collar\" - Computer",
     "\"Currency 1 is my FAVOURITE currency\" - Computer",
