@@ -132,7 +132,7 @@ function App() {
   })
 
   setInterval(() => {
-    if(lastMouseMove + 10000 > Date.now() && zuckShown === false && Math.floor(Math.random() * 100) === 1){
+    if(lastMouseMove + 10000 > Date.now() && zuckShown === false && (Math.floor(Math.random() * 100) === 1 || query()['zuck'] === 'true')){
       zuck.style.bottom = '0px';
       zuck.style.rotate = '0deg';
       zuckShown = true;
@@ -140,7 +140,7 @@ function App() {
   }, 10000);
 
   onMount(() => {
-    if(Math.floor(Math.random() * 1000) === 0){
+    if(Math.floor(Math.random() * 1000) === 0 || query()['gay'] === 'true'){
       theGay.style.animation = 'thegay 1s infinite linear';
     }
   })
