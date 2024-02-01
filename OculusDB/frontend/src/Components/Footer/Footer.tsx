@@ -28,7 +28,8 @@ let Footer = () => {
     "\"I'm better than Meta\" - Computer (according to a classmate)",
     "\"WE NEED MORE QUOTES\" - Computer",
     "\"see, i'm on top now\" - Computer",
-    "\"He didnt want to cum\" - Computer"
+    "\"He didnt want to come\" - Computer",
+    "\"kiss me phaze\" - Computer",
   ]
 
   onMount(() => {
