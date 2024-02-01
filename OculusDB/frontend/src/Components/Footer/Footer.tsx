@@ -35,6 +35,11 @@ let Footer = () => {
     "\"love you\" - Phaze to Computer",
     "Never gonna give you up, never gonna let you down, never gonna run around and desert you.",
     "Quotes are guaranteed to be out of context in more than 1 occurrance",
+    "\"wrong! I am not a furry\" - Phaze",
+    "\"Idk if I'm legal\" - Computer",
+    "\"well that was the lazy route lmao\" - Computer to Phaze",
+    "\"can I see?\" - Computer to Phaze",
+    "\"Thanks phaz 😘\" - Computer to Phaze"
   ]
 
   let randomQuote = () => {
