@@ -31,6 +31,8 @@ let Footer = () => {
     "\"He didnt want to come\" - Computer",
     "\"kiss me phaze\" - Computer",
     "\"Phaz, come here, You're gonna put on the collar\" - Computer",
+    "\"Currency 1 is my FAVOURITE currency\" - Computer",
+    "\"broken? you never implemented it\" - Computer",
   ]
 
   onMount(() => {
