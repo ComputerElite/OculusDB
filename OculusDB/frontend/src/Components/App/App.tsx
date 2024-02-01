@@ -89,7 +89,6 @@ function App() {
 
   window.onpopstate = () => {
     let currentUrl = window.location.pathname;
-
     setCurrentTab(currentUrl);
 
     if(currentTab() === '')setCurrentTab('/home');

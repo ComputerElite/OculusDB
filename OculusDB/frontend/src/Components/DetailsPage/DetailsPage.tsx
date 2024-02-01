@@ -6,10 +6,10 @@ class DetailsPageProps{
 }
 
 const comfortRatingIcons = [
-  'https://cdn.phazed.xyz/odbicons/comfortable.svg',
-  'https://cdn.phazed.xyz/odbicons/moderate.svg',
-  'https://cdn.phazed.xyz/odbicons/intense.svg',
-  'https://cdn.phazed.xyz/odbicons/norate.svg',
+  '/assets/comfortable.svg',
+  '/assets/moderate.svg',
+  '/assets/intense.svg',
+  '/assets/norate.svg',
 ]
 
 const headsetGroups = [ // This will be updated at some point to use an api endpoint
