@@ -45,6 +45,7 @@ let Footer = () => {
     "\"Add that as a quote\" - Computer",
     "\"💀\" - Computer",
     "\"why finish the ui when i can add more quotes?\" - Phaze",
+    "\"JOHN! UNFORK THIS REPO RIGHT FUCKING NOW\" - Phase",
   ]
 
   let randomQuote = () => {
