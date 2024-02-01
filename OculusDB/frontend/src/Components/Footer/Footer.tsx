@@ -5,7 +5,6 @@ let Footer = () => {
   let footer: HTMLElement;
 
   let quotes = [
-
     "\"We don't have to be efficient\" - Computer",
     "\"Oh Yes\" - Computer",
     "\"you just gotta solder a new one on your ass\" - Computer",
@@ -35,8 +34,26 @@ let Footer = () => {
     "\"broken? you never implemented it\" - Computer",
   ]
 
+  let randomQuote = () => {
+    let newQuotes = quotes;
+
+    let qs = localStorage.getItem('recent-quotes')?.split(',');
+    if(qs){
+      qs.forEach(q => {
+        newQuotes.splice(parseInt(q), 1);
+      })
+    } else
+      qs = [];
+
+    let q = newQuotes[Math.floor(Math.random() * (newQuotes.length - 1))];
+    qs.push(quotes.indexOf(q).toString());
+
+    localStorage.setItem('recent-quotes', qs.slice(-5).join(','));
+    return q;
+  }
+
   onMount(() => {
-    footer.innerHTML = quotes[Math.floor(Math.random() * (quotes.length - 1))] + ' | This website is not affiliated with Oculus/Meta VR'
+    footer.innerHTML = randomQuote() + ' | This website is not affiliated with Oculus/Meta VR'
   })
 
   return (
