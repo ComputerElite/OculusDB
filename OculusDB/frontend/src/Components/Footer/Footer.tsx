@@ -40,7 +40,7 @@ let Footer = () => {
     "\"well that was the lazy route lmao\" - Computer to Phaze",
     "\"can I see?\" - Computer to Phaze",
     "\"Thanks phaz 😘\" - Computer to Phaze",
-    "\"You will never make the Popup good enough. Users are too stupid\" - Computer to John"
+    "\"You will never make the Popup good enough. Users are too stupid\" - Computer to Johnass"
   ]
 
   let randomQuote = () => {
