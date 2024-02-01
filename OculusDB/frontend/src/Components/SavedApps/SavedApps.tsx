@@ -73,6 +73,8 @@ let SavedApps = ( props: SavedAppsProps ) => {
     <div>
       <div class="main">
         <div class="info">
+          <h2 style={{ "margin-top": '0px', 'text-align': 'center' }}>Saved Apps</h2>
+
           <Show when={appsToLoad.length === 0}>
             <p style={{ "text-align": 'center' }}>You haven't saved any apps on this web browser.</p>
           </Show>
