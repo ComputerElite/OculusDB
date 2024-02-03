@@ -47,7 +47,8 @@ let Footer = () => {
     "\"why finish the ui when i can add more quotes?\" - Phaze",
     "\"JOHN! UNFORK THIS REPO RIGHT FUCKING NOW\" - Phase",
     "\"Certified phaze moment. Proceeds to fuck...\" - John",
-    "\"john. merge fix your conflicts\" - Phaze"
+    "\"john. merge fix your conflicts\" - Phaze",
+    "\"TAKE YOUR CLOTHES OFF PHAZE\" - Computer"
   ]
 
   let randomQuote = () => {
