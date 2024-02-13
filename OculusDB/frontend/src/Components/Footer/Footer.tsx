@@ -49,7 +49,8 @@ let Footer = () => {
     "\"Certified phaze moment. Proceeds to fuck...\" - John",
     "\"john. merge fix your conflicts\" - Phaze",
     "\"TAKE YOUR CLOTHES OFF PHAZE\" - Computer",
-    "\"i simped for computer for like a whole day\" - Phase"
+    "\"i simped for computer for like a whole day\" - Phase",
+    "\"also computer is in bed (edited) with me\" - Face"
   ]
 
   let randomQuote = () => {
