@@ -22,7 +22,7 @@ let Result = ( { app, setCurrentTab }: ResultProps ) => {
       </Show>
 
       <div class="result-branding" style={ app.type !== 'Application' ? { width: '100%' } : {} }>
-        <div class="result-title">{ limitStringLength(app.name, app.type === 'Application' ? 50 : 100) }</div>
+        <div class="result-title">{ limitStringLength(app.name, app.type === 'Application' ? 50 : 100) }<span class="result-supported-devices">Supports { app.groupFormatted === 'P C V R' ? 'PCVR' : app.groupFormatted }</span></div>
         <div class="result-desc">{ limitStringLength(app.shortDescription,  app.type === 'Application' ? 175 : 250) }</div>
 
         <div class="rating-format">
@@ -38,10 +38,10 @@ let Result = ( { app, setCurrentTab }: ResultProps ) => {
             <Match when={app.priceOffer}>
               <span style={{ "text-decoration": 'line-through', color: '#aaa' }}>{ app.offerPriceFormatted }</span>
               <br />
-              <span style={{ color: '#63fac3' }}>{ app.priceFormatted }</span>
+              <span style={{ color: app.priceIsSelected ? '#63fac3' : '#e59b12' }}>{ app.priceFormatted }</span>
             </Match>
             <Match when={!app.priceOffer}>
-              <span style={{ color: '#63fac3' }}>{ app.priceFormatted }</span>
+              <span style={{ color: app.priceIsSelected ? '#63fac3' : '#e59b12' }}>{ app.priceFormatted }</span>
             </Match>
           </Switch>
         </div>

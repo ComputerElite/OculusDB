@@ -133,7 +133,7 @@ function App() {
   })
 
   setInterval(() => {
-    if(lastMouseMove + 10000 > Date.now() && zuckShown === false && (Math.floor(Math.random() * 100) === 1 || query()['zuck'] === 'true')){
+    if(lastMouseMove + 10000 > Date.now() && zuckShown === false && (Math.floor(Math.random() * 500) === 1 || query()['zuck'] === 'true')){
       zuck.style.bottom = '0px';
       zuck.style.rotate = '0deg';
       zuckShown = true;

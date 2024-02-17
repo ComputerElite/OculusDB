@@ -31,6 +31,9 @@ let SearchPage = ( props: SearchPageProps ) => {
   let filterTypesEl: HTMLElement;
   let searchTypesEl: HTMLElement;
 
+  let currencySelector: HTMLSelectElement;
+  let availableCurrencies: string[] = [];
+
   onMount(() => {
     fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/headsets')
       .then(data => data.json())
@@ -76,12 +79,8 @@ let SearchPage = ( props: SearchPageProps ) => {
             {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
           </For>
 
-          <select class="currency-selection">
-            <option>Currency 1</option>
-            <option>Currency 2</option>
-            <option>Currency 3</option>
-          </select>
-        </div> as Node)
+          <select ref={( el ) => currencySelector = el} class="currency-selection"></select>
+        </div> as Node);
 
         selectorButtons[props.query().type || 0].classList.add('button-selected');
         setSearchType(props.query().type || 0);
@@ -151,57 +150,85 @@ let SearchPage = ( props: SearchPageProps ) => {
       .then(data => data.json())
       .then(data => {
         loadingIndicator.style.display = 'none';
-        let tempApps: Array<ResultData> = [];
 
-        data.results.forEach(( d: any ) => {
-          // console.log(d);
-          let app = new ResultData();
-          let addToList = true;
+        let processResults = () => {
+          let tempApps: Array<ResultData> = [];
 
-          switch(d.__OculusDBType){
-            case 'Application':
-              app.shortDescription = d.shortDescription;
-              app.longDescription = d.longDescription;
-              break;
+          data.results.forEach(( d: any ) => {
+            let app = new ResultData();
+            let addToList = true;
 
-            case 'IapItemPack':
-              app.shortDescription = d.displayShortDescription;
-              app.longDescription = d.displayShortDescription;
-              break;
+            switch(d.__OculusDBType){
+              case 'Application':
+                app.shortDescription = d.shortDescription;
+                app.longDescription = d.longDescription;
+                break;
 
-            case 'IapItem':
-              app.shortDescription = d.displayShortDescription;
-              app.longDescription = d.displayShortDescription;
-              break;
-          }
+              case 'IapItemPack':
+                app.shortDescription = d.displayShortDescription;
+                app.longDescription = d.displayShortDescription;
+                break;
 
-          app.id = d.id;
-          app.name = d.displayName;
-          app.comfortRatingFormatted = d.comfortRatingFormatted;
-          app.comfortRating = d.comfortRating;
-          app.type = d.__OculusDBType;
-
-          if(!d.offers[0])
-            addToList = false;
-          else{
-            app.priceFormatted = d.offers[0].price.priceFormatted;
-            app.rawPrice = d.offers[0].price.price;
-
-            if(d.offers[0].strikethroughPrice){
-              app.priceOffer = true;
-              app.offerPriceFormatted = d.offers[0].price.priceFormatted;
-              app.priceFormatted = d.offers[0].strikethroughPrice.priceFormatted;
-              app.rawPrice = d.offers[0].strikethroughPrice.price;
+              case 'IapItem':
+                app.shortDescription = d.displayShortDescription;
+                app.longDescription = d.displayShortDescription;
+                break;
             }
-          }
 
-          if(addToList)
-            tempApps.push(app);
-          // else
-          //   console.log(false);
-        })
+            app.id = d.id;
+            app.name = d.displayName;
+            app.comfortRatingFormatted = d.comfortRatingFormatted;
+            app.comfortRating = d.comfortRating;
+            app.type = d.__OculusDBType;
+            app.groupFormatted = d.groupFormatted;
 
-        setApps(tempApps);
+            d.offers.forEach(( o: any ) => {
+              if(!availableCurrencies.find(x => x === o.currency)){
+                availableCurrencies.push(o.currency);
+                currencySelector.appendChild(<option>{ o.currency }</option> as Node);
+                console.log(currencySelector);
+              }
+            })
+
+            let canUseSelectedOffer = true;
+            let selectedOffer = d.offers.find(( x: any ) => x.currency === localStorage.getItem('currency'));
+
+            if(!selectedOffer){
+              selectedOffer = d.offers[0];
+              canUseSelectedOffer = false;
+            }
+
+            if(!selectedOffer)
+              addToList = false;
+            else{
+              app.priceIsSelected = canUseSelectedOffer
+              app.priceFormatted = selectedOffer.price.priceFormatted;
+              app.rawPrice = selectedOffer.price.price;
+
+              if(selectedOffer.strikethroughPrice){
+                app.priceOffer = true;
+                app.offerPriceFormatted = selectedOffer.price.priceFormatted;
+                app.priceFormatted = selectedOffer.strikethroughPrice.priceFormatted;
+                app.rawPrice = selectedOffer.strikethroughPrice.price;
+              }
+            }
+
+            if(addToList)
+              tempApps.push(app);
+            // else
+            //   console.log(false);
+          })
+
+          setApps(tempApps);
+        }
+
+        processResults();
+        currencySelector.value = localStorage.getItem('currency') || 'EUR';
+
+        currencySelector.onchange = () => {
+          localStorage.setItem('currency', currencySelector.value);
+          processResults();
+        }
       })
   })
 
@@ -213,12 +240,6 @@ let SearchPage = ( props: SearchPageProps ) => {
         <For each={searchTypes}>
           {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
         </For>
-
-        <select class="currency-selection">
-          <option>Currency 1</option>
-          <option>Currency 2</option>
-          <option>Currency 3</option>
-        </select>
       </div>
 
       <div class="result-columns">

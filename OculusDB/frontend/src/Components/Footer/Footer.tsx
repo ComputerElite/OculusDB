@@ -70,7 +70,11 @@ let Footer = () => {
   }
 
   onMount(() => {
-    footer.innerHTML = randomQuote() + ' | This website is not affiliated with Oculus/Meta VR'
+    if(window.innerWidth > 780){
+      footer.innerHTML = randomQuote() + ' | This website is not affiliated with Oculus/Meta VR'
+    } else{
+      footer.innerHTML = 'This website is not affiliated with Oculus/Meta VR';
+    }
   })
 
   return (
