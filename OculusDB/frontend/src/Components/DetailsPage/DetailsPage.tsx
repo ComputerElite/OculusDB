@@ -1,5 +1,6 @@
 import { Match, Show, Switch, For, createSignal, onMount } from 'solid-js';
 import './DetailsPage.css'
+import limitStringLength from '../../util/limitStringLength';
 
 class DetailsPageProps{
   currentID!: () => string;
@@ -45,7 +46,6 @@ let DetailsPage = ( props: DetailsPageProps ) => {
     let req = await fetch('https://oculusdb-rewrite.rui2015.me/api/v2/id/'+props.currentID());
     let res = await req.json();
 
-    container.innerHTML = '';
     let supportedHeadsetsEl: HTMLElement;
 
     let displayApplication = async ( app: any ) => {
@@ -82,8 +82,17 @@ let DetailsPage = ( props: DetailsPageProps ) => {
       let connected = await connectedReq.json();
       console.log(connected);
 
-      let selectedOffer = app.offers[0];
+      let selectedOffer = app.offers.find(( x: any ) => x.currency === localStorage.getItem('currency'));
+      let canUseSelectedOffer = true;
+
+      if(!selectedOffer){
+        selectedOffer = app.offers[0];
+        canUseSelectedOffer = false;
+      }
+
       document.querySelector('title')!.innerText = app.displayName + ' - Oculus DB';
+
+      container.innerHTML = '';
       container.appendChild(<div>
         <div class="app-keywords">{ app.keywords.map(( x: string ) => x[0].toUpperCase() + x.substring(1, x.length)).join(', ') }</div>
         <div class="app-rating">
@@ -321,7 +330,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
             <hr/>
 
             <h2>Price</h2>
-            <div>
+            <div style={{ color: canUseSelectedOffer ? '#63fac3' : '#e59b12' }}>
               <Show when={selectedOffer.strikethroughPrice !== null}>
                 <span style={{
                   "text-decoration": 'line-through',
@@ -343,7 +352,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
             <div style={{"text-align": 'left'}}>
               <b>Publisher:</b> {formatString(app.publisherName)}<br/><br/>
               <b>Developer:</b> {formatString(app.developerName)}<br/><br/>
-              <b>Package Name:</b> {formatString(app.packageName)}<br/><br/>
+              <b>Package Name:</b> <div class="app-package-name">{formatString(app.packageName)}</div><br/><br/>
               <b>Canonical Name:</b> {formatString(app.canonicalName)}<br/><br/>
               <b>External subscription:</b> {formatString(app.externalSubscriptionTypeFormatted)}<br/><br/>
               <b>Play area:</b> {formatString(app.playAreaFormatted)}<br/><br/>
@@ -362,13 +371,10 @@ let DetailsPage = ( props: DetailsPageProps ) => {
               <b>User interaction modes:</b> {formatStringArray(app.userInteractionModesFormatted)}<br/><br/>
               <b>Share capabilities:</b> {formatStringArray(app.shareCapabilitiesFormatted)}<br/><br/>
               <b>Supported languages:</b> {formatStringArray(app.supportedInAppLanguages)}<br/><br/>
-              <b>Website:</b> <a target="_blank" href={app.websiteUrl}>{formatString(app.websiteUrl)}</a><br/><br/>
-              <b>Support website:</b> <a target="_blank"
-                                        href={app.supportWebsiteUrl}>{formatString(app.supportWebsiteUrl)}</a><br/><br/>
-              <b>Terms of service:</b> <a target="_blank"
-                                         href={app.developerTermsOfServiceUrl}>{formatString(app.developerTermsOfServiceUrl)}</a><br/><br/>
-              <b>Privacy policy:</b> <a target="_blank"
-                                       href={app.developerPrivacyPolicyUrl}>{formatString(app.developerPrivacyPolicyUrl)}</a><br/><br/>
+              <b>Website:</b><br /> <a target="_blank" href={app.websiteUrl}>{limitStringLength(formatString(app.websiteUrl), 38)}</a><br/><br/>
+              <b>Support website:</b><br /> <a target="_blank" href={app.supportWebsiteUrl}>{limitStringLength(formatString(app.supportWebsiteUrl), 38)}</a><br/><br/>
+              <b>Terms of service:</b><br /> <a target="_blank" href={app.developerTermsOfServiceUrl}>{limitStringLength(formatString(app.developerTermsOfServiceUrl), 38)}</a><br/><br/>
+              <b>Privacy policy:</b><br /> <a target="_blank" href={app.developerPrivacyPolicyUrl}>{limitStringLength(formatString(app.developerPrivacyPolicyUrl), 38)}</a><br/><br/>
               <b>Last Updated:</b> {new Date(app.__lastUpdated).toString()}<br/><br/>
               <b>Scraped By:</b> {app.__sn}<br/><br/>
             </div>

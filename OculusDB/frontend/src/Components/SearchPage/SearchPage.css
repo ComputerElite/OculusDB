@@ -164,6 +164,12 @@
   animation: hitZak 0.6s ease-in-out infinite alternate;
 }
 
+.result-supported-devices{
+  color: gray;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
 @keyframes hitZak {
   0% {
     left: 0;

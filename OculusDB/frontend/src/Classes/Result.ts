@@ -5,6 +5,7 @@ class ResultData{
   comfortRating: number = 0;
   categoryFormatted: string = 'Games';
   category: number = 0;
+  groupFormatted: string = 'None';
   hasInAppAds: boolean = false;
   inAppLab: boolean = false;
   keywords: Array<string> = [];
@@ -14,7 +15,8 @@ class ResultData{
   offerPriceFormatted: string = '£0';
   priceOffer: boolean = false;
   rawPrice: number = 0;
-
+  priceIsSelected: boolean = true;
+  
   type: string = 'None';
 }
 

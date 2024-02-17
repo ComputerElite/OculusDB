@@ -21,6 +21,7 @@
   background-position: center !important;
   background-size: cover !important;
   border-radius: 10px;
+  box-shadow: #0008 0 0 10px;
 }
 
 .app-title{
@@ -92,4 +93,13 @@
   height: 20px;
   cursor: pointer;
   user-select: none;
+}
+
+.app-package-name{
+  width: 100%;
+  overflow: auto;
+  display: inline-block;
+  background: #0005;
+  padding: 2px;
+  scrollbar-width: thin;
 }
