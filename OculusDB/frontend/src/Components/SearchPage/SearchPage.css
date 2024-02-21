@@ -14,7 +14,7 @@
   background: #0005;
   padding: 10px;
   border-radius: 10px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
   box-shadow: #0009 0 0 10px;
 }
 
@@ -38,7 +38,7 @@
   background: #000a;
   padding: 10px;
   border-radius: 10px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
   width: 25%;
   color: white;
   font-size: 15px;
@@ -65,7 +65,7 @@
   background: #000a;
   padding: 10px;
   border-radius: 10px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
   height: 100px;
   margin-bottom: 10px;
   display: flex;

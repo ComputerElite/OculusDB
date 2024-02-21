@@ -16,6 +16,7 @@ class ResultData{
   priceOffer: boolean = false;
   rawPrice: number = 0;
   priceIsSelected: boolean = true;
+  languages: String[] = [];
   
   type: string = 'None';
 }

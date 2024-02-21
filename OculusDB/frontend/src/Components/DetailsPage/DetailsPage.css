@@ -143,7 +143,6 @@
   background: #9995;
   padding: 5px;
   border-radius: 10px;
-  backdrop-filter: blur(20px);
   box-shadow: #0009 0 0 10px;
   margin-bottom: 10px;
   cursor: pointer;

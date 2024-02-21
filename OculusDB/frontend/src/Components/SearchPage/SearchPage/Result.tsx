@@ -22,7 +22,7 @@ let Result = ( { app, setCurrentTab }: ResultProps ) => {
       </Show>
 
       <div class="result-branding" style={ app.type !== 'Application' ? { width: '100%' } : {} }>
-        <div class="result-title">{ limitStringLength(app.name, app.type === 'Application' ? 50 : 100) }<span class="result-supported-devices">Supports { app.groupFormatted === 'P C V R' ? 'PCVR' : app.groupFormatted }</span></div>
+        <div class="result-title">{ limitStringLength(app.name, app.type === 'Application' ? 50 : 100) } <Show when={app.type !== 'Application'}><span class="result-supported-devices">Supports { app.groupFormatted === 'P C V R' ? 'PCVR' : app.groupFormatted }</span></Show></div>
         <div class="result-desc">{ limitStringLength(app.shortDescription,  app.type === 'Application' ? 175 : 250) }</div>
 
         <div class="rating-format">
