@@ -1,4 +1,4 @@
-import { Match, Show, Switch, For, createSignal, onMount } from 'solid-js';
+import { Match, Show, Switch, For, createSignal, onMount, createEffect } from 'solid-js';
 import './DetailsPage.css'
 import limitStringLength from '../../util/limitStringLength';
 
@@ -41,17 +41,51 @@ let formatStringArray = ( arr: Array<string> ) => {
 
 let DetailsPage = ( props: DetailsPageProps ) => {
   let container: HTMLElement;
+  let loader: HTMLElement;
+  let popupDetails: HTMLElement;
+
+  let [ showPriceHistory, setShowPriceHistory ] = createSignal(false);
 
   onMount(async () => {
+    let loadAmount = 25;
+    let currentLoad = 0;
+
     let req = await fetch('https://oculusdb-rewrite.rui2015.me/api/v2/id/'+props.currentID());
     let res = await req.json();
 
     let supportedHeadsetsEl: HTMLElement;
 
+    let loaderUpdate = setInterval(() => {
+      currentLoad += loadAmount;
+      loader.style.width = currentLoad + '%';
+
+      loadAmount /= 1.35;
+    }, 1000);
+
     let displayApplication = async ( app: any ) => {
       let [ appTab, setAppTab ] = createSignal(0);
       let [ starred, setStarred ] = createSignal(false);
       let [ showDevOnly, setShowDevOnly ] = createSignal(false);
+
+      createEffect(() => {
+        let shown = showPriceHistory();
+
+        if(shown !== (popupDetails.style.display !== 'none')){
+          if(shown){
+            popupDetails.style.display = 'block';
+
+            setTimeout(() => {
+              popupDetails.style.opacity = '1';
+            }, 10);
+          } else{
+            popupDetails.style.opacity = '0';
+
+            setTimeout(() => {
+              popupDetails.style.display = 'none';
+            }, 250);
+          }
+        }
+      })
 
       let starredApps = localStorage.getItem('starred') ? localStorage.getItem('starred')!.split(',') : [];
       setStarred(starredApps.find(x => x === app.id) ? true : false);
@@ -79,6 +113,9 @@ let DetailsPage = ( props: DetailsPageProps ) => {
       }
 
       let connectedReq = await fetch('https://oculusdb-rewrite.rui2015.me/api/v2/connected/'+app.id);
+      loader.style.width = '100%';
+      window.clearInterval(loaderUpdate);
+
       let connected = await connectedReq.json();
       console.log(connected);
 
@@ -339,7 +376,9 @@ let DetailsPage = ( props: DetailsPageProps ) => {
               </Show>&nbsp;&nbsp;
               {selectedOffer.price.price === 0 ? 'Free' : selectedOffer.price.priceFormatted}
             </div>
-            <br/>
+
+            <div class="button" onClick={() => setShowPriceHistory(true)}>Price History</div>
+            <br/><br/>
 
             <div class="price-info" style={{"text-align": 'left'}}>
               <b>Last Updated:</b> {new Date(selectedOffer.__lastUpdated).toString()}<br/><br/>
@@ -449,8 +488,16 @@ let DetailsPage = ( props: DetailsPageProps ) => {
 
   return (
     <div class="main">
+      <div class="app-price-popup" ref={( el ) => popupDetails = el}>
+        <div class="app-price-header">Price History <div class="close-popup" onClick={() => setShowPriceHistory(false)}>X</div></div>
+        <div class="app-price-body">
+          
+        </div>
+      </div>
+
       <div class="info" ref={( el ) => container = el}>
         <h1 style={{ "text-align": 'center' }}>Loading...</h1>
+        <div class="details-loader"><div class="details-loader-inner" ref={( el ) => loader = el}></div></div>
       </div>
     </div>
   )

@@ -8,9 +8,6 @@ dependencies:
   '@pgrabovets/json-view':
     specifier: ^2.7.5
     version: 2.7.5
-  '@studio-freight/lenis':
-    specifier: ^1.0.35
-    version: 1.0.35
   '@types/node':
     specifier: ^20.10.2
     version: 20.10.2
@@ -689,10 +686,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /@studio-freight/lenis@1.0.35:
-    resolution: {integrity: sha512-dduQqZERC5EaJSVGBoCt2WdPFQlr39zFewkQxvJcYZrMl1aVTPPIQCnZMqIjl4KZBQIL3kIXes+HP22T9XVh4w==}
-    dev: false
 
   /@types/babel__core@7.20.5:
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
