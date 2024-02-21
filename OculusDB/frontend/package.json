@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@pgrabovets/json-view": "^2.7.5",
-    "@studio-freight/lenis": "^1.0.35",
     "@types/node": "^20.10.2",
     "pnpm": "^8.12.1",
     "solid-js": "^1.8.5"
