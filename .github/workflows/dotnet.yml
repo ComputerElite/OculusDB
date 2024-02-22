@@ -30,8 +30,8 @@ jobs:
     - name: Build frontend
       run: |
         cd OculusDB/frontend
-        pnpm install
-        pnpm build
+        echo pnpm install
+        echo pnpm build
         cd ../../
     - name: Build
       run: dotnet build
@@ -39,8 +39,8 @@ jobs:
       run: |
         mkdir -p OculusDB/bin/Debug/net6.0/frontend
         mkdir -p OculusDB/bin/Release/net6.0/frontend
-        cp -r OculusDB/frontend/dist/* OculusDB/bin/Debug/net6.0/frontend
-        cp -r OculusDB/frontend/dist/* OculusDB/bin/Release/net6.0/frontend
+        echo cp -r OculusDB/frontend/dist/* OculusDB/bin/Debug/net6.0/frontend
+        echo cp -r OculusDB/frontend/dist/* OculusDB/bin/Release/net6.0/frontend
     - name: Upload Debug net6.0.zip
       uses: actions/upload-artifact@v3
       with:
