@@ -98,7 +98,7 @@ public class SearchQueryExecutor
                 Builders<DBApplication>.Filter.Regex(x => x.packageName, new BsonRegularExpression(query.searchRegex)),
                 Builders<DBApplication>.Filter.Regex(x => x.publisherName, new BsonRegularExpression(query.searchRegex))
             ),
-            Builders<DBApplication>.Filter.ElemMatch<string>(x => x.supportedInAppLanguages, Builders<string>.Filter.In(x => x, query.supportedInAppLanguages))
+            Builders<DBApplication>.Filter.ElemMatch<string>(x => x.supportedInAppLanguages, Builders<string>.Filter.In<string>(x => x, query.supportedInAppLanguages))
         );
         Logger.Log(String.Join(", ", query.supportedInAppLanguages));
         List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(filter).Skip(query.skip).Limit(query.limit).ToList();
