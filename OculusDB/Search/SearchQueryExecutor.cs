@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using OculusDB.Database;
 using OculusDB.MongoDB;
@@ -88,6 +89,16 @@ public class SearchQueryExecutor
 
     private static SearchResult SearchApplications(SearchQuery query)
     {
+        var filter = Builders<DBApplication>.Filter.And(
+            Builders<DBApplication>.Filter.In(x => x.group, query.headsetGroups),
+            Builders<DBApplication>.Filter.Or(
+                Builders<DBApplication>.Filter.Regex(x => x.searchDisplayName, new BsonRegularExpression(query.searchRegex)),
+                Builders<DBApplication>.Filter.Regex(x => x.canonicalName, new BsonRegularExpression(query.searchRegex)),
+                Builders<DBApplication>.Filter.Regex(x => x.packageName, new BsonRegularExpression(query.searchRegex)),
+                Builders<DBApplication>.Filter.Regex(x => x.publisherName, new BsonRegularExpression(query.searchRegex))
+            ),
+            Builders<DBApplication>.Filter.ElemMatch(x => x.supportedInAppLanguages, Builders<string>.Filter.In(x => x, query.supportedInAppLanguages))
+        );
         List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(x => 
             query.headsetGroups.Contains(x.group) &&
             (
@@ -96,6 +107,7 @@ public class SearchQueryExecutor
                 (x.packageName != null && query.searchRegex.IsMatch(x.packageName)) ||
                 query.searchRegex.IsMatch(x.publisherName)
             )
+            && (query.supportedInAppLanguages.Count <= 0)
         ).Skip(query.skip).Limit(query.limit).ToList();
         PopulationContext c = new PopulationContext();
         apps.ForEach(x => x.PopulateSelf(c));
