@@ -1,3 +1,4 @@
+using ComputerUtils.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OculusDB.Database;
@@ -99,6 +100,7 @@ public class SearchQueryExecutor
             ),
             Builders<DBApplication>.Filter.ElemMatch(x => x.supportedInAppLanguages, Builders<string>.Filter.In(x => x, query.supportedInAppLanguages))
         );
+        Logger.Log(String.Join(", ", query.supportedInAppLanguages));
         List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(x => 
             query.headsetGroups.Contains(x.group) &&
             (
