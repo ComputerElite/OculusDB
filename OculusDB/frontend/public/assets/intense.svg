@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <polyline points="512,80 904,256 904,768 512,944 120,768 120,256 512,80, 904,256" style="fill: none; stroke: #DA6C00; stroke-width: 50;" />
+  <circle cx="512" cy="512" r="200" stroke="#DA6C00" stroke-width="50" fill="none" />
+</svg>

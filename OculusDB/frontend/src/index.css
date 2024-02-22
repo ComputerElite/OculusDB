@@ -65,3 +65,7 @@ html{
 .dropdown i{
   transition: 0.25s;
 }
+
+#root{
+  scrollbar-width: thin;
+}

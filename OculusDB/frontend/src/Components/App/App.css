@@ -4,3 +4,37 @@
   overflow: auto;
   background: #0008;
 }
+
+.zuck{
+  position: fixed;
+  bottom: -300px;
+  rotate: -45deg;
+  left: 50px;
+  height: 300px;
+  width: 300px;
+  background: url('/assets/S7LGZu7.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  transition: 0.5s;
+}
+
+.the-gay{
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000000000000;
+  backdrop-filter: hue-rotate(0deg);
+}
+
+@keyframes thegay {
+  0%{
+    backdrop-filter: hue-rotate(0deg);
+  }
+  100%{
+    backdrop-filter: hue-rotate(360deg);
+  }
+}

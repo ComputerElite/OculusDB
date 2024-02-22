@@ -18,6 +18,9 @@ let Login = () => {
         if(data.authorized)
           window.location.href = data.redirect;
       })
+      .catch(e => {
+        console.error(e);
+      })
   }
 
   let onClick = () => {
@@ -54,12 +57,16 @@ let Login = () => {
           )
         }
       })
+      .catch(e => {
+        console.error(e);
+      })
   }
 
   return (
     <div class="main">
       <div class="info">
         <h2>Dev Login</h2>
+        <input type="text" placeholder='Enter Username...' style={{ display: 'none' }} /> { /* Stop browsers auto selecting the submit button. */ }
         <input class="password-box" type="password" placeholder='Enter Password...' ref={( el ) => input = el} />
         <div class="button" onClick={onClick}>Submit</div>
 

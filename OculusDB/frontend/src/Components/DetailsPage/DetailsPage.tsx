@@ -1,15 +1,16 @@
-import { Match, Show, Switch, For, createSignal, onMount } from 'solid-js';
+import { Match, Show, Switch, For, createSignal, onMount, createEffect } from 'solid-js';
 import './DetailsPage.css'
+import limitStringLength from '../../util/limitStringLength';
 
 class DetailsPageProps{
   currentID!: () => string;
 }
 
 const comfortRatingIcons = [
-  'https://cdn.phazed.xyz/odbicons/comfortable.svg',
-  'https://cdn.phazed.xyz/odbicons/moderate.svg',
-  'https://cdn.phazed.xyz/odbicons/intense.svg',
-  'https://cdn.phazed.xyz/odbicons/norate.svg',
+  '/assets/comfortable.svg',
+  '/assets/moderate.svg',
+  '/assets/intense.svg',
+  '/assets/norate.svg',
 ]
 
 const headsetGroups = [ // This will be updated at some point to use an api endpoint
@@ -40,18 +41,51 @@ let formatStringArray = ( arr: Array<string> ) => {
 
 let DetailsPage = ( props: DetailsPageProps ) => {
   let container: HTMLElement;
+  let loader: HTMLElement;
+  let popupDetails: HTMLElement;
+
+  let [ showPriceHistory, setShowPriceHistory ] = createSignal(false);
 
   onMount(async () => {
+    let loadAmount = 25;
+    let currentLoad = 0;
+
     let req = await fetch('https://oculusdb-rewrite.rui2015.me/api/v2/id/'+props.currentID());
     let res = await req.json();
 
-    container.innerHTML = '';
     let supportedHeadsetsEl: HTMLElement;
+
+    let loaderUpdate = setInterval(() => {
+      currentLoad += loadAmount;
+      loader.style.width = currentLoad + '%';
+
+      loadAmount /= 1.35;
+    }, 1000);
 
     let displayApplication = async ( app: any ) => {
       let [ appTab, setAppTab ] = createSignal(0);
       let [ starred, setStarred ] = createSignal(false);
       let [ showDevOnly, setShowDevOnly ] = createSignal(false);
+
+      createEffect(() => {
+        let shown = showPriceHistory();
+
+        if(shown !== (popupDetails.style.display !== 'none')){
+          if(shown){
+            popupDetails.style.display = 'block';
+
+            setTimeout(() => {
+              popupDetails.style.opacity = '1';
+            }, 10);
+          } else{
+            popupDetails.style.opacity = '0';
+
+            setTimeout(() => {
+              popupDetails.style.display = 'none';
+            }, 250);
+          }
+        }
+      })
 
       let starredApps = localStorage.getItem('starred') ? localStorage.getItem('starred')!.split(',') : [];
       setStarred(starredApps.find(x => x === app.id) ? true : false);
@@ -79,11 +113,23 @@ let DetailsPage = ( props: DetailsPageProps ) => {
       }
 
       let connectedReq = await fetch('https://oculusdb-rewrite.rui2015.me/api/v2/connected/'+app.id);
+      loader.style.width = '100%';
+      window.clearInterval(loaderUpdate);
+
       let connected = await connectedReq.json();
       console.log(connected);
 
-      let selectedOffer = app.offers[0];
+      let selectedOffer = app.offers.find(( x: any ) => x.currency === localStorage.getItem('currency'));
+      let canUseSelectedOffer = true;
+
+      if(!selectedOffer){
+        selectedOffer = app.offers[0];
+        canUseSelectedOffer = false;
+      }
+
       document.querySelector('title')!.innerText = app.displayName + ' - Oculus DB';
+
+      container.innerHTML = '';
       container.appendChild(<div>
         <div class="app-keywords">{ app.keywords.map(( x: string ) => x[0].toUpperCase() + x.substring(1, x.length)).join(', ') }</div>
         <div class="app-rating">
@@ -321,7 +367,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
             <hr/>
 
             <h2>Price</h2>
-            <div>
+            <div style={{ color: canUseSelectedOffer ? '#63fac3' : '#e59b12' }}>
               <Show when={selectedOffer.strikethroughPrice !== null}>
                 <span style={{
                   "text-decoration": 'line-through',
@@ -330,7 +376,9 @@ let DetailsPage = ( props: DetailsPageProps ) => {
               </Show>&nbsp;&nbsp;
               {selectedOffer.price.price === 0 ? 'Free' : selectedOffer.price.priceFormatted}
             </div>
-            <br/>
+
+            <div class="button" onClick={() => setShowPriceHistory(true)}>Price History</div>
+            <br/><br/>
 
             <div class="price-info" style={{"text-align": 'left'}}>
               <b>Last Updated:</b> {new Date(selectedOffer.__lastUpdated).toString()}<br/><br/>
@@ -343,7 +391,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
             <div style={{"text-align": 'left'}}>
               <b>Publisher:</b> {formatString(app.publisherName)}<br/><br/>
               <b>Developer:</b> {formatString(app.developerName)}<br/><br/>
-              <b>Package Name:</b> {formatString(app.packageName)}<br/><br/>
+              <b>Package Name:</b> <div class="app-package-name">{formatString(app.packageName)}</div><br/><br/>
               <b>Canonical Name:</b> {formatString(app.canonicalName)}<br/><br/>
               <b>External subscription:</b> {formatString(app.externalSubscriptionTypeFormatted)}<br/><br/>
               <b>Play area:</b> {formatString(app.playAreaFormatted)}<br/><br/>
@@ -362,13 +410,10 @@ let DetailsPage = ( props: DetailsPageProps ) => {
               <b>User interaction modes:</b> {formatStringArray(app.userInteractionModesFormatted)}<br/><br/>
               <b>Share capabilities:</b> {formatStringArray(app.shareCapabilitiesFormatted)}<br/><br/>
               <b>Supported languages:</b> {formatStringArray(app.supportedInAppLanguages)}<br/><br/>
-              <b>Website:</b> <a target="_blank" href={app.websiteUrl}>{formatString(app.websiteUrl)}</a><br/><br/>
-              <b>Support website:</b> <a target="_blank"
-                                        href={app.supportWebsiteUrl}>{formatString(app.supportWebsiteUrl)}</a><br/><br/>
-              <b>Terms of service:</b> <a target="_blank"
-                                         href={app.developerTermsOfServiceUrl}>{formatString(app.developerTermsOfServiceUrl)}</a><br/><br/>
-              <b>Privacy policy:</b> <a target="_blank"
-                                       href={app.developerPrivacyPolicyUrl}>{formatString(app.developerPrivacyPolicyUrl)}</a><br/><br/>
+              <b>Website:</b><br /> <a target="_blank" href={app.websiteUrl}>{limitStringLength(formatString(app.websiteUrl), 38)}</a><br/><br/>
+              <b>Support website:</b><br /> <a target="_blank" href={app.supportWebsiteUrl}>{limitStringLength(formatString(app.supportWebsiteUrl), 38)}</a><br/><br/>
+              <b>Terms of service:</b><br /> <a target="_blank" href={app.developerTermsOfServiceUrl}>{limitStringLength(formatString(app.developerTermsOfServiceUrl), 38)}</a><br/><br/>
+              <b>Privacy policy:</b><br /> <a target="_blank" href={app.developerPrivacyPolicyUrl}>{limitStringLength(formatString(app.developerPrivacyPolicyUrl), 38)}</a><br/><br/>
               <b>Last Updated:</b> {new Date(app.__lastUpdated).toString()}<br/><br/>
               <b>Scraped By:</b> {app.__sn}<br/><br/>
             </div>
@@ -443,8 +488,16 @@ let DetailsPage = ( props: DetailsPageProps ) => {
 
   return (
     <div class="main">
+      <div class="app-price-popup" ref={( el ) => popupDetails = el}>
+        <div class="app-price-header">Price History <div class="close-popup" onClick={() => setShowPriceHistory(false)}>X</div></div>
+        <div class="app-price-body">
+          
+        </div>
+      </div>
+
       <div class="info" ref={( el ) => container = el}>
         <h1 style={{ "text-align": 'center' }}>Loading...</h1>
+        <div class="details-loader"><div class="details-loader-inner" ref={( el ) => loader = el}></div></div>
       </div>
     </div>
   )

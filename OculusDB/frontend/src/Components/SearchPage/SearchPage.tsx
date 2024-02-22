@@ -1,6 +1,6 @@
 import Search from '../Search/Search';
 
-import { For, onMount, createSignal, createEffect } from 'solid-js';
+import { For, onMount, createSignal, createEffect, Show } from 'solid-js';
 import './SearchPage.css'
 import Result from './SearchPage/Result';
 import ResultData from '../../Classes/Result';
@@ -25,11 +25,16 @@ let SearchPage = ( props: SearchPageProps ) => {
 
   let selectorButtons: Array<HTMLElement> = [];
   let headsetButtons: Array<HTMLElement> = [];
+  let languageButtons: Array<HTMLElement> = [];
 
   let loadingIndicator: HTMLElement;
 
   let filterTypesEl: HTMLElement;
+  let languageFilterEl: HTMLElement;
   let searchTypesEl: HTMLElement;
+
+  let currencySelector: HTMLSelectElement;
+  let availableCurrencies: string[] = [];
 
   onMount(() => {
     fetch('https://oculusdb-rewrite.rui2015.me/api/v2/lists/headsets')
@@ -76,12 +81,8 @@ let SearchPage = ( props: SearchPageProps ) => {
             {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
           </For>
 
-          <select class="currency-selection">
-            <option>Currency 1</option>
-            <option>Currency 2</option>
-            <option>Currency 3</option>
-          </select>
-        </div> as Node)
+          <select ref={( el ) => currencySelector = el} class="currency-selection"></select>
+        </div> as Node);
 
         selectorButtons[props.query().type || 0].classList.add('button-selected');
         setSearchType(props.query().type || 0);
@@ -150,58 +151,156 @@ let SearchPage = ( props: SearchPageProps ) => {
     fetch(`https://oculusdb-rewrite.rui2015.me/api/v2/search?q=${encodeURIComponent(search)}&type=${searchTypes[type].enumName}&groups=${headset}`)
       .then(data => data.json())
       .then(data => {
+        console.log(data);
         loadingIndicator.style.display = 'none';
-        let tempApps: Array<ResultData> = [];
 
-        data.results.forEach(( d: any ) => {
-          // console.log(d);
-          let app = new ResultData();
-          let addToList = true;
+        let languageFilterToggle = ( ev: MouseEvent, index: number ) => {
+          if(ev.shiftKey){
+            languageButtons.forEach(btn => {
+              btn.classList.remove('button-selected');
+            })
+      
+            languageButtons[index].classList.add('button-selected');
+      
+            let q = props.query();
+      
+            q['language'] = languageButtons[index].innerText;
+            props.setQuery(q);
 
-          switch(d.__OculusDBType){
-            case 'Application':
-              app.shortDescription = d.shortDescription;
-              app.longDescription = d.longDescription;
-              break;
+            processResults();
+          } else{
+            languageButtons[index].classList.toggle('button-selected');
+      
+            let languageType: Array<string> = [];
+            
 
-            case 'IapItemPack':
-              app.shortDescription = d.displayShortDescription;
-              app.longDescription = d.displayShortDescription;
-              break;
+            languageButtons.forEach((btn, i) => {
+              if(btn.classList.contains('button-selected'))
+                languageType.push(languageButtons[i].innerText);
+            })
+      
+            let q = props.query();
+      
+            q['language'] = languageType.join(',');
+            props.setQuery(q);
 
-            case 'IapItem':
-              app.shortDescription = d.displayShortDescription;
-              app.longDescription = d.displayShortDescription;
-              break;
+            processResults();
           }
+        }
 
-          app.id = d.id;
-          app.name = d.displayName;
-          app.comfortRatingFormatted = d.comfortRatingFormatted;
-          app.comfortRating = d.comfortRating;
-          app.type = d.__OculusDBType;
+        let processResults = () => {
+          let tempApps: Array<ResultData> = [];
+          let languages: Array<string> = [];
 
-          if(!d.offers[0])
-            addToList = false;
-          else{
-            app.priceFormatted = d.offers[0].price.priceFormatted;
-            app.rawPrice = d.offers[0].price.price;
+          data.results.forEach(( d: any ) => {
+            let app = new ResultData();
+            let addToList = true;
 
-            if(d.offers[0].strikethroughPrice){
-              app.priceOffer = true;
-              app.offerPriceFormatted = d.offers[0].price.priceFormatted;
-              app.priceFormatted = d.offers[0].strikethroughPrice.priceFormatted;
-              app.rawPrice = d.offers[0].strikethroughPrice.price;
+            switch(d.__OculusDBType){
+              case 'Application':
+                app.shortDescription = d.shortDescription;
+                app.longDescription = d.longDescription;
+                app.languages = d.supportedInAppLanguages.map(( x: string ) => x.toUpperCase());
+
+                d.supportedInAppLanguages.forEach(( lan: string ) => {
+                  if(!languages.find(x => x === lan.split('_')[0].toUpperCase())){
+                    languages.push(lan.split('_')[0].toUpperCase());
+                  }
+                })    
+                break;
+
+              case 'IapItemPack':
+                app.shortDescription = d.displayShortDescription;
+                app.longDescription = d.displayShortDescription;
+                break;
+
+              case 'IapItem':
+                app.shortDescription = d.displayShortDescription;
+                app.longDescription = d.displayShortDescription;
+                break;
             }
-          }
 
-          if(addToList)
-            tempApps.push(app);
-          // else
-          //   console.log(false);
-        })
+            app.id = d.id;
+            app.name = d.displayName;
+            app.comfortRatingFormatted = d.comfortRatingFormatted;
+            app.comfortRating = d.comfortRating;
+            app.type = d.__OculusDBType;
+            app.groupFormatted = d.groupFormatted;
 
-        setApps(tempApps);
+            d.offers.forEach(( o: any ) => {
+              if(!availableCurrencies.find(x => x === o.currency)){
+                availableCurrencies.push(o.currency);
+                currencySelector.appendChild(<option>{ o.currency }</option> as Node);
+                console.log(currencySelector);
+              }
+            })
+
+            let canUseSelectedOffer = true;
+            let selectedOffer = d.offers.find(( x: any ) => x.currency === localStorage.getItem('currency'));
+
+            if(!selectedOffer){
+              selectedOffer = d.offers[0];
+              canUseSelectedOffer = false;
+            }
+
+            if(!selectedOffer)
+              addToList = false;
+            else{
+              app.priceIsSelected = canUseSelectedOffer
+              app.priceFormatted = selectedOffer.price.priceFormatted;
+              app.rawPrice = selectedOffer.price.price;
+
+              if(selectedOffer.strikethroughPrice){
+                app.priceOffer = true;
+                app.offerPriceFormatted = selectedOffer.price.priceFormatted;
+                app.priceFormatted = selectedOffer.strikethroughPrice.priceFormatted;
+                app.rawPrice = selectedOffer.strikethroughPrice.price;
+              }
+            }
+
+            if(addToList)
+              tempApps.push(app);
+            // else
+            //   console.log(false);
+          })
+
+          let langs = props.query().language ? props.query().language.split(',') : languages;
+
+          tempApps = tempApps.filter(x => {
+            if(x.type !== 'Application')
+              return true;
+
+            let hasLang = false;
+
+            x.languages.forEach(lan => {
+              if(langs.find(( x: string ) => x === lan))
+                hasLang = true;
+            })
+
+            return hasLang;
+          })
+
+          setApps(tempApps);
+
+          languageFilterEl.innerHTML = '';
+          languageButtons = [];
+
+          languages.forEach((lang, i) => {
+            languageFilterEl.appendChild(
+              <div class={langs.find((x: string) => x === lang) ? "button button-selected" : "button"} ref={( el ) => languageButtons.push(el)} style={{ width: '30px' }} onClick={( e: MouseEvent ) => languageFilterToggle(e, i)}>
+                {lang}
+              </div> as Node
+            )
+          })
+        }
+
+        processResults();
+        currencySelector.value = localStorage.getItem('currency') || 'EUR';
+
+        currencySelector.onchange = () => {
+          localStorage.setItem('currency', currencySelector.value);
+          processResults();
+        }
       })
   })
 
@@ -213,12 +312,6 @@ let SearchPage = ( props: SearchPageProps ) => {
         <For each={searchTypes}>
           {( item, index ) =>  <div class="button" ref={( el ) => selectorButtons.push(el)} onClick={() => selectBtn(index())}>{ item.displayName }</div> }
         </For>
-
-        <select class="currency-selection">
-          <option>Currency 1</option>
-          <option>Currency 2</option>
-          <option>Currency 3</option>
-        </select>
       </div>
 
       <div class="result-columns">
@@ -226,16 +319,26 @@ let SearchPage = ( props: SearchPageProps ) => {
           <div class="more-filter-headers">
             <h2><b>Filters</b></h2>
 
+            <p>
+              Click to toggle selection.<br />
+              Shift + Click to select only the one you clicked on.
+            </p>
+
             <div>
               <h3>Headsets</h3>
-              <p>
-                Click to toggle selection.<br />
-                Shift + Click to select only the one you clicked on.
-              </p>
             </div>
           </div>
 
-          <div class="headset-selection-list" ref={( el ) => filterTypesEl = el}></div>
+          <div class="headset-selection-list" ref={( el ) => filterTypesEl = el}></div><br />
+
+          <Show when={searchType() === 0}>
+            <hr />
+            <div>
+              <h3>App Languages</h3>
+            </div>
+
+            <div ref={( el ) => languageFilterEl = el}>Loading...</div>
+          </Show>
         </div>
 
         <div class="results-page">
