@@ -101,16 +101,7 @@ public class SearchQueryExecutor
             Builders<DBApplication>.Filter.ElemMatch(x => x.supportedInAppLanguages, Builders<string>.Filter.In(x => x, query.supportedInAppLanguages))
         );
         Logger.Log(String.Join(", ", query.supportedInAppLanguages));
-        List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(x => 
-            query.headsetGroups.Contains(x.group) &&
-            (
-                query.searchRegex.IsMatch(x.searchDisplayName) ||
-                query.searchRegex.IsMatch(x.canonicalName) ||
-                (x.packageName != null && query.searchRegex.IsMatch(x.packageName)) ||
-                query.searchRegex.IsMatch(x.publisherName)
-            )
-            && (query.supportedInAppLanguages.Count <= 0)
-        ).Skip(query.skip).Limit(query.limit).ToList();
+        List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(filter).Skip(query.skip).Limit(query.limit).ToList();
         PopulationContext c = new PopulationContext();
         apps.ForEach(x => x.PopulateSelf(c));
         return new SearchResult(new List<dynamic>(apps), null);
