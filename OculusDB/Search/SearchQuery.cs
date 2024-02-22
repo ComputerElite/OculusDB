@@ -11,7 +11,9 @@ public class SearchQuery
     public List<DifferenceNameType> differenceNameTypes { get; set; } = new List<DifferenceNameType>();
     public string OculusDBType { get; set; } = "";
     public string searchQuery { get; set; } = "";
+    public List<string> supportedInAppLanguages { get; set; } = new List<string>();
     public string differenceTypes { get; set; } = "";
+    
     public Regex searchRegex
     {
         get
@@ -34,6 +36,8 @@ public class SearchQuery
         if(q.skip < 0) q.skip = 0;
         q.limit = int.Parse(request.queryString.Get("limit") ?? "100");
         q.parentApplication = request.queryString.Get("appid") ?? "";
+        q.supportedInAppLanguages = (request.queryString.Get("supportedInAppLanguages") ?? "").Split(',')
+            .Where(x => x != "").ToList();
         if(q.limit < 0) q.limit = 100;
         string groups = request.queryString.Get("groups") ??
                         String.Join(",", HeadsetIndex.entries.Select(x => x.groupString).Distinct()); // default to all groups if none are given
