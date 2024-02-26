@@ -24,7 +24,8 @@ const quotes = [
   "\"WE NEED MORE QUOTES\" - Computer",
   "\"see, i'm on top now\" - Computer",
   "\"I'm new around these streets\" - Sander",
-  "\"6€ is a lot for some people\" - Phaze"
+  "\"6€ is a lot for some people\" - Phaze",
+  "\"Wait you're not topping me?\" - Computer to Phaze"
 ]
 
 let Footer = () => {
