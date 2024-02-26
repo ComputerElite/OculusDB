@@ -50,7 +50,10 @@ let Footer = () => {
     "\"john. merge fix your conflicts\" - Phaze",
     "\"TAKE YOUR CLOTHES OFF PHAZE\" - Computer",
     "\"i simped for computer for like a whole day\" - Phase",
-    "\"also computer is in bed (edited) with me\" - Face"
+    "\"also computer is in bed (edited) with me\" - Face",
+    "\"I'm new around these streets\" - Sander",
+    "\"6€ is a lot for some people\" - Phaze",
+    "\"Wait you're not topping me?\" - Computer to Phaze"
   ]
 
   let randomQuote = () => {
