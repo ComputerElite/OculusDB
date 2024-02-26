@@ -22,7 +22,9 @@ const quotes = [
   "\"I FOUND IT\" - Phaze",
   "\"I'm better than Meta\" - Computer (according to a classmate)",
   "\"WE NEED MORE QUOTES\" - Computer",
-  "\"see, i'm on top now\" - Computer"
+  "\"see, i'm on top now\" - Computer",
+  "\"I'm new around these streets\" - Sander",
+  "\"6€ is a lot for some people\" - Phaze"
 ]
 
 let Footer = () => {
