@@ -6,4 +6,4 @@ import App from './Components/App/App'
 
 const root = document.getElementById('root')
 
-render(() => <App />, root!)
+render(() => <div><App /></div>, root!)

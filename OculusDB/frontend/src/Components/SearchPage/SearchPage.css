@@ -14,7 +14,8 @@
   background: #0005;
   padding: 10px;
   border-radius: 10px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
+  box-shadow: #0009 0 0 10px;
 }
 
 .type-filter div{
@@ -37,7 +38,7 @@
   background: #000a;
   padding: 10px;
   border-radius: 10px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
   width: 25%;
   color: white;
   font-size: 15px;
@@ -45,6 +46,7 @@
   font-weight: 400;
   margin-bottom: 10px;
   text-align: center;
+  box-shadow: #0009 0 0 10px;
 }
 
 .more-filters .button{
@@ -63,12 +65,13 @@
   background: #000a;
   padding: 10px;
   border-radius: 10px;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
   height: 100px;
   margin-bottom: 10px;
   display: flex;
-  box-shadow: #000 0 0 0px;
   transition: 0.1s;
+  box-shadow: #0009 0 0 10px;
+  opacity: 0.9;
 }
 
 .result-icon{
@@ -88,6 +91,7 @@
 
 .result:hover{
   box-shadow: #000 0 0 10px;
+  opacity: 1;
 }
 
 .rating-format{
@@ -146,22 +150,30 @@
 
 .loader {
   width: 100%;
-  height: 4.8px;
+  height: 7.5px;
   display: inline-block;
   position: relative;
   overflow: hidden;
+  background: #5555;
 }
 
 .loader::after {
   content: '';  
   width: 96px;
-  height: 4.8px;
+  height: 7.5px;
   background: #FFF;
   position: absolute;
   top: 0;
   left: 0;
+  border-radius: 10px;
   box-sizing: border-box;
   animation: hitZak 0.6s ease-in-out infinite alternate;
+}
+
+.result-supported-devices{
+  color: gray;
+  font-size: 12px;
+  margin-left: 10px;
 }
 
 @keyframes hitZak {

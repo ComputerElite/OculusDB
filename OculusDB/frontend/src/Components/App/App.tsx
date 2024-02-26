@@ -14,7 +14,7 @@ import SavedApps from '../SavedApps/SavedApps'
 import { DowngradingGuide, DowngradingGuidePc, DowngradingGuideQuest, DowngradingGuideQuestQavs, DowngradingGuideQuestSqq, DowngradingGuideRift } from '../DowngradingGuide/DowngradingGuide'
 
 import './App.css'
-import { Switch, Match, createSignal, createEffect } from 'solid-js'
+import { Switch, Match, createSignal, createEffect, onMount } from 'solid-js'
 
 let pageTitles: any = {
   '/home': 'Home - OculusDB',
@@ -37,6 +37,12 @@ let pageTitles: any = {
 
 function App() {
   let currentUrl = window.location.pathname;
+  let zuck: HTMLElement;
+  let zuckShown = false;
+  let theGay: HTMLElement;
+  let canvas: HTMLCanvasElement;
+
+  let lastMouseMove = Date.now();
 
   if(currentUrl.endsWith('/')){
     let splitUrl = currentUrl.split('');
@@ -85,7 +91,6 @@ function App() {
 
   window.onpopstate = () => {
     let currentUrl = window.location.pathname;
-
     setCurrentTab(currentUrl);
 
     if(currentTab() === '')setCurrentTab('/home');
@@ -115,6 +120,90 @@ function App() {
       document.querySelector('title')!.innerText = pageTitles[tab] || '404 Not Found - Oculus DB'
       window.history.pushState(null, pageTitles[tab] || '404 Not Found - Oculus DB', tab + formatQuery(query()));
     }
+  })
+
+  window.addEventListener('mousemove', () => {
+    lastMouseMove = Date.now();
+
+    if(zuckShown){
+      zuck.style.bottom = '-300px';
+      zuck.style.rotate = '-45deg';
+      zuckShown = false;
+    }
+  })
+
+  setInterval(() => {
+    if(lastMouseMove + 10000 > Date.now() && zuckShown === false && (Math.floor(Math.random() * 500) === 1 || query()['zuck'] === 'true')){
+      zuck.style.bottom = '0px';
+      zuck.style.rotate = '0deg';
+      zuckShown = true;
+    }
+  }, 10000);
+
+  onMount(() => {
+    if(Math.floor(Math.random() * 1000) === 0 || (query()['gay'] === 'true' && query()['fastergay'] !== 'true'))
+      theGay.style.animation = 'thegay 1s infinite linear';
+
+    let unGay = localStorage.getItem('ungay') === 'yes';
+    let gay = query()['moregay'] === 'true'
+
+    let ctx = canvas.getContext('2d')!;
+    let frame = 0;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.onresize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    let ungayImage = new Image();
+    ungayImage.src = "https://cdn.phazed.xyz/odbicons/ungay.png";
+
+    let gayImage = new Image();
+    gayImage.src = "https://cdn.phazed.xyz/flag.svg";
+
+    let gFlagX = canvas.width / 2;
+    let gFlagY = canvas.height / 2;
+
+    let gFlagXVel = Math.floor(Math.random() * 10) - 5;
+    let gFlagYVel = Math.floor(Math.random() * 10) - 5;
+
+    if(query()['fastergay']){
+      gFlagXVel *= 50;
+      gFlagYVel *= 50;
+      theGay.style.animation = 'thegay 0.1s infinite linear';
+    }
+
+    let render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+
+      if(unGay && frame % 2 === 0)
+        ctx.drawImage(ungayImage, 0, 0, canvas.width, canvas.height);
+
+      if(gay){
+        ctx.drawImage(gayImage, gFlagX - 200, gFlagY - 130, 400, 260);
+
+        gFlagX += gFlagXVel;
+        gFlagY += gFlagYVel;
+
+        if(
+          gFlagY - 130 < 0 ||
+          gFlagY + 130 > canvas.height
+        ) gFlagYVel *= -1
+
+        if(
+          gFlagX - 200 < 0 ||
+          gFlagX + 200 > canvas.width
+        ) gFlagXVel *= -1
+      }
+      
+      requestAnimationFrame(render);
+    }
+
+    render()
   })
 
   return (
@@ -171,6 +260,11 @@ function App() {
           <SavedApps setCurrentTab={setCurrentTab} />
         </Match>
       </Switch>
+
+      <div class="zuck" ref={( el ) => zuck = el}></div>
+      <div class="the-gay" ref={( el ) => theGay = el}>
+        <canvas ref={( el ) => canvas = el}></canvas>
+      </div>
 
       <Footer />
     </>
