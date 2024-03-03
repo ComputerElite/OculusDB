@@ -53,7 +53,8 @@ let Footer = () => {
     "\"also computer is in bed (edited) with me\" - Face",
     "\"I'm new around these streets\" - Sander",
     "\"6€ is a lot for some people\" - Phaze",
-    "\"Wait you're not topping me?\" - Computer to Phaze"
+    "\"Wait you're not topping me?\" - Computer to Phaze",
+    "\"bondage is great\" - Computer"
   ]
 
   let randomQuote = () => {
