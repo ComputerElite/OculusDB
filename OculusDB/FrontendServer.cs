@@ -603,8 +603,8 @@ public class FrontendServer
             }
             catch (Exception e)
             {
-                request.SendString(apiError, "text/plain", 500);
                 Logger.Log(e.ToString(), LoggingType.Error);
+                request.SendString(apiError, "text/plain", 500);
             }
             return true;
         }), true, true, true, true, 360); // 6 mins
