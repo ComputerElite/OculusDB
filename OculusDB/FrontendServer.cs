@@ -258,6 +258,8 @@ public class FrontendServer
                 mod.id = "OculusDB_CoreMods_" + v;
                 mod.packageVersion = v;
                 mod.description = "Downloads all Core mods for Beat Saber version " + v;
+                mod.modloader = new Version(v.Split('_')[0]).CompareTo(new Version("1.28.0")) == 1 ? "Scotland2" : "QuestLoader";
+
 				foreach (CoreMod m in used.mods)
                 {
                     mod.dependencies.Add(new QModDependency { downloadIfMissing = m.downloadLink, id = m.id, version = "^" + m.version });
