@@ -1327,14 +1327,64 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
             <div>
                 <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">Why is my download not starting?</div>
                 <p>
-                    <span style="font-weight: bold">You have to use <span style="font-weight: bolder;">QuestAppVersionSwitcher</span> to downgrade Quest games.</span>
-                    It's an app you install on your Quest and then use to downgrade. You can find a guide on how to set it up <a href="https://oculusdb.rui2015.me/guide/quest/qavs" style="text-decoration: underline; color: red;">here</a>.
-                    For alternate methods click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading" style="text-decoration: none;">here</a>.
+                    <span style="font-weight: bold">You have to use <span style="font-weight: bolder;">QuestAppVersionSwitcher</span> to downgrade/download Quest games.</span>
+                    It's an app you install on your Quest and then use to downgrade. You can find a guide on how to set it up <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>.
+                    For alternate methods (e. g. download an apk directly, not recommended) click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading">here</a>.
+                    <br/>
+                    <input type="button" onclick="GetHelp()" value="Receive Help">
                 </p>
             </div>
         `);
     }
    
+}
+
+function GetHelp() {
+    PopUp(`
+    Dear user, in need of aid so dire,<br/>
+    You've journeyed here, lost in the mire.<br/>
+    Unnoticed help, like a hidden pearl,<br/>
+    Accompanied you in this digital swirl.<br/>
+    <br/>
+    <br/>
+    For the visually impaired, this verse you skip,<br/>
+    In your quest for knowledge, don't let it slip.<br/>
+    But, oh dear 13-year-old, so Fortnite smitten,<br/>
+    This message, to your parents, should be written.<br/>
+    <br/>
+    <br/>
+    Your iPad, a companion in the ADHD spree,<br/>
+    Take it away, let your mind roam free.<br/>
+    A popup ignored, a line of text passed by,<br/>
+    Now a humorous poem, catching your eye.<br/>
+    <br/>
+    <br/>
+    Short attention spans, a common woe,<br/>
+    In this digital era where distractions grow.<br/>
+    Did you persevere, or falter in dismay?<br/>
+    In this verse, find the help you seek, I say.<br/>
+    <br/>
+    <br/>
+    But before you proceed, take a pause,<br/>
+    Follow these steps, adhere to the cause:<br/>
+    Social media apps, bid them goodbye,<br/>
+    To the doctor's haven, let your attention fly.<br/>
+    <br/>
+    <br/>
+    Short spans, iPad syndrome, they diagnose,<br/>
+    In the realm of attention, your struggle shows.<br/>
+    Wait, dear reader, for improvement's embrace,<br/>
+    A remedy for your focus, a much-needed grace.<br/>
+    <br/>
+    <br/>
+    Uninstall, visit, and patiently await,<br/>
+    In this poetic guide, find your destined fate.<br/>
+    Now, with rituals completed, attention keen,<br/>
+    Learn the art of downgrading, as you've never seen.<br/>
+    <br/>
+    <br/>
+    In case you still need help, here's the link to the <a href="{OculusDBDC}">OculusDB Discord</a>
+    `);
 }
 
 function ObbInfoPopup() {

@@ -383,6 +383,8 @@ code {
 .popUpContent {
     padding: 10px;
     border-radius: 5px;
+    overflow-y: scroll;
+    max-height: 95vh;
     background-color: var(--hightlightColorIntense);
 }
 
