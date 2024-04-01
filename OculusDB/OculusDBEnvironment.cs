@@ -17,7 +17,7 @@ namespace OculusDB
         public static string workingDir = "";
         public static string dataDir = "";
         // Set to false if not in dev mode
-        public static bool debugging = true;
+        public static bool debugging = false;
         public static Config config = new ();
         public static ScrapingNodeConfig scrapingNodeConfig = new ();
         public static CommandLineCommandContainer cla;
