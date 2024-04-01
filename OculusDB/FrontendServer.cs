@@ -107,7 +107,7 @@ public class FrontendServer
         ScrapingNodeMongoDBManager.Init();
 
         Logger.Log("Setting up routes");
-        frontend = OculusDBEnvironment.debugging ? @"..\..\..\frontend\" : "frontend" + Path.DirectorySeparatorChar;
+        frontend = OculusDBEnvironment.debugging ? @"../../../frontend/" : "frontend" + Path.DirectorySeparatorChar;
         
         ////////////////// Admin
         server.AddRoute("GET", "/api/v1/admin/users", new Func<ServerRequest, bool>(request =>

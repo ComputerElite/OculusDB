@@ -109,8 +109,14 @@ function PlaySound(url) {
     audio.play();
 }
 
+function MoreRandom() {
+    let random = Math.random()
+    random = parseInt((random + "").slice(-5)) / 100000
+    return random
+}
+
 function GetRandomBool(trueChance) {
-    return Math.random() * trueChance <= 1 // 1 in x
+    return MoreRandom() * trueChance <= 1 // 1 in x
 }
 
 if(params.has("isqavs")) localStorage.isQAVS = "true"
@@ -132,10 +138,10 @@ if(!localStorage.isQAVS) {
         }
     ]
 
-    if(GetRandomBool(1000) || params.has("dialupdownload")) jokeconfig.dialupdownload = true
-    if(params.has("flashbang")) jokeconfig.flashbang = true
-    if(params.has("popupad")) jokeconfig.popupad = true
-    if(params.has("supportus")) jokeconfig.supportUs = true
+    if(GetRandomBool(isAprilFools() ? 10 : 1000) || params.has("dialupdownload")) jokeconfig.dialupdownload = true
+    if(GetRandomBool(isAprilFools() ? 10 : 1000) || params.has("flashbang")) jokeconfig.flashbang = true
+    if(GetRandomBool(isAprilFools() ? 30 : 1000) || params.has("popupad")) jokeconfig.popupad = true
+    if(GetRandomBool(isAprilFools() ? 30 : 1000) || params.has("supportus")) jokeconfig.supportUs = true
 
     if(jokeconfig.flashbang) {
         document.body.innerHTML += `<div class="flashbang"></div>`
@@ -143,7 +149,7 @@ if(!localStorage.isQAVS) {
 
     if(jokeconfig.popupad) {
         setTimeout(() => {
-            var ad = ads[Math.floor(Math.random() * ads.length)]
+            var ad = ads[Math.floor(MoreRandom() * ads.length)]
             PopUp(` <div style="width: 95vw; height: 95vh; position: relative;">
                         ${ad.title ? `<h2>${ad.title}</h2>` : ``}
                         <img alt="Image of ${ad.title} ad" src="${ad.img}" style="width: 100%; height: 100%;" onclick="location = '${ad.redirect ? ad.redirect : `https://computerelite.github.io/redirect?target=self&random`}'">
@@ -157,7 +163,7 @@ if(!localStorage.isQAVS) {
         console.log("e")
         var e = ""
         for(let i = 0; i < 500; i++) {
-            e += `<a class="underlineAnimation" style="position: fixed; top: ${Math.random() * 100}vh; left: ${Math.random() * 100}vw;" href="/supportus">Support us</a>`
+            e += `<a class="underlineAnimation" style="position: fixed; top: ${MoreRandom() * 100}vh; left: ${MoreRandom() * 100}vw;" href="/supportus">Support us</a>`
         }
         document.body.innerHTML += e;
     }
@@ -1585,11 +1591,16 @@ function OwOify(text) {
     }
     return words.join(" ");
 }
-var now = new Date();
-if(now.getMonth() == 3 && now.getDate() == 1) {
+function isAprilFools() {
+
+    var now = new Date();
+    return now.getMonth() == 3 && now.getDate() == 1
+}
+if(isAprilFools()) {
     OwO()
     setInterval(OwO, 100)
 }
+
 function OwO() {
 
     var allTags = document.querySelectorAll('*:not(:has(:not(br):not(b):not(i)))');
@@ -1598,6 +1609,7 @@ function OwO() {
         if(allTags[i].changed) continue;
         allTags[i].changed = true
         allTags[i].innerText = OwOify(allTags[i].innerText)
+        allTags[i].style.fontSize = (MoreRandom() * 1.8 + 0.1) + "rem"
         if(allTags[i].value && allTags[i].tagName == "INPUT" && allTags[i].type == "button") {
             allTags[i].value = OwOify(allTags[i].value)
         }
@@ -1609,5 +1621,5 @@ function OwO() {
 
 function GetRandomFace() {
     var faces = ["(・`ω´・)", ";;w;;", "owo", "UwU", ">w<", "^w^", "(*^ω^)", "(◕‿◕✿)", "(◕ᴥ◕)", "ʕ•ᴥ•ʔ"];
-    return faces[Math.floor(Math.random() * faces.length)];
+    return faces[Math.floor(MoreRandom() * faces.length)];
 }
