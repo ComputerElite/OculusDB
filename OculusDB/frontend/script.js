@@ -1551,8 +1551,8 @@ function SetCookie(name, value, expiration) {
 
 const dict = {
     "search": "Sniff :3",
-    "oculusdb": "UwUculusDB",
-    "oculusdb.": "UwUculusDB.",
+    "oculusdb": "JohnDB",
+    "oculusdb.": "JohnDB.",
     "application": "Home",
     "applications": "Homes",
     "yes": "yes daddy",
@@ -1594,7 +1594,7 @@ function OwOify(text) {
 function isAprilFools() {
 
     var now = new Date();
-    return now.getMonth() == 3 && now.getDate() == 1
+    return now.getMonth() == 3 && now.getDate() <= 10
 }
 if(isAprilFools()) {
     OwO()
