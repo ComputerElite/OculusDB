@@ -40,7 +40,7 @@
 
 
 html {
-    background-image: url(/assets/john.jpg);
+    background-image: url(/cdn/flag.svg);
     background-attachment: fixed;
     background-blend-mode: darken;
     background-size: cover;

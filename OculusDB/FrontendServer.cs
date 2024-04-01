@@ -914,7 +914,7 @@ public class FrontendServer
         server.AddRouteFile("/guide/quest/qavs", frontend + "guidequest_QAVS.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/guide/quest/sqq", frontend + "guidequest_SQQ.html", replace, true, true, true, accessCheck);
         server.AddRouteFile("/assets/sq.png", frontend + "sq.png", true, true, true, accessCheck);
-        server.AddRouteFile("/assets/john.jpg", frontend + "assets/john.jpg", true, true, true, accessCheck);
+        server.AddRouteFile("/assets/john.jpg", frontend + "assets" + Path.DirectorySeparatorChar + "john.jpg", true, true, true, accessCheck);
         server.AddRouteFile("/assets/discord.svg", frontend + "discord.svg", true, true, true, accessCheck);
         server.AddRoute("GET", "/fonts/OpenSans", request =>
         {
