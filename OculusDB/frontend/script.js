@@ -1594,7 +1594,7 @@ function OwOify(text) {
 function isAprilFools() {
 
     var now = new Date();
-    return now.getMonth() == 3 && now.getDate() <= 10
+    return now.getMonth() == 3 && now.getDate() == 1
 }
 if(isAprilFools()) {
     OwO()
