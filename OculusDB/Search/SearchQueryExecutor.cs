@@ -90,6 +90,7 @@ public class SearchQueryExecutor
 
     private static SearchResult SearchApplications(SearchQuery query)
     {
+        Logger.Log("Documents in Applications collection: " + OculusDBDatabase.applicationCollection.CountDocuments(x => true));
         var filter = Builders<DBApplication>.Filter.And(
             Builders<DBApplication>.Filter.In(x => x.group, query.headsetGroups),
             Builders<DBApplication>.Filter.Or(
