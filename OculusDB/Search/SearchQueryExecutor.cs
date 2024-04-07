@@ -11,7 +11,7 @@ public class SearchQueryExecutor
 {
     public static SearchResult ExecuteQuery(SearchQuery query)
     {
-        Logger.Log(query.OculusDBType.ToString() + " search query: " + query.searchRegex + " with regex: " + query.searchRegex.ToString() + " and skip: " + query.skip + " and limit: " + query.limit;
+        Logger.Log(query.OculusDBType.ToString() + " search query: " + query.searchRegex + " with regex: " + query.searchRegex.ToString() + " and skip: " + query.skip + " and limit: " + query.limit);
         switch (query.OculusDBType)
         {
             case DBDataTypes.Application:

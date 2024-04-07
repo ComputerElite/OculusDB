@@ -320,6 +320,7 @@ public class ScrapingNodeScraper
         List<DBVersion?> versions = new List<DBVersion?>();
         List<DBVersion> existingVersions = GetVersionsOfApp(dbApp.id);
         string? packageName = null;
+        Logger.Log(JsonSerializer.Serialize(dbApp));
         bool triedToGetPackageName = false;
         foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
         {
