@@ -320,44 +320,56 @@ public class ScrapingNodeScraper
         List<DBVersion?> versions = new List<DBVersion?>();
         List<DBVersion> existingVersions = GetVersionsOfApp(dbApp.id);
         string? packageName = null;
-        Logger.Log(JsonSerializer.Serialize(dbApp));
         bool triedToGetPackageName = false;
-        foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
+        try
         {
-            bool doPriority = app.priority;
-            DBVersion? existing = existingVersions.FirstOrDefault(x => x.id == binary.id);
-            Logger.Log("existing version found: " + (existing != null));
-            if (existing != null)
+            foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
             {
-                if (existing.__lastPriorityScrape != null && (DateTime.UtcNow - existing.__lastPriorityScrape).Value.TotalDays < 1)
+                bool doPriority = app.priority;
+                DBVersion? existing = existingVersions.FirstOrDefault(x => x.id == binary.id);
+                Logger.Log("existing version found: " + (existing != null));
+                if (existing != null)
                 {
-                    Logger.Log("Not scraping " + binary.id + " as it was scraped in the last 24 hours");
-                    doPriority = false;
+                    if (existing.__lastPriorityScrape != null && (DateTime.UtcNow - existing.__lastPriorityScrape).Value.TotalDays < 1)
+                    {
+                        Logger.Log("Not scraping " + binary.id + " as it was scraped in the last 24 hours");
+                        doPriority = false;
+                    }
                 }
-            }
-            else
-            {
-                // first scrape of an version should be priority
-                doPriority = true;
-            }
+                else
+                {
+                    // first scrape of an version should be priority
+                    doPriority = true;
+                }
 
-            if (!triedToGetPackageName)
-            {
-                doPriority = true;
-                Logger.Log("Doing priority to get package name");
-            }
-            if(doPriority) Logger.Log(binary.version + " - " + binary.versionCode + " (" + binary.id + ")");
+                if (!triedToGetPackageName)
+                {
+                    doPriority = true;
+                    Logger.Log("Doing priority to get package name");
+                }
+                if(doPriority) Logger.Log(binary.version + " - " + binary.versionCode + " (" + binary.id + ")");
             
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(doPriority ? GraphQLClient.GetMoreBinaryDetails(binary.id).data.node : null, binary, applicationFromDeveloper, dbApp, existing), scrapingNodeId);
-            if (doPriority && !triedToGetPackageName)
-            {
-                triedToGetPackageName = true;
-                packageName = v.packageName;
-            }
+                DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(doPriority ? GraphQLClient.GetMoreBinaryDetails(binary.id).data.node : null, binary, applicationFromDeveloper, dbApp, existing), scrapingNodeId);
+                if (doPriority && !triedToGetPackageName)
+                {
+                    triedToGetPackageName = true;
+                    packageName = v.packageName;
+                }
 
-            v.packageName = packageName;
-            versions.Add(v);
+                v.packageName = packageName;
+                versions.Add(v);
+            }
         }
+        catch (Exception e)
+        {
+            DBError error = new DBError
+            {
+                type = DBErrorType.CouldntScrapeVersions,
+                reason = DBErrorReason.PrimaryBinariesNull,
+                message = "Could not scrape versions for this app"
+            };
+        }
+        
         
         
 

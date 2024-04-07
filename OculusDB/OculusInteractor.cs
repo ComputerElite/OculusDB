@@ -82,7 +82,7 @@ namespace OculusDB
             Data<EdgesPrimaryBinaryApplication> s = GraphQLClient.AllVersionOfAppCursor(appId);
             if(s.data.node == null)
             {
-                throw new Exception("Could not get data to enumerate dlcs.");
+                throw new Exception("Could not get data to enumerate versions.");
             }
             while (true)
             {
