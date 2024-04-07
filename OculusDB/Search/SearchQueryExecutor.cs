@@ -101,7 +101,8 @@ public class SearchQueryExecutor
                 Builders<DBApplication>.Filter.Regex(x => x.packageName, new BsonRegularExpression(query.searchRegex)),
                 Builders<DBApplication>.Filter.Regex(x => x.publisherName, new BsonRegularExpression(query.searchRegex))
             ),
-            Builders<DBApplication>.Filter.AnyIn(x => x.supportedInAppLanguages, query.supportedInAppLanguages)
+            query.supportedInAppLanguages.Count <= 0 ? Builders<DBApplication>.Filter.Empty : Builders<DBApplication>.Filter.AnyIn(x => x.supportedInAppLanguages, query.supportedInAppLanguages)
+        
         );
         List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(filter).Skip(query.skip).Limit(query.limit).ToList();
         PopulationContext c = new PopulationContext();
