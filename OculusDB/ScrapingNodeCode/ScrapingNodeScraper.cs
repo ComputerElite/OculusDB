@@ -248,22 +248,22 @@ public class ScrapingNodeScraper
             }
             catch (Exception e)
             {
-                dbApp.errors.Add(new DBError
+                dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
                 {
                     type = DBErrorType.CouldNotScrapeIapsFully,
                     reason = DBErrorReason.DeveloperApplicationNull,
                     message = "Couldn't scrape IAPs because developer api returned nothing. Some info in IAPs may be missing and will be marked with null or -1"
-                });
+                }));
             }
         }
         else
         {
-            dbApp.errors.Add(new DBError
+            dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
             {
                 type = DBErrorType.CouldNotScrapeIaps,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
                 message = "Couldn't scrape IAPs because grouping is null"
-            });
+            }));
         }
         Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
         if (dlcApplication.data.node != null && dlcApplication.data.node.latest_supported_binary != null && dlcApplication.data.node.latest_supported_binary.firstIapItems != null)
@@ -281,12 +281,12 @@ public class ScrapingNodeScraper
                     {
                         if (dlcsAdded)
                         {
-                            dbApp.errors.Add(new DBError
+                            dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
                             {
                                 type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
                                 reason = DBErrorReason.DlcNotInDlcList,
                                 message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
-                            });
+                            }));
                         }
                         else
                         {
@@ -388,13 +388,15 @@ public class ScrapingNodeScraper
             }
         } catch (Exception e)
         {
-            dbApp.errors.Add(new DBError
+            dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
             {
                 type = DBErrorType.CouldNotScrapeAchievements,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
                 message =e.ToString()
-            });
+            }));
         }
+
+        ObjectConverter.
         
         
         DBAppImage? dbi = DownloadImage(dbApp);
