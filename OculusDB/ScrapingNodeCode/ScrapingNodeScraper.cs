@@ -253,7 +253,7 @@ public class ScrapingNodeScraper
                     type = DBErrorType.CouldNotScrapeIapsFully,
                     reason = DBErrorReason.DeveloperApplicationNull,
                     message = "Couldn't scrape IAPs because developer api returned nothing. Some info in IAPs may be missing and will be marked with null or -1"
-                }));
+                }, scrapingNodeId));
             }
         }
         else
@@ -263,7 +263,7 @@ public class ScrapingNodeScraper
                 type = DBErrorType.CouldNotScrapeIaps,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
                 message = "Couldn't scrape IAPs because grouping is null"
-            }));
+            }, scrapingNodeId));
         }
         Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
         if (dlcApplication.data.node != null && dlcApplication.data.node.latest_supported_binary != null && dlcApplication.data.node.latest_supported_binary.firstIapItems != null)
@@ -286,7 +286,7 @@ public class ScrapingNodeScraper
                                 type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
                                 reason = DBErrorReason.DlcNotInDlcList,
                                 message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
-                            }));
+                            }, scrapingNodeId));
                         }
                         else
                         {
@@ -392,8 +392,8 @@ public class ScrapingNodeScraper
             {
                 type = DBErrorType.CouldNotScrapeAchievements,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
-                message =e.ToString()
-            }));
+                message = e.ToString()
+            }, scrapingNodeId));
         }
 
         ObjectConverter.
