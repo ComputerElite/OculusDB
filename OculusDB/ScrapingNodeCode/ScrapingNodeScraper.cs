@@ -395,14 +395,12 @@ public class ScrapingNodeScraper
                 message = e.ToString()
             }, scrapingNodeId));
         }
-
-        ObjectConverter.
         
         
         DBAppImage? dbi = DownloadImage(dbApp);
         if (dbi != null)
         {
-            taskResult.scraped.imgs.Add(dbi);
+            taskResult.scraped.imgs.Add((DBAppImage)dbi);
         }
         
         taskResult.scraped.offers.AddRange(offers.Where(x => x != null).ToList().ConvertAll(x => (DBOffer)x));
