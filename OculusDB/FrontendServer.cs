@@ -1004,20 +1004,18 @@ public class FrontendServer
         {
             for (int i = 0; i < config.tokens.Count; i++)
             {
+                if (config.tokens[i].token != token) continue;
                 if(config.tokens[i].expiry < DateTime.UtcNow)
                 {
                     request.SendString("Token expired");
                     return false;
                 }
-                if(config.tokens[i].token == token)
+                if (config.tokens[i].permissions.Contains(p)) return true;
+                else
                 {
-                    if (config.tokens[i].permissions.Contains(p)) return true;
-                    else
-                    {
-                            
-                        request.SendString("No permission to perform " + p);
-                        return false;
-                    }
+                        
+                    request.SendString("No permission to perform " + p);
+                    return false;
                 }
             }
         }
