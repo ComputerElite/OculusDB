@@ -1335,7 +1335,7 @@ function AndroidDownload(id, parentApplicationId,parentApplicationName, version,
                 <p>
                     <span style="font-weight: bold">You cannot download quest games atm. You may be able to use <span style="font-weight: bolder;">QuestAppVersionSwitcher</span> to downgrade/download Quest games like Beat Saber.</span>
                     It's an app you install on your Quest and then use to downgrade. You can find a guide on how to set it up <a href="https://oculusdb.rui2015.me/guide/quest/qavs">here</a>.
-                    For alternate methods (e. g. download an apk directly, not recommended and may not work) click <a href="https://computerelite.github.io/blog/2024/01/05/downgrading">here</a>.
+                    For more info check <a href="https://computerelite.github.io/blog/2024/01/05/downgrading">here</a>.
                     <br/>
                     <input type="button" onclick="GetHelp()" value="Receive Help">
                 </p>
