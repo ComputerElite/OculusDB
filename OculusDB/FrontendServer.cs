@@ -284,7 +284,7 @@ public class FrontendServer
             WebClient webClient = new WebClient();
             try
             {
-                string res = webClient.DownloadString("https://git.bmbf.dev/unicorns/resources/-/raw/master/com.beatgames.beatsaber/core-mods.json");
+                string res = webClient.DownloadString("https://raw.githubusercontent.com/QuestPackageManager/bs-coremods/main/core_mods.json");
                 if (res.Length <= 2) throw new Exception("lol fuck you idiot");
                 request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
                 {
