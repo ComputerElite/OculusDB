@@ -248,6 +248,7 @@ public class FrontendServer
         }));
         server.AddRoute("GET", "/api/coremodsdownload/", new Func<ServerRequest, bool>(request =>
         {
+            UpdateCoreMods();
 	        string v = request.pathDiff.Replace(".qmod", "");
 			Dictionary<string, CoreMods> mods = JsonSerializer.Deserialize<Dictionary<string, CoreMods>>(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"));
             if(mods.ContainsKey(v))
@@ -280,41 +281,13 @@ public class FrontendServer
 			return true;
         }), true, true, true, true, 300); // 5 mins
         server.AddRoute("GET", "/api/coremodsproxy", new Func<ServerRequest, bool>(request =>
-        {
-            WebClient webClient = new WebClient();
-            try
+        {);
+            request.SendString(UpdateCoreMods(), "application/json", 200, true, new Dictionary<string, string>
             {
-                string res = webClient.DownloadString("https://raw.githubusercontent.com/QuestPackageManager/bs-coremods/main/core_mods.json");
-                if (res.Length <= 2) throw new Exception("lol fuck you idiot");
-                request.SendString(res, "application/json", 200, true, new Dictionary<string, string>
                 {
-                    {
-                        "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                    }
-                });
-                File.WriteAllText(OculusDBEnvironment.dataDir + "coremods.json", res);
-            }
-            catch (Exception e)
-            {
-                if(File.Exists(OculusDBEnvironment.dataDir + "coremods.json"))
-                {
-                    if(!request.closed) request.SendString(File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json"), "application/json", 200, true, new Dictionary<string, string>
-                    {
-                        {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
-                } else
-                {
-                    if(!request.closed) request.SendString("{}", "application/json", 500, true, new Dictionary<string, string>
-                    {
-                        {
-                            "access-control-allow-origin", request.context.Request.Headers.Get("origin")
-                        }
-                    });
+                    "access-control-allow-origin", request.context.Request.Headers.Get("origin")
                 }
-            }
-
+            });
             return true;
         }));
         server.AddRoute("POST", "/api/v1/checkaccess", new Func<ServerRequest, bool>(request =>
@@ -961,6 +934,35 @@ public class FrontendServer
         server.AddRouteFile("/cdn/modem.ogg", frontend + "assets" + Path.DirectorySeparatorChar + "modem.ogg", true, true, true, accessCheck);
 
         server.AddRouteFile("/cdn/BS2.jpg", frontend + "assets" + Path.DirectorySeparatorChar + "BS2.jpg", true, true, true, accessCheck);
+    }
+
+    DateTime lastCoreModUpdate = DateTime.MinValue;
+    
+    private string UpdateCoreMods()
+    {
+        WebClient webClient = new WebClient();
+        if(DateTime.UtcNow - lastCoreModUpdate < TimeSpan.FromMinutes(5) && File.Exists(OculusDBEnvironment.dataDir + "coremods.json"))
+        {
+            return File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json");
+        }
+        lastCoreModUpdate = DateTime.UtcNow;
+        try
+        {
+            string res = webClient.DownloadString("https://raw.githubusercontent.com/QuestPackageManager/bs-coremods/main/core_mods.json");
+            if (res.Length <= 2) throw new Exception("lol fuck you idiot");
+            File.WriteAllText(OculusDBEnvironment.dataDir + "coremods.json", res);
+            return res;
+        }
+        catch (Exception e)
+        {
+            if(File.Exists(OculusDBEnvironment.dataDir + "coremods.json"))
+            {
+                return File.ReadAllText(OculusDBEnvironment.dataDir + "coremods.json");
+            } else
+            {
+                return "{}";
+            }
+        }
     }
 
     private void ProxyChangeFontUrl(string url, ServerRequest request)
