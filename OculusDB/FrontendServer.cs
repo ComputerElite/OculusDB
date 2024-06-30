@@ -281,7 +281,7 @@ public class FrontendServer
 			return true;
         }), true, true, true, true, 300); // 5 mins
         server.AddRoute("GET", "/api/coremodsproxy", new Func<ServerRequest, bool>(request =>
-        {);
+        {
             request.SendString(UpdateCoreMods(), "application/json", 200, true, new Dictionary<string, string>
             {
                 {
