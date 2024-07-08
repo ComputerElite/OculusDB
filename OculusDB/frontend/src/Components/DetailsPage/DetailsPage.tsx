@@ -221,9 +221,7 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                           <span class="version-key">Size:</span> {v.sizeFormatted}<br/>
                           <span class="version-key">Required Space:</span> {v.requiredSpaceFormatted}<br/>
                           <span class="version-key">Uploaded:</span> {new Date(v.uploadedDate).toString()}<br/>
-                          <Show when={v.downloadable !== false}>
-                            <span class="version-key">Release Channel:</span> {v.releaseChannels.map((x: any) => x.name).join(', ')}<br/>
-                          </Show>
+                          <span class="version-key">Release Channel:</span> {v.releaseChannels.map((x: any) => x.name).join(', ')}<br/>
                           <span class="version-key">ID:</span> {v.id}<br/>
                           <span class="version-key">Version Code:</span> {v.versionCode}<br/>
 
