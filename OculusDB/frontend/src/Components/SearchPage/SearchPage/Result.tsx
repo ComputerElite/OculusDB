@@ -27,7 +27,7 @@ let Result = ( { app, setCurrentTab }: ResultProps ) => {
 
         <div class="rating-format">
           <img width="20" src={ comfortRatingIcons[app.comfortRating] } />
-          <div style={{ "margin-left": '10px' }}>{ app.comfortRatingFormatted }</div>
+          <div style={{ "margin-left": '10px' }}>{ app.comfortRatingFormatted }&nbsp;&nbsp;({ app.groupFormatted })</div>
         </div>
 
         <div class="result-price">
@@ -36,9 +36,9 @@ let Result = ( { app, setCurrentTab }: ResultProps ) => {
               <span style={{ color: '#63fac3' }}>Free</span>
             </Match>
             <Match when={app.priceOffer}>
-              <span style={{ "text-decoration": 'line-through', color: '#aaa' }}>{ app.offerPriceFormatted }</span>
+              <span style={{ "text-decoration": 'line-through', color: '#aaa' }}>{ app.priceFormatted }</span>
               <br />
-              <span style={{ color: app.priceIsSelected ? '#63fac3' : '#e59b12' }}>{ app.priceFormatted }</span>
+              <span style={{ color: app.priceIsSelected ? '#63fac3' : '#e59b12' }}>{ app.offerPriceFormatted }</span>
             </Match>
             <Match when={!app.priceOffer}>
               <span style={{ color: app.priceIsSelected ? '#63fac3' : '#e59b12' }}>{ app.priceFormatted }</span>
