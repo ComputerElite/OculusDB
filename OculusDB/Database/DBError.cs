@@ -37,7 +37,8 @@ public enum DBErrorType
     ReleaseDateApproximated = 3,
     MissingOrApproximatesInformation = 4,
     CouldNotScrapeIapsFully = 5,
-    CouldntApproximateReleaseDate = 6
+    CouldntApproximateReleaseDate = 6,
+    CouldntScrapeVersions = 7
 }
 
 public enum DBErrorReason
@@ -46,4 +47,5 @@ public enum DBErrorReason
     GroupingNull = 0,
     DlcNotInDlcList = 1,
     DeveloperApplicationNull = 2,
+    PrimaryBinariesNull = 3
 }

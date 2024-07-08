@@ -248,22 +248,22 @@ public class ScrapingNodeScraper
             }
             catch (Exception e)
             {
-                dbApp.errors.Add(new DBError
+                dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
                 {
                     type = DBErrorType.CouldNotScrapeIapsFully,
                     reason = DBErrorReason.DeveloperApplicationNull,
                     message = "Couldn't scrape IAPs because developer api returned nothing. Some info in IAPs may be missing and will be marked with null or -1"
-                });
+                }, scrapingNodeId));
             }
         }
         else
         {
-            dbApp.errors.Add(new DBError
+            dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
             {
                 type = DBErrorType.CouldNotScrapeIaps,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
                 message = "Couldn't scrape IAPs because grouping is null"
-            });
+            }, scrapingNodeId));
         }
         Data<Application> dlcApplication = GraphQLClient.GetDLCs(dbApp.id);
         if (dlcApplication.data.node != null && dlcApplication.data.node.latest_supported_binary != null && dlcApplication.data.node.latest_supported_binary.firstIapItems != null)
@@ -281,12 +281,12 @@ public class ScrapingNodeScraper
                     {
                         if (dlcsAdded)
                         {
-                            dbApp.errors.Add(new DBError
+                            dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
                             {
                                 type = DBErrorType.StoreDlcsNotFoundInExistingDlcs,
                                 reason = DBErrorReason.DlcNotInDlcList,
                                 message = "DLC " + dlc.node.display_name + " (" + dlc.node.id + ") not found in store existing DLCs"
-                            });
+                            }, scrapingNodeId));
                         }
                         else
                         {
@@ -321,42 +321,55 @@ public class ScrapingNodeScraper
         List<DBVersion> existingVersions = GetVersionsOfApp(dbApp.id);
         string? packageName = null;
         bool triedToGetPackageName = false;
-        foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
+        try
         {
-            bool doPriority = app.priority;
-            DBVersion? existing = existingVersions.FirstOrDefault(x => x.id == binary.id);
-            Logger.Log("existing version found: " + (existing != null));
-            if (existing != null)
+            foreach (OculusBinary binary in OculusInteractor.EnumerateAllVersions(dbApp.id))
             {
-                if (existing.__lastPriorityScrape != null && (DateTime.UtcNow - existing.__lastPriorityScrape).Value.TotalDays < 1)
+                bool doPriority = app.priority;
+                DBVersion? existing = existingVersions.FirstOrDefault(x => x.id == binary.id);
+                Logger.Log("existing version found: " + (existing != null));
+                if (existing != null)
                 {
-                    Logger.Log("Not scraping " + binary.id + " as it was scraped in the last 24 hours");
-                    doPriority = false;
+                    if (existing.__lastPriorityScrape != null && (DateTime.UtcNow - existing.__lastPriorityScrape).Value.TotalDays < 1)
+                    {
+                        Logger.Log("Not scraping " + binary.id + " as it was scraped in the last 24 hours");
+                        doPriority = false;
+                    }
                 }
-            }
-            else
-            {
-                // first scrape of an version should be priority
-                doPriority = true;
-            }
+                else
+                {
+                    // first scrape of an version should be priority
+                    doPriority = true;
+                }
 
-            if (!triedToGetPackageName)
-            {
-                doPriority = true;
-                Logger.Log("Doing priority to get package name");
-            }
-            if(doPriority) Logger.Log(binary.version + " - " + binary.versionCode + " (" + binary.id + ")");
+                if (!triedToGetPackageName)
+                {
+                    doPriority = true;
+                    Logger.Log("Doing priority to get package name");
+                }
+                if(doPriority) Logger.Log(binary.version + " - " + binary.versionCode + " (" + binary.id + ")");
             
-            DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(doPriority ? GraphQLClient.GetMoreBinaryDetails(binary.id).data.node : null, binary, applicationFromDeveloper, dbApp, existing), scrapingNodeId);
-            if (doPriority && !triedToGetPackageName)
-            {
-                triedToGetPackageName = true;
-                packageName = v.packageName;
-            }
+                DBVersion v = OculusConverter.AddScrapingNodeName(OculusConverter.Version(doPriority ? GraphQLClient.GetMoreBinaryDetails(binary.id).data.node : null, binary, applicationFromDeveloper, dbApp, existing), scrapingNodeId);
+                if (doPriority && !triedToGetPackageName)
+                {
+                    triedToGetPackageName = true;
+                    packageName = v.packageName;
+                }
 
-            v.packageName = packageName;
-            versions.Add(v);
+                v.packageName = packageName;
+                versions.Add(v);
+            }
         }
+        catch (Exception e)
+        {
+            DBError error = new DBError
+            {
+                type = DBErrorType.CouldntScrapeVersions,
+                reason = DBErrorReason.PrimaryBinariesNull,
+                message = "Could not scrape versions for this app"
+            };
+        }
+        
         
         
 
@@ -375,19 +388,19 @@ public class ScrapingNodeScraper
             }
         } catch (Exception e)
         {
-            dbApp.errors.Add(new DBError
+            dbApp.errors.Add(OculusConverter.AddScrapingNodeName(new DBError
             {
                 type = DBErrorType.CouldNotScrapeAchievements,
                 reason = dbApp.grouping == null ? DBErrorReason.GroupingNull : DBErrorReason.Unknown,
-                message =e.ToString()
-            });
+                message = e.ToString()
+            }, scrapingNodeId));
         }
         
         
         DBAppImage? dbi = DownloadImage(dbApp);
         if (dbi != null)
         {
-            taskResult.scraped.imgs.Add(dbi);
+            taskResult.scraped.imgs.Add((DBAppImage)dbi);
         }
         
         taskResult.scraped.offers.AddRange(offers.Where(x => x != null).ToList().ConvertAll(x => (DBOffer)x));

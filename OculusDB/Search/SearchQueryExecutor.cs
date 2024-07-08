@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ComputerUtils.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -11,6 +12,7 @@ public class SearchQueryExecutor
 {
     public static SearchResult ExecuteQuery(SearchQuery query)
     {
+        Logger.Log(JsonSerializer.Serialize(query));
         switch (query.OculusDBType)
         {
             case DBDataTypes.Application:
@@ -90,6 +92,7 @@ public class SearchQueryExecutor
 
     private static SearchResult SearchApplications(SearchQuery query)
     {
+        Logger.Log("Documents in Applications collection: " + OculusDBDatabase.applicationCollection.CountDocuments(x => true));
         var filter = Builders<DBApplication>.Filter.And(
             Builders<DBApplication>.Filter.In(x => x.group, query.headsetGroups),
             Builders<DBApplication>.Filter.Or(
@@ -98,7 +101,8 @@ public class SearchQueryExecutor
                 Builders<DBApplication>.Filter.Regex(x => x.packageName, new BsonRegularExpression(query.searchRegex)),
                 Builders<DBApplication>.Filter.Regex(x => x.publisherName, new BsonRegularExpression(query.searchRegex))
             ),
-            Builders<DBApplication>.Filter.AnyIn(x => x.supportedInAppLanguages, query.supportedInAppLanguages)
+            query.supportedInAppLanguages.Count <= 0 ? Builders<DBApplication>.Filter.Empty : Builders<DBApplication>.Filter.AnyIn(x => x.supportedInAppLanguages, query.supportedInAppLanguages)
+        
         );
         List<DBApplication> apps = OculusDBDatabase.applicationCollection.Find(filter).Skip(query.skip).Limit(query.limit).ToList();
         PopulationContext c = new PopulationContext();
