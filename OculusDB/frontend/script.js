@@ -1431,12 +1431,17 @@ function ObbDownloadPopUp() {
     }))
 }
 
+function ProxyDownload(id) {
+    window.open("https://meta.phazed.xyz/?bin_id=" + id, "_blank")
+}
+
 function GetDownloadButtonVersion(downloadable, id, hmd, binaryType, parentApplication, version, isObb = false, obbIds = "", obbNames = "") {
     if(IsHeadsetAndroid(binaryType)) {
         if(localStorage.isOculusDowngrader) {
             return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')" oncontextmenu="ContextMenuEnabled(event, this)">`
         }
-        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbIds == null ? "null" : `'${obbIds}'`}, ${obbNames == null ? "null" : `'${obbNames}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">`
+        return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) AndroidDownload('${id}', '${parentApplication.id}', '${parentApplication.displayName.replace("'", "\\'")}', '${version}', ${isObb}, ${obbIds == null ? "null" : `'${obbIds}'`}, ${obbNames == null ? "null" : `'${obbNames}'`})" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Copy download url" cmov-0="Copy(GetDownloadLink('${id}'))" cmon-1="Show Oculus Downgrader code" cmov-1="AndroidDownloadPopUp('${parentApplication.id}','${id}', '${hmd}')">
+        <input type="button" value="Download via Proxy (will probably work${downloadable ? ')"' : '; Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) ProxyDownload('${id}')"`
     }
     return `<input type="button" value="Download${downloadable ? '"' : ' (Developer only)" class="red"'} onmousedown="MouseDown(event)" onmouseup="if(MouseUp(event)) RiftDownloadPopUp('${parentApplication.id}','${id}')" oncontextmenu="ContextMenuEnabled(event, this)" cmon-0="Show Oculus Downgrader code" cmov-0="RiftDownloadPopUp('${parentApplication.id}','${id}')">`
 }
