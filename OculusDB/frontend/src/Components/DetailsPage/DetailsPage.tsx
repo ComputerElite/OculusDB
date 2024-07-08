@@ -209,15 +209,21 @@ let DetailsPage = ( props: DetailsPageProps ) => {
                         </label>
 
                         <div class={"dropdown-contents dropdown-contents-version" + index()}>
-                          <Show when={v.downloadable === false}><b>Developer Only Build.</b><br/></Show>
+                          <Show when={v.downloadable === false} fallback={
+                            <><div class="button" onClick={() => window.open('https://meta.phazed.xyz/?bin_id=' + v.id)}>Download</div><br /></>
+                          }>
+                            <div class="button" onClick={() => window.open('https://meta.phazed.xyz/?bin_id=' + v.id)}>Download (Developer Only)</div><br />
+                            <b>Developer Only Build.</b><br/>
+                          </Show>
                           <Show when={v.changelog !== null}><span
                               class="version-key">Changelog:</span> {v.changelog === "" ? "None" : v.changelog}<br/></Show>
 
                           <span class="version-key">Size:</span> {v.sizeFormatted}<br/>
                           <span class="version-key">Required Space:</span> {v.requiredSpaceFormatted}<br/>
                           <span class="version-key">Uploaded:</span> {new Date(v.uploadedDate).toString()}<br/>
-                          <Show when={v.downloadable !== false}><span
-                              class="version-key">Release Channel:</span> {v.releaseChannels.map((x: any) => x.name).join(', ')}<br/></Show>
+                          <Show when={v.downloadable !== false}>
+                            <span class="version-key">Release Channel:</span> {v.releaseChannels.map((x: any) => x.name).join(', ')}<br/>
+                          </Show>
                           <span class="version-key">ID:</span> {v.id}<br/>
                           <span class="version-key">Version Code:</span> {v.versionCode}<br/>
 
