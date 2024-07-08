@@ -289,16 +289,32 @@ public class ScrapingNodeScraper
                 if (b != null && doPriorityForThisVersion)
                 {
                     Logger.Log("Scraping v " + b.version, LoggingType.Important);
+                    
                 }
-
-                OculusBinary bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                OculusBinary bin = b;
                 bool wasNull = false;
-                if (bin == null)
+                try
                 {
-                    if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
-                    wasNull = true;
-                    bin = b;
+                    bin = doPriorityForThisVersion ? GraphQLClient.GetBinaryDetails(b.id).data.node : b;
+                    if (bin == null)
+                    {
+                        if (!doPriorityForThisVersion || b == null) continue; // skip if version was unable to be fetched
+                        wasNull = true;
+                        bin = b;
+                    }
+                    if(bin.obb_binary == null && b.obb_binary != null) bin.obb_binary = b.obb_binary;
                 }
+                catch
+                {
+                    Logger.Log("Doing fallback for obbs");
+                    Data<OculusBinary> info = GraphQLClient.GetMoreBinaryDetails(b.id);
+                    if (info.data != null && info.data.node != null && info.data.node.obb_binary != null)
+                    {
+                        Logger.Log("Got obb binary for " + b.id + " v " + b.version, LoggingType.Debug);
+                        b.obb_binary = info.data.node.obb_binary;
+                    }
+                }
+               
 
                 // Preserve changelogs and obbs across scrapes by:
                 // - Don't delete versions after scrape
