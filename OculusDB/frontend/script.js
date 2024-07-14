@@ -494,7 +494,7 @@ function AddApplicationSpecific(id) {
     })
 }
 
-function GenerateDownloadForVersions(appId){
+function GenerateDownloadForVersions(appid){
     fetch(`/api/v1/versions/${appid}`).then(res => res.json()).then(data => {
         s = ""
         for(const d of data) {
