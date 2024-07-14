@@ -494,6 +494,22 @@ function AddApplicationSpecific(id) {
     })
 }
 
+function GenerateDownloadForVersions(appId){
+    fetch(`/api/v1/versions/${appid}`).then(res => res.json()).then(data => {
+        s = ""
+        for(const d of data) {
+            if(!d.downloadable) continue
+            s += `d --appid ${appid} --versionid ${d.id} --headset HOLLYWOOD --skipprompts|`
+        }
+        s = s.slice(0, s.length - 1)
+        PopUp(`
+            <textarea rows=15 readonly>${s}</textarea>
+            <input type="button" onclick="navigator.clipboard.writeText('${s}')" value="Copy code">
+             <input type="button" onclick="document.getElementById('popup').click()" value="Close">
+            `)
+    })
+}
+
 function DownloadVersionPopUp(version, id) {
     GetVersion(version, id).then(v => {
         if(IsHeadsetAndroid(v.parentApplication.binaryType)) {
