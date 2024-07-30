@@ -242,7 +242,8 @@
                 var showBetas = document.getElementById("showbetascheckbox") ? document.getElementById("showbetascheckbox").checked : false
                 var vers = `
                 <label class="checkmarkContainer"><div>Show all versions</div><input type='checkbox' id="showallcheckbox" onclick='UpdateVersions()' ${showAll ? " checked" : ""}><span class="checkmark"></span></label>
-                <label class="checkmarkContainer"><div>Show Betas</div><input type='checkbox' id="showbetascheckbox" onclick='UpdateVersions()' ${showBetas ? " checked" : ""}><span class="checkmark"></span></label>`
+                <label class="checkmarkContainer"><div>Show Betas</div><input type='checkbox' id="showbetascheckbox" onclick='UpdateVersions()' ${showBetas ? " checked" : ""}><span class="checkmark"></span></label>
+                <input type="button" onclick="GenerateDownloadForVersions('${id}')" value="Get download code for all versions">`
                 var hmd = -1
                 var verCount = 0
                 for(const v of connected.versions) {

@@ -130,7 +130,7 @@
             
 
             SetCheckboxesBasedOnValue(options, params.get("headsets"))
-            SetCheckboxesBasedOnValue(groupOptions, params.get("groups"))
+            SetCheckboxesBasedOnValue(groupOptions, localStorage.isQAVS ? "Quest" : params.get("groups"))
             const SearchResults = document.getElementById("searchResults")
 
             var useGroups = true
