@@ -1,0 +1,9 @@
+on: [push]
+jobs:
+  print-content:
+    runs-on: kaiyak
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: list directory contents
+        run: ls -la
